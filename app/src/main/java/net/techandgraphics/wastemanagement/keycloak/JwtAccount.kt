@@ -11,5 +11,7 @@ data class JwtAccount(
   @SerializedName("preferred_username") val username: String,
   @SerializedName("scope") val scope: String,
   @SerializedName("sub") val uuid: String,
-  @SerializedName("attributes") val attributes: KeycloakAttributes,
+  @SerializedName("company_id") val companyId: Long,
+  @SerializedName("contact_number") val contactNumber: String,
+  @SerializedName("title") val title: String,
 )

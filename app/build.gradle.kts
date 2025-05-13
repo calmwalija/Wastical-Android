@@ -129,7 +129,4 @@ dependencies {
   implementation(libs.ktor.client.websockets)
 
 
-  implementation ("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
-
-  ksp("androidx.hilt:hilt-compiler:1.0.0")
 }

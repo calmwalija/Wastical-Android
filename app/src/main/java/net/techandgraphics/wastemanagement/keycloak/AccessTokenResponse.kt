@@ -11,4 +11,7 @@ data class AccessTokenResponse(
   @SerializedName("scope") val scope: String,
   @SerializedName("session_state") val sessionState: String,
   @SerializedName("token_type") val tokenType: String,
+  @SerializedName("company_id") val companyId: Long,
+  @SerializedName("contact_number") val contactNumber: String,
+  @SerializedName("title") val title: String,
 )

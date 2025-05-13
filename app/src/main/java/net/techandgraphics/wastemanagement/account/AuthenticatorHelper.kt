@@ -12,15 +12,14 @@ import javax.inject.Inject
 class AuthenticatorHelper @Inject constructor(private val accountManager: AccountManager) {
 
   companion object {
-    private const val ACCOUNT_TYPE = "net.calmwalija.calnect"
+    private const val ACCOUNT_TYPE = "net.techandgraphics.wastemanagement"
     private const val JWT_ACCOUNT = "jwtAccount"
     const val ACCESS_TOKEN: String = "access_token"
   }
 
   fun addAccount(accessToken: AccessTokenResponse, jwtManager: JwtManager): Account? {
     val jwtAccount = jwtManager.toJwtAccount(accessToken.accessToken) ?: return null
-    val account = Account(jwtAccount.username, ACCOUNT_TYPE)
-
+    val account = Account(jwtAccount.name, ACCOUNT_TYPE)
     get()?.let {
       accountManager.setUserData(it, ACCESS_TOKEN, Gson().toJson(accessToken))
       return it
@@ -54,4 +53,7 @@ class AuthenticatorHelper @Inject constructor(private val accountManager: Accoun
       ?.let { account -> accountManager.getUserData(account, ACCESS_TOKEN) }
       ?.run { Gson().fromJson(this, AccessTokenResponse::class.java) }
   }
+
+  fun deleteAccounts() =
+    accountManager.accounts.forEach { accountManager.removeAccountExplicitly(it) }
 }

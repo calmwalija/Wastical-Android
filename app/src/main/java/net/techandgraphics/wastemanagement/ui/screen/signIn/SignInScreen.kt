@@ -1,17 +1,14 @@
 package net.techandgraphics.wastemanagement.ui.screen.signIn
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,10 +42,11 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.InputField
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent.Input.Credentials
+import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent.Input.Type
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable
-fun LoginScreen(
+fun SignInScreen(
   state: SignInState,
   channel: Flow<SignInChannel>,
   onEvent: (SignInEvent) -> Unit
@@ -116,10 +114,12 @@ fun LoginScreen(
 
 
       InputField(
-        painterResource = R.drawable.ic_alternate,
-        value = state.username,
-        prompt = "type username",
-        onValueChange = { onEvent(Credentials(it, state.password)) }
+        painterResource = R.drawable.ic_tag,
+        value = state.contactNumber,
+        prompt = "type phone number",
+        onValueChange = { if (it.length < 10) onEvent(Credentials(it, Type.ContactNumber)) },
+        maskTransformation = "XXX-XXX-XXX",
+        keyboardType = KeyboardType.Phone
       )
 
 
@@ -130,7 +130,7 @@ fun LoginScreen(
         painterResource = R.drawable.ic_password,
         value = state.password,
         prompt = "type password",
-        onValueChange = { onEvent(Credentials(state.username, it)) },
+        onValueChange = { onEvent(Credentials(it, Type.Password)) },
         keyboardType = KeyboardType.Password,
         hidePassword = hidePassword,
         togglePasswordVisual = { hidePassword = !hidePassword }
@@ -151,7 +151,7 @@ fun LoginScreen(
       Spacer(modifier = Modifier.height(16.dp))
 
       ElevatedButton(
-        enabled = state.username.isNotEmpty() && state.password.isNotEmpty(),
+        enabled = state.contactNumber.isNotEmpty() && state.password.isNotEmpty(),
         shape = RoundedCornerShape(8),
         modifier = Modifier.fillMaxWidth(),
         onClick = { onEvent(SignInEvent.Button.AccessToken); isProcessing = true }
@@ -162,36 +162,15 @@ fun LoginScreen(
           }
         }
       }
-
-      Spacer(modifier = Modifier.height(24.dp))
-
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-      ) {
-        Text(text = "New to Calnect ?")
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-          text = "Sign Up",
-          fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier
-            .padding(vertical = 8.dp)
-            .clip(CircleShape)
-            .clickable { onEvent(SignInEvent.GoTo.SignUp) }
-            .padding(8.dp),
-        )
-      }
     }
   }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginScreenPreview() {
+private fun SignInScreenPreview() {
   WasteManagementTheme {
-    LoginScreen(
+    SignInScreen(
       state = SignInState(),
       channel = flow { },
       onEvent = {}
