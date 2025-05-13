@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTransformation
 
 
 @Composable fun InputField(
@@ -42,8 +43,9 @@ import net.techandgraphics.wastemanagement.R
   imageVector: ImageVector? = null,
   @DrawableRes painterResource: Int = -1,
   hidePassword: Boolean = true,
-  trailingView: @Composable () -> Unit ={},
-  togglePasswordVisual: () -> Unit = {}
+  trailingView: @Composable () -> Unit = {},
+  togglePasswordVisual: () -> Unit = {},
+  maskTransformation: String? = null
 ) {
 
   Row(verticalAlignment = Alignment.CenterVertically) {
@@ -99,7 +101,8 @@ import net.techandgraphics.wastemanagement.R
 
         },
         visualTransformation =
-          if (keyboardType != KeyboardType.Password)
+          if (maskTransformation != null) CountryCodeMaskTransformation(maskTransformation)
+          else if (keyboardType != KeyboardType.Password)
             VisualTransformation.None else {
             if (!hidePassword) VisualTransformation.None else {
               PasswordVisualTransformation('*')
@@ -112,7 +115,8 @@ import net.techandgraphics.wastemanagement.R
         singleLine = true,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
-      )
+
+        )
       Spacer(
         modifier = Modifier
           .fillMaxWidth()

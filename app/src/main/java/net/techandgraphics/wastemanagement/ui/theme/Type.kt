@@ -1,34 +1,50 @@
 package net.techandgraphics.wastemanagement.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import net.techandgraphics.wastemanagement.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-  bodyLarge = TextStyle(
-    fontFamily = FontFamily.Default,
-    fontWeight = FontWeight.Normal,
-    fontSize = 16.sp,
-    lineHeight = 24.sp,
-    letterSpacing = 0.5.sp,
-  ),
-	/* Other default text styles to override
-		titleLarge = TextStyle(
-				fontFamily = FontFamily.Default,
-				fontWeight = FontWeight.Normal,
-				fontSize = 22.sp,
-				lineHeight = 28.sp,
-				letterSpacing = 0.sp
-		),
-		labelSmall = TextStyle(
-				fontFamily = FontFamily.Default,
-				fontWeight = FontWeight.Medium,
-				fontSize = 11.sp,
-				lineHeight = 16.sp,
-				letterSpacing = 0.5.sp
-		)
-	 */
+val MerriWeatherSans = FontFamily(
+  Font(R.font.merri_weather_sans_light, FontWeight.Light),
+  Font(R.font.merri_weather_sans_bold, FontWeight.Bold),
+  Font(R.font.merri_weather_sans_regular, FontWeight.Normal),
+  Font(R.font.merri_weather_sans_medium, FontWeight.Medium),
+  Font(R.font.merri_weather_sans_semi_bold, FontWeight.SemiBold),
+  Font(R.font.merri_weather_sans_extra_bold, FontWeight.ExtraBold),
+)
+
+private val dl = Typography().displayLarge
+private val dm = Typography().displayMedium
+private val ds = Typography().displaySmall
+private val hl = Typography().headlineLarge
+private val hm = Typography().headlineMedium
+private val hs = Typography().headlineSmall
+private val tl = Typography().titleLarge
+private val tm = Typography().titleMedium
+private val ts = Typography().titleSmall
+private val bl = Typography().bodyLarge
+private val bm = Typography().bodyMedium
+private val bs = Typography().bodySmall
+private val ll = Typography().labelLarge
+private val lm = Typography().labelMedium
+private val ls = Typography().labelSmall
+
+fun setTypography(fontFamily: FontFamily = MerriWeatherSans) = Typography(
+  displayLarge = dl.copy(fontFamily = fontFamily),
+  displayMedium = dm.copy(fontFamily = fontFamily),
+  displaySmall = ds.copy(fontFamily = fontFamily),
+  headlineLarge = hl.copy(fontFamily = fontFamily),
+  headlineMedium = hm.copy(fontFamily = fontFamily),
+  headlineSmall = hs.copy(fontFamily = fontFamily),
+  titleLarge = tl.copy(fontFamily = fontFamily),
+  titleMedium = tm.copy(fontFamily = fontFamily),
+  titleSmall = ts.copy(fontFamily = fontFamily),
+  bodyLarge = bl.copy(fontFamily = fontFamily),
+  bodyMedium = bm.copy(fontFamily = fontFamily),
+  bodySmall = bs.copy(fontFamily = fontFamily),
+  labelLarge = ll.copy(fontFamily = fontFamily),
+  labelMedium = lm.copy(fontFamily = fontFamily),
+  labelSmall = ls.copy(fontFamily = fontFamily),
 )
