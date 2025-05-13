@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement
+package net.techandgraphics.wastemanagement.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
