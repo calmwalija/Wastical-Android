@@ -7,7 +7,7 @@ sealed interface Route {
 
   @Serializable data object SignUp : Route
 
-  @Serializable data object Main : Route
+  @Serializable data object Home : Route
 
   @Serializable data class Inbox(val toId: Long) : Route
 
