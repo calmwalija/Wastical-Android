@@ -9,7 +9,7 @@ sealed interface Route {
 
   @Serializable data object Home : Route
 
-  @Serializable data class Inbox(val toId: Long) : Route
+  @Serializable data object Transaction : Route
 
   @Serializable data object Payment : Route
 }

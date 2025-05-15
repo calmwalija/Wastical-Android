@@ -1,0 +1,35 @@
+package net.techandgraphics.wastemanagement.ui.screen.transaction
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+
+@HiltViewModel
+class TransactionViewModel @Inject constructor() : ViewModel() {
+
+  private val _state = MutableStateFlow(TransactionState())
+  private val _channel = Channel<TransactionChannel>()
+  val channel = _channel.receiveAsFlow()
+
+  val state = _state
+    .onStart {
+    }
+    .stateIn(
+      scope = viewModelScope,
+      started = SharingStarted.WhileSubscribed(5_000L),
+      initialValue = TransactionState(),
+    )
+
+  fun onEvent(event: TransactionEvent) {
+    when (event) {
+      else -> TODO("Handle actions")
+    }
+  }
+}
