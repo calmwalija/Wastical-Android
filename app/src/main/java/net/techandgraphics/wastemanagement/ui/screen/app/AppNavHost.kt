@@ -15,6 +15,8 @@ import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInScreen
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInViewModel
+import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionScreen
+import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionViewModel
 
 @Composable
 fun AppNavHost(
@@ -23,7 +25,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Home,
+    startDestination = Route.Transaction,
   ) {
 
     composable<Route.SignIn> {
@@ -52,6 +54,13 @@ fun AppNavHost(
       with(hiltViewModel<HomeViewModel>()) {
         val state = state.collectAsState().value
         HomeScreen(state, channel) {}
+      }
+    }
+
+    composable<Route.Transaction> {
+      with(hiltViewModel<TransactionViewModel>()) {
+        val state = state.collectAsState().value
+        TransactionScreen(state, channel) {}
       }
     }
 
