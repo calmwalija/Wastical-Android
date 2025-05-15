@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import net.techandgraphics.wastemanagement.ui.MainViewModel
 import net.techandgraphics.wastemanagement.ui.Route
+import net.techandgraphics.wastemanagement.ui.screen.home.HomeScreen
+import net.techandgraphics.wastemanagement.ui.screen.home.HomeViewModel
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
@@ -21,7 +23,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Payment,
+    startDestination = Route.Home,
   ) {
 
     composable<Route.SignIn> {
@@ -43,6 +45,13 @@ fun AppNavHost(
       with(hiltViewModel<PaymentViewModel>()) {
         val state = state.collectAsState().value
         PaymentScreen(state, channel) {}
+      }
+    }
+
+    composable<Route.Home> {
+      with(hiltViewModel<HomeViewModel>()) {
+        val state = state.collectAsState().value
+        HomeScreen(state, channel) {}
       }
     }
 

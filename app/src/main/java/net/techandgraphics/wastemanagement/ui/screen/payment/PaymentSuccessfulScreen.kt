@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.payment
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,8 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,11 +20,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.ui.theme.Green50
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,15 +43,45 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
     Spacer(modifier = Modifier.height(44.dp))
 
-    Icon(
-      Icons.Outlined.CheckCircle, null,
-      modifier = Modifier.size(72.dp)
-    )
+    Box(contentAlignment = Alignment.Center) {
+
+      Box(
+        modifier = Modifier
+          .clip(CircleShape)
+          .size(120.dp)
+          .background(Green50.copy(.2f))
+      )
+      Box(
+        modifier = Modifier
+          .clip(CircleShape)
+          .size(200.dp)
+          .background(Green50.copy(.1f))
+      )
+      Box(
+        modifier = Modifier
+          .clip(CircleShape)
+          .size(72.dp)
+          .background(
+            brush = Brush.horizontalGradient(
+              listOf(
+                Green50.copy(.7f),
+                Green50.copy(.8f),
+                Green50
+              )
+            )
+          )
+      )
+      Icon(
+        Icons.Default.Check, null,
+        modifier = Modifier.size(44.dp),
+        tint = Color.White
+      )
+    }
+
 
     Text(
       text = "Thank you for you payment",
       modifier = Modifier.padding(16.dp),
-      overflow = TextOverflow.Ellipsis,
       fontWeight = FontWeight.Bold,
       style = MaterialTheme.typography.headlineSmall,
       textAlign = TextAlign.Center,
