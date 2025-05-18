@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.ui.theme.Green50
+import net.techandgraphics.wastemanagement.ui.theme.WhiteFE
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,13 +49,13 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         modifier = Modifier
           .clip(CircleShape)
           .size(120.dp)
-          .background(Green50.copy(.2f))
+          .background(WhiteFE.copy(.2f))
       )
       Box(
         modifier = Modifier
           .clip(CircleShape)
           .size(200.dp)
-          .background(Green50.copy(.1f))
+          .background(WhiteFE.copy(.1f))
       )
       Box(
         modifier = Modifier
@@ -64,9 +64,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           .background(
             brush = Brush.horizontalGradient(
               listOf(
-                Green50.copy(.7f),
-                Green50.copy(.8f),
-                Green50
+                WhiteFE.copy(.7f),
+                WhiteFE.copy(.8f),
+                WhiteFE
               )
             )
           )
