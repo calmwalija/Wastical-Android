@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 
 @Dao
-interface AccountContactDao : BaseDao<AccountContactDao> {
+interface AccountContactDao : BaseDao<AccountContactEntity> {
   @Query("SELECT * FROM account_contact")
-  fun query(): Flow<List<AccountContactDao>>
+  fun query(): Flow<List<AccountContactEntity>>
 }

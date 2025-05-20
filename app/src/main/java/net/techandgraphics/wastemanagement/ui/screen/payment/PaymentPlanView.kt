@@ -19,13 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun PaymentPlanView(
   state: PaymentState,
   onEvent: (PaymentEvent) -> Unit
-) {
+) = state.paymentPlans.forEach { paymentPlan ->
 
   Column {
     Text(
@@ -41,27 +42,24 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       ) {
 
         Column(modifier = Modifier.weight(1f)) {
-
+          Text(text = paymentPlan.name)
           Text(
-            text = "Standard",
-          )
-
-          Text(
-            text = "K10,000",
+            text = paymentPlan.fee.toAmount(),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
           )
-
           Text(
-            text = "Monthly",
+            text = paymentPlan.period.name,
             style = MaterialTheme.typography.bodySmall
           )
-
         }
 
         Card {
           Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(false)) }) {
+            IconButton(
+              onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(false)) },
+              enabled = state.numberOfMonths > 1
+            ) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
             }
 
@@ -70,7 +68,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               modifier = Modifier.padding(horizontal = 4.dp)
             )
 
-            IconButton(onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(true)) }) {
+            IconButton(
+              onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(true)) },
+              enabled = state.numberOfMonths < 12
+            ) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
             }
           }
@@ -88,7 +89,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 private fun PaymentPlanViewPreview() {
   WasteManagementTheme {
     PaymentPlanView(
-      state = PaymentState(),
+      state = PaymentState(
+        paymentPlans = listOf(paymentPlan)
+      ),
       onEvent = {}
     )
   }

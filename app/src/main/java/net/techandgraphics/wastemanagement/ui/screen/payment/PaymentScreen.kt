@@ -8,6 +8,8 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,6 +65,7 @@ import com.mr0xf00.easycrop.rememberImageCropper
 import com.mr0xf00.easycrop.ui.ImageCropperDialog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +82,7 @@ fun PaymentScreen(
 
   val imageCropper = rememberImageCropper()
   val cropState = imageCropper.cropState
+
 
   var showCropDialog by remember { mutableStateOf(false) }
 
@@ -186,12 +190,24 @@ fun PaymentScreen(
               text = "Total",
               style = MaterialTheme.typography.titleSmall
             )
-            Text(
-              text = "K10,000",
-              style = MaterialTheme.typography.headlineSmall,
-              fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.primary
-            )
+            state.paymentPlans.firstOrNull()?.let { paymentPlan ->
+
+              val animatedSum by animateIntAsState(
+                targetValue = state.numberOfMonths.times(paymentPlan.fee),
+                animationSpec = tween(
+                  delayMillis = 1_000,
+                  durationMillis = 1_000,
+                )
+              )
+
+              Text(
+                text = animatedSum.toAmount(),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth(.4f)
+              )
+            }
           }
           Spacer(modifier = Modifier.weight(1f))
           Button(
@@ -241,8 +257,6 @@ fun PaymentScreen(
           }
         }
         item { Spacer(modifier = Modifier.height(24.dp)) }
-
-
       }
     }
   }
@@ -256,7 +270,11 @@ fun PaymentScreen(
 private fun PaymentScreenPreview() {
   WasteManagementTheme {
     PaymentScreen(
-      state = PaymentState(),
+      state = PaymentState(
+        paymentPlans = listOf(paymentPlan),
+        paymentMethods = listOf(paymentMethod, paymentMethod),
+        imageLoader = imageLoader(LocalContext.current)
+      ),
       channel = flow { },
       onEvent = {}
     )

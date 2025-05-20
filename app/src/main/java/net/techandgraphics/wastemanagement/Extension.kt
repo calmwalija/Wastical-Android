@@ -1,8 +1,11 @@
 package net.techandgraphics.wastemanagement
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.DecimalFormat
@@ -23,4 +26,10 @@ fun Bitmap.toFile(context: Context): File {
     it.flush()
   }
   return file
+}
+
+fun Context.copyTextToClipboard(text: String) {
+  val clipboard = getSystemService(this, ClipboardManager::class.java)
+  val clip = ClipData.newPlainText(this.javaClass.simpleName, text)
+  clipboard?.setPrimaryClip(clip)
 }

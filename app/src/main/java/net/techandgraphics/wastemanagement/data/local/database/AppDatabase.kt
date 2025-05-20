@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountDao
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactDao
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyDao
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
@@ -34,6 +35,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 abstract class AppDatabase : RoomDatabase() {
 
   abstract val accountDao: AccountDao
+  abstract val accountContactDao: AccountContactDao
   abstract val companyDao: CompanyDao
   abstract val paymentDao: PaymentDao
   abstract val paymentPlanDao: PaymentPlanDao
