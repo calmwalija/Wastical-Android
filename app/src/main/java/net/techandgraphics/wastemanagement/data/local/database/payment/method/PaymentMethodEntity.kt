@@ -1,0 +1,30 @@
+package net.techandgraphics.wastemanagement.data.local.database.payment.method
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+
+@Entity(
+  tableName = "payment_method",
+  foreignKeys = [
+    ForeignKey(
+      entity = PaymentPlanEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["payment_plan_id"],
+    ),
+  ],
+  indices = [Index("payment_plan_id")],
+)
+data class PaymentMethodEntity(
+  @PrimaryKey val id: Long,
+  val name: String,
+  val type: String,
+  val number: String,
+  @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
+  @ColumnInfo("payment_gateway_id") val paymentGatewayId: Long,
+  @ColumnInfo("created_at") val createdAt: Long,
+  @ColumnInfo("updated_at") val updatedAt: Long?,
+)
