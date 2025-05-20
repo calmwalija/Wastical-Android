@@ -9,7 +9,7 @@ data class PaymentResponse(
   @SerializedName("transaction_id") val transactionId: String,
   @SerializedName("payment_method_id") val paymentMethodId: Long,
   @SerializedName("account_id") val accountId: Long,
-  @SerializedName("payment_status") val paymentStatus: String,
+  @SerializedName("payment_status") val status: String,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long?,
 )

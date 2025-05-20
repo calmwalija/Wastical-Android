@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 
 @Entity(
@@ -26,13 +25,13 @@ data class AccountEntity(
   val firstname: String,
   val lastname: String,
   val username: String,
-  val email: String,
+  val email: String?,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
-  val status: Status = Status.Active,
+  val status: String,
   @ColumnInfo(name = "company_id") val companyId: Long,
   @ColumnInfo(name = "leaving_reason") val leavingReason: String? = null,
-  @ColumnInfo(name = "leaving_timestamp") val leavingTimestamp: Long,
+  @ColumnInfo(name = "leaving_timestamp") val leavingTimestamp: Long?,
   @ColumnInfo(name = "updated_at") val updatedAt: Long? = null,
   @ColumnInfo(name = "created_at") val createdAt: Long,
 )

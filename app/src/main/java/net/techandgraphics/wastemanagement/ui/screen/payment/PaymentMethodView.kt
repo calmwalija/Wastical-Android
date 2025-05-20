@@ -19,18 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import net.techandgraphics.wastemanagement.AppUrl
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-
-
-data class PaymentMethod(
-  val logo: Int,
-  val name: String,
-  val account: String
-)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,18 +36,6 @@ data class PaymentMethod(
   onEvent: (PaymentEvent) -> Unit
 ) {
 
-  val paymentMethods = listOf(
-    PaymentMethod(
-      logo = R.drawable.im_airtel_money_logo,
-      name = "Airtel Money",
-      account = "+265-999-00-11-22"
-    ),
-    PaymentMethod(
-      logo = R.drawable.im_national_bank_logo,
-      name = "National Bank",
-      account = "10011223344"
-    )
-  )
 
   Column {
 
@@ -59,14 +44,12 @@ data class PaymentMethod(
       modifier = Modifier.padding(8.dp)
     )
 
-    paymentMethods.forEachIndexed { index, payment ->
-
+    state.paymentMethods.forEachIndexed { index, paymentMethod ->
       Card(
         colors = CardDefaults.elevatedCardColors(
-          containerColor = if (index == 0) MaterialTheme.colorScheme.primary.copy(alpha = .15f) else {
+          containerColor = if (index.mod(2) == 1) MaterialTheme.colorScheme.primary.copy(alpha = .15f) else {
             CardDefaults.elevatedCardColors().containerColor
           }
-
         ),
         modifier = Modifier.padding(vertical = 8.dp),
       ) {
@@ -76,11 +59,19 @@ data class PaymentMethod(
             .padding(16.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
+
+          val asyncImagePainter = rememberAsyncImagePainter(
+            model = AppUrl.FILE_URL.plus("gateway/").plus(paymentMethod.paymentGatewayId),
+            imageLoader = state.imageLoader!!,
+            placeholder = painterResource(R.drawable.ic_launcher_background)
+          )
+
           Image(
-            painterResource(payment.logo), null,
+            painter = asyncImagePainter,
+            contentDescription = paymentMethod.name,
             modifier = Modifier
               .clip(CircleShape)
-              .size(44.dp),
+              .size(48.dp),
             contentScale = ContentScale.Crop
           )
           Column(
@@ -88,15 +79,17 @@ data class PaymentMethod(
               .padding(horizontal = 16.dp)
               .weight(1f)
           ) {
-            Text(text = payment.name)
             Text(
-              text = payment.account,
+              text = paymentMethod.name,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+              text = paymentMethod.account,
               color = MaterialTheme.colorScheme.primary
             )
           }
-
-
-          IconButton(onClick = {}) {
+          IconButton(onClick = { onEvent(PaymentEvent.Button.TextToClipboard(paymentMethod.account)) }) {
             Icon(painterResource(R.drawable.ic_content_copy), null)
           }
         }
@@ -113,7 +106,10 @@ data class PaymentMethod(
 private fun PaymentMethodViewPreview() {
   WasteManagementTheme {
     PaymentMethodView(
-      state = PaymentState(),
+      state = PaymentState(
+        paymentMethods = listOf(paymentMethod, paymentMethod, paymentMethod),
+        imageLoader = imageLoader(LocalContext.current)
+      ),
       onEvent = {}
     )
   }

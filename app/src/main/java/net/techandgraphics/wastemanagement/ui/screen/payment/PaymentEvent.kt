@@ -9,5 +9,6 @@ sealed interface PaymentEvent {
     data class Pay(val message: String) : PaymentEvent
     data class ImageBitmap(val bitmap: Bitmap) : PaymentEvent
     data class NumberOfMonths(val isAdd: Boolean) : PaymentEvent
+    data class TextToClipboard(val text: String) : PaymentEvent
   }
 }

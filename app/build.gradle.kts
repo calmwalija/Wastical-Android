@@ -130,6 +130,7 @@ dependencies {
 
   implementation("com.google.mlkit:text-recognition:16.0.1")
   implementation("io.github.mr0xf00:easycrop:0.1.1")
+  implementation ("com.google.accompanist:accompanist-drawablepainter:0.37.2")
 
 
 }

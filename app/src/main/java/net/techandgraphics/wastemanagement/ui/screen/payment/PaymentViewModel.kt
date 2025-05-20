@@ -3,10 +3,9 @@ package net.techandgraphics.wastemanagement.ui.screen.payment
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
 import com.google.gson.Gson
-import com.google.gson.JsonParseException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,25 +14,27 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.copyTextToClipboard
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.remote.AppApi
-import net.techandgraphics.wastemanagement.data.remote.LoadingEvent
+import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
+import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.toFile
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
   private val appApi: AppApi,
   private val application: Application,
-  private val appDatabase: AppDatabase,
+  private val database: AppDatabase,
+  private val imageLoader: ImageLoader,
 ) : ViewModel() {
 
   private val paymentApi = appApi.paymentApi
@@ -41,6 +42,28 @@ class PaymentViewModel @Inject constructor(
   private val _state = MutableStateFlow(PaymentState())
   private val _channel = Channel<PaymentChannel>()
   val channel = _channel.receiveAsFlow()
+
+  private suspend fun getPaymentPlans() {
+    database.paymentPlanDao.query().map { it.toPaymentPlanUiModel() }
+      .also { paymentPlans ->
+        _state.update { it.copy(paymentPlans = paymentPlans) }
+      }
+  }
+
+  private suspend fun getPaymentMethods() {
+    database.paymentMethodDao.query().map { it.toPaymentMethodUiModel() }
+      .also { paymentMethods ->
+        _state.update { it.copy(paymentMethods = paymentMethods) }
+      }
+  }
+
+  init {
+    viewModelScope.launch {
+      getPaymentPlans()
+      getPaymentMethods()
+    }
+    _state.update { it.copy(imageLoader = imageLoader) }
+  }
 
   val state = _state
     .onStart {
@@ -67,38 +90,16 @@ class PaymentViewModel @Inject constructor(
     val filePart = MultipartBody.Part.createFormData("file", file.name, fileRequestBody)
 
     runCatching { paymentApi.pay(filePart, requestPart) }
-      .onFailure { throwable ->
-        val onError: LoadingEvent.Error = when (throwable) {
-          is IOException -> LoadingEvent.Error(
-            "Network error. Please check your connection.",
-            throwable,
-          )
-
-          is HttpException -> {
-            val code = throwable.code()
-            val message = when (code) {
-              HttpStatusCode.Unauthorized.value -> HttpStatusCode.Unauthorized.description
-              HttpStatusCode.Forbidden.value -> HttpStatusCode.Forbidden.description
-              HttpStatusCode.NotFound.value -> HttpStatusCode.NotFound.description
-              HttpStatusCode.InternalServerError.value -> HttpStatusCode.InternalServerError.description
-              else -> code.toString()
-            }
-            LoadingEvent.Error(message, throwable, code)
-          }
-
-          is JsonParseException -> LoadingEvent.Error("Data parsing error.", throwable)
-          else -> LoadingEvent.Error("Unexpected error occurred.", throwable)
-        }
-
-        /*************************************/
-        println(onError)
-        /*************************************/
-      }
+      .onFailure { onApiErrorHandler(it) }
       .onSuccess {
 //        appDatabase.paymentDao.insert(it.toPaymentEntity())
       }
 
     _state.update { it.copy(bitmapImage = null) }
+  }
+
+  private fun onTextToClipboard(event: PaymentEvent.Button.TextToClipboard) {
+    application.copyTextToClipboard(event.text)
   }
 
   fun onEvent(event: PaymentEvent) {
@@ -107,20 +108,16 @@ class PaymentViewModel @Inject constructor(
       is PaymentEvent.Button.ImageBitmap -> _state.update { it.copy(bitmapImage = event.bitmap) }
 
       is PaymentEvent.Button.NumberOfMonths -> onNumberOfMonths(event)
+      is PaymentEvent.Button.TextToClipboard -> onTextToClipboard(event)
       else -> TODO("Handle actions")
     }
   }
 
   private fun onNumberOfMonths(event: PaymentEvent.Button.NumberOfMonths) {
-    val minValue = 1
-    val maxValue = 9
-    val numberOfMonths = (
-      if (event.isAdd) {
-        state.value.numberOfMonths.plus(1)
-      } else {
-        state.value.numberOfMonths.minus(1)
-      }
-      ).coerceIn(minValue, maxValue)
-    _state.update { it.copy(numberOfMonths = numberOfMonths) }
+    if (event.isAdd) {
+      state.value.numberOfMonths.plus(1)
+    } else {
+      state.value.numberOfMonths.minus(1)
+    }.also { numberOfMonths -> _state.update { it.copy(numberOfMonths = numberOfMonths) } }
   }
 }

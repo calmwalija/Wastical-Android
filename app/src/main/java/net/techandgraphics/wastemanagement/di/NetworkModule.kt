@@ -58,6 +58,7 @@ object NetworkModule {
       companyApi = api<CompanyApi>(),
       keycloakApi = api<KeycloakApi>(),
       paymentApi = api(),
+      sessionApi = api(),
     )
   }
 }

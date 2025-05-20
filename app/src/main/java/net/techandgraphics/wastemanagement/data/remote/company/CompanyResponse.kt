@@ -10,7 +10,8 @@ data class CompanyResponse(
   val email: String,
   val longitude: Float,
   val status: Status,
-  @SerializedName("contact_number") val contactNumber: String,
+  val address: String,
+  val slogan: String,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long?,
 )
