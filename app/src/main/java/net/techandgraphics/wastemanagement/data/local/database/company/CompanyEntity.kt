@@ -3,17 +3,19 @@ package net.techandgraphics.wastemanagement.data.local.database.company
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import net.techandgraphics.wastemanagement.data.local.database.enums.Status
+import net.techandgraphics.wastemanagement.data.Status
 
 @Entity(tableName = "company")
 data class CompanyEntity(
   @PrimaryKey val id: Long,
   val name: String,
   val email: String,
-  @ColumnInfo(name = "contact_number") val contactNumber: String,
+  val address: String,
+  val slogan: String,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: Status = Status.Active,
+  @ColumnInfo(name = "contact_number") val contactNumber: String,
   @ColumnInfo(name = "updated_at") val updatedAt: Long? = null,
   @ColumnInfo(name = "created_at") val createdAt: Long,
 )

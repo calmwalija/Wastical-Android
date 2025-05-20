@@ -1,3 +1,13 @@
 package net.techandgraphics.wastemanagement.ui.screen.payment
 
-sealed interface PaymentEvent
+import android.graphics.Bitmap
+
+sealed interface PaymentEvent {
+
+  sealed interface Button : PaymentEvent {
+    data object Screenshot : PaymentEvent
+    data class Pay(val message: String) : PaymentEvent
+    data class ImageBitmap(val bitmap: Bitmap) : PaymentEvent
+    data class NumberOfMonths(val isAdd: Boolean) : PaymentEvent
+  }
+}

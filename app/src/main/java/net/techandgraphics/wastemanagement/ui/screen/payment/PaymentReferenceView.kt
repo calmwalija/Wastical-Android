@@ -16,8 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.ui.HorizontalRuleView
-import net.techandgraphics.wastemanagement.ui.InputField
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,49 +31,19 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
     )
     Card(
       colors = CardDefaults.elevatedCardColors(),
-      onClick = {}
+      onClick = { onEvent(PaymentEvent.Button.Screenshot) }
     ) {
       Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+          .padding(16.dp)
           .fillMaxWidth()
-          .padding(16.dp),
       ) {
-        Column(
-          horizontalAlignment = Alignment.CenterHorizontally,
-          modifier = Modifier.fillMaxWidth()
-        ) {
-          Icon(painterResource(R.drawable.ic_add_photo), null)
-          Text(text = "Attach a screenshot")
-        }
-
+        Icon(painterResource(R.drawable.ic_add_photo), null)
+        Text(text = "Attach a screenshot")
       }
     }
-
-
-    HorizontalRuleView(content = {
-      Text(
-        text = "Or",
-        modifier = Modifier.padding(16.dp)
-      )
-    })
-
-    Card(colors = CardDefaults.elevatedCardColors()) {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
-      ) {
-        InputField(
-          painterResource = R.drawable.ic_password,
-          value = "",
-          prompt = "type transaction id",
-          onValueChange = { },
-        )
-      }
-    }
-
   }
-
 }
 
 

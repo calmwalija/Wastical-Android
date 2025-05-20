@@ -1,7 +1,7 @@
 package net.techandgraphics.wastemanagement.data.remote.company
 
 import com.google.gson.annotations.SerializedName
-import net.techandgraphics.wastemanagement.data.local.database.enums.Status
+import net.techandgraphics.wastemanagement.data.Status
 
 data class CompanyResponse(
   val id: Long,
