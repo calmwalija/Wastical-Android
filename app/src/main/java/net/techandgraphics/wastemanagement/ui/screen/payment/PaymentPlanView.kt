@@ -15,11 +15,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,15 +26,6 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   state: PaymentState,
   onEvent: (PaymentEvent) -> Unit
 ) {
-
-  var numberOfMonths by remember { mutableIntStateOf(1) }
-
-  val minValue = 1
-  val maxValue = 9
-
-  LaunchedEffect(numberOfMonths) {
-    numberOfMonths = numberOfMonths.coerceIn(minValue, maxValue)
-  }
 
   Column {
     Text(
@@ -75,16 +61,16 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
         Card {
           Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { numberOfMonths-- }) {
+            IconButton(onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(false)) }) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
             }
 
             Text(
-              text = "$numberOfMonths",
+              text = "${state.numberOfMonths}",
               modifier = Modifier.padding(horizontal = 4.dp)
             )
 
-            IconButton(onClick = { numberOfMonths++ }) {
+            IconButton(onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(true)) }) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
             }
           }

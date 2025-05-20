@@ -1,6 +1,6 @@
-package net.techandgraphics.wastemanagement.data.local.database.enums
+package net.techandgraphics.wastemanagement.data.local.database.account
 
-enum class Title(val title: String) {
+enum class AccountTitle(val title: String) {
   MR("Mr."),
   MRS("Mrs."),
   MISS("Miss"),

@@ -25,7 +25,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Transaction,
+    startDestination = Route.Payment,
   ) {
 
     composable<Route.SignIn> {
@@ -46,7 +46,7 @@ fun AppNavHost(
     composable<Route.Payment> {
       with(hiltViewModel<PaymentViewModel>()) {
         val state = state.collectAsState().value
-        PaymentScreen(state, channel) {}
+        PaymentScreen(state, channel, ::onEvent)
       }
     }
 
