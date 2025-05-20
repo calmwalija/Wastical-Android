@@ -42,23 +42,31 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Image(
-          painterResource(it.drawableRes), null,
+        Icon(
+          painterResource(R.drawable.ic_invoice), null,
           modifier = Modifier
-            .clip(CircleShape)
             .size(32.dp)
-            .alpha(.9f)
         )
         Column(
           modifier = Modifier
             .weight(1f)
             .padding(horizontal = 8.dp)
         ) {
-          Text(text = 10_000.times(it.numberOfMonths).toAmount())
           Text(
             text = it.date.defaultDate(),
             style = MaterialTheme.typography.bodySmall
           )
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+              painterResource(it.drawableRes), null,
+              modifier = Modifier
+                .padding(end = 4.dp)
+                .clip(CircleShape)
+                .size(16.dp)
+                .alpha(.9f)
+            )
+            Text(text = 10_000.times(it.numberOfMonths).toAmount())
+          }
         }
 
         IconButton(onClick = {}) {
