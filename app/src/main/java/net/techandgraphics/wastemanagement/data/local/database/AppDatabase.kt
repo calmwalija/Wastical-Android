@@ -9,6 +9,7 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyDao
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactDao
+import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentDao
@@ -21,6 +22,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     AccountEntity::class,
     AccountContactEntity::class,
     CompanyEntity::class,
+    CompanyContactEntity::class,
     PaymentEntity::class,
     PaymentPlanEntity::class,
     PaymentMethodEntity::class,

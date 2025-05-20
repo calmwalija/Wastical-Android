@@ -1,9 +1,10 @@
 package net.techandgraphics.wastemanagement.data.local.database.company.contact
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import com.google.gson.annotations.SerializedName
+import androidx.room.PrimaryKey
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 
 @Entity(
@@ -18,11 +19,11 @@ import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEn
   indices = [Index("company_id")],
 )
 data class CompanyContactEntity(
-  val id: Long,
+  @PrimaryKey val id: Long,
   val email: String?,
   val contact: String,
   val primary: Boolean,
-  @SerializedName("company_id") val companyId: Long,
-  @SerializedName("created_at") val createdAt: Long,
-  @SerializedName("updated_at") val updatedAt: Long?,
+  @ColumnInfo("company_id") val companyId: Long,
+  @ColumnInfo("created_at") val createdAt: Long,
+  @ColumnInfo("updated_at") val updatedAt: Long?,
 )
