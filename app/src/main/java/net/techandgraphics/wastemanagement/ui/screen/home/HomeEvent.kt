@@ -1,3 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.home
 
-sealed interface HomeEvent
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+
+sealed interface HomeEvent {
+  data class Invoice(val payment: PaymentUiModel) : HomeEvent
+}

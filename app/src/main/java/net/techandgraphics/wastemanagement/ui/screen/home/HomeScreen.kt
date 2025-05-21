@@ -49,6 +49,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastemanagement.getTimeOfDay
+import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -119,19 +121,21 @@ fun HomeScreen(
     ) {
 
 
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        LetterView()
-        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-          Text(
-            text = "Good Afternoon",
-            style = MaterialTheme.typography.bodySmall,
-          )
-          Text(
-            text = "Dr. James Mike Jn",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-          )
+      state.accounts.forEach { account ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          LetterView()
+          Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text(
+              text = "Good ${getTimeOfDay()}",
+              style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+              text = account.toFullName(),
+              style = MaterialTheme.typography.bodyMedium,
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.secondary
+            )
+          }
         }
       }
 
@@ -178,12 +182,12 @@ fun HomeScreen(
       Spacer(modifier = Modifier.height(24.dp))
 
       Text(
-        text = "Recent Invoices",
+        text = "Recent Payments",
         modifier = Modifier.padding(8.dp),
         fontWeight = FontWeight.Bold,
       )
 
-      HomeTransactionView { }
+      HomeTransactionView(state, onEvent)
 
       Spacer(modifier = Modifier.height(42.dp))
 
@@ -240,7 +244,9 @@ fun HomeScreen(
 private fun HomeScreenPreview() {
   WasteManagementTheme {
     HomeScreen(
-      state = HomeState(),
+      state = HomeState(
+        accounts = listOf(account)
+      ),
       channel = flow { },
       onEvent = {}
     )
