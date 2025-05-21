@@ -25,6 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import net.techandgraphics.wastemanagement.AppUrl
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -56,10 +58,18 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           verticalAlignment = Alignment.CenterVertically
         ) {
 
+
+          val imageUrl = AppUrl.FILE_URL.plus("gateway/").plus(paymentMethod.paymentGatewayId)
           val asyncImagePainter = rememberAsyncImagePainter(
-            model = AppUrl.FILE_URL.plus("gateway/").plus(paymentMethod.paymentGatewayId),
+            model = ImageRequest.Builder(LocalContext.current)
+              .data(imageUrl)
+              .diskCacheKey(imageUrl)
+              .networkCachePolicy(CachePolicy.ENABLED)
+              .crossfade(true)
+              .build(),
             imageLoader = state.imageLoader!!,
-            placeholder = painterResource(R.drawable.ic_launcher_background)
+            placeholder = painterResource(R.drawable.im_placeholder),
+            error = painterResource(R.drawable.im_placeholder)
           )
 
           Image(

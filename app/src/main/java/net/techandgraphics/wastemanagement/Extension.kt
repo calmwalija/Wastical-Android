@@ -61,3 +61,5 @@ fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
 }
 
 fun Context.onTextToClipboard(text: String) = copyTextToClipboard(text)
+
+fun Context.getUCropFile(fileId: Number) = File(cacheDir, "$fileId.jpg")
