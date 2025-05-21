@@ -46,11 +46,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
     state.paymentMethods.forEachIndexed { index, paymentMethod ->
       Card(
-        colors = CardDefaults.elevatedCardColors(
-          containerColor = if (index.mod(2) == 1) MaterialTheme.colorScheme.primary.copy(alpha = .15f) else {
-            CardDefaults.elevatedCardColors().containerColor
-          }
-        ),
+        colors = CardDefaults.elevatedCardColors(),
         modifier = Modifier.padding(vertical = 8.dp),
       ) {
         Row(

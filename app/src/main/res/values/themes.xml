@@ -2,4 +2,6 @@
 <resources>
 
   <style name="Theme.WasteManagement" parent="android:Theme.Material.Light.NoActionBar" />
+
+  <style name="Theme.UCrop" parent="@style/Theme.AppCompat.Light.NoActionBar" />
 </resources>

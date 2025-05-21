@@ -22,7 +22,7 @@ data class PaymentMethodEntity(
   @PrimaryKey val id: Long,
   val name: String,
   val type: String,
-  val number: String,
+  val account: String,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
   @ColumnInfo("payment_gateway_id") val paymentGatewayId: Long,
   @ColumnInfo("created_at") val createdAt: Long,

@@ -9,4 +9,7 @@ import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 interface PaymentDao : BaseDao<PaymentEntity> {
   @Query("SELECT * FROM payment")
   fun query(): Flow<List<PaymentEntity>>
+
+  @Query("SELECT id FROM payment ORDER BY id DESC LIMIT 1")
+  suspend fun getLastId(): Long?
 }

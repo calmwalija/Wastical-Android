@@ -6,10 +6,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.ui.MainViewModel
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
@@ -46,7 +49,17 @@ fun AppNavHost(
     composable<Route.Payment> {
       with(hiltViewModel<PaymentViewModel>()) {
         val state = state.collectAsState().value
-        PaymentScreen(state, channel, ::onEvent)
+        PaymentScreen(state, channel) { event ->
+          when (event) {
+            is PaymentEvent.Response ->
+              navController.navigate(Route.PaymentResponse(event.isSuccess, event.error)) {
+                popUpTo(Route.Payment) { inclusive = true }
+              }
+
+            PaymentEvent.GoTo.BackHandler -> navController.navigateUp()
+            else -> onEvent(event)
+          }
+        }
       }
     }
 
@@ -55,6 +68,12 @@ fun AppNavHost(
         val state = state.collectAsState().value
         HomeScreen(state, channel) {}
       }
+    }
+
+    composable<Route.PaymentResponse> {
+      val isSuccess = it.toRoute<Route.PaymentResponse>().isSuccess
+      val error = it.toRoute<Route.PaymentResponse>().error
+      PaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
     composable<Route.Transaction> {

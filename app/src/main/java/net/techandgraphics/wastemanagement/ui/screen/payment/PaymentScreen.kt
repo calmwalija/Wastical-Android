@@ -1,13 +1,5 @@
 package net.techandgraphics.wastemanagement.ui.screen.payment
 
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -21,11 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,8 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -55,14 +47,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.mr0xf00.easycrop.CropError
-import com.mr0xf00.easycrop.CropResult
-import com.mr0xf00.easycrop.crop
-import com.mr0xf00.easycrop.rememberImageCropper
-import com.mr0xf00.easycrop.ui.ImageCropperDialog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.toAmount
@@ -79,85 +63,19 @@ fun PaymentScreen(
   val scrollState = rememberLazyListState()
   val hapticFeedback = LocalHapticFeedback.current
   val context = LocalContext.current
-
-  val imageCropper = rememberImageCropper()
-  val cropState = imageCropper.cropState
-
-
-  var showCropDialog by remember { mutableStateOf(false) }
-
-
-  fun convertToSoftwareBitmap(hardwareBitmap: Bitmap): Bitmap {
-    return hardwareBitmap.copy(Bitmap.Config.ARGB_8888, true)
-  }
-
-
-  fun recognizeTextFromImage(bitmap: Bitmap, onResult: (String) -> Unit) {
-    val image = InputImage.fromBitmap(bitmap, 0)
-    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-    recognizer.process(image)
-      .addOnSuccessListener { visionText ->
-        onResult(visionText.text)
-      }
-      .addOnFailureListener { e ->
-        onResult("Error: ${e.message}")
-      }
-  }
-
-  LaunchedEffect(state.bitmapImage) {
-    state.bitmapImage?.let {
-      val result = imageCropper.crop(bmp = convertToSoftwareBitmap(it).asImageBitmap())
-      when (result) {
-        CropResult.Cancelled -> {
-          Log.e("TAG", "Cancelled: ")
-        }
-
-        is CropError -> {
-          Log.e("TAG", "CropError: ")
-        }
-
-        is CropResult.Success -> {
-          Log.e("TAG", "Success: ")
-          val bitmap = result.bitmap.asAndroidBitmap()
-          recognizeTextFromImage(bitmap) {
-            println("*************** $it")
-            onEvent(PaymentEvent.Button.ImageBitmap(bitmap))
-            onEvent(PaymentEvent.Button.Pay(it))
-            showCropDialog = false
-          }
-        }
-
-      }
-    }
-  }
-
-  if (cropState != null && showCropDialog) ImageCropperDialog(state = cropState)
-
-
-  val launcherForActivityResult =
-    rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-      uri?.let {
-        val bitmap = if (Build.VERSION.SDK_INT < 28) {
-          MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-        } else {
-          val source = ImageDecoder.createSource(context.contentResolver, uri)
-          ImageDecoder.decodeBitmap(source)
-        }
-        onEvent(PaymentEvent.Button.ImageBitmap(bitmap))
-        showCropDialog = true
-      }
-    }
-
+  var loading by remember { mutableStateOf(false) }
 
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
       channel.collect { event ->
         when (event) {
-          else -> {
-            TODO()
-          }
+          is PaymentChannel.Pay.Failure ->
+            onEvent(PaymentEvent.Response(false, event.errorHandler.message))
+
+          PaymentChannel.Pay.Success ->
+            onEvent(PaymentEvent.Response(true, null))
+
         }
       }
     }
@@ -169,7 +87,7 @@ fun PaymentScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { }) {
+          IconButton(onClick = { onEvent(PaymentEvent.GoTo.BackHandler) }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },
@@ -202,7 +120,7 @@ fun PaymentScreen(
 
               Text(
                 text = animatedSum.toAmount(),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth(.4f)
@@ -211,15 +129,25 @@ fun PaymentScreen(
           }
           Spacer(modifier = Modifier.weight(1f))
           Button(
-            onClick = { },
+            enabled = state.screenshotAttached && loading.not(),
+            onClick = { onEvent(PaymentEvent.Button.Pay); loading = true },
             modifier = Modifier.fillMaxWidth(.8f),
           ) {
-            Text(
+            if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
+              CircularProgressIndicator(modifier = Modifier.size(16.dp))
+              Text(
+                text = "Please wait ",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 8.dp)
+              )
+            } else Text(
               text = "Make Payment",
               maxLines = 1,
               overflow = TextOverflow.Ellipsis,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.onSecondary
+              modifier = Modifier.padding(start = 8.dp)
             )
           }
         }
@@ -248,14 +176,8 @@ fun PaymentScreen(
         item { Spacer(modifier = Modifier.height(24.dp)) }
         item { PaymentMethodView(state, onEvent) }
         item { Spacer(modifier = Modifier.height(24.dp)) }
-        item {
-          PaymentReferenceView(state) { event ->
-            when (event) {
-              PaymentEvent.Button.Screenshot -> launcherForActivityResult.launch("image/*")
-              else -> onEvent(event)
-            }
-          }
-        }
+        item { PaymentReferenceView(state, onEvent) }
+
         item { Spacer(modifier = Modifier.height(24.dp)) }
       }
     }
@@ -273,7 +195,8 @@ private fun PaymentScreenPreview() {
       state = PaymentState(
         paymentPlans = listOf(paymentPlan),
         paymentMethods = listOf(paymentMethod, paymentMethod),
-        imageLoader = imageLoader(LocalContext.current)
+        imageLoader = imageLoader(LocalContext.current),
+        screenshotAttached = false
       ),
       channel = flow { },
       onEvent = {}
