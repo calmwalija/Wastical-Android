@@ -18,5 +18,4 @@ sealed interface PaymentEvent {
   sealed interface GoTo : PaymentEvent {
     data object BackHandler : GoTo
   }
-
 }

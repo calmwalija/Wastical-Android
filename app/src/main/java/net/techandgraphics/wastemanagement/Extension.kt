@@ -41,7 +41,6 @@ fun Context.copyTextToClipboard(text: String) {
   clipboard?.setPrimaryClip(clip)
 }
 
-
 @Suppress("DEPRECATION")
 fun Uri.toBitmap(context: Context): Bitmap? = if (Build.VERSION.SDK_INT < 28) {
   MediaStore.Images.Media.getBitmap(context.contentResolver, this)
@@ -54,7 +53,6 @@ fun Bitmap.toSoftwareBitmap(): Bitmap {
   return this.copy(Bitmap.Config.ARGB_8888, true)
 }
 
-
 fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
   TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     .process(InputImage.fromBitmap(this, 0))
@@ -63,4 +61,3 @@ fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
 }
 
 fun Context.onTextToClipboard(text: String) = copyTextToClipboard(text)
-

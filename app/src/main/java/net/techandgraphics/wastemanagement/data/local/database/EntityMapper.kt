@@ -105,7 +105,6 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
   updatedAt = updatedAt,
 )
 
-
 fun PaymentRequest.toPaymentCacheEntity() = PaymentEntity(
   status = PaymentStatus.Retry.name,
   accountId = accountId,

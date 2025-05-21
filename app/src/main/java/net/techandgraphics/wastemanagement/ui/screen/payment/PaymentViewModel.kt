@@ -42,11 +42,9 @@ class PaymentViewModel @Inject constructor(
   private val imageLoader: ImageLoader,
 ) : ViewModel() {
 
-
   private val _state = MutableStateFlow(PaymentState())
   private val _channel = Channel<PaymentChannel>()
   val channel = _channel.receiveAsFlow()
-
 
   private suspend fun getPaymentPlans() {
     database.paymentPlanDao.query().map { it.toPaymentPlanUiModel() }
@@ -59,7 +57,6 @@ class PaymentViewModel @Inject constructor(
     val lastPaymentId = database.paymentDao.getLastId() ?: 1
     _state.update { it.copy(lastPaymentId = lastPaymentId) }
   }
-
 
   private suspend fun getPaymentMethods() {
     database.paymentMethodDao.query().map { it.toPaymentMethodUiModel() }
@@ -113,7 +110,6 @@ class PaymentViewModel @Inject constructor(
     _state.update { it.copy(imageUri = null) }
   }
 
-
   private fun onScreenshotAttached() = with(_state) {
     update { it.copy(screenshotAttached = true) }
     value.imageUri?.toBitmap(application)?.toSoftwareBitmap()?.run {
@@ -132,7 +128,6 @@ class PaymentViewModel @Inject constructor(
     }.also { numberOfMonths -> _state.update { it.copy(numberOfMonths = numberOfMonths) } }
   }
 
-
   fun onEvent(event: PaymentEvent) {
     when (event) {
       is PaymentEvent.Button.Pay -> onPay()
@@ -144,5 +139,4 @@ class PaymentViewModel @Inject constructor(
       else -> Unit
     }
   }
-
 }
