@@ -6,18 +6,12 @@ import retrofit2.HttpException
 import java.io.IOException
 
 fun onApiErrorHandler(throwable: Throwable) = when (throwable) {
-  is IOException -> LoadingEvent.Error(
-    "Network error. Please check your connection.",
-    throwable,
-  )
+  is IOException -> LoadingEvent.Error("Please check your connection.", throwable)
 
   is HttpException -> {
     val code = throwable.code()
     val message = when (code) {
-      HttpStatusCode.Unauthorized.value -> HttpStatusCode.Unauthorized.description
-      HttpStatusCode.Forbidden.value -> HttpStatusCode.Forbidden.description
-      HttpStatusCode.NotFound.value -> HttpStatusCode.NotFound.description
-      HttpStatusCode.InternalServerError.value -> HttpStatusCode.InternalServerError.description
+      HttpStatusCode.fromValue(code).value -> HttpStatusCode.fromValue(code).description
       else -> code.toString()
     }
     LoadingEvent.Error(message, throwable, code)

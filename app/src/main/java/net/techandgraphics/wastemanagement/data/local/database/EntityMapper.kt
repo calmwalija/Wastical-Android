@@ -11,9 +11,13 @@ import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMethodResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
+import java.time.ZonedDateTime
+import java.util.UUID
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
   id = id,
@@ -42,7 +46,7 @@ fun PaymentMethodResponse.toPaymentMethodEntity() = PaymentMethodEntity(
   id = id,
   name = name,
   type = type,
-  number = number,
+  account = account,
   paymentPlanId = paymentPlanId,
   paymentGatewayId = paymentGatewayId,
   createdAt = createdAt,
@@ -99,4 +103,17 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
   accountId = accountId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+)
+
+
+fun PaymentRequest.toPaymentCacheEntity() = PaymentEntity(
+  status = PaymentStatus.Retry.name,
+  accountId = accountId,
+  screenshotText = screenshotText,
+  numberOfMonths = numberOfMonths,
+  paymentMethodId = paymentMethodId,
+  transactionId = UUID.randomUUID().toString(),
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  id = System.currentTimeMillis().times(1_000),
+  updatedAt = null,
 )
