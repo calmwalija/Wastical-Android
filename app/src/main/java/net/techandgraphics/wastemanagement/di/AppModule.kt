@@ -21,7 +21,7 @@ object AppModule {
   @Provides
   fun providesAppDatabase(app: Application): AppDatabase {
     return Room.databaseBuilder(app, AppDatabase::class.java, AppDatabase.NAME)
-      .fallbackToDestructiveMigration(false)
+      .fallbackToDestructiveMigration()
       .setQueryCallback(
         queryCallback = { query, args -> println("query $query == args $args") },
         Executors.newSingleThreadExecutor(),

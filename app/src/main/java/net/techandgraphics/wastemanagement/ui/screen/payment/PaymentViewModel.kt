@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,26 +16,22 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
-import net.techandgraphics.wastemanagement.data.remote.AppApi
 import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
+import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentRepository
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
+import net.techandgraphics.wastemanagement.getUCropFile
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.onTextToClipboard
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
+import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
 import javax.inject.Inject
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
-  private val api: AppApi,
+  private val repository: PaymentRepository,
   private val application: Application,
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
@@ -65,7 +60,7 @@ class PaymentViewModel @Inject constructor(
       }
   }
 
-  private fun theFile() = File(application.cacheDir, "${state.value.lastPaymentId}.jpg")
+  private fun theFile() = application.getUCropFile(state.value.lastPaymentId)
 
   init {
     viewModelScope.launch {
@@ -93,13 +88,15 @@ class PaymentViewModel @Inject constructor(
       numberOfMonths = state.value.numberOfMonths,
     )
 
-    val requestPart = Gson().toJson(paymentRequest).toRequestBody("application/json".toMediaType())
-    val fileRequestBody = theFile().asRequestBody("application/octet-stream".toMediaTypeOrNull())
-    val filePart = MultipartBody.Part.createFormData("file", theFile().name, fileRequestBody)
-
-    runCatching { api.paymentApi.pay(filePart, requestPart) }
+    runCatching { repository.onPay(theFile(), paymentRequest) }
       .onFailure {
-        database.paymentDao.upsert(paymentRequest.toPaymentCacheEntity())
+        application.schedulePaymentRetryWorker()
+        val cachedPayment = paymentRequest.toPaymentCacheEntity()
+
+        /** Rename the File **/
+        val oldFile = application.getUCropFile(state.value.lastPaymentId)
+        oldFile.renameTo(application.getUCropFile(cachedPayment.id))
+        database.paymentDao.upsert(cachedPayment)
         _channel.send(PaymentChannel.Pay.Failure(onApiErrorHandler(it)))
       }
       .onSuccess {
