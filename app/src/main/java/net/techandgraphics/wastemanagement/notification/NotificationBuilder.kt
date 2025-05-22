@@ -33,7 +33,7 @@ class NotificationBuilder(private val context: Context) {
 
   fun show(notification: NotificationUiModel) {
     NotificationCompat.Builder(context, notification.type.id).run {
-      setSmallIcon(R.drawable.ic_verified)
+      setSmallIcon(R.drawable.ic_alternate)
       setPriority(NotificationCompat.PRIORITY_HIGH)
       setColor(ContextCompat.getColor(context, R.color.teal_700))
       setCategory(NotificationCompat.CATEGORY_MESSAGE)

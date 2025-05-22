@@ -128,13 +128,13 @@ fun TransactionScreen(
         }
       }
 
-      LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-        items(state.transactionUiModels) { transactionUiModel ->
-          if (showInvoice) InvoiceView(transactionUiModel, onEvent) else {
-            TransactionView(transactionUiModel, onEvent)
-          }
-        }
-      }
+//      LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+//        items(state.transactionUiModels) { transactionUiModel ->
+//          if (showInvoice) InvoiceView(transactionUiModel, onEvent) else {
+//            TransactionView(transactionUiModel, onEvent)
+//          }
+//        }
+//      }
 
     }
   }

@@ -11,7 +11,6 @@ import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActionUiMode
 import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActivityUiModel
 import net.techandgraphics.wastemanagement.ui.theme.WhiteFE
 import java.time.ZonedDateTime
-import java.util.UUID
 
 internal val homeActivityUiModels = listOf(
   HomeActivityUiModel(
@@ -26,16 +25,13 @@ internal val homeActivityUiModels = listOf(
     iconBackground = Color.DarkGray,
     containerColor = Color.DarkGray.copy(.05f),
     clickable = false,
-
   ),
 )
 
 internal val homeActionUiModels = listOf(
   HomeActionUiModel(
-    action = "Request for collection",
-    drawableRes = R.drawable.ic_truck,
-    iconBackground = WhiteFE.copy(.7f),
-    containerColor = WhiteFE.copy(.2f),
+    action = "Make Payment",
+    drawableRes = R.drawable.ic_payments,
   ),
   HomeActionUiModel(
     action = "Waste Sorting Guide",
@@ -64,7 +60,7 @@ internal val payment = PaymentUiModel(
   id = 1L,
   status = PaymentStatus.Approved,
   numberOfMonths = 1,
-  transactionId = UUID.randomUUID().toString(),
+  transactionId = "TXN-5983-1747899108",
   paymentMethodId = 1L,
   createdAt = ZonedDateTime.now().toEpochSecond(),
   screenshotText = "Lorem",

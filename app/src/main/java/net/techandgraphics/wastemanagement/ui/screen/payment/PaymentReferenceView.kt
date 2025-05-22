@@ -109,7 +109,7 @@ import java.io.File
         }
         Text(
           modifier = Modifier.padding(4.dp),
-          text = if (state.screenshotAttached) "Transaction Screenshot Attached" else "Attach Transaction Screenshot",
+          text = if (state.screenshotAttached) "Payment Screenshot Attached" else "Attach Payment Screenshot",
           color = if (state.screenshotAttached) MaterialTheme.colorScheme.primary else {
             CardDefaults.elevatedCardColors().contentColor
           }
