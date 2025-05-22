@@ -28,7 +28,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Payment,
+    startDestination = Route.Home,
   ) {
 
     composable<Route.SignIn> {
@@ -66,7 +66,7 @@ fun AppNavHost(
     composable<Route.Home> {
       with(hiltViewModel<HomeViewModel>()) {
         val state = state.collectAsState().value
-        HomeScreen(state, channel) {}
+        HomeScreen(state, channel, ::onEvent)
       }
     }
 

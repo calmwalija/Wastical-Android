@@ -4,9 +4,19 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
+import net.techandgraphics.wastemanagement.calculateAmount
 import net.techandgraphics.wastemanagement.defaultDateTime
+import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.toast
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod
 import net.techandgraphics.wastemanagement.ui.screen.transaction.bold
 import net.techandgraphics.wastemanagement.ui.screen.transaction.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.transaction.light
@@ -15,22 +25,32 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Month
-import java.time.ZonedDateTime
-import java.util.Locale
 
-private val tableData = Month.entries.mapIndexed { index, month ->
+private fun tableData(
+  payment: PaymentUiModel,
+  paymentPlan: PaymentPlanUiModel,
+) = Month.entries.take(1).mapIndexed { index, month ->
   listOf(
-    "${index.plus(1)}",
-    month.name.lowercase().capitalize(Locale.ROOT),
     "1",
-    "K10,000",
-    "K10,000",
+    "${paymentPlan.period.name} Subscription",
+    payment.numberOfMonths,
+    paymentPlan.fee.toAmount(),
+    calculateAmount(paymentPlan, payment),
   )
 }
 
-fun invoiceToPdf(context: Context) {
+fun invoiceToPdf(
+  context: Context,
+  company: CompanyUiModel,
+  companyContact: CompanyContactUiModel,
+  account: AccountUiModel,
+  accountContact: AccountContactUiModel,
+  payment: PaymentUiModel,
+  paymentPlan: PaymentPlanUiModel,
+) {
   val pdfDocument = PdfDocument()
 
+  val tableData = tableData(payment, paymentPlan)
   val targetDpi = 300f
   val widthInches = 5.27f
   val heightInches = 6.8f
@@ -79,7 +99,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Clear Sight Cleaning Services",
+      theSentence = company.name,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -90,7 +110,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "P.O. Box 40286",
+      theSentence = company.address,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -101,19 +121,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Kanengo,",
-      xAxis = xAxis,
-      yAxis = yAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-    )
-
-    /***************************************************************/
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
-    /***************************************************************/
-    pdfSentence(
-      theSentence = "Lilongwe 4",
+      theSentence = "Phone : ${companyContact.contact}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -124,18 +132,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Phone : +265-992-882-020",
-      xAxis = xAxis,
-      yAxis = yAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-    )
-    /***************************************************************/
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
-    /***************************************************************/
-    pdfSentence(
-      theSentence = "Email : clearsightinvestiments@gmail.com",
+      theSentence = "Email : ${companyContact.email}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -159,7 +156,7 @@ fun invoiceToPdf(context: Context) {
     /***************************************************************/
 
     pdfSentence(
-      theSentence = System.currentTimeMillis().toString(),
+      theSentence = "${account.id.times(5983)}-${payment.createdAt}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -180,7 +177,7 @@ fun invoiceToPdf(context: Context) {
     /***************************************************************/
 
     pdfSentence(
-      theSentence = ZonedDateTime.now().defaultDateTime(),
+      theSentence = payment.createdAt.toZonedDateTime().defaultDateTime(),
       yAxis = yAxis,
       xAxis = xAxis.times(8),
       paint = textSize32.also { it.typeface = light(context) },
@@ -203,7 +200,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Dr. James Mike Jr",
+      theSentence = account.toFullName(),
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -214,7 +211,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Phone : +265-992-882-020",
+      theSentence = "Phone : ${accountContact.contact}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -237,7 +234,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "National Bank",
+      theSentence = paymentMethod.name,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -248,7 +245,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Account # : 100490012",
+      theSentence = "Account # : ${paymentMethod.account}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -259,7 +256,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Trans Id Ref : ${System.currentTimeMillis()}",
+      theSentence = "Trans Id Ref : ${payment.transactionId}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -292,7 +289,7 @@ fun invoiceToPdf(context: Context) {
 
       theData.forEachIndexed { index, theSentence ->
         pdfBgSentence(
-          theSentence = theSentence,
+          theSentence = theSentence.toString(),
           xAxis = holdXAxis,
           yAxis = holdYAxis,
           paint = textSize32.also { it.typeface = light(context) },
@@ -323,7 +320,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = 10_000.times(tableData.size).toAmount(),
+      theSentence = calculateAmount(paymentPlan, payment),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -350,7 +347,7 @@ fun invoiceToPdf(context: Context) {
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = 10_000.times(tableData.size).toAmount(),
+      theSentence = calculateAmount(paymentPlan, payment),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = extraBold(context) },
