@@ -39,8 +39,9 @@ class InvoiceViewModel @Inject constructor(
   }
 
   fun onEvent(event: InvoiceEvent) {
+    // TODO : Handle events
     when (event) {
-      else -> TODO("Handle actions")
+      else -> Unit
     }
   }
 }
