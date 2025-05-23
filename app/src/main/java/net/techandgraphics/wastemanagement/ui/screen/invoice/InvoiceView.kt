@@ -26,14 +26,16 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculateAmount
 import net.techandgraphics.wastemanagement.defaultDate
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.home.payment
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
+import net.techandgraphics.wastemanagement.ui.screen.home.payment4Preview
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class) @Composable fun InvoiceView(
   invoice: PaymentUiModel,
+  paymentPlans: List<PaymentPlanUiModel>,
   onEvent: (InvoiceEvent) -> Unit
 ) {
 
@@ -66,13 +68,15 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           text = invoice.createdAt.toZonedDateTime().defaultDate(),
           style = MaterialTheme.typography.bodySmall
         )
-        Text(
-          text = calculateAmount(paymentPlan, invoice),
-          style = MaterialTheme.typography.bodyMedium,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          modifier = Modifier.padding(end = 8.dp)
-        )
+        paymentPlans.forEach { paymentPlan ->
+          Text(
+            text = calculateAmount(paymentPlan, invoice),
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+            modifier = Modifier.padding(end = 8.dp)
+          )
+        }
       }
 
       IconButton(onClick = { onEvent(InvoiceEvent.Button.Share(invoice)) }) {
@@ -91,6 +95,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Preview(showBackground = true)
 @Composable fun InvoiceViewPreview() {
   WasteManagementTheme {
-    InvoiceView(invoice = payment) { }
+    InvoiceView(
+      invoice = payment4Preview,
+      paymentPlans = listOf(paymentPlan4Preview)
+    ) { }
   }
 }

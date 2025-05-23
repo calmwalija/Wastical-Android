@@ -27,14 +27,16 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculateAmount
 import net.techandgraphics.wastemanagement.defaultDate
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HomeInvoiceView(
   invoice: PaymentUiModel,
+  paymentPlans: List<PaymentPlanUiModel>,
   onEvent: (HomeEvent) -> Unit
 ) {
 
@@ -67,13 +69,15 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           text = invoice.createdAt.toZonedDateTime().defaultDate(),
           style = MaterialTheme.typography.bodySmall
         )
-        Text(
-          text = calculateAmount(paymentPlan, invoice),
-          style = MaterialTheme.typography.bodyMedium,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          modifier = Modifier.padding(end = 8.dp)
-        )
+        paymentPlans.forEach { paymentPlan ->
+          Text(
+            text = calculateAmount(paymentPlan, invoice),
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+            modifier = Modifier.padding(end = 8.dp)
+          )
+        }
       }
 
       IconButton(onClick = { onEvent(HomeEvent.Button.Payment.Share(invoice)) }) {
@@ -96,7 +100,8 @@ private fun HomeInvoiceViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(16.dp)) {
       HomeInvoiceView(
-        invoice = payment,
+        invoice = payment4Preview,
+        paymentPlans = listOf(paymentPlan4Preview),
         onEvent = {}
       )
     }

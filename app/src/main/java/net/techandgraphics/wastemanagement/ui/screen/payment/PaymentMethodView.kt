@@ -113,7 +113,7 @@ private fun PaymentMethodViewPreview() {
   WasteManagementTheme {
     PaymentMethodView(
       state = PaymentState(
-        paymentMethods = listOf(paymentMethod, paymentMethod, paymentMethod),
+        paymentMethods = listOf(paymentMethod4Preview, paymentMethod4Preview, paymentMethod4Preview),
         imageLoader = imageLoader(LocalContext.current)
       ),
       onEvent = {}

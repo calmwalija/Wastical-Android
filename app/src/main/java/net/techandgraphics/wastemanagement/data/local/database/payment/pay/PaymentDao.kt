@@ -9,10 +9,10 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
 
 @Dao interface PaymentDao : BaseDao<PaymentEntity> {
 
-  @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 3")
+  @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 4")
   fun flowOfPayment(status: String = Approved.name): Flow<List<PaymentEntity>>
 
-  @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 4")
+  @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 3")
   fun flowOfInvoice(status: String = Approved.name): Flow<List<PaymentEntity>>
 
   @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id")

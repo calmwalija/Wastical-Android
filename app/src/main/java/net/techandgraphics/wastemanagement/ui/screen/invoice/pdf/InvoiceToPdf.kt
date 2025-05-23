@@ -19,7 +19,7 @@ import net.techandgraphics.wastemanagement.ui.screen.invoice.bold
 import net.techandgraphics.wastemanagement.ui.screen.invoice.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.invoice.light
 import net.techandgraphics.wastemanagement.ui.screen.invoice.mailMan
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod4Preview
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -234,7 +234,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = paymentMethod.name,
+      theSentence = paymentMethod4Preview.name,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -245,7 +245,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Account # : ${paymentMethod.account}",
+      theSentence = "Account # : ${paymentMethod4Preview.account}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },

@@ -53,8 +53,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -120,7 +121,7 @@ fun HomeScreen(
     ) {
 
 
-      state.accounts.forEach { account ->
+      state.state.accounts.forEach { account ->
         Row(verticalAlignment = Alignment.CenterVertically) {
           LetterView()
           Column(modifier = Modifier.padding(horizontal = 8.dp)) {
@@ -187,7 +188,6 @@ fun HomeScreen(
       Spacer(modifier = Modifier.height(24.dp))
 
 
-
       Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(vertical = 4.dp)
@@ -209,11 +209,10 @@ fun HomeScreen(
 
       }
 
-
-
-      state.invoices.forEach { invoice ->
+      state.state.invoices.forEach { invoice ->
         HomeInvoiceView(
           invoice = invoice,
+          paymentPlans = state.state.paymentPlans,
           onEvent = onEvent
         )
       }
@@ -228,9 +227,9 @@ fun HomeScreen(
       )
 
 
-      state.paymentPlans.forEach { paymentPlan ->
-        state.payments.forEach { payment ->
-          HomePaymentView(payment, paymentPlan, state.imageLoader)
+      state.state.paymentPlans.forEach { paymentPlan ->
+        state.state.payments.forEach { payment ->
+          HomePaymentView(payment, paymentPlan, state.state.imageLoader)
         }
       }
     }
@@ -288,11 +287,13 @@ private fun HomeScreenPreview() {
   WasteManagementTheme {
     HomeScreen(
       state = HomeState(
-        accounts = listOf(account),
-        payments = listOf(payment, payment),
-        invoices = listOf(payment, payment),
-        imageLoader = imageLoader(LocalContext.current),
-        paymentPlans = listOf(paymentPlan)
+        state = MainActivityState(
+          accounts = listOf(account4Preview),
+          payments = listOf(payment4Preview, payment4Preview),
+          invoices = listOf(payment4Preview, payment4Preview),
+          imageLoader = imageLoader(LocalContext.current),
+          paymentPlans = listOf(paymentPlan4Preview)
+        )
       ),
       channel = flow { },
       onEvent = {}

@@ -35,7 +35,7 @@ import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun HomePaymentView(
@@ -110,8 +110,8 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable fun HomePaymentViewPreview() {
   WasteManagementTheme {
     HomePaymentView(
-      payment = payment,
-      paymentPlan = paymentPlan,
+      payment = payment4Preview,
+      paymentPlan = paymentPlan4Preview,
       imageLoader = imageLoader(LocalContext.current),
     )
   }

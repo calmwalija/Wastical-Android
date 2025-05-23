@@ -26,7 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastemanagement.ui.screen.home.payment
+import net.techandgraphics.wastemanagement.ui.screen.home.payment4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import kotlin.random.Random
 
@@ -74,7 +74,7 @@ fun InvoiceScreen(
 
       LazyColumn {
         items(state.invoices) { invoice ->
-          InvoiceView(invoice, onEvent)
+          InvoiceView(invoice, state.state.paymentPlans, onEvent)
         }
       }
 
@@ -92,7 +92,7 @@ private fun InvoiceScreenPreview() {
         invoices = (1..10)
           .toList()
           .mapIndexed { index, item ->
-            payment.copy(
+            payment4Preview.copy(
               id = index.toLong(),
               numberOfMonths = Random.nextInt(1, 5)
             )

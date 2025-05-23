@@ -41,7 +41,7 @@ internal val homeActionUiModels = listOf(
   ),
 )
 
-internal val account = AccountUiModel(
+internal val account4Preview = AccountUiModel(
   id = 1L,
   uuid = "",
   title = AccountTitle.DR,
@@ -56,7 +56,7 @@ internal val account = AccountUiModel(
   updatedAt = null,
 )
 
-internal val payment = PaymentUiModel(
+internal val payment4Preview = PaymentUiModel(
   id = 1L,
   status = PaymentStatus.Approved,
   numberOfMonths = 1,

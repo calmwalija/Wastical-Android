@@ -193,8 +193,8 @@ private fun PaymentScreenPreview() {
   WasteManagementTheme {
     PaymentScreen(
       state = PaymentState(
-        paymentPlans = listOf(paymentPlan),
-        paymentMethods = listOf(paymentMethod, paymentMethod),
+        paymentPlans = listOf(paymentPlan4Preview),
+        paymentMethods = listOf(paymentMethod4Preview, paymentMethod4Preview),
         imageLoader = imageLoader(LocalContext.current),
         screenshotAttached = false
       ),
