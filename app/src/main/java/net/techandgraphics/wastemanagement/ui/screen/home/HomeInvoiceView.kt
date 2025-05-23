@@ -44,7 +44,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(HomeEvent.Button.Payment.Tap(invoice)) }) {
+    onClick = { onEvent(HomeEvent.Button.Payment.Invoice(invoice)) }) {
     Row(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically

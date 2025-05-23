@@ -1,15 +1,15 @@
-package net.techandgraphics.wastemanagement.ui.screen.home
+package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
 
 import coil.ImageLoader
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 
-data class HomeState(
-  val searchQuery: String = "",
+data class MainActivityState(
   val imageLoader: ImageLoader? = null,
   val accounts: List<AccountUiModel> = listOf(),
   val accountContacts: List<AccountContactUiModel> = listOf(),
@@ -18,4 +18,5 @@ data class HomeState(
   val payments: List<PaymentUiModel> = listOf(),
   val invoices: List<PaymentUiModel> = listOf(),
   val paymentPlans: List<PaymentPlanUiModel> = listOf(),
+  val paymentMethods: List<PaymentMethodUiModel> = listOf(),
 )

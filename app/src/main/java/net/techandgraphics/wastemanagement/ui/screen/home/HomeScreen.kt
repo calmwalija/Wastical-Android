@@ -72,8 +72,6 @@ fun HomeScreen(
     }
   }
 
-  val paymentPlan = state.paymentPlans.firstOrNull() ?: return
-
 
   Scaffold(
     topBar = {
@@ -230,8 +228,10 @@ fun HomeScreen(
       )
 
 
-      state.payments.forEach { payment ->
-        HomePaymentView(payment, paymentPlan, state.imageLoader)
+      state.paymentPlans.forEach { paymentPlan ->
+        state.payments.forEach { payment ->
+          HomePaymentView(payment, paymentPlan, state.imageLoader)
+        }
       }
     }
 

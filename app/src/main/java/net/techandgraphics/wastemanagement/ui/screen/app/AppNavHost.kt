@@ -7,8 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import net.techandgraphics.wastemanagement.ui.MainViewModel
 import net.techandgraphics.wastemanagement.ui.Route
+import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeViewModel
@@ -26,7 +26,7 @@ import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInViewModel
 @Composable
 fun AppNavHost(
   navController: NavHostController,
-  viewModel: MainViewModel
+  appState: MainActivityState
 ) {
   NavHost(
     navController = navController,
@@ -68,6 +68,7 @@ fun AppNavHost(
     composable<Route.Home> {
       with(hiltViewModel<HomeViewModel>()) {
         val state = state.collectAsState().value
+        onEvent(HomeEvent.AppState(appState))
         HomeScreen(state, channel) { event ->
           when (event) {
             is HomeEvent.Goto ->
@@ -90,6 +91,7 @@ fun AppNavHost(
     composable<Route.Invoice> {
       with(hiltViewModel<InvoiceViewModel>()) {
         val state = state.collectAsState().value
+        onEvent(InvoiceEvent.AppState(appState))
         InvoiceScreen(state, channel) { event ->
           when (event) {
             is InvoiceEvent.GoTo ->
