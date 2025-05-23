@@ -53,7 +53,7 @@ fun InvoiceScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { }) {
+          IconButton(onClick = { onEvent(InvoiceEvent.GoTo.BackHandler) }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },

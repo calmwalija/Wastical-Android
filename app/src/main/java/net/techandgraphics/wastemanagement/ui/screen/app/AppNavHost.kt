@@ -9,8 +9,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.ui.MainViewModel
 import net.techandgraphics.wastemanagement.ui.Route
+import net.techandgraphics.wastemanagement.ui.screen.home.HomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.home.HomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceEvent
+import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceScreen
+import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceViewModel
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentScreen
@@ -18,8 +22,6 @@ import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInScreen
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInViewModel
-import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceScreen
-import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceViewModel
 
 @Composable
 fun AppNavHost(
@@ -66,7 +68,16 @@ fun AppNavHost(
     composable<Route.Home> {
       with(hiltViewModel<HomeViewModel>()) {
         val state = state.collectAsState().value
-        HomeScreen(state, channel, ::onEvent)
+        HomeScreen(state, channel) { event ->
+          when (event) {
+            is HomeEvent.Goto ->
+              when (event) {
+                HomeEvent.Goto.Invoice -> navController.navigate(Route.Invoice)
+              }
+
+            else -> onEvent(event)
+          }
+        }
       }
     }
 
@@ -79,7 +90,16 @@ fun AppNavHost(
     composable<Route.Invoice> {
       with(hiltViewModel<InvoiceViewModel>()) {
         val state = state.collectAsState().value
-        InvoiceScreen(state, channel, ::onEvent)
+        InvoiceScreen(state, channel) { event ->
+          when (event) {
+            is InvoiceEvent.GoTo ->
+              when (event) {
+                InvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
+              }
+
+            else -> onEvent(event)
+          }
+        }
       }
     }
 
