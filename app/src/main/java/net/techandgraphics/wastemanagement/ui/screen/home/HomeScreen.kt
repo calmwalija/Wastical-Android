@@ -53,7 +53,6 @@ import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
-import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionView
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -214,7 +213,7 @@ fun HomeScreen(
 
 
       state.payments.forEach { payment ->
-        TransactionView(payment, paymentPlan, state.imageLoader)
+        HomePaymentView(payment, paymentPlan, state.imageLoader)
       }
     }
 

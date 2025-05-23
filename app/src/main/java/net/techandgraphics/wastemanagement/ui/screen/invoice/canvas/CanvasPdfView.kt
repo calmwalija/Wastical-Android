@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction.canvas
+package net.techandgraphics.wastemanagement.ui.screen.invoice.canvas
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
@@ -11,24 +11,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import net.techandgraphics.wastemanagement.defaultDateTime
-import net.techandgraphics.wastemanagement.ui.screen.transaction.bold
-import net.techandgraphics.wastemanagement.ui.screen.transaction.extraBold
-import net.techandgraphics.wastemanagement.ui.screen.transaction.light
-import net.techandgraphics.wastemanagement.ui.screen.transaction.mailMan
+import net.techandgraphics.wastemanagement.ui.screen.invoice.bold
+import net.techandgraphics.wastemanagement.ui.screen.invoice.extraBold
+import net.techandgraphics.wastemanagement.ui.screen.invoice.light
+import net.techandgraphics.wastemanagement.ui.screen.invoice.mailMan
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.time.ZonedDateTime
 
 
 @Composable
-fun CanvasPdfView() {
+fun CanvasPdfView(modifier: Modifier = Modifier) {
 
   val context = LocalContext.current
+  val density = LocalDensity.current.density
 
-  val density = 3
   val a4WidthDp = 8.27f * density * 160f
   val a4HeightDp = 11.69f * density * 23f
 
@@ -37,7 +38,7 @@ fun CanvasPdfView() {
   val textSize32 = Paint().apply { textSize = 32f }
 
   Canvas(
-    modifier = Modifier
+    modifier = modifier
       .height(a4HeightDp.dp)
       .width(a4WidthDp.dp)
       .background(Color.White)

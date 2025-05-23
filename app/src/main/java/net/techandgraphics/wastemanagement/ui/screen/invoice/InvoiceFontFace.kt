@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction
+package net.techandgraphics.wastemanagement.ui.screen.invoice
 
 import android.content.Context
 import android.graphics.Typeface

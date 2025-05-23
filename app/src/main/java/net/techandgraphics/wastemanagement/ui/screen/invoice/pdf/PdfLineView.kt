@@ -1,9 +1,9 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction.pdf
+package net.techandgraphics.wastemanagement.ui.screen.invoice.pdf
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import net.techandgraphics.wastemanagement.ui.screen.transaction.canvas.CanvasAxis
+import net.techandgraphics.wastemanagement.ui.screen.invoice.canvas.CanvasAxis
 
 fun Canvas.pdfLineView(
   yAxis: Float,

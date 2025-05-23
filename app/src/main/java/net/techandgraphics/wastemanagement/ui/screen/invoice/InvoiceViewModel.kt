@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction
+package net.techandgraphics.wastemanagement.ui.screen.invoice
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class TransactionViewModel @Inject constructor() : ViewModel() {
+class InvoiceViewModel @Inject constructor() : ViewModel() {
 
-  private val _state = MutableStateFlow(TransactionState())
-  private val _channel = Channel<TransactionChannel>()
+  private val _state = MutableStateFlow(InvoiceState())
+  private val _channel = Channel<InvoiceChannel>()
   val channel = _channel.receiveAsFlow()
 
   val state = _state
@@ -24,10 +24,10 @@ class TransactionViewModel @Inject constructor() : ViewModel() {
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = TransactionState(),
+      initialValue = InvoiceState(),
     )
 
-  fun onEvent(event: TransactionEvent) {
+  fun onEvent(event: InvoiceEvent) {
     when (event) {
       else -> TODO("Handle actions")
     }

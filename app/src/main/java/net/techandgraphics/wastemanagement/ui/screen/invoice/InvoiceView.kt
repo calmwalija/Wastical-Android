@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction
+package net.techandgraphics.wastemanagement.ui.screen.invoice
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,13 +48,13 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   payment: PaymentUiModel,
   paymentPlan: PaymentPlanUiModel,
   imageLoader: ImageLoader?,
-  onEvent: (TransactionEvent) -> Unit
+  onEvent: (InvoiceEvent) -> Unit
 ) {
   Card(
     modifier = Modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.outlinedCardColors(),
-    onClick = { onEvent(TransactionEvent.Button.Tap(payment)) }
+    onClick = { onEvent(InvoiceEvent.Button.Tap(payment)) }
   ) {
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
@@ -100,7 +100,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         )
       }
 
-      IconButton(onClick = { onEvent(TransactionEvent.Button.Share(payment)) }) {
+      IconButton(onClick = { onEvent(InvoiceEvent.Button.Share(payment)) }) {
         Icon(
           Icons.Default.Share,
           contentDescription = null,

@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction.pdf
+package net.techandgraphics.wastemanagement.ui.screen.invoice.pdf
 
 import android.graphics.Canvas
 import android.graphics.Color

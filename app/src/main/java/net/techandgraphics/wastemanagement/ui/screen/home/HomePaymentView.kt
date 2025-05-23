@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction
+package net.techandgraphics.wastemanagement.ui.screen.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,19 +29,16 @@ import coil.ImageLoader
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculateAmount
 import net.techandgraphics.wastemanagement.defaultDate
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.home.payment
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod
 import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@Composable fun TransactionView(
+@Composable fun HomePaymentView(
   payment: PaymentUiModel,
   paymentPlan: PaymentPlanUiModel,
   imageLoader: ImageLoader?,
@@ -110,9 +107,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Preview(showBackground = true)
-@Composable fun TransactionViewPreview() {
+@Composable fun HomePaymentViewPreview() {
   WasteManagementTheme {
-    TransactionView(
+    HomePaymentView(
       payment = payment,
       paymentPlan = paymentPlan,
       imageLoader = imageLoader(LocalContext.current),
