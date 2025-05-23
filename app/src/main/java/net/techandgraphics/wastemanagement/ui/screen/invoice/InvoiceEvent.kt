@@ -7,4 +7,8 @@ sealed interface InvoiceEvent {
     data class Tap(val payment: PaymentUiModel) : Button
     data class Share(val payment: PaymentUiModel) : Button
   }
+
+  sealed interface GoTo : InvoiceEvent {
+    data object BackHandler : GoTo
+  }
 }

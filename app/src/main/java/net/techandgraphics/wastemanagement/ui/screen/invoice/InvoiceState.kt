@@ -1,8 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.invoice
 
-import net.techandgraphics.wastemanagement.ui.screen.home.model.TransactionUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 
 data class InvoiceState(
-  val id: Int = 0,
-  val transactionUiModels: List<TransactionUiModel> = emptyList(),
+  val invoices: List<PaymentUiModel> = listOf(),
 )

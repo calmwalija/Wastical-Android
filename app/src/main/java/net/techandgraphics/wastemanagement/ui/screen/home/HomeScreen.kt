@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
@@ -28,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -187,17 +189,33 @@ fun HomeScreen(
       Spacer(modifier = Modifier.height(24.dp))
 
 
-      Text(
-        text = "Paid Invoice Reports",
-        modifier = Modifier.padding(8.dp),
-        fontWeight = FontWeight.Bold,
-      )
+
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+      ) {
+        Text(
+          text = "Paid Invoice Reports",
+          modifier = Modifier
+            .weight(1f)
+            .padding(8.dp),
+          fontWeight = FontWeight.Bold,
+        )
+
+        TextButton(onClick = { onEvent(HomeEvent.Goto.Invoice) }) {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+          }
+        }
+
+      }
+
 
 
       state.invoices.forEach { invoice ->
         HomeInvoiceView(
           invoice = invoice,
-          modifier = Modifier.fillMaxWidth(1f),
           onEvent = onEvent
         )
       }

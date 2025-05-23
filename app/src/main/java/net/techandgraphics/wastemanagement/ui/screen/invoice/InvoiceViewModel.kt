@@ -9,10 +9,15 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import javax.inject.Inject
 
 @HiltViewModel
-class InvoiceViewModel @Inject constructor() : ViewModel() {
+class InvoiceViewModel @Inject constructor(
+  private val database: AppDatabase,
+) : ViewModel() {
 
   private val _state = MutableStateFlow(InvoiceState())
   private val _channel = Channel<InvoiceChannel>()
@@ -20,6 +25,7 @@ class InvoiceViewModel @Inject constructor() : ViewModel() {
 
   val state = _state
     .onStart {
+      getInvoices()
     }
     .stateIn(
       scope = viewModelScope,
@@ -27,9 +33,15 @@ class InvoiceViewModel @Inject constructor() : ViewModel() {
       initialValue = InvoiceState(),
     )
 
+  private suspend fun getInvoices() {
+    val invoices = database.paymentDao.invoices().map { it.toPaymentUiModel() }
+    _state.update { it.copy(invoices = invoices) }
+  }
+
   fun onEvent(event: InvoiceEvent) {
+    // TODO : Handle events
     when (event) {
-      else -> TODO("Handle actions")
+      else -> Unit
     }
   }
 }
