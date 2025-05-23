@@ -197,7 +197,6 @@ fun HomeScreen(
       state.invoices.forEach { invoice ->
         HomeInvoiceView(
           invoice = invoice,
-          modifier = Modifier.fillMaxWidth(1f),
           onEvent = onEvent
         )
       }

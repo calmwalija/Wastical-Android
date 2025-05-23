@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -34,12 +35,13 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HomeInvoiceView(
   invoice: PaymentUiModel,
-  modifier: Modifier = Modifier,
   onEvent: (HomeEvent) -> Unit
 ) {
 
   Card(
-    modifier = modifier.padding(vertical = 4.dp),
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
     onClick = { onEvent(HomeEvent.Button.Payment.Tap(invoice)) }) {

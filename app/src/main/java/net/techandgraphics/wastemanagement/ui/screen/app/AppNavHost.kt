@@ -28,7 +28,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Invoice,
+    startDestination = Route.Home,
   ) {
 
     composable<Route.SignIn> {
@@ -79,7 +79,7 @@ fun AppNavHost(
     composable<Route.Invoice> {
       with(hiltViewModel<InvoiceViewModel>()) {
         val state = state.collectAsState().value
-        InvoiceScreen(state, channel) {}
+        InvoiceScreen(state, channel, ::onEvent)
       }
     }
 
