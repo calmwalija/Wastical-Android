@@ -42,7 +42,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(
+fun InvoiceScreen(
   state: InvoiceState,
   channel: Flow<InvoiceChannel>,
   onEvent: (InvoiceEvent) -> Unit
@@ -125,14 +125,7 @@ fun TransactionScreen(
           }
         }
       }
-
-//      LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-//        items(state.transactionUiModels) { transactionUiModel ->
-//          if (showInvoice) InvoiceView(transactionUiModel, onEvent) else {
-//            TransactionView(transactionUiModel, onEvent)
-//          }
-//        }
-//      }
+      
 
     }
   }
@@ -141,9 +134,9 @@ fun TransactionScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun TransactionScreenPreview() {
+private fun InvoiceScreenPreview() {
   WasteManagementTheme {
-    TransactionScreen(
+    InvoiceScreen(
       state = InvoiceState(),
       channel = flow { },
       onEvent = {}
