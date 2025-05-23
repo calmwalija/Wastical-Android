@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui
+package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import dagger.hilt.android.AndroidEntryPoint
 import net.techandgraphics.wastemanagement.ui.screen.app.AppScreen
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -20,7 +21,8 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge()
     setContent {
       WasteManagementTheme {
-        Surface { AppScreen(viewModel) }
+        val state = viewModel.state.collectAsState().value
+        Surface { AppScreen(state = state) }
       }
     }
   }
