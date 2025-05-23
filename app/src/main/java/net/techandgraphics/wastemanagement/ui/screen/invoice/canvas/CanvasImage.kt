@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction.canvas
+package net.techandgraphics.wastemanagement.ui.screen.invoice.canvas
 
 import android.content.Context
 import android.graphics.BitmapFactory

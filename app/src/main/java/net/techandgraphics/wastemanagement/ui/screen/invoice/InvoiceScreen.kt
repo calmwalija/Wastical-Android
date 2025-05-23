@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction
+package net.techandgraphics.wastemanagement.ui.screen.invoice
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -44,10 +42,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(
-  state: TransactionState,
-  channel: Flow<TransactionChannel>,
-  onEvent: (TransactionEvent) -> Unit
+fun InvoiceScreen(
+  state: InvoiceState,
+  channel: Flow<InvoiceChannel>,
+  onEvent: (InvoiceEvent) -> Unit
 ) {
 
 
@@ -128,13 +126,6 @@ fun TransactionScreen(
         }
       }
 
-//      LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-//        items(state.transactionUiModels) { transactionUiModel ->
-//          if (showInvoice) InvoiceView(transactionUiModel, onEvent) else {
-//            TransactionView(transactionUiModel, onEvent)
-//          }
-//        }
-//      }
 
     }
   }
@@ -143,10 +134,10 @@ fun TransactionScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun TransactionScreenPreview() {
+private fun InvoiceScreenPreview() {
   WasteManagementTheme {
-    TransactionScreen(
-      state = TransactionState(),
+    InvoiceScreen(
+      state = InvoiceState(),
       channel = flow { },
       onEvent = {}
     )

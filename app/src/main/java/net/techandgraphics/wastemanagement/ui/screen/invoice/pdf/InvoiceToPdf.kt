@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.transaction.pdf
+package net.techandgraphics.wastemanagement.ui.screen.invoice.pdf
 
 import android.content.Context
 import android.graphics.Color
@@ -15,11 +15,11 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
+import net.techandgraphics.wastemanagement.ui.screen.invoice.bold
+import net.techandgraphics.wastemanagement.ui.screen.invoice.extraBold
+import net.techandgraphics.wastemanagement.ui.screen.invoice.light
+import net.techandgraphics.wastemanagement.ui.screen.invoice.mailMan
 import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod
-import net.techandgraphics.wastemanagement.ui.screen.transaction.bold
-import net.techandgraphics.wastemanagement.ui.screen.transaction.extraBold
-import net.techandgraphics.wastemanagement.ui.screen.transaction.light
-import net.techandgraphics.wastemanagement.ui.screen.transaction.mailMan
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

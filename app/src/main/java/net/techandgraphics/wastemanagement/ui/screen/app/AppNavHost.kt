@@ -18,8 +18,8 @@ import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInScreen
 import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInViewModel
-import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionScreen
-import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionViewModel
+import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceScreen
+import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceViewModel
 
 @Composable
 fun AppNavHost(
@@ -28,7 +28,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Home,
+    startDestination = Route.Invoice,
   ) {
 
     composable<Route.SignIn> {
@@ -76,10 +76,10 @@ fun AppNavHost(
       PaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
-    composable<Route.Transaction> {
-      with(hiltViewModel<TransactionViewModel>()) {
+    composable<Route.Invoice> {
+      with(hiltViewModel<InvoiceViewModel>()) {
         val state = state.collectAsState().value
-        TransactionScreen(state, channel) {}
+        InvoiceScreen(state, channel) {}
       }
     }
 

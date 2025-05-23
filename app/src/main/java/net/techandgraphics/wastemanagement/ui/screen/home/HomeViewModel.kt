@@ -23,7 +23,7 @@ import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import net.techandgraphics.wastemanagement.preview
 import net.techandgraphics.wastemanagement.share
-import net.techandgraphics.wastemanagement.ui.screen.transaction.pdf.invoiceToPdf
+import net.techandgraphics.wastemanagement.ui.screen.invoice.pdf.invoiceToPdf
 import java.io.File
 import javax.inject.Inject
 
