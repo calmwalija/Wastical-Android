@@ -9,3 +9,5 @@ fun AccountUiModel.toFullName() = "${this.title.title} ${this.firstname} ${this.
 fun calculateAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String {
   return plan.fee.times(pay.numberOfMonths).toAmount()
 }
+
+fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)

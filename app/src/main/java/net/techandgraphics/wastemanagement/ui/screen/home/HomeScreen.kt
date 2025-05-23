@@ -26,7 +26,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -42,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +51,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
+import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan
+import net.techandgraphics.wastemanagement.ui.screen.transaction.TransactionView
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -67,6 +70,8 @@ fun HomeScreen(
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
     }
   }
+
+  val paymentPlan = state.paymentPlans.firstOrNull() ?: return
 
 
   Scaffold(
@@ -105,11 +110,6 @@ fun HomeScreen(
         colors = TopAppBarDefaults.topAppBarColors()
       )
     },
-    floatingActionButton = {
-      OutlinedButton(onClick = {}) {
-        Text(text = "Make Payment")
-      }
-    }
   ) {
     Column(
       modifier = Modifier
@@ -149,16 +149,22 @@ fun HomeScreen(
       )
 
       FlowRow(maxItemsInEachRow = 2) {
-        homeActivityUiModels.forEach {
-          HomeActivityView(
-            state = state,
-            modifier = Modifier.fillMaxWidth(.5f),
-            homeActivityUiModel = it,
-            onEvent = onEvent
-          )
-        }
+        homeActivityUiModels
+          .mapIndexed { index, item ->
+            if (index == 0) item.copy(
+              containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
+              iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
+            ) else item
+          }
+          .forEach {
+            HomeActivityView(
+              state = state,
+              modifier = Modifier.fillMaxWidth(.5f),
+              homeActivityUiModel = it,
+              onEvent = onEvent
+            )
+          }
       }
-
 
       Spacer(modifier = Modifier.height(24.dp))
 
@@ -181,18 +187,38 @@ fun HomeScreen(
 
       Spacer(modifier = Modifier.height(24.dp))
 
+
+      Text(
+        text = "Paid Invoice Reports",
+        modifier = Modifier.padding(8.dp),
+        fontWeight = FontWeight.Bold,
+      )
+
+
+      state.invoices.forEach { invoice ->
+        HomeInvoiceView(
+          invoice = invoice,
+          modifier = Modifier.fillMaxWidth(1f),
+          onEvent = onEvent
+        )
+      }
+
+
+      Spacer(modifier = Modifier.height(24.dp))
+
       Text(
         text = "Recent Payments",
         modifier = Modifier.padding(8.dp),
         fontWeight = FontWeight.Bold,
       )
 
-      HomeTransactionView(state, onEvent)
 
-      Spacer(modifier = Modifier.height(42.dp))
-
-
+      state.payments.forEach { payment ->
+        TransactionView(payment, paymentPlan, state.imageLoader)
+      }
     }
+
+    Spacer(modifier = Modifier.height(42.dp))
   }
 
 
@@ -245,7 +271,11 @@ private fun HomeScreenPreview() {
   WasteManagementTheme {
     HomeScreen(
       state = HomeState(
-        accounts = listOf(account)
+        accounts = listOf(account),
+        payments = listOf(payment, payment),
+        invoices = listOf(payment, payment),
+        imageLoader = imageLoader(LocalContext.current),
+        paymentPlans = listOf(paymentPlan)
       ),
       channel = flow { },
       onEvent = {}

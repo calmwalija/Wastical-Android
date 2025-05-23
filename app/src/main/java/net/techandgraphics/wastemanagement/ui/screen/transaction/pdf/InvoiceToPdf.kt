@@ -15,7 +15,6 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.payment.paymentMethod
 import net.techandgraphics.wastemanagement.ui.screen.transaction.bold
 import net.techandgraphics.wastemanagement.ui.screen.transaction.extraBold
@@ -47,6 +46,7 @@ fun invoiceToPdf(
   accountContact: AccountContactUiModel,
   payment: PaymentUiModel,
   paymentPlan: PaymentPlanUiModel,
+  onEvent: (File?) -> Unit,
 ) {
   val pdfDocument = PdfDocument()
 
@@ -370,19 +370,17 @@ fun invoiceToPdf(
     /***************************************************************/
 
     pdfDocument.finishPage(pdfPage)
-    pdfDocument.saveToInternal(context)
-
+    onEvent.invoke(pdfDocument.saveToInternal(context, payment))
     pdfDocument.close()
   }
 }
 
-private fun PdfDocument.saveToInternal(context: Context): File? {
-  val pdfFile = File(context.filesDir, "129048242453.pdf")
+private fun PdfDocument.saveToInternal(context: Context, payment: PaymentUiModel): File? {
+  val pdfFile = File(context.filesDir, "${payment.transactionId}.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)
     fileOutputStream.close()
-    context.toast("Okay")
     pdfFile
   } catch (e: IOException) {
     e.printStackTrace()

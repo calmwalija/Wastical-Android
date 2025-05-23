@@ -20,7 +20,7 @@ fun DrawScope.canvasImage(
   context: Context,
 ) = with(theSentence) {
   val imageSize = 140
-  val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.im_national_bank_logo)
+  val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_background)
   val imageBitmap: ImageBitmap = bitmap.asImageBitmap()
 
   clipPath(

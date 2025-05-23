@@ -16,5 +16,6 @@ data class HomeState(
   val company: List<CompanyUiModel> = listOf(),
   val companyContacts: List<CompanyContactUiModel> = listOf(),
   val payments: List<PaymentUiModel> = listOf(),
+  val invoices: List<PaymentUiModel> = listOf(),
   val paymentPlans: List<PaymentPlanUiModel> = listOf(),
 )
