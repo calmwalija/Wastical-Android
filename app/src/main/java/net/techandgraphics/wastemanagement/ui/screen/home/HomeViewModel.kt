@@ -35,18 +35,11 @@ import javax.inject.Inject
   )
 
   private fun onAppState(event: HomeEvent.AppState) {
-    _state.update { it.copy(accounts = event.state.accounts) }
-    _state.update { it.copy(accountContacts = event.state.accountContacts) }
-    _state.update { it.copy(companyContacts = event.state.companyContacts) }
-    _state.update { it.copy(payments = event.state.payments) }
-    _state.update { it.copy(invoices = event.state.invoices) }
-    _state.update { it.copy(companies = event.state.companies) }
-    _state.update { it.copy(paymentPlans = event.state.paymentPlans) }
-    _state.update { it.copy(imageLoader = event.state.imageLoader) }
+    _state.update { it.copy(state = event.state) }
   }
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
-    with(state.value) {
+    with(state.value.state) {
       invoiceToPdf(
         context = application,
         account = accounts.first(),

@@ -8,7 +8,7 @@ import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 
-internal val paymentPlan = PaymentPlanUiModel(
+internal val paymentPlan4Preview = PaymentPlanUiModel(
   id = 1L,
   fee = 10_000,
   name = "Premium",
@@ -19,7 +19,7 @@ internal val paymentPlan = PaymentPlanUiModel(
   updatedAt = null,
 )
 
-internal val paymentMethod = PaymentMethodUiModel(
+internal val paymentMethod4Preview = PaymentMethodUiModel(
   id = 1L,
   name = "National Bank",
   type = PaymentType.Bank,

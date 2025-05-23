@@ -90,7 +90,7 @@ private fun PaymentPlanViewPreview() {
   WasteManagementTheme {
     PaymentPlanView(
       state = PaymentState(
-        paymentPlans = listOf(paymentPlan)
+        paymentPlans = listOf(paymentPlan4Preview)
       ),
       onEvent = {}
     )
