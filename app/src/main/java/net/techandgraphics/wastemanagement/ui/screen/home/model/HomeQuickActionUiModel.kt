@@ -1,11 +1,13 @@
 package net.techandgraphics.wastemanagement.ui.screen.home.model
 
 import androidx.compose.ui.graphics.Color
+import net.techandgraphics.wastemanagement.ui.screen.home.HomeEvent
 
-data class HomeActionUiModel(
-  val action: String,
+data class HomeQuickActionUiModel(
+  val title: String,
   val drawableRes: Int,
   val iconTint: Color = Color.White,
   val iconBackground: Color = Color.White,
   val containerColor: Color = Color.White,
+  val event: HomeEvent,
 )

@@ -16,55 +16,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.defaultDate
+import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActivityUiModel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HomeActivityView(
-  state: HomeState,
-  homeActivityUiModel: HomeActivityUiModel,
+  homeActivity: HomeActivityUiModel,
   modifier: Modifier = Modifier,
   onEvent: (HomeEvent) -> Unit
 ) {
 
   val brush = Brush.horizontalGradient(
     listOf(
-      homeActivityUiModel.iconBackground.copy(.7f),
-      homeActivityUiModel.iconBackground.copy(.8f),
-      homeActivityUiModel.iconBackground
+      homeActivity.iconBackground.copy(.7f),
+      homeActivity.iconBackground.copy(.8f),
+      homeActivity.iconBackground
     )
   )
 
   Surface(
     tonalElevation = 3.dp,
     shape = RoundedCornerShape(8),
-    color = homeActivityUiModel.containerColor,
+    color = homeActivity.containerColor,
     modifier = modifier.padding(4.dp),
-    onClick = {},
-    enabled = homeActivityUiModel.clickable
+    onClick = { onEvent(homeActivity.event) },
+    enabled = homeActivity.clickable
   ) {
     Column(modifier = Modifier.padding(16.dp)) {
       Icon(
-        painterResource(homeActivityUiModel.drawableRes), null,
+        painterResource(homeActivity.drawableRes), null,
         modifier = Modifier
           .padding(bottom = 8.dp)
           .clip(CircleShape)
           .background(brush = brush)
           .size(42.dp)
           .padding(8.dp),
-        tint = homeActivityUiModel.iconTint
+        tint = homeActivity.iconTint
       )
       Text(
-        text = homeActivityUiModel.activity,
-        style = MaterialTheme.typography.bodyMedium
+        text = homeActivity.activity,
+        style = MaterialTheme.typography.bodySmall,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
       )
+
       Text(
-        text = homeActivityUiModel.date.toString(),
-        fontWeight = FontWeight.Bold,
+        text = homeActivity.epochSecond.toZonedDateTime().defaultDate(),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
       )
 
     }
@@ -77,8 +82,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 private fun HomeActivityViewPreview() {
   WasteManagementTheme {
     HomeActivityView(
-      state = HomeState(),
-      homeActivityUiModel = homeActivityUiModels.first(),
+      homeActivity = homeActivityUiModels.first(),
       onEvent = {}
     )
   }

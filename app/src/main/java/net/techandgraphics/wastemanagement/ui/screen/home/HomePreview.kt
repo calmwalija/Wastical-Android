@@ -7,37 +7,41 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
-import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActionUiModel
 import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActivityUiModel
+import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeQuickActionUiModel
 import net.techandgraphics.wastemanagement.ui.theme.WhiteFE
 import java.time.ZonedDateTime
 
 internal val homeActivityUiModels = listOf(
   HomeActivityUiModel(
-    activity = "Payment",
+    activity = "Payment Due",
     drawableRes = R.drawable.ic_payment,
     iconBackground = WhiteFE.copy(.7f),
     containerColor = WhiteFE.copy(.2f),
+    event = HomeEvent.Button.MakePayment,
   ),
   HomeActivityUiModel(
-    activity = "Collection",
+    activity = "Trash Collection",
     drawableRes = R.drawable.ic_cleaning_bucket,
     iconBackground = Color.DarkGray,
     containerColor = Color.DarkGray.copy(.05f),
     clickable = false,
+    event = HomeEvent.Button.MakePayment,
   ),
 )
 
-internal val homeActionUiModels = listOf(
-  HomeActionUiModel(
-    action = "Make Payment",
+internal val homeQuickActionUiModels = listOf(
+  HomeQuickActionUiModel(
+    title = "Make Payment",
     drawableRes = R.drawable.ic_payments,
+    event = HomeEvent.Button.MakePayment,
   ),
-  HomeActionUiModel(
-    action = "Waste Sorting Guide",
+  HomeQuickActionUiModel(
+    title = "Waste Sorting Guide",
     drawableRes = R.drawable.ic_help,
     iconBackground = WhiteFE.copy(.7f),
     containerColor = WhiteFE.copy(.2f),
+    event = HomeEvent.Button.WasteSortGuide,
   ),
 )
 

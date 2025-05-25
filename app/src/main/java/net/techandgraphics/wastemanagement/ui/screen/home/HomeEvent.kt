@@ -12,6 +12,9 @@ sealed interface HomeEvent {
       data class Invoice(val payment: PaymentUiModel) : Payment
       data class Share(val payment: PaymentUiModel) : Payment
     }
+
+    data object MakePayment : Button
+    data object WasteSortGuide : Button
   }
 
   sealed interface Goto : HomeEvent {

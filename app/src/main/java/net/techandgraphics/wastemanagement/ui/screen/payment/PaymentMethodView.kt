@@ -46,7 +46,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       modifier = Modifier.padding(8.dp)
     )
 
-    state.paymentMethods.forEachIndexed { index, paymentMethod ->
+    state.state.paymentMethods.forEachIndexed { index, paymentMethod ->
       Card(
         colors = CardDefaults.elevatedCardColors(),
         modifier = Modifier.padding(vertical = 8.dp),
@@ -67,7 +67,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               .networkCachePolicy(CachePolicy.ENABLED)
               .crossfade(true)
               .build(),
-            imageLoader = state.imageLoader!!,
+            imageLoader = state.state.imageLoader!!,
             placeholder = painterResource(R.drawable.im_placeholder),
             error = painterResource(R.drawable.im_placeholder)
           )
@@ -113,8 +113,7 @@ private fun PaymentMethodViewPreview() {
   WasteManagementTheme {
     PaymentMethodView(
       state = PaymentState(
-        paymentMethods = listOf(paymentMethod4Preview, paymentMethod4Preview, paymentMethod4Preview),
-        imageLoader = imageLoader(LocalContext.current)
+        state = appState(LocalContext.current)
       ),
       onEvent = {}
     )

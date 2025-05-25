@@ -18,19 +18,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeActionUiModel
+import net.techandgraphics.wastemanagement.ui.screen.home.model.HomeQuickActionUiModel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HomeQuickActionView(
-  homeActionUiModel: HomeActionUiModel,
+  homeQuickActionUiModel: HomeQuickActionUiModel,
   modifier: Modifier = Modifier,
   onEvent: (HomeEvent) -> Unit
 ) {
 
   OutlinedCard(
     modifier = modifier.padding(4.dp),
-    onClick = {},
+    onClick = { onEvent(homeQuickActionUiModel.event) },
   ) {
     Column(
       modifier = Modifier
@@ -40,11 +40,11 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Icon(
-        painterResource(homeActionUiModel.drawableRes), null,
+        painterResource(homeQuickActionUiModel.drawableRes), null,
         tint = MaterialTheme.colorScheme.primary
       )
       Text(
-        text = homeActionUiModel.action,
+        text = homeQuickActionUiModel.title,
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
@@ -65,7 +65,7 @@ private fun HomeQuickActionViewPreview() {
 
     HomeQuickActionView(
       onEvent = {},
-      homeActionUiModel = homeActionUiModels.first()
+      homeQuickActionUiModel = homeQuickActionUiModels.first()
     )
   }
 }

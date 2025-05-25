@@ -7,6 +7,9 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.screen.home.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.home.payment4Preview
 
 internal val paymentPlan4Preview = PaymentPlanUiModel(
   id = 1L,
@@ -28,6 +31,19 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   paymentGatewayId = 1L,
   createdAt = System.currentTimeMillis(),
   updatedAt = null,
+)
+
+internal fun appState(context: Context) = MainActivityState(
+  accounts = listOf(account4Preview),
+  payments = listOf(payment4Preview, payment4Preview),
+  invoices = listOf(payment4Preview, payment4Preview),
+  paymentPlans = listOf(paymentPlan4Preview),
+  paymentMethods = listOf(
+    paymentMethod4Preview,
+    paymentMethod4Preview,
+    paymentMethod4Preview,
+  ),
+  imageLoader = imageLoader(context),
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

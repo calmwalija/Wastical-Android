@@ -51,6 +51,7 @@ fun AppNavHost(
     composable<Route.Payment> {
       with(hiltViewModel<PaymentViewModel>()) {
         val state = state.collectAsState().value
+        onEvent(PaymentEvent.AppState(appState))
         PaymentScreen(state, channel) { event ->
           when (event) {
             is PaymentEvent.Response ->
@@ -75,6 +76,8 @@ fun AppNavHost(
               when (event) {
                 HomeEvent.Goto.Invoice -> navController.navigate(Route.Invoice)
               }
+
+            HomeEvent.Button.MakePayment -> navController.navigate(Route.Payment)
 
             else -> onEvent(event)
           }
