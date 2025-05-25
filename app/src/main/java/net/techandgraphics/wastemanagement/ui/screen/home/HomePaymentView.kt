@@ -40,6 +40,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun HomePaymentView(
   payment: PaymentUiModel,
+  gatewayId: Long,
   paymentPlan: PaymentPlanUiModel,
   imageLoader: ImageLoader?,
 ) {
@@ -54,7 +55,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Box(modifier = Modifier.size(42.dp)) {
 
         val asyncImagePainter =
-          imageGatewayPainter(imageGatewayUrl(payment.paymentMethodId), imageLoader!!)
+          imageGatewayPainter(imageGatewayUrl(gatewayId), imageLoader!!)
 
         Icon(
           painterResource(R.drawable.ic_compare_arrows), null,
@@ -111,6 +112,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   WasteManagementTheme {
     HomePaymentView(
       payment = payment4Preview,
+      gatewayId = 1L,
       paymentPlan = paymentPlan4Preview,
       imageLoader = imageLoader(LocalContext.current),
     )

@@ -4,8 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class PaymentMethodResponse(
   val id: Long,
-  val name: String,
-  val type: String,
   val account: String,
   @SerializedName("payment_plan_id") val paymentPlanId: Long,
   @SerializedName("payment_gateway_id") val paymentGatewayId: Long,

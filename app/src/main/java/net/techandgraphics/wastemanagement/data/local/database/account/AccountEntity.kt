@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
 
 @Entity(
   tableName = "account",
@@ -14,6 +15,11 @@ import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEn
       entity = CompanyEntity::class,
       parentColumns = ["id"],
       childColumns = ["company_id"],
+    ),
+    ForeignKey(
+      entity = TrashCollectionScheduleEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["trash_collection_schedule_id"],
     ),
   ],
   indices = [Index("company_id")],
@@ -29,6 +35,7 @@ data class AccountEntity(
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: String,
+  @ColumnInfo("trash_collection_schedule_id") val trashCollectionScheduleId: Long,
   @ColumnInfo(name = "company_id") val companyId: Long,
   @ColumnInfo(name = "leaving_reason") val leavingReason: String? = null,
   @ColumnInfo(name = "leaving_timestamp") val leavingTimestamp: Long?,
