@@ -108,7 +108,7 @@ fun PaymentScreen(
               text = "Total",
               style = MaterialTheme.typography.titleSmall
             )
-            state.paymentPlans.firstOrNull()?.let { paymentPlan ->
+            state.state.paymentPlans.firstOrNull()?.let { paymentPlan ->
 
               val animatedSum by animateIntAsState(
                 targetValue = state.numberOfMonths.times(paymentPlan.fee),
@@ -193,10 +193,7 @@ private fun PaymentScreenPreview() {
   WasteManagementTheme {
     PaymentScreen(
       state = PaymentState(
-        paymentPlans = listOf(paymentPlan4Preview),
-        paymentMethods = listOf(paymentMethod4Preview, paymentMethod4Preview),
-        imageLoader = imageLoader(LocalContext.current),
-        screenshotAttached = false
+        state = appState(LocalContext.current)
       ),
       channel = flow { },
       onEvent = {}

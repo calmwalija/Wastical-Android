@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.toAmount
@@ -26,7 +27,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable fun PaymentPlanView(
   state: PaymentState,
   onEvent: (PaymentEvent) -> Unit
-) = state.paymentPlans.forEach { paymentPlan ->
+) = state.state.paymentPlans.forEach { paymentPlan ->
 
   Column {
     Text(
@@ -90,7 +91,7 @@ private fun PaymentPlanViewPreview() {
   WasteManagementTheme {
     PaymentPlanView(
       state = PaymentState(
-        paymentPlans = listOf(paymentPlan4Preview)
+        state = appState(LocalContext.current)
       ),
       onEvent = {}
     )

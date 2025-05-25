@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -53,9 +54,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-import net.techandgraphics.wastemanagement.ui.screen.payment.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.payment.paymentPlan4Preview
+import net.techandgraphics.wastemanagement.ui.screen.payment.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -77,7 +76,19 @@ fun HomeScreen(
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { },
+        title = {
+          state.state.companies.forEach { company ->
+            Text(
+              text = company.name,
+              fontWeight = FontWeight.Bold,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+            )
+          }
+        },
         actions = {
           IconButton(onClick = { }) {
             BadgedBox(badge = { Badge() }) {
@@ -158,9 +169,8 @@ fun HomeScreen(
           }
           .forEach {
             HomeActivityView(
-              state = state,
               modifier = Modifier.fillMaxWidth(.5f),
-              homeActivityUiModel = it,
+              homeActivity = it,
               onEvent = onEvent
             )
           }
@@ -175,9 +185,9 @@ fun HomeScreen(
       )
 
       FlowRow(maxItemsInEachRow = 2) {
-        homeActionUiModels.forEach {
+        homeQuickActionUiModels.forEach {
           HomeQuickActionView(
-            homeActionUiModel = it,
+            homeQuickActionUiModel = it,
             modifier = Modifier.fillMaxWidth(.5f),
             onEvent = onEvent
           )
@@ -287,13 +297,7 @@ private fun HomeScreenPreview() {
   WasteManagementTheme {
     HomeScreen(
       state = HomeState(
-        state = MainActivityState(
-          accounts = listOf(account4Preview),
-          payments = listOf(payment4Preview, payment4Preview),
-          invoices = listOf(payment4Preview, payment4Preview),
-          imageLoader = imageLoader(LocalContext.current),
-          paymentPlans = listOf(paymentPlan4Preview)
-        )
+        state = appState(LocalContext.current)
       ),
       channel = flow { },
       onEvent = {}

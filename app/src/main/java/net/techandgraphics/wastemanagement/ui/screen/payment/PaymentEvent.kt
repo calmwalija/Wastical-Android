@@ -1,10 +1,12 @@
 package net.techandgraphics.wastemanagement.ui.screen.payment
 
 import android.net.Uri
+import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 
 sealed interface PaymentEvent {
 
   data class Response(val isSuccess: Boolean, val error: String?) : PaymentEvent
+  data class AppState(val state: MainActivityState) : PaymentEvent
 
   sealed interface Button : PaymentEvent {
     data object Pay : PaymentEvent
