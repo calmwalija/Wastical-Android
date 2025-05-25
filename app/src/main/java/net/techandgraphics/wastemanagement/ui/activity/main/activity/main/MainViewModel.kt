@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.session.SessionRepository
+import net.techandgraphics.wastemanagement.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastemanagement.domain.toAccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-  private val session: SessionRepository,
+  private val session: AccountSessionRepository,
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
 ) : ViewModel() {
