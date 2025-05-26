@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.calculateAmount
+import net.techandgraphics.wastemanagement.calculateToTextAmount
 import net.techandgraphics.wastemanagement.defaultDate
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -70,7 +70,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         )
         paymentPlans.forEach { paymentPlan ->
           Text(
-            text = calculateAmount(paymentPlan, invoice),
+            text = calculateToTextAmount(paymentPlan, invoice),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,

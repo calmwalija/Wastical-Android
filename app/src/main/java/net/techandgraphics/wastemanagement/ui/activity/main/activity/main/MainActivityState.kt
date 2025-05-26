@@ -5,6 +5,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUi
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -19,4 +20,5 @@ data class MainActivityState(
   val invoices: List<PaymentUiModel> = listOf(),
   val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   val paymentMethods: List<PaymentMethodUiModel> = listOf(),
+  val trashSchedules: List<TrashCollectionScheduleUiModel> = listOf(),
 )

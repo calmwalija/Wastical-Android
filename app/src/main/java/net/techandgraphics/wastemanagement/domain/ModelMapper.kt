@@ -7,6 +7,7 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
@@ -16,6 +17,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUi
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -105,3 +107,13 @@ fun AccountContactEntity.toAccountContactUiModel() = AccountContactUiModel(
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
+
+fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
+  TrashCollectionScheduleUiModel(
+    id = id,
+    dayOfWeek = dayOfWeek,
+    companyId = companyId,
+    streetId = streetId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )

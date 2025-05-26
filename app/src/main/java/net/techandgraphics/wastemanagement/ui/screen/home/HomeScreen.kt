@@ -52,8 +52,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.toInitials
 import net.techandgraphics.wastemanagement.ui.screen.payment.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -134,7 +136,7 @@ fun HomeScreen(
 
       state.state.accounts.forEach { account ->
         Row(verticalAlignment = Alignment.CenterVertically) {
-          LetterView()
+          state.state.accounts.firstOrNull()?.let { LetterView(it) }
           Column(modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(
               text = "Good ${getTimeOfDay()}",
@@ -153,27 +155,31 @@ fun HomeScreen(
 
       Spacer(modifier = Modifier.height(24.dp))
 
-      Text(
-        text = "Upcoming Activities",
-        modifier = Modifier.padding(8.dp),
-        fontWeight = FontWeight.Bold,
-      )
+      if (state.state.invoices.isNotEmpty()) {
 
-      FlowRow(maxItemsInEachRow = 2) {
-        homeActivityUiModels
-          .mapIndexed { index, item ->
-            if (index == 0) item.copy(
-              containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
-              iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
-            ) else item
-          }
-          .forEach {
-            HomeActivityView(
-              modifier = Modifier.fillMaxWidth(.5f),
-              homeActivity = it,
-              onEvent = onEvent
-            )
-          }
+        Text(
+          text = "Upcoming Activities",
+          modifier = Modifier.padding(8.dp),
+          fontWeight = FontWeight.Bold,
+        )
+
+        FlowRow(maxItemsInEachRow = 2) {
+          homeActivityUiModels
+            .mapIndexed { index, item ->
+              if (index == 0) item.copy(
+                containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
+                iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
+              ) else item
+            }
+            .forEach {
+              HomeActivityView(
+                state = state,
+                modifier = Modifier.fillMaxWidth(.5f),
+                homeActivity = it,
+                onEvent = onEvent
+              )
+            }
+        }
       }
 
       Spacer(modifier = Modifier.height(24.dp))
@@ -228,24 +234,28 @@ fun HomeScreen(
       }
 
 
-      Spacer(modifier = Modifier.height(24.dp))
+      if (state.state.payments.isNotEmpty()) {
 
-      Text(
-        text = "Recent Payments",
-        modifier = Modifier.padding(8.dp),
-        fontWeight = FontWeight.Bold,
-      )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+          text = "Recent Payments",
+          modifier = Modifier.padding(8.dp),
+          fontWeight = FontWeight.Bold,
+        )
 
 
-      state.state.paymentPlans.forEach { paymentPlan ->
-        state.state.payments.forEach { payment ->
-          val gatewayId =
-            state.state.paymentMethods
-              .first { it.paymentPlanId == paymentPlan.id }
-              .paymentGatewayId
-          HomePaymentView(payment, gatewayId, paymentPlan, state.state.imageLoader)
+        state.state.paymentPlans.forEach { paymentPlan ->
+          state.state.payments.forEach { payment ->
+            val gatewayId =
+              state.state.paymentMethods
+                .first { it.paymentPlanId == paymentPlan.id }
+                .paymentGatewayId
+            HomePaymentView(payment, gatewayId, paymentPlan, state.state.imageLoader)
+          }
         }
       }
+
     }
 
     Spacer(modifier = Modifier.height(42.dp))
@@ -255,7 +265,7 @@ fun HomeScreen(
 }
 
 
-@Composable fun LetterView() {
+@Composable fun LetterView(account: AccountUiModel) {
   val brush = Brush.horizontalGradient(
     listOf(
       MaterialTheme.colorScheme.primary.copy(.7f),
@@ -286,7 +296,7 @@ fun HomeScreen(
         )
     )
     Text(
-      text = "Mj",
+      text = account.toInitials(),
       style = MaterialTheme.typography.bodySmall,
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,

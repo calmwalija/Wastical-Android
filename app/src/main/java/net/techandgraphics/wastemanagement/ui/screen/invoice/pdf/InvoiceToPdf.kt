@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
-import net.techandgraphics.wastemanagement.calculateAmount
+import net.techandgraphics.wastemanagement.calculateToTextAmount
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
@@ -34,7 +34,7 @@ private fun tableData(
     "${paymentPlan.period.name} Subscription",
     payment.numberOfMonths,
     paymentPlan.fee.toAmount(),
-    calculateAmount(paymentPlan, payment),
+    calculateToTextAmount(paymentPlan, payment),
   )
 }
 
@@ -320,7 +320,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = calculateAmount(paymentPlan, payment),
+      theSentence = calculateToTextAmount(paymentPlan, payment),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -347,7 +347,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = calculateAmount(paymentPlan, payment),
+      theSentence = calculateToTextAmount(paymentPlan, payment),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = extraBold(context) },

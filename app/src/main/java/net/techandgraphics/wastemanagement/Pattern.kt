@@ -13,6 +13,6 @@ object Pattern {
   const val DATE_MM_DD_YYYY = "MM/dd/yyyy" // US format → 03/23/2025
   const val DATE_EEE_MMM_D_YYYY = "EEE, MMM d, yyyy" // Short weekday → Sat, Mar 23, 2025
   const val DATE_EEEE_MMMM_D_YYYY = "EEEE, MMMM d, yyyy" // Full weekday → Saturday, March 23, 2025
-  const val DATE_D_MMM_YYYY = "d MMM yyyy" // Day Month Year → 23 Mar 2025
+  const val DATE_MMM_YYYY = "MMM yyyy" // Day Month Year → 23 Mar 2025
   const val DATE_MMMM_D_YYYY = "MMMM dd, yyyy" // Month day, year → March 23, 2025
 }

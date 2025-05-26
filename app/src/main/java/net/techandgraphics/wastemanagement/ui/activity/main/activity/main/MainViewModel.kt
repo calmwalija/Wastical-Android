@@ -21,6 +21,7 @@ import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
+import net.techandgraphics.wastemanagement.domain.toTrashCollectionScheduleUiModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,6 +44,7 @@ class MainViewModel @Inject constructor(
       launch { getCompanies() }
       launch { getCompanyContact() }
       launch { getPaymentMethods() }
+      launch { getTrashCollectionSchedules() }
     }
   }.stateIn(
     scope = viewModelScope,
@@ -104,5 +106,11 @@ class MainViewModel @Inject constructor(
     database.paymentMethodDao.flow()
       .map { dbPaymentMethods -> dbPaymentMethods.map { it.toPaymentMethodUiModel() } }
       .collectLatest { paymentMethods -> _state.update { it.copy(paymentMethods = paymentMethods) } }
+  }
+
+  private suspend fun getTrashCollectionSchedules() {
+    database.trashCollectionScheduleDao.flow()
+      .map { dbTCSchedules -> dbTCSchedules.map { it.toTrashCollectionScheduleUiModel() } }
+      .collectLatest { tCSchedules -> _state.update { it.copy(trashSchedules = tCSchedules) } }
   }
 }
