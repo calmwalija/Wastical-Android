@@ -3,15 +3,12 @@ package net.techandgraphics.wastemanagement.data.local.database.account
 enum class AccountTitle(val title: String) {
   MR("Mr."),
   MRS("Mrs."),
-  MISS("Miss"),
+  MISS("Miss."),
   MS("Ms."),
   DR("Dr."),
   PROF("Prof."),
   REV("Rev."),
-  SIR("Sir"),
-  DAME("Dame"),
-  LORD("Lord"),
-  LADY("Lady"),
+  SIR("Sir."),
   Pastor("Pastor."),
   HON("Hon."),
   ;

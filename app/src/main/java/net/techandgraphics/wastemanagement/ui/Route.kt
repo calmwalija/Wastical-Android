@@ -17,4 +17,13 @@ sealed interface Route {
     val isSuccess: Boolean,
     val error: String? = null,
   ) : Route
+
+  @Serializable
+  sealed interface Company : Route {
+
+    @Serializable
+    sealed interface Account : Company {
+      @Serializable data object Create : Account
+    }
+  }
 }

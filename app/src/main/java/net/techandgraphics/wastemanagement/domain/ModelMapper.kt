@@ -8,6 +8,9 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
@@ -18,6 +21,9 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.AreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DistrictUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -117,3 +123,33 @@ fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
+
+fun StreetEntity.toStreetUiModel() = StreetUiModel(
+  id = id,
+  name = name,
+  latitude = latitude,
+  longitude = longitude,
+  areaId = areaId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun AreaEntity.toAreaUiModel() = AreaUiModel(
+  id = id,
+  name = name,
+  type = type,
+  latitude = latitude,
+  longitude = longitude,
+  description = description,
+  districtId = districtId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun DistrictEntity.toDistrictUiModel() = DistrictUiModel(
+  id = id,
+  name = name,
+  region = region,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)

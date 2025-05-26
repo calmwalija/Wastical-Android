@@ -1,7 +1,6 @@
 package net.techandgraphics.wastemanagement.data.local.database.account.session
 
 import androidx.room.withTransaction
-import kotlinx.coroutines.delay
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toAccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
@@ -24,8 +23,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
   private val api: AppApi,
 ) : AccountSessionRepository {
 
-  override suspend fun invoke() {
-    delay(2_000)
+  override suspend fun clientSession() {
     runCatching { api.accountSessionApi.get() }
       .onFailure { println(onApiErrorHandler(it)) }
       .onSuccess { accountSession ->
@@ -39,14 +37,14 @@ class AccountSessionRepositoryImpl @Inject constructor(
                 companies.map { it.toCompanyEntity() }.also { companyDao.insert(it) }
                 companyContacts.map { it.toCompanyContactEntity() }
                   .also { companyContactDao.insert(it) }
-                trashCollections.map { it.toTrashCollectionScheduleEntity() }
-                  .also { trashCollectionScheduleDao.insert(it) }
+                trashSchedules.map { it.toTrashCollectionScheduleEntity() }
+                  .also { trashScheduleDao.insert(it) }
                 account.map { it.toAccountEntity() }.also { accountDao.insert(it) }
                 accountContacts.map { it.toAccountContactEntity() }
                   .also { accountContactDao.insert(it) }
                 plans.map { it.toPaymentPlanEntity() }.also { paymentPlanDao.insert(it) }
-                paymentCollectionDays.map { it.toPaymentCollectionDayEntity() }
-                  .also { paymentCollectionDayDao.insert(it) }
+                paymentDays.map { it.toPaymentCollectionDayEntity() }
+                  .also { paymentDayDao.insert(it) }
                 methods.toPaymentMethodEntity(gateways).also { paymentMethodDao.insert(it) }
                 payments.map { it.toPaymentEntity() }.also { paymentDao.insert(it) }
               }
@@ -55,6 +53,13 @@ class AccountSessionRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
           println(e)
         }
+      }
+  }
+
+  override suspend fun companySession() {
+    runCatching { api.accountSessionApi.get() }
+      .onFailure { println(onApiErrorHandler(it)) }
+      .onSuccess { accountSession ->
       }
   }
 }

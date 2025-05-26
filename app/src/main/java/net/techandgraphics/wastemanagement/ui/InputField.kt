@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -45,7 +47,10 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
   hidePassword: Boolean = true,
   trailingView: @Composable () -> Unit = {},
   togglePasswordVisual: () -> Unit = {},
-  maskTransformation: String? = null
+  maskTransformation: String? = null,
+  leadingView: @Composable () -> Unit = {},
+  readOnly: Boolean = false,
+  onClickAction: () -> Unit = {}
 ) {
 
   Row(verticalAlignment = Alignment.CenterVertically) {
@@ -53,70 +58,91 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
       if (imageVector == null) Icon(
         painter = painterResource(painterResource),
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.secondary,
+        tint = MaterialTheme.colorScheme.primary,
       ) else Icon(
         imageVector = imageVector,
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.secondary,
+        tint = MaterialTheme.colorScheme.primary,
       )
     }
     Spacer(modifier = Modifier.width(16.dp))
     Column {
-      BasicTextField(
-        modifier = Modifier
-          .padding(4.dp)
-          .fillMaxWidth(),
-        value = value,
-        onValueChange = onValueChange,
-        decorationBox = {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-              modifier = Modifier
-                .padding(vertical = 8.dp)
-                .weight(1f)
-            ) {
-              it.invoke()
-              if (value.trim().isEmpty())
-                Text(
-                  text = prompt,
-                  color = LocalContentColor.current.copy(alpha = 0.5f),
-                  maxLines = 1,
-                  overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (keyboardType == KeyboardType.Password) {
-              var resId =
-                if (hidePassword) R.drawable.ic_hide_password else R.drawable.ic_show_password
-              IconButton(onClick = { togglePasswordVisual() }) {
-                Icon(
-                  painter = painterResource(resId),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.secondary,
-                  modifier = Modifier.size(20.dp)
-                )
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable { onClickAction() }) {
+        leadingView()
+        if (readOnly) {
+          Text(
+            text = value,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+              .padding(vertical = 20.dp)
+              .fillMaxWidth(.95f),
+          )
+        } else {
+          BasicTextField(
+            modifier = Modifier
+              .padding(10.dp)
+              .fillMaxWidth(),
+            value = value,
+            onValueChange = onValueChange,
+            decorationBox = {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                Box(
+                  modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .weight(1f)
+                ) {
+                  it.invoke()
+                  if (value.trim().isEmpty())
+                    Text(
+                      text = prompt,
+                      color = LocalContentColor.current.copy(alpha = 0.5f),
+                      maxLines = 1,
+                      overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (keyboardType == KeyboardType.Password) {
+                  var resId =
+                    if (hidePassword) R.drawable.ic_hide_password else R.drawable.ic_show_password
+                  IconButton(onClick = { togglePasswordVisual() }) {
+                    Icon(
+                      painter = painterResource(resId),
+                      contentDescription = null,
+                      tint = MaterialTheme.colorScheme.secondary,
+                      modifier = Modifier.size(20.dp)
+                    )
+                  }
+                }
+                trailingView()
               }
-            }
-            trailingView()
-          }
 
-        },
-        visualTransformation =
-          if (maskTransformation != null) CountryCodeMaskTransformation(maskTransformation)
-          else if (keyboardType != KeyboardType.Password)
-            VisualTransformation.None else {
-            if (!hidePassword) VisualTransformation.None else {
-              PasswordVisualTransformation('*')
-            }
-          },
-        keyboardOptions = KeyboardOptions(
-          keyboardType = keyboardType,
-          autoCorrectEnabled = true,
-        ),
-        singleLine = true,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
+            },
+            visualTransformation =
+              if (maskTransformation != null) CountryCodeMaskTransformation(maskTransformation)
+              else if (keyboardType != KeyboardType.Password)
+                VisualTransformation.None else {
+                if (!hidePassword) VisualTransformation.None else {
+                  PasswordVisualTransformation('*')
+                }
+              },
+            keyboardOptions = KeyboardOptions(
+              keyboardType = keyboardType,
+              autoCorrectEnabled = true,
+              capitalization = KeyboardCapitalization.Sentences
+            ),
+            singleLine = true,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
+          )
+        }
+      }
 
-        )
+
       Spacer(
         modifier = Modifier
           .fillMaxWidth()

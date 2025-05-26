@@ -1,13 +1,14 @@
 package net.techandgraphics.wastemanagement.data.remote.account
 
-import java.util.UUID
+import com.google.gson.annotations.SerializedName
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 
 data class AccountRequest(
-  val uuid: String = UUID.randomUUID().toString(),
-  val title: String,
+  val title: AccountTitle,
   val firstname: String?,
   val lastname: String,
-  val companyId: Long,
   val contacts: List<String>,
-  val email: String,
+  @SerializedName("payment_plan_id") val paymentPlanId: Long,
+  @SerializedName("company_id") val companyId: Long,
+  @SerializedName("trash_collection_schedule_id") val tCSId: Long,
 )

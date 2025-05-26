@@ -15,7 +15,7 @@ fun calculate(plan: PaymentPlanUiModel, pay: PaymentUiModel) = plan.fee.times(pa
 fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
 
 fun String.capitalize(): String =
-  this.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+  this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
 fun AccountUiModel.toInitials(): String {
   return firstname.first().uppercase()

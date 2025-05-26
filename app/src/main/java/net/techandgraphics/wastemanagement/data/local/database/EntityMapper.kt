@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.data.local.database
 
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
@@ -14,6 +15,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.pay.Payme
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
+import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
 import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
@@ -187,6 +189,16 @@ fun PaymentCollectionDayResponse.toPaymentCollectionDayEntity() =
     id = id,
     day = day,
     companyId = companyId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
+
+fun AccountPaymentPlanResponse.toAccountPaymentPlanEntity() =
+  AccountPaymentPlanEntity(
+    id = id,
+    accountUuid = accountUuid,
+    accountId = accountId,
+    paymentPlanId = paymentPlanId,
     createdAt = createdAt,
     updatedAt = updatedAt,
   )

@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.data.remote.account.session
 
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
+import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
 import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
@@ -26,6 +27,7 @@ data class AccountSessionResponse(
   val streets: List<StreetResponse>,
   val areas: List<AreaResponse>,
   val districts: List<DistrictResponse>,
-  val trashCollections: List<TrashCollectionScheduleResponse>,
-  val paymentCollectionDays: List<PaymentCollectionDayResponse>,
+  val trashSchedules: List<TrashCollectionScheduleResponse>,
+  val paymentDays: List<PaymentCollectionDayResponse>,
+  val accountPaymentPlans: List<AccountPaymentPlanResponse> = listOf(),
 )
