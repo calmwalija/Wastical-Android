@@ -20,6 +20,12 @@ fun Long.defaultDateTime(): String = getDateTimeInstance(SHORT, SHORT).format(th
 fun Long.dateTime(pattern: String = Pattern.TIME_HH_MM): String =
   SimpleDateFormat(pattern, Locale.getDefault()).format(this)
 
+
+fun ZonedDateTime.withPatten(pattern: String = Pattern.DATE_MMM_YYYY): String {
+  val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
+  return this.format(formatter)
+}
+
 fun Long.toZonedDateTime(): ZonedDateTime =
   ZonedDateTime.ofInstant(Instant.ofEpochSecond(this), ZoneId.systemDefault())
 
