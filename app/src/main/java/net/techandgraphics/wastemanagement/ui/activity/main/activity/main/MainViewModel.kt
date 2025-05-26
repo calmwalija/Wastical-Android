@@ -113,5 +113,4 @@ class MainViewModel @Inject constructor(
       .map { dbTCSchedules -> dbTCSchedules.map { it.toTrashCollectionScheduleUiModel() } }
       .collectLatest { tCSchedules -> _state.update { it.copy(trashSchedules = tCSchedules) } }
   }
-
 }

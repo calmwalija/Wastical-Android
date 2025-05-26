@@ -108,7 +108,6 @@ fun AccountContactEntity.toAccountContactUiModel() = AccountContactUiModel(
   updatedAt = updatedAt,
 )
 
-
 fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
   TrashCollectionScheduleUiModel(
     id = id,
@@ -118,4 +117,3 @@ fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
-

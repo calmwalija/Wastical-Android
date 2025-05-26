@@ -36,14 +36,13 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   updatedAt = null,
 )
 
-
 internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(
   id = 1L,
   dayOfWeek = DayOfWeek.MONDAY.name,
   companyId = 1L,
   streetId = 1L,
   createdAt = ZonedDateTime.now().toEpochSecond(),
-  updatedAt = null
+  updatedAt = null,
 )
 
 internal fun appState(context: Context) = MainActivityState(
@@ -57,7 +56,7 @@ internal fun appState(context: Context) = MainActivityState(
     paymentMethod4Preview,
   ),
   imageLoader = imageLoader(context),
-  trashSchedules = listOf(trashSchedules4Preview)
+  trashSchedules = listOf(trashSchedules4Preview),
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

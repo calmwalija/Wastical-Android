@@ -1,6 +1,5 @@
 package net.techandgraphics.wastemanagement.domain.model.company
 
-
 data class TrashCollectionScheduleUiModel(
   val id: Long,
   val dayOfWeek: String,
