@@ -1,6 +1,8 @@
 package net.techandgraphics.wastemanagement.keycloak
 
 import com.google.gson.JsonObject
+import net.techandgraphics.wastemanagement.data.remote.account.AccountRequest
+import net.techandgraphics.wastemanagement.data.remote.account.session.AccountSessionResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -15,6 +17,9 @@ interface KeycloakApi {
 
   @POST("/keycloak/create")
   suspend fun create(@Body signUpAccountRequest: SignUpAccountRequest): Response<Void>
+
+  @POST("keycloak/create")
+  suspend fun create(@Body accountRequest: AccountRequest): AccountSessionResponse
 
   @GET suspend fun get(@Url url: String): List<String>
 

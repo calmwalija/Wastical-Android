@@ -22,7 +22,10 @@ import net.techandgraphics.wastemanagement.data.local.database.company.trash.col
       childColumns = ["trash_collection_schedule_id"],
     ),
   ],
-  indices = [Index("company_id")],
+  indices = [
+    Index("trash_collection_schedule_id"),
+    Index("company_id"),
+  ],
 )
 data class AccountEntity(
   @PrimaryKey val id: Long,

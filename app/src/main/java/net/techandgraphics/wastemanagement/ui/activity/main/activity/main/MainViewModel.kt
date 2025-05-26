@@ -16,17 +16,20 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastemanagement.domain.toAccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toDistrictUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
+import net.techandgraphics.wastemanagement.domain.toStreetUiModel
 import net.techandgraphics.wastemanagement.domain.toTrashCollectionScheduleUiModel
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-  private val session: AccountSessionRepository,
+  private val accountSession: AccountSessionRepository,
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
 ) : ViewModel() {
@@ -44,6 +47,9 @@ class MainViewModel @Inject constructor(
       launch { getCompanies() }
       launch { getCompanyContact() }
       launch { getPaymentMethods() }
+      launch { getStreets() }
+      launch { getAreas() }
+      launch { getDistricts() }
       launch { getTrashCollectionSchedules() }
     }
   }.stateIn(
@@ -54,7 +60,7 @@ class MainViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      session.invoke()
+      accountSession.clientSession()
     }
   }
 
@@ -109,8 +115,26 @@ class MainViewModel @Inject constructor(
   }
 
   private suspend fun getTrashCollectionSchedules() {
-    database.trashCollectionScheduleDao.flow()
+    database.trashScheduleDao.flow()
       .map { dbTCSchedules -> dbTCSchedules.map { it.toTrashCollectionScheduleUiModel() } }
       .collectLatest { tCSchedules -> _state.update { it.copy(trashSchedules = tCSchedules) } }
+  }
+
+  private suspend fun getStreets() {
+    database.streetDao.flow()
+      .map { dbStreets -> dbStreets.map { it.toStreetUiModel() } }
+      .collectLatest { streets -> _state.update { it.copy(streets = streets) } }
+  }
+
+  private suspend fun getAreas() {
+    database.areaDao.flow()
+      .map { dbAreas -> dbAreas.map { it.toAreaUiModel() } }
+      .collectLatest { areas -> _state.update { it.copy(areas = areas) } }
+  }
+
+  private suspend fun getDistricts() {
+    database.districtDao.flow()
+      .map { dbDistricts -> dbDistricts.map { it.toDistrictUiModel() } }
+      .collectLatest { districts -> _state.update { it.copy(districts = districts) } }
   }
 }

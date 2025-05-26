@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -9,6 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeViewModel
@@ -19,9 +23,9 @@ import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewModel
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountViewModel
 
 @Composable
 fun AppNavHost(
@@ -30,7 +34,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Home,
+    startDestination = Route.Company.Account.Create,
   ) {
 
     composable<Route.SignIn> {
@@ -107,6 +111,16 @@ fun AppNavHost(
         }
       }
     }
+
+
+    composable<Route.Company.Account.Create> {
+      with(hiltViewModel<CreateAccountViewModel>()) {
+        val state = state.collectAsState().value
+        LaunchedEffect(appState) { onEvent(CreateAccountEvent.AppState(appState)) }
+        CreateAccountScreen(state, channel, ::onEvent)
+      }
+    }
+
 
   }
 }

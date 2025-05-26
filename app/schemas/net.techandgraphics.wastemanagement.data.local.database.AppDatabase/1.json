@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7176629066a519380121361d4615c105",
+    "identityHash": "6dc30955711b4941b789956292905f54",
     "entities": [
       {
         "tableName": "account",
@@ -112,6 +112,15 @@
           ]
         },
         "indices": [
+          {
+            "name": "index_account_trash_collection_schedule_id",
+            "unique": false,
+            "columnNames": [
+              "trash_collection_schedule_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_trash_collection_schedule_id` ON `${TABLE_NAME}` (`trash_collection_schedule_id`)"
+          },
           {
             "name": "index_account_company_id",
             "unique": false,
@@ -1030,12 +1039,104 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "account_payment_plan",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `account_uuid` TEXT NOT NULL, `account_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountUuid",
+            "columnName": "account_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountId",
+            "columnName": "account_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentPlanId",
+            "columnName": "payment_plan_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_account_payment_plan_payment_plan_id",
+            "unique": false,
+            "columnNames": [
+              "payment_plan_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_payment_plan_payment_plan_id` ON `${TABLE_NAME}` (`payment_plan_id`)"
+          },
+          {
+            "name": "index_account_payment_plan_account_id",
+            "unique": false,
+            "columnNames": [
+              "account_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_payment_plan_account_id` ON `${TABLE_NAME}` (`account_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "account",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "account_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "payment_plan",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "payment_plan_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7176629066a519380121361d4615c105')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6dc30955711b4941b789956292905f54')"
     ]
   }
 }
