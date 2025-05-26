@@ -9,19 +9,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-import net.techandgraphics.wastemanagement.ui.screen.home.HomeEvent
-import net.techandgraphics.wastemanagement.ui.screen.home.HomeScreen
-import net.techandgraphics.wastemanagement.ui.screen.home.HomeViewModel
-import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceEvent
-import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceScreen
-import net.techandgraphics.wastemanagement.ui.screen.invoice.InvoiceViewModel
-import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentResponseScreen
-import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentScreen
-import net.techandgraphics.wastemanagement.ui.screen.payment.PaymentViewModel
-import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInEvent
-import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInScreen
-import net.techandgraphics.wastemanagement.ui.screen.signIn.SignInViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentResponseScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
+import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
 
 @Composable
 fun AppNavHost(
