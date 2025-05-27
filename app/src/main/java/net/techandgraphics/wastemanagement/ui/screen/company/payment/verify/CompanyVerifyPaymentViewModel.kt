@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment
+package net.techandgraphics.wastemanagement.ui.screen.company.payment.verify
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,13 +22,13 @@ import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyPaymentViewModel @Inject constructor(
+class CompanyVerifyPaymentViewModel @Inject constructor(
   private val database: AppDatabase,
   private val repository: PaymentRepository,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(CompanyPaymentState())
-  private val _channel = Channel<CompanyPaymentChannel>()
+  private val _state = MutableStateFlow(CompanyVerifyPaymentState())
+  private val _channel = Channel<CompanyVerifyPaymentChannel>()
   val channel = _channel.receiveAsFlow()
 
   val state = _state
@@ -40,10 +40,10 @@ class CompanyPaymentViewModel @Inject constructor(
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = CompanyPaymentState(),
+      initialValue = CompanyVerifyPaymentState(),
     )
 
-  private fun onAppState(event: CompanyPaymentEvent.AppState) {
+  private fun onAppState(event: CompanyVerifyPaymentEvent.AppState) {
     _state.update { it.copy(state = event.state) }
   }
 
@@ -53,23 +53,23 @@ class CompanyPaymentViewModel @Inject constructor(
       .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
   }
 
-  private fun onPaymentStatus(event: CompanyPaymentEvent.Payment.Button.Status) =
+  private fun onPaymentStatus(event: CompanyVerifyPaymentEvent.Payment.Button.Status) =
     viewModelScope.launch {
       val request = event.payment.copy(status = event.status).toPaymentRequest()
       runCatching { repository.onPut(event.payment.id, request) }
-        .onFailure { _channel.send(CompanyPaymentChannel.Payment.Failure(onApiErrorHandler(it))) }
+        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(onApiErrorHandler(it))) }
         .onSuccess {
           it.map { it.toPaymentEntity() }.run {
             database.paymentDao.upsert(this)
-            _channel.send(CompanyPaymentChannel.Payment.Success(this))
+            _channel.send(CompanyVerifyPaymentChannel.Payment.Success(this))
           }
         }
     }
 
-  fun onEvent(event: CompanyPaymentEvent) {
+  fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
-      is CompanyPaymentEvent.AppState -> onAppState(event)
-      is CompanyPaymentEvent.Payment.Button.Status -> onPaymentStatus(event)
+      is CompanyVerifyPaymentEvent.AppState -> onAppState(event)
+      is CompanyVerifyPaymentEvent.Payment.Button.Status -> onPaymentStatus(event)
     }
   }
 }

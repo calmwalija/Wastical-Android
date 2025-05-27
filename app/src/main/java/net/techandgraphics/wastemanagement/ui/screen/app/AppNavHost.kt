@@ -23,12 +23,12 @@ import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountScreen
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentScreen
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentViewModel
 
 @Composable
 fun AppNavHost(
@@ -117,18 +117,18 @@ fun AppNavHost(
 
 
     composable<Route.Company.Account.Create> {
-      with(hiltViewModel<CreateAccountViewModel>()) {
+      with(hiltViewModel<CompanyCreateClientViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(appState) { onEvent(CreateAccountEvent.AppState(appState)) }
-        CreateAccountScreen(state, channel, ::onEvent)
+        LaunchedEffect(appState) { onEvent(CompanyCreateClientEvent.AppState(appState)) }
+        CompanyCreateClientScreen(state, channel, ::onEvent)
       }
 
     }
     composable<Route.Company.Payment> {
-      with(hiltViewModel<CompanyPaymentViewModel>()) {
+      with(hiltViewModel<CompanyVerifyPaymentViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(appState) { onEvent(CompanyPaymentEvent.AppState(appState)) }
-        CompanyPaymentScreen(state, channel, ::onEvent)
+        LaunchedEffect(appState) { onEvent(CompanyVerifyPaymentEvent.AppState(appState)) }
+        CompanyVerifyPaymentScreen(state, channel, ::onEvent)
       }
     }
 

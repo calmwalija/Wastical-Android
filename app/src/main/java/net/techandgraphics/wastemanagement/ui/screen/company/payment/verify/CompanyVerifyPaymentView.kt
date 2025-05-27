@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment
+package net.techandgraphics.wastemanagement.ui.screen.company.payment.verify
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import coil.ImageLoader
 import kotlinx.coroutines.flow.Flow
@@ -49,11 +50,11 @@ import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@Composable fun CompanyPaymentView(
-  channel: Flow<CompanyPaymentChannel>,
+@Composable fun CompanyVerifyPaymentView(
+  channel: Flow<CompanyVerifyPaymentChannel>,
   paymentAccount: PaymentAccountUiModel,
   imageLoader: ImageLoader?,
-  onEvent: (CompanyPaymentEvent) -> Unit
+  onEvent: (CompanyVerifyPaymentEvent) -> Unit
 ) {
 
   var showOptions by remember { mutableStateOf(false) }
@@ -64,14 +65,14 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   val account = paymentAccount.account
 
 
-  val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+  val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
       channel.collect { event ->
         showDialog = false
         when (event) {
-          is CompanyPaymentChannel.Payment.Failure -> context.toast(event.error.message)
-          is CompanyPaymentChannel.Payment.Success -> Unit
+          is CompanyVerifyPaymentChannel.Payment.Failure -> context.toast(event.error.message)
+          is CompanyVerifyPaymentChannel.Payment.Success -> Unit
         }
       }
     }
@@ -165,9 +166,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Preview(showBackground = true)
-@Composable fun CompanyPaymentViewPreview() {
+@Composable fun CompanyVerifyPaymentViewPreview() {
   WasteManagementTheme {
-    CompanyPaymentView(
+    CompanyVerifyPaymentView(
       channel = flow {},
       paymentAccount = paymentAccount4Preview,
       imageLoader = imageLoader(LocalContext.current),
