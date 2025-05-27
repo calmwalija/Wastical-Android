@@ -8,6 +8,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
@@ -68,6 +69,16 @@ internal val gateway4Preview = PaymentGatewayUiModel(
   id = 1L,
   name = "Airtel Money",
   type = "Wallet",
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  updatedAt = null,
+)
+
+internal val company4Preview = CompanyUiModel(
+  id = 1L,
+  name = "Adams Resources & Energy, Inc.",
+  email = "example@email.com",
+  slogan = "Lorem Ipsum",
+  address = "John Smith, 123 Main Street, Suite 2, Downtown, CA 91234, GA",
   createdAt = ZonedDateTime.now().toEpochSecond(),
   updatedAt = null,
 )
