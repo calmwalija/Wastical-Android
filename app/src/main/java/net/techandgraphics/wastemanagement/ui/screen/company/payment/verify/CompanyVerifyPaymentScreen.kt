@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment
+package net.techandgraphics.wastemanagement.ui.screen.company.payment.verify
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +30,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyPaymentScreen(
-  state: CompanyPaymentState,
-  channel: Flow<CompanyPaymentChannel>,
-  onEvent: (CompanyPaymentEvent) -> Unit
+fun CompanyVerifyPaymentScreen(
+  state: CompanyVerifyPaymentState,
+  channel: Flow<CompanyVerifyPaymentChannel>,
+  onEvent: (CompanyVerifyPaymentEvent) -> Unit
 ) {
 
 
@@ -64,7 +64,7 @@ fun CompanyPaymentScreen(
 
       LazyColumn {
         items(state.payments) { payment ->
-          CompanyPaymentView(
+          CompanyVerifyPaymentView(
             paymentAccount = payment,
             imageLoader = state.state.imageLoader!!,
             channel = channel,
@@ -82,10 +82,10 @@ fun CompanyPaymentScreen(
 
 @Preview
 @Composable
-private fun PaymentScreenPreview() {
+private fun CompanyVerifyScreenPreview() {
   WasteManagementTheme {
-    CompanyPaymentScreen(
-      state = CompanyPaymentState(
+    CompanyVerifyPaymentScreen(
+      state = CompanyVerifyPaymentState(
         state = appState(LocalContext.current),
         payments = listOf(paymentAccount4Preview, paymentAccount4Preview)
       ),

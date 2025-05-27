@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.account.create
+package net.techandgraphics.wastemanagement.ui.screen.company.client.create
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -61,16 +61,16 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.InputField
 import net.techandgraphics.wastemanagement.ui.screen.appState
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.Create.Button
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.Create.Input
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create.Button
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create.Input
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun CreateAccountScreen(
+@Composable fun CompanyCreateClientScreen(
   state: CreateAccountState,
-  channel: Flow<CreateAccountChannel>,
-  onEvent: (CreateAccountEvent) -> Unit
+  channel: Flow<CompanyCreateClientChannel>,
+  onEvent: (CompanyCreateClientEvent) -> Unit
 ) {
 
   val context = LocalContext.current
@@ -259,9 +259,11 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   }
 }
 
-@Preview(showBackground = true) @Composable private fun CreateAccountScreenPreview() {
+@Preview(showBackground = true)
+@Composable
+private fun CompanyCreateClientScreenPreview() {
   WasteManagementTheme {
-    CreateAccountScreen(
+    CompanyCreateClientScreen(
       state = CreateAccountState(
         appState = appState(LocalContext.current)
       ), channel = flow { }, onEvent = {})

@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.account.create
+package net.techandgraphics.wastemanagement.ui.screen.company.client.create
 
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel

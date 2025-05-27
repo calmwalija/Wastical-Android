@@ -37,15 +37,15 @@ import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentEvent.Payment.Button
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment.Button
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Composable fun CompanyPaymentViewDialog(
   paymentAccount: PaymentAccountUiModel,
-  onEvent: (CompanyPaymentEvent) -> Unit,
+  onEvent: (CompanyVerifyPaymentEvent) -> Unit,
   onDismissRequest: () -> Unit
 ) {
 

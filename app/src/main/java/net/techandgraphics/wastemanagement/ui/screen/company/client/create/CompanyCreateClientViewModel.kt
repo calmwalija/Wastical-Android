@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.account.create
+package net.techandgraphics.wastemanagement.ui.screen.company.client.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,19 +26,19 @@ import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiMode
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.AppState
-import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.Create
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.AppState
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateAccountViewModel @Inject constructor(
+class CompanyCreateClientViewModel @Inject constructor(
   private val database: AppDatabase,
   private val api: AppApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(CreateAccountState())
 
-  private val _channel = Channel<CreateAccountChannel>()
+  private val _channel = Channel<CompanyCreateClientChannel>()
   private fun account() = _state.value.account
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
@@ -90,7 +90,7 @@ class CreateAccountViewModel @Inject constructor(
     }
   }
 
-  fun onEvent(event: CreateAccountEvent) {
+  fun onEvent(event: CompanyCreateClientEvent) {
     when (event) {
       is Create.Input.Info -> onAccountCreateInfo(event)
       is AppState -> onAppState(event)
