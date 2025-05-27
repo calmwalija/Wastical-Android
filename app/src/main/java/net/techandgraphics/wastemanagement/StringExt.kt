@@ -10,9 +10,13 @@ fun calculateToTextAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String
   return calculate(plan, pay).toAmount()
 }
 
+fun PaymentUiModel.calculate() = paymentPlanFee.times(numberOfMonths).toAmount()
+
 fun calculate(plan: PaymentPlanUiModel, pay: PaymentUiModel) = plan.fee.times(pay.numberOfMonths)
 
 fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
+
+fun PaymentUiModel.imageScreenshotUrl() = AppUrl.FILE_URL.plus("screenshot/$accountId").plus(createdAt)
 
 fun String.capitalize(): String =
   this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }

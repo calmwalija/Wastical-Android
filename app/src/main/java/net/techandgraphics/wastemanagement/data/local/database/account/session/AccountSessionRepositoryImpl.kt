@@ -10,6 +10,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toCompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.toDistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentCollectionDayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
@@ -31,6 +32,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
           with(database) {
             withTransaction {
               accountSession.run {
+                gateways.map { it.toPaymentGatewayEntity() }.also { paymentGatewayDao.insert(it) }
                 districts.map { it.toDistrictEntity() }.also { districtDao.insert(it) }
                 areas.map { it.toAreaEntity() }.also { areaDao.insert(it) }
                 streets.map { it.toStreetEntity() }.also { streetDao.insert(it) }

@@ -60,7 +60,7 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.InputField
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.appState
+import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.Create.Button
 import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent.Create.Input
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme

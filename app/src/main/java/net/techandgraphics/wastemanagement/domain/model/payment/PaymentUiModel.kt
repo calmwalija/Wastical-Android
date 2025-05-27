@@ -12,4 +12,11 @@ data class PaymentUiModel(
   val status: PaymentStatus,
   val createdAt: Long,
   val updatedAt: Long?,
+
+  val paymentPlanId: Long,
+  val paymentPlanFee: Int,
+  val paymentPlanPeriod: String,
+  val paymentGatewayId: Long,
+  val paymentGatewayName: String,
+  val paymentGatewayType: String,
 )

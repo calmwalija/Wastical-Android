@@ -29,6 +29,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import net.techandgraphics.wastemanagement.AppUrl
 import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
