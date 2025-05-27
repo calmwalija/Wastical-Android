@@ -19,4 +19,8 @@ class PaymentRepositoryImpl @Inject constructor(private val api: AppApi) : Payme
     val filePart = MultipartBody.Part.createFormData("file", file.name, fileRequestBody)
     return run { api.paymentApi.pay(filePart, requestPart) }
   }
+
+  override suspend fun onPut(id: Long, request: PaymentRequest): List<PaymentResponse> {
+    return run { api.paymentApi.put(id, request) }
+  }
 }

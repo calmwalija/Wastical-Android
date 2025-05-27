@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 
 @Entity(
@@ -15,8 +16,16 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
       parentColumns = ["id"],
       childColumns = ["payment_plan_id"],
     ),
+    ForeignKey(
+      entity = PaymentGatewayEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["payment_gateway_id"],
+    ),
   ],
-  indices = [Index("payment_plan_id")],
+  indices = [
+    Index("payment_plan_id"),
+    Index("payment_gateway_id"),
+  ],
 )
 data class PaymentMethodEntity(
   @PrimaryKey val id: Long,

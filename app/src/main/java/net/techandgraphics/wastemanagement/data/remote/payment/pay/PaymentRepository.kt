@@ -6,4 +6,5 @@ import java.io.File
 interface PaymentRepository {
 
   suspend fun onPay(file: File, request: PaymentRequest): PaymentResponse
+  suspend fun onPut(id: Long, request: PaymentRequest): List<PaymentResponse>
 }

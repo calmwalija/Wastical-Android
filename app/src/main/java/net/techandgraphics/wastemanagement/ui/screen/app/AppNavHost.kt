@@ -26,6 +26,9 @@ import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewM
 import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.account.create.CreateAccountViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.CompanyPaymentViewModel
 
 @Composable
 fun AppNavHost(
@@ -34,7 +37,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Company.Account.Create,
+    startDestination = Route.Company.Payment
   ) {
 
     composable<Route.SignIn> {
@@ -118,6 +121,14 @@ fun AppNavHost(
         val state = state.collectAsState().value
         LaunchedEffect(appState) { onEvent(CreateAccountEvent.AppState(appState)) }
         CreateAccountScreen(state, channel, ::onEvent)
+      }
+
+    }
+    composable<Route.Company.Payment> {
+      with(hiltViewModel<CompanyPaymentViewModel>()) {
+        val state = state.collectAsState().value
+        LaunchedEffect(appState) { onEvent(CompanyPaymentEvent.AppState(appState)) }
+        CompanyPaymentScreen(state, channel, ::onEvent)
       }
     }
 

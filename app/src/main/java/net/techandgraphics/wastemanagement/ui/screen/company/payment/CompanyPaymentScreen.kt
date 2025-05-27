@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.client.invoice
+package net.techandgraphics.wastemanagement.ui.screen.company.payment
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,36 +17,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
+import net.techandgraphics.wastemanagement.ui.screen.appState
+import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvoiceScreen(
-  state: InvoiceState,
-  channel: Flow<InvoiceChannel>,
-  onEvent: (InvoiceEvent) -> Unit
+fun CompanyPaymentScreen(
+  state: CompanyPaymentState,
+  channel: Flow<CompanyPaymentChannel>,
+  onEvent: (CompanyPaymentEvent) -> Unit
 ) {
-
-
-  val lifecycleOwner = LocalLifecycleOwner.current
-  LaunchedEffect(key1 = channel) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-      channel.collect { event ->
-      }
-    }
-  }
 
 
   Scaffold(
@@ -54,7 +42,7 @@ fun InvoiceScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { onEvent(InvoiceEvent.GoTo.BackHandler) }) {
+          IconButton(onClick = { }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },
@@ -66,38 +54,40 @@ fun InvoiceScreen(
     Column(modifier = Modifier.padding(it)) {
 
       Text(
-        text = "Paid Invoice Reports",
+        text = "Pending Payments",
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
       )
 
       Spacer(modifier = Modifier.height(24.dp))
 
+
       LazyColumn {
-        items(state.invoices) { invoice ->
-          InvoiceView(invoice, state.state.paymentPlans, onEvent)
+        items(state.payments) { payment ->
+          CompanyPaymentView(
+            paymentAccount = payment,
+            imageLoader = state.state.imageLoader!!,
+            channel = channel,
+            onEvent = onEvent
+          )
         }
       }
 
     }
   }
+
+
 }
 
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-private fun InvoiceScreenPreview() {
+private fun PaymentScreenPreview() {
   WasteManagementTheme {
-    InvoiceScreen(
-      state = InvoiceState(
-        invoices = (1..10)
-          .toList()
-          .mapIndexed { index, item ->
-            payment4Preview.copy(
-              id = index.toLong(),
-              numberOfMonths = Random.nextInt(1, 5)
-            )
-          }
+    CompanyPaymentScreen(
+      state = CompanyPaymentState(
+        state = appState(LocalContext.current),
+        payments = listOf(paymentAccount4Preview, paymentAccount4Preview)
       ),
       channel = flow { },
       onEvent = {}

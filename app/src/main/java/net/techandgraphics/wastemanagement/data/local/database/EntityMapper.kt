@@ -10,6 +10,7 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.area.
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
@@ -29,6 +30,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.gateway.PaymentGa
 import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMethodResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -100,6 +102,12 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   paymentMethodId = paymentMethodId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+  paymentPlanId = plan!!.id,
+  paymentPlanFee = plan.fee,
+  paymentPlanPeriod = plan.period,
+  paymentGatewayId = gateway!!.id,
+  paymentGatewayName = gateway.name,
+  paymentGatewayType = gateway.type,
 )
 
 fun AccountResponse.toAccountEntity() = AccountEntity(
@@ -132,17 +140,24 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
   updatedAt = updatedAt,
 )
 
-fun PaymentRequest.toPaymentCacheEntity() = PaymentEntity(
-  status = PaymentStatus.Failed.name,
-  accountId = accountId,
-  screenshotText = screenshotText,
-  numberOfMonths = numberOfMonths,
-  paymentMethodId = paymentMethodId,
-  transactionId = UUID.randomUUID().toString(),
-  createdAt = ZonedDateTime.now().toEpochSecond(),
-  id = System.currentTimeMillis().times(1_000),
-  updatedAt = null,
-)
+fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: PaymentGatewayResponse) =
+  PaymentEntity(
+    status = PaymentStatus.Failed.name,
+    accountId = accountId,
+    screenshotText = screenshotText,
+    numberOfMonths = numberOfMonths,
+    paymentMethodId = paymentMethodId,
+    transactionId = UUID.randomUUID().toString(),
+    createdAt = ZonedDateTime.now().toEpochSecond(),
+    id = System.currentTimeMillis().times(1_000),
+    updatedAt = null,
+    paymentPlanId = plan.id,
+    paymentPlanFee = plan.fee,
+    paymentPlanPeriod = plan.period.name,
+    paymentGatewayId = gateway.id,
+    paymentGatewayName = gateway.name,
+    paymentGatewayType = gateway.type,
+  )
 
 fun DistrictResponse.toDistrictEntity() = DistrictEntity(
   id = id,
@@ -202,3 +217,11 @@ fun AccountPaymentPlanResponse.toAccountPaymentPlanEntity() =
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
+
+fun PaymentGatewayResponse.toPaymentGatewayEntity() = PaymentGatewayEntity(
+  id = id,
+  name = name,
+  type = type,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)

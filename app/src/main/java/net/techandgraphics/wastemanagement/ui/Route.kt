@@ -25,5 +25,7 @@ sealed interface Route {
     sealed interface Account : Company {
       @Serializable data object Create : Account
     }
+
+    @Serializable data object Payment : Company
   }
 }

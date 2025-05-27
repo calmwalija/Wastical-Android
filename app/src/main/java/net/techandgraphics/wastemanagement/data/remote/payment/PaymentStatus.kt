@@ -4,5 +4,5 @@ enum class PaymentStatus() {
   Failed,
   Verifying,
   Approved,
-  Cancelled,
+  Declined,
 }

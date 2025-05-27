@@ -19,7 +19,7 @@ import net.techandgraphics.wastemanagement.ui.screen.client.invoice.bold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.light
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.mailMan
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.paymentMethod4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentMethod4Preview
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

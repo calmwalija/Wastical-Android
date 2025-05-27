@@ -11,7 +11,9 @@ import net.techandgraphics.wastemanagement.data.local.database.company.trash.col
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
@@ -24,6 +26,8 @@ import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionS
 import net.techandgraphics.wastemanagement.domain.model.demographic.AreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DistrictUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -78,6 +82,12 @@ fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   status = PaymentStatus.valueOf(status),
   createdAt = createdAt,
   updatedAt = updatedAt,
+  paymentPlanId = paymentPlanId,
+  paymentPlanFee = paymentPlanFee,
+  paymentPlanPeriod = paymentPlanPeriod,
+  paymentGatewayId = paymentGatewayId,
+  paymentGatewayType = paymentGatewayType,
+  paymentGatewayName = paymentGatewayName,
 )
 
 fun CompanyEntity.toCompanyUiModel() = CompanyUiModel(
@@ -152,4 +162,17 @@ fun DistrictEntity.toDistrictUiModel() = DistrictUiModel(
   region = region,
   createdAt = createdAt,
   updatedAt = updatedAt,
+)
+
+fun PaymentGatewayEntity.toPaymentGatewayUiModel() = PaymentGatewayUiModel(
+  id = id,
+  name = name,
+  type = type,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun PaymentAccountEntity.toPaymentAccountUiModel() = PaymentAccountUiModel(
+  payment = payment.toPaymentUiModel(),
+  account = account.toAccountUiModel(),
 )

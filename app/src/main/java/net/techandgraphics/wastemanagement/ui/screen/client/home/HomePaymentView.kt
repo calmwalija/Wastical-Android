@@ -34,8 +34,9 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.paymentPlan4Preview
+import net.techandgraphics.wastemanagement.ui.screen.imageLoader
+import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun HomePaymentView(

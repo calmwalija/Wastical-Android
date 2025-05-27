@@ -23,6 +23,8 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.stree
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayDao
+import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentDao
@@ -45,6 +47,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     TrashCollectionScheduleEntity::class,
     PaymentCollectionDayEntity::class,
     AccountPaymentPlanEntity::class,
+    PaymentGatewayEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -65,6 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val trashScheduleDao: TrashCollectionScheduleDao
   abstract val paymentDayDao: PaymentCollectionDayDao
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
+  abstract val paymentGatewayDao: PaymentGatewayDao
 
   companion object {
     const val NAME = "waste_management_db"

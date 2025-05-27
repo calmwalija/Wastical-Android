@@ -1,18 +1,37 @@
-package net.techandgraphics.wastemanagement.ui.screen.client.payment
+package net.techandgraphics.wastemanagement.ui.screen
 
 import android.content.Context
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
+import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-import net.techandgraphics.wastemanagement.ui.screen.client.home.account4Preview
-import net.techandgraphics.wastemanagement.ui.screen.client.home.payment4Preview
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
+
+internal val account4Preview = AccountUiModel(
+  id = 1L,
+  uuid = "",
+  title = AccountTitle.DR,
+  firstname = "Lorem",
+  lastname = "Ipsum",
+  username = "lorem.ipsum",
+  email = "example@email.com",
+  status = Status.Active,
+  companyId = 1L,
+  createdAt = System.currentTimeMillis(),
+  leavingTimestamp = null,
+  updatedAt = null,
+)
 
 internal val paymentPlan4Preview = PaymentPlanUiModel(
   id = 1L,
@@ -43,6 +62,37 @@ internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(
   streetId = 1L,
   createdAt = ZonedDateTime.now().toEpochSecond(),
   updatedAt = null,
+)
+
+internal val gateway4Preview = PaymentGatewayUiModel(
+  id = 1L,
+  name = "Airtel Money",
+  type = "Wallet",
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  updatedAt = null,
+)
+
+internal val payment4Preview = PaymentUiModel(
+  id = 1L,
+  status = PaymentStatus.Approved,
+  numberOfMonths = 1,
+  transactionId = "TXN-5983-1747899108",
+  paymentMethodId = 1L,
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  screenshotText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+  accountId = 1L,
+  updatedAt = null,
+  paymentPlanId = 1L,
+  paymentPlanFee = paymentPlan4Preview.fee,
+  paymentPlanPeriod = paymentPlan4Preview.period.name,
+  paymentGatewayId = gateway4Preview.id,
+  paymentGatewayName = gateway4Preview.name,
+  paymentGatewayType = gateway4Preview.type,
+)
+
+internal val paymentAccount4Preview = PaymentAccountUiModel(
+  payment = payment4Preview,
+  account = account4Preview,
 )
 
 internal fun appState(context: Context) = MainActivityState(

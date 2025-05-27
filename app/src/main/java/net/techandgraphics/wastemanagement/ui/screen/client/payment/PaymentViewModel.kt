@@ -75,7 +75,11 @@ class PaymentViewModel @Inject constructor(
       runCatching { repository.onPay(theFile(), paymentRequest) }
         .onFailure {
           application.schedulePaymentRetryWorker()
-          val cachedPayment = paymentRequest.toPaymentCacheEntity()
+
+          val plan = state.paymentPlans.first()
+          val gateway = state.gateways.first()
+
+          val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
 
           /** Rename the File **/
           val oldFile = application.getUCropFile(lastPaymentId)

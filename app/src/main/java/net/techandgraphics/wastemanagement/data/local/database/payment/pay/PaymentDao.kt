@@ -23,4 +23,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
 
   @Query("SELECT * FROM payment WHERE payment_status=:status")
   suspend fun queryRetry(status: String = Failed.name): List<PaymentEntity>
+
+  @Query("SELECT * FROM payment ORDER BY id DESC")
+  fun flowOfPaymentAccount(): Flow<List<PaymentAccountEntity>>
 }

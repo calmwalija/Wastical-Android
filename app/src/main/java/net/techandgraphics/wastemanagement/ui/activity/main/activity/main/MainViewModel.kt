@@ -60,7 +60,9 @@ class MainViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      accountSession.clientSession()
+      if (database.accountDao.query().isEmpty()) {
+        accountSession.clientSession()
+      }
     }
   }
 
