@@ -8,16 +8,16 @@ sealed interface Route {
     @Serializable data object Home : Client
 
     @Serializable data object Payment : Client
+
+    @Serializable data object Invoice : Client
+
+    @Serializable data class PaymentResponse(
+      val isSuccess: Boolean,
+      val error: String? = null,
+    ) : Client
   }
 
   @Serializable data object SignIn : Route
-
-  @Serializable data object Invoice : Route
-
-  @Serializable data class PaymentResponse(
-    val isSuccess: Boolean,
-    val error: String? = null,
-  ) : Route
 
   @Serializable
   sealed interface Company : Route {

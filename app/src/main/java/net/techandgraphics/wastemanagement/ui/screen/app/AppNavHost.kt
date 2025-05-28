@@ -62,7 +62,7 @@ fun AppNavHost(
         ClientPaymentScreen(state, channel) { event ->
           when (event) {
             is ClientPaymentEvent.Response ->
-              navController.navigate(Route.PaymentResponse(event.isSuccess, event.error)) {
+              navController.navigate(Route.Client.PaymentResponse(event.isSuccess, event.error)) {
                 popUpTo(Route.Client.Payment) { inclusive = true }
               }
 
@@ -81,7 +81,7 @@ fun AppNavHost(
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {
-                ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Invoice)
+                ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice)
               }
 
             ClientHomeEvent.Button.MakePayment -> navController.navigate(Route.Client.Payment)
@@ -92,13 +92,13 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.PaymentResponse> {
-      val isSuccess = it.toRoute<Route.PaymentResponse>().isSuccess
-      val error = it.toRoute<Route.PaymentResponse>().error
+    composable<Route.Client.PaymentResponse> {
+      val isSuccess = it.toRoute<Route.Client.PaymentResponse>().isSuccess
+      val error = it.toRoute<Route.Client.PaymentResponse>().error
       ClientPaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
-    composable<Route.Invoice> {
+    composable<Route.Client.Invoice> {
       with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
         onEvent(ClientInvoiceEvent.AppState(appState))
