@@ -31,17 +31,17 @@ import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
 import javax.inject.Inject
 
 @HiltViewModel
-class PaymentViewModel @Inject constructor(
+class ClientPaymentViewModel @Inject constructor(
   private val repository: PaymentRepository,
   private val application: Application,
   private val database: AppDatabase,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(PaymentState())
-  private val _channel = Channel<PaymentChannel>()
+  private val _state = MutableStateFlow(ClientPaymentState())
+  private val _channel = Channel<ClientPaymentChannel>()
   val channel = _channel.receiveAsFlow()
 
-  private fun onAppState(event: PaymentEvent.AppState) {
+  private fun onAppState(event: ClientPaymentEvent.AppState) {
     _state.update { it.copy(state = event.state) }
   }
 
@@ -67,7 +67,7 @@ class PaymentViewModel @Inject constructor(
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.Companion.WhileSubscribed(5_000L),
-      initialValue = PaymentState(),
+      initialValue = ClientPaymentState(),
     )
 
   private fun onPay() = viewModelScope.launch {
@@ -103,11 +103,11 @@ class PaymentViewModel @Inject constructor(
           val oldFile = application.getUCropFile(lastPaymentId)
           oldFile.renameTo(application.getUCropFile(cachedPayment.id))
           database.paymentDao.upsert(cachedPayment)
-          _channel.send(PaymentChannel.Pay.Failure(onApiErrorHandler(it)))
+          _channel.send(ClientPaymentChannel.Pay.Failure(onApiErrorHandler(it)))
         }
         .onSuccess {
           database.paymentDao.upsert(it.toPaymentEntity())
-          _channel.send(PaymentChannel.Pay.Success)
+          _channel.send(ClientPaymentChannel.Pay.Success)
           theFile().delete()
         }
       _state.update { it.copy(imageUri = null) }
@@ -124,7 +124,7 @@ class PaymentViewModel @Inject constructor(
     }
   }
 
-  private fun onNumberOfMonths(event: PaymentEvent.Button.NumberOfMonths) {
+  private fun onNumberOfMonths(event: ClientPaymentEvent.Button.NumberOfMonths) {
     if (event.isAdd) {
       state.value.numberOfMonths.plus(1)
     } else {
@@ -132,7 +132,7 @@ class PaymentViewModel @Inject constructor(
     }.also { numberOfMonths -> _state.update { it.copy(numberOfMonths = numberOfMonths) } }
   }
 
-  private fun onPaymentMethod(event: PaymentEvent.Button.PaymentMethod) =
+  private fun onPaymentMethod(event: ClientPaymentEvent.Button.PaymentMethod) =
     viewModelScope.launch {
       state.value.state.paymentMethods.map { it.toPaymentMethodEntity() }
         .map { it.copy(isSelected = false) }
@@ -142,16 +142,16 @@ class PaymentViewModel @Inject constructor(
         .also { database.paymentMethodDao.update(it) }
     }
 
-  fun onEvent(event: PaymentEvent) {
+  fun onEvent(event: ClientPaymentEvent) {
     when (event) {
-      is PaymentEvent.Button.Pay -> onPay()
-      is PaymentEvent.Button.NumberOfMonths -> onNumberOfMonths(event)
-      is PaymentEvent.Button.TextToClipboard -> application.onTextToClipboard(event.text)
-      is PaymentEvent.Button.ImageUri -> _state.update { it.copy(imageUri = event.uri) }
-      is PaymentEvent.Button.ShowCropView -> _state.update { it.copy(showCropView = event.show) }
-      PaymentEvent.Button.ScreenshotAttached -> onScreenshotAttached()
-      is PaymentEvent.AppState -> onAppState(event)
-      is PaymentEvent.Button.PaymentMethod -> onPaymentMethod(event)
+      is ClientPaymentEvent.Button.Pay -> onPay()
+      is ClientPaymentEvent.Button.NumberOfMonths -> onNumberOfMonths(event)
+      is ClientPaymentEvent.Button.TextToClipboard -> application.onTextToClipboard(event.text)
+      is ClientPaymentEvent.Button.ImageUri -> _state.update { it.copy(imageUri = event.uri) }
+      is ClientPaymentEvent.Button.ShowCropView -> _state.update { it.copy(showCropView = event.show) }
+      ClientPaymentEvent.Button.ScreenshotAttached -> onScreenshotAttached()
+      is ClientPaymentEvent.AppState -> onAppState(event)
+      is ClientPaymentEvent.Button.PaymentMethod -> onPaymentMethod(event)
       else -> Unit
     }
   }

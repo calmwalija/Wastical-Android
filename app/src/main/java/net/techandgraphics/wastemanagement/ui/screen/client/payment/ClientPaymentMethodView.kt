@@ -37,9 +37,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun PaymentMethodView(
-  state: PaymentState,
-  onEvent: (PaymentEvent) -> Unit
+@Composable fun ClientPaymentMethodView(
+  state: ClientPaymentState,
+  onEvent: (ClientPaymentEvent) -> Unit
 ) {
 
 
@@ -54,7 +54,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Card(
         colors = CardDefaults.elevatedCardColors(),
         modifier = Modifier.padding(vertical = 8.dp),
-        onClick = { onEvent(PaymentEvent.Button.PaymentMethod(paymentMethod)) },
+        onClick = { onEvent(ClientPaymentEvent.Button.PaymentMethod(paymentMethod)) },
         border = BorderStroke(2.dp, if (paymentMethod.isSelected) Blue else Color.Transparent)
       ) {
         Row(
@@ -102,7 +102,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             )
           }
           if (paymentMethod.name.contains("Cash").not())
-            IconButton(onClick = { onEvent(PaymentEvent.Button.TextToClipboard(paymentMethod.account)) }) {
+            IconButton(onClick = { onEvent(ClientPaymentEvent.Button.TextToClipboard(paymentMethod.account)) }) {
               Icon(painterResource(R.drawable.ic_content_copy), null)
             }
         }
@@ -116,10 +116,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun PaymentMethodViewPreview() {
+private fun ClientPaymentMethodViewPreview() {
   WasteManagementTheme {
-    PaymentMethodView(
-      state = PaymentState(
+    ClientPaymentMethodView(
+      state = ClientPaymentState(
         state = appState(LocalContext.current)
       ),
       onEvent = {}

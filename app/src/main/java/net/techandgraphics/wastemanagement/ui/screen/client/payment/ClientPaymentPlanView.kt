@@ -25,9 +25,9 @@ import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun PaymentPlanView(
-  state: PaymentState,
-  onEvent: (PaymentEvent) -> Unit
+@Composable fun ClientPaymentPlanView(
+  state: ClientPaymentState,
+  onEvent: (ClientPaymentEvent) -> Unit
 ) = state.state.paymentPlans.forEach { paymentPlan ->
 
   Column {
@@ -59,7 +59,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         Card {
           Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
-              onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(false)) },
+              onClick = { onEvent(ClientPaymentEvent.Button.NumberOfMonths(false)) },
               enabled = state.numberOfMonths > 1
             ) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
@@ -71,7 +71,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             )
 
             IconButton(
-              onClick = { onEvent(PaymentEvent.Button.NumberOfMonths(true)) },
+              onClick = { onEvent(ClientPaymentEvent.Button.NumberOfMonths(true)) },
               enabled = state.numberOfMonths < 12
             ) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
@@ -88,10 +88,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun PaymentPlanViewPreview() {
+private fun ClientPaymentPlanViewPreview() {
   WasteManagementTheme {
-    PaymentPlanView(
-      state = PaymentState(
+    ClientPaymentPlanView(
+      state = ClientPaymentState(
         state = appState(LocalContext.current)
       ),
       onEvent = {}

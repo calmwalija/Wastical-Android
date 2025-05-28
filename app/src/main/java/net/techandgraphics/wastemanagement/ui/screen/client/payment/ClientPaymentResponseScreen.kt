@@ -35,7 +35,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun PaymentResponseScreen(
+@Composable fun ClientPaymentResponseScreen(
   isSuccess: Boolean,
   error: String? = null,
   onEvent: () -> Unit
@@ -149,10 +149,10 @@ private val errorMessage = errorMessages.random()
 
 @Preview(showBackground = true)
 @Composable
-private fun PaymentSuccessfulScreenPreview() {
+private fun ClientPaymentSuccessfulScreenPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(32.dp)) {
-      PaymentResponseScreen(
+      ClientPaymentResponseScreen(
         isSuccess = false,
         error = "Please check your connection",
         onEvent = {}

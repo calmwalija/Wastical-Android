@@ -58,10 +58,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentScreen(
-  state: PaymentState,
-  channel: Flow<PaymentChannel>,
-  onEvent: (PaymentEvent) -> Unit
+fun ClientPaymentScreen(
+  state: ClientPaymentState,
+  channel: Flow<ClientPaymentChannel>,
+  onEvent: (ClientPaymentEvent) -> Unit
 ) {
 
   val scrollState = rememberLazyListState()
@@ -78,11 +78,11 @@ fun PaymentScreen(
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
       channel.collect { event ->
         when (event) {
-          is PaymentChannel.Pay.Failure ->
-            onEvent(PaymentEvent.Response(false, event.errorHandler.message))
+          is ClientPaymentChannel.Pay.Failure ->
+            onEvent(ClientPaymentEvent.Response(false, event.errorHandler.message))
 
-          PaymentChannel.Pay.Success ->
-            onEvent(PaymentEvent.Response(true, null))
+          ClientPaymentChannel.Pay.Success ->
+            onEvent(ClientPaymentEvent.Response(true, null))
 
         }
       }
@@ -95,7 +95,7 @@ fun PaymentScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { onEvent(PaymentEvent.GoTo.BackHandler) }) {
+          IconButton(onClick = { onEvent(ClientPaymentEvent.GoTo.BackHandler) }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },
@@ -138,7 +138,7 @@ fun PaymentScreen(
           Spacer(modifier = Modifier.weight(1f))
           Button(
             enabled = payByCash.not() || (state.screenshotAttached && loading.not()),
-            onClick = { onEvent(PaymentEvent.Button.Pay); loading = true },
+            onClick = { onEvent(ClientPaymentEvent.Button.Pay); loading = true },
             modifier = Modifier.fillMaxWidth(.8f),
           ) {
             if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
@@ -183,13 +183,13 @@ fun PaymentScreen(
           )
         }
 
-        item { PaymentPlanView(state, onEvent) }
+        item { ClientPaymentPlanView(state, onEvent) }
         item { Spacer(modifier = Modifier.height(24.dp)) }
-        item { PaymentMethodView(state, onEvent) }
+        item { ClientPaymentMethodView(state, onEvent) }
         item {
           if (payByCash) {
             Spacer(modifier = Modifier.height(24.dp))
-            PaymentReferenceView(state, onEvent)
+            ClientPaymentReferenceView(state, onEvent)
           }
         }
         item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -203,10 +203,10 @@ fun PaymentScreen(
 
 @Preview
 @Composable
-private fun PaymentScreenPreview() {
+private fun ClientPaymentScreenPreview() {
   WasteManagementTheme {
-    PaymentScreen(
-      state = PaymentState(
+    ClientPaymentScreen(
+      state = ClientPaymentState(
         state = appState(LocalContext.current)
       ),
       channel = flow { },

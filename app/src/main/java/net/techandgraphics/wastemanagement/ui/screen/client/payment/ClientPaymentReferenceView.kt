@@ -34,14 +34,13 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.yalantis.ucrop.UCrop
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun PaymentReferenceView(
-  state: PaymentState,
-  onEvent: (PaymentEvent) -> Unit
+@Composable fun ClientPaymentReferenceView(
+  state: ClientPaymentState,
+  onEvent: (ClientPaymentEvent) -> Unit
 ) {
 
   val context = LocalContext.current
@@ -50,8 +49,8 @@ import java.io.File
     rememberLauncherForActivityResult(
       ActivityResultContracts.PickVisualMedia()
     ) {
-      onEvent(PaymentEvent.Button.ShowCropView(true))
-      onEvent(PaymentEvent.Button.ImageUri(it))
+      onEvent(ClientPaymentEvent.Button.ShowCropView(true))
+      onEvent(ClientPaymentEvent.Button.ImageUri(it))
     }
 
   val uCropLauncher =
@@ -61,11 +60,11 @@ import java.io.File
       if (result.resultCode == RESULT_OK) {
         val resultUri = UCrop.getOutput(result.data!!)
         resultUri?.let { uri ->
-          onEvent(PaymentEvent.Button.ShowCropView(false))
-          onEvent(PaymentEvent.Button.ImageUri(uri))
-          onEvent(PaymentEvent.Button.ScreenshotAttached)
+          onEvent(ClientPaymentEvent.Button.ShowCropView(false))
+          onEvent(ClientPaymentEvent.Button.ImageUri(uri))
+          onEvent(ClientPaymentEvent.Button.ScreenshotAttached)
         }
-      } else onEvent(PaymentEvent.Button.ShowCropView(false))
+      } else onEvent(ClientPaymentEvent.Button.ShowCropView(false))
     }
 
   fun cropImageView(sourceUri: Uri) {
@@ -154,11 +153,11 @@ import java.io.File
 @Preview(showBackground = true)
 @PreviewLightDark
 @Composable
-private fun PaymentReferenceViewPreview() {
+private fun ClientPaymentReferenceViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(32.dp)) {
-      PaymentReferenceView(
-        state = PaymentState(
+      ClientPaymentReferenceView(
+        state = ClientPaymentState(
           screenshotAttached = false
         ),
         onEvent = {}

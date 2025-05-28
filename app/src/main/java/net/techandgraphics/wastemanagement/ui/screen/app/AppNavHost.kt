@@ -19,10 +19,10 @@ import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewM
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceViewModel
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentResponseScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentResponseScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientViewModel
@@ -56,17 +56,17 @@ fun AppNavHost(
     }
 
     composable<Route.Client.Payment> {
-      with(hiltViewModel<PaymentViewModel>()) {
+      with(hiltViewModel<ClientPaymentViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(PaymentEvent.AppState(appState))
-        PaymentScreen(state, channel) { event ->
+        onEvent(ClientPaymentEvent.AppState(appState))
+        ClientPaymentScreen(state, channel) { event ->
           when (event) {
-            is PaymentEvent.Response ->
+            is ClientPaymentEvent.Response ->
               navController.navigate(Route.PaymentResponse(event.isSuccess, event.error)) {
                 popUpTo(Route.Client.Payment) { inclusive = true }
               }
 
-            PaymentEvent.GoTo.BackHandler -> navController.navigateUp()
+            ClientPaymentEvent.GoTo.BackHandler -> navController.navigateUp()
             else -> onEvent(event)
           }
         }
@@ -95,7 +95,7 @@ fun AppNavHost(
     composable<Route.PaymentResponse> {
       val isSuccess = it.toRoute<Route.PaymentResponse>().isSuccess
       val error = it.toRoute<Route.PaymentResponse>().error
-      PaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
+      ClientPaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
     composable<Route.Invoice> {
