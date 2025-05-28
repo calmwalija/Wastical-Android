@@ -16,9 +16,9 @@ import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceEvent
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentScreen
@@ -99,14 +99,14 @@ fun AppNavHost(
     }
 
     composable<Route.Invoice> {
-      with(hiltViewModel<InvoiceViewModel>()) {
+      with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(InvoiceEvent.AppState(appState))
-        InvoiceScreen(state, channel) { event ->
+        onEvent(ClientInvoiceEvent.AppState(appState))
+        ClientInvoiceScreen(state, channel) { event ->
           when (event) {
-            is InvoiceEvent.GoTo ->
+            is ClientInvoiceEvent.GoTo ->
               when (event) {
-                InvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
+                ClientInvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
               }
 
             else -> onEvent(event)
