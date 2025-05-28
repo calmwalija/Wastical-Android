@@ -11,4 +11,5 @@ data class PaymentMethodUiModel(
   val paymentGatewayId: Long,
   val createdAt: Long,
   val updatedAt: Long?,
+  val isSelected: Boolean,
 )

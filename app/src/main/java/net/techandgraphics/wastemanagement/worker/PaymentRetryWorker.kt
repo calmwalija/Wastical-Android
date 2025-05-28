@@ -45,7 +45,8 @@ import net.techandgraphics.wastemanagement.notification.NotificationUiModel
         builder.show(notification)
       }
       Result.success()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+      e.printStackTrace()
       Result.retry()
     }
   }

@@ -33,10 +33,10 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvoiceScreen(
-  state: InvoiceState,
-  channel: Flow<InvoiceChannel>,
-  onEvent: (InvoiceEvent) -> Unit
+fun ClientInvoiceScreen(
+  state: ClientInvoiceState,
+  channel: Flow<ClientInvoiceChannel>,
+  onEvent: (ClientInvoiceEvent) -> Unit
 ) {
 
 
@@ -54,7 +54,7 @@ fun InvoiceScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { onEvent(InvoiceEvent.GoTo.BackHandler) }) {
+          IconButton(onClick = { onEvent(ClientInvoiceEvent.GoTo.BackHandler) }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },
@@ -75,7 +75,7 @@ fun InvoiceScreen(
 
       LazyColumn {
         items(state.invoices) { invoice ->
-          InvoiceView(invoice, state.state.paymentPlans, onEvent)
+          ClientInvoiceView(invoice, state.state.paymentPlans, onEvent)
         }
       }
 
@@ -86,10 +86,10 @@ fun InvoiceScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun InvoiceScreenPreview() {
+private fun ClientInvoiceScreenPreview() {
   WasteManagementTheme {
-    InvoiceScreen(
-      state = InvoiceState(
+    ClientInvoiceScreen(
+      state = ClientInvoiceState(
         invoices = (1..10)
           .toList()
           .mapIndexed { index, item ->

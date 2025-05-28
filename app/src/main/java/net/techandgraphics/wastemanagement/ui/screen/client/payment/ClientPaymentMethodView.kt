@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.payment
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,13 +32,14 @@ import coil.request.ImageRequest
 import net.techandgraphics.wastemanagement.AppUrl
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.ui.screen.appState
+import net.techandgraphics.wastemanagement.ui.theme.Blue
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun PaymentMethodView(
-  state: PaymentState,
-  onEvent: (PaymentEvent) -> Unit
+@Composable fun ClientPaymentMethodView(
+  state: ClientPaymentState,
+  onEvent: (ClientPaymentEvent) -> Unit
 ) {
 
 
@@ -51,6 +54,8 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Card(
         colors = CardDefaults.elevatedCardColors(),
         modifier = Modifier.padding(vertical = 8.dp),
+        onClick = { onEvent(ClientPaymentEvent.Button.PaymentMethod(paymentMethod)) },
+        border = BorderStroke(2.dp, if (paymentMethod.isSelected) Blue else Color.Transparent)
       ) {
         Row(
           modifier = Modifier
@@ -96,9 +101,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               color = MaterialTheme.colorScheme.primary
             )
           }
-          IconButton(onClick = { onEvent(PaymentEvent.Button.TextToClipboard(paymentMethod.account)) }) {
-            Icon(painterResource(R.drawable.ic_content_copy), null)
-          }
+          if (paymentMethod.name.contains("Cash").not())
+            IconButton(onClick = { onEvent(ClientPaymentEvent.Button.TextToClipboard(paymentMethod.account)) }) {
+              Icon(painterResource(R.drawable.ic_content_copy), null)
+            }
         }
       }
     }
@@ -110,10 +116,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun PaymentMethodViewPreview() {
+private fun ClientPaymentMethodViewPreview() {
   WasteManagementTheme {
-    PaymentMethodView(
-      state = PaymentState(
+    ClientPaymentMethodView(
+      state = ClientPaymentState(
         state = appState(LocalContext.current)
       ),
       onEvent = {}

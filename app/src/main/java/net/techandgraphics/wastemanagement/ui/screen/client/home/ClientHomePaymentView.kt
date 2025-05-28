@@ -27,22 +27,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.calculateToTextAmount
+import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.defaultDate
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
-import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@Composable fun HomePaymentView(
+@Composable fun ClientHomePaymentView(
   payment: PaymentUiModel,
-  gatewayId: Long,
-  paymentPlan: PaymentPlanUiModel,
   imageLoader: ImageLoader?,
 ) {
 
@@ -56,7 +52,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Box(modifier = Modifier.size(42.dp)) {
 
         val asyncImagePainter =
-          imageGatewayPainter(imageGatewayUrl(gatewayId), imageLoader!!)
+          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
 
         Icon(
           painterResource(R.drawable.ic_compare_arrows), null,
@@ -89,7 +85,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             style = MaterialTheme.typography.bodySmall
           )
           Text(
-            text = calculateToTextAmount(paymentPlan, payment),
+            text = payment.calculate(),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,
@@ -109,12 +105,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Preview(showBackground = true)
-@Composable fun HomePaymentViewPreview() {
+@Composable fun ClientHomePaymentViewPreview() {
   WasteManagementTheme {
-    HomePaymentView(
+    ClientHomePaymentView(
       payment = payment4Preview,
-      gatewayId = 1L,
-      paymentPlan = paymentPlan4Preview,
       imageLoader = imageLoader(LocalContext.current),
     )
   }

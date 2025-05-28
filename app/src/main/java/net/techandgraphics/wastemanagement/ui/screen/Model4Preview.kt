@@ -54,6 +54,7 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   paymentGatewayId = 1L,
   createdAt = System.currentTimeMillis(),
   updatedAt = null,
+  isSelected = true,
 )
 
 internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(

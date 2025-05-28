@@ -32,6 +32,7 @@ data class PaymentMethodEntity(
   val name: String,
   val type: String,
   val account: String,
+  val isSelected: Boolean = false,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
   @ColumnInfo("payment_gateway_id") val paymentGatewayId: Long,
   @ColumnInfo("created_at") val createdAt: Long,

@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun HomeSearchView(
-  state: HomeState,
-  onEvent: (HomeEvent) -> Unit
+@Composable fun ClientHomeSearchView(
+  state: ClientHomeState,
+  onEvent: (ClientHomeEvent) -> Unit
 ) {
 
   Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
@@ -104,9 +104,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 }
 
 @Preview(showBackground = true)
-@Composable fun HomeSearchViewPreview() {
+@Composable fun ClientHomeSearchViewPreview() {
   WasteManagementTheme {
-    HomeSearchView(state = HomeState()) {
+    ClientHomeSearchView(state = ClientHomeState()) {
     }
   }
 }

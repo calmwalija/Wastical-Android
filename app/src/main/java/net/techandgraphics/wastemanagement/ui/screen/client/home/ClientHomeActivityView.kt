@@ -25,7 +25,7 @@ import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.appState
-import net.techandgraphics.wastemanagement.ui.screen.client.home.model.HomeActivityUiModel
+import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeActivityItemModel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import net.techandgraphics.wastemanagement.withPatten
 import java.time.ZonedDateTime
@@ -34,10 +34,10 @@ import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HomeActivityView(
-  state: HomeState,
-  homeActivity: HomeActivityUiModel,
+  state: ClientHomeState,
+  homeActivity: ClientHomeActivityItemModel,
   modifier: Modifier = Modifier,
-  onEvent: (HomeEvent) -> Unit
+  onEvent: (ClientHomeEvent) -> Unit
 ) {
 
 
@@ -147,7 +147,7 @@ import java.time.temporal.ChronoUnit
 private fun HomeActivityViewPreview() {
   WasteManagementTheme {
     HomeActivityView(
-      state = HomeState(
+      state = ClientHomeState(
         state = appState(LocalContext.current)
       ),
       homeActivity = homeActivityUiModels.last(),

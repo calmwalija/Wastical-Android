@@ -3,7 +3,7 @@ package net.techandgraphics.wastemanagement.ui.screen.client.payment
 import android.net.Uri
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 
-data class PaymentState(
+data class ClientPaymentState(
   val numberOfMonths: Int = 1,
   val showCropView: Boolean = false,
   val screenshotAttached: Boolean = false,

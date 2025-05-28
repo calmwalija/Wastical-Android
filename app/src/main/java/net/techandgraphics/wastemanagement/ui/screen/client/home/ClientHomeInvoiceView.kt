@@ -35,10 +35,10 @@ import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun HomeInvoiceView(
+@Composable fun ClientHomeInvoiceView(
   invoice: PaymentUiModel,
   paymentPlans: List<PaymentPlanUiModel>,
-  onEvent: (HomeEvent) -> Unit
+  onEvent: (ClientHomeEvent) -> Unit
 ) {
 
   Card(
@@ -47,7 +47,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(HomeEvent.Button.Payment.Invoice(invoice)) }) {
+    onClick = { onEvent(ClientHomeEvent.Button.Payment.Invoice(invoice)) }) {
     Row(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically
@@ -81,7 +81,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         }
       }
 
-      IconButton(onClick = { onEvent(HomeEvent.Button.Payment.Share(invoice)) }) {
+      IconButton(onClick = { onEvent(ClientHomeEvent.Button.Payment.Share(invoice)) }) {
         Icon(
           Icons.Default.Share,
           contentDescription = null,
@@ -97,10 +97,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeInvoiceViewPreview() {
+private fun ClientHomeInvoiceViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(16.dp)) {
-      HomeInvoiceView(
+      ClientHomeInvoiceView(
         invoice = payment4Preview,
         paymentPlans = listOf(paymentPlan4Preview),
         onEvent = {}

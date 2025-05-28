@@ -20,6 +20,7 @@ import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toDistrictUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
@@ -47,6 +48,7 @@ class MainViewModel @Inject constructor(
       launch { getCompanies() }
       launch { getCompanyContact() }
       launch { getPaymentMethods() }
+      launch { getPaymentGateways() }
       launch { getStreets() }
       launch { getAreas() }
       launch { getDistricts() }
@@ -114,6 +116,12 @@ class MainViewModel @Inject constructor(
     database.paymentMethodDao.flow()
       .map { dbPaymentMethods -> dbPaymentMethods.map { it.toPaymentMethodUiModel() } }
       .collectLatest { paymentMethods -> _state.update { it.copy(paymentMethods = paymentMethods) } }
+  }
+
+  private suspend fun getPaymentGateways() {
+    database.paymentGatewayDao.flow()
+      .map { dbPaymentGateway -> dbPaymentGateway.map { it.toPaymentGatewayUiModel() } }
+      .collectLatest { paymentGateways -> _state.update { it.copy(paymentGateways = paymentGateways) } }
   }
 
   private suspend fun getTrashCollectionSchedules() {

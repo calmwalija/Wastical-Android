@@ -30,6 +30,8 @@ import net.techandgraphics.wastemanagement.data.remote.payment.gateway.PaymentGa
 import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMethodResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -140,7 +142,7 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
   updatedAt = updatedAt,
 )
 
-fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: PaymentGatewayResponse) =
+fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: PaymentGatewayUiModel) =
   PaymentEntity(
     status = PaymentStatus.Failed.name,
     accountId = accountId,
@@ -224,4 +226,16 @@ fun PaymentGatewayResponse.toPaymentGatewayEntity() = PaymentGatewayEntity(
   type = type,
   createdAt = createdAt,
   updatedAt = updatedAt,
+)
+
+fun PaymentMethodUiModel.toPaymentMethodEntity() = PaymentMethodEntity(
+  id = id,
+  name = name,
+  type = type.name,
+  account = account,
+  paymentPlanId = paymentPlanId,
+  paymentGatewayId = paymentGatewayId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+  isSelected = isSelected,
 )

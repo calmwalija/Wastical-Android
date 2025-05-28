@@ -24,13 +24,13 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class InvoiceViewModel @Inject constructor(
+class ClientInvoiceViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(InvoiceState())
-  private val _channel = Channel<InvoiceChannel>()
+  private val _state = MutableStateFlow(ClientInvoiceState())
+  private val _channel = Channel<ClientInvoiceChannel>()
   val channel = _channel.receiveAsFlow()
 
   val state = _state
@@ -38,7 +38,7 @@ class InvoiceViewModel @Inject constructor(
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = InvoiceState(),
+      initialValue = ClientInvoiceState(),
     )
 
   private fun getInvoices() = viewModelScope.launch {
@@ -47,7 +47,7 @@ class InvoiceViewModel @Inject constructor(
       .collectLatest { invoices -> _state.update { it.copy(invoices = invoices) } }
   }
 
-  private fun onAppState(event: InvoiceEvent.AppState) {
+  private fun onAppState(event: ClientInvoiceEvent.AppState) {
     _state.update { it.copy(state = event.state) }
   }
 
@@ -65,23 +65,23 @@ class InvoiceViewModel @Inject constructor(
       )
     }
 
-  private fun onPaymentShare(event: InvoiceEvent.Button.Share) {
+  private fun onPaymentShare(event: ClientInvoiceEvent.Button.Share) {
     onInvoiceToPdf(event.payment) { file ->
       file?.share(application)
     }
   }
 
-  private fun onInvoice(event: InvoiceEvent.Button.Invoice) {
+  private fun onInvoice(event: ClientInvoiceEvent.Button.Invoice) {
     onInvoiceToPdf(event.payment) { file ->
       file?.preview(application)
     }
   }
 
-  fun onEvent(event: InvoiceEvent) {
+  fun onEvent(event: ClientInvoiceEvent) {
     when (event) {
-      is InvoiceEvent.AppState -> onAppState(event)
-      is InvoiceEvent.Button.Share -> onPaymentShare(event)
-      is InvoiceEvent.Button.Invoice -> onInvoice(event)
+      is ClientInvoiceEvent.AppState -> onAppState(event)
+      is ClientInvoiceEvent.Button.Share -> onPaymentShare(event)
+      is ClientInvoiceEvent.Button.Invoice -> onInvoice(event)
 
       else -> Unit
     }

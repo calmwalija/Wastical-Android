@@ -63,9 +63,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
-  state: HomeState,
-  channel: Flow<HomeChannel>,
-  onEvent: (HomeEvent) -> Unit
+  state: ClientHomeState,
+  channel: Flow<ClientHomeChannel>,
+  onEvent: (ClientHomeEvent) -> Unit
 ) {
 
   var showMenuOptions by remember { mutableStateOf(false) }
@@ -193,7 +193,7 @@ fun HomeScreen(
 
       FlowRow(maxItemsInEachRow = 2) {
         homeQuickActionUiModels.forEach {
-          HomeQuickActionView(
+          ClientHomeQuickActionView(
             homeQuickActionUiModel = it,
             modifier = Modifier.fillMaxWidth(.5f),
             onEvent = onEvent
@@ -217,7 +217,7 @@ fun HomeScreen(
           fontWeight = FontWeight.Bold,
         )
 
-        TextButton(onClick = { onEvent(HomeEvent.Goto.Invoice) }) {
+        TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice) }) {
           Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
@@ -227,7 +227,7 @@ fun HomeScreen(
       }
 
       state.state.invoices.forEach { invoice ->
-        HomeInvoiceView(
+        ClientHomeInvoiceView(
           invoice = invoice,
           paymentPlans = state.state.paymentPlans,
           onEvent = onEvent
@@ -245,15 +245,8 @@ fun HomeScreen(
           fontWeight = FontWeight.Bold,
         )
 
-
-        state.state.paymentPlans.forEach { paymentPlan ->
-          state.state.payments.forEach { payment ->
-            val gatewayId =
-              state.state.paymentMethods
-                .first { it.paymentPlanId == paymentPlan.id }
-                .paymentGatewayId
-            HomePaymentView(payment, gatewayId, paymentPlan, state.state.imageLoader)
-          }
+        state.state.payments.forEach { payment ->
+          ClientHomePaymentView(payment, state.state.imageLoader)
         }
       }
 
@@ -311,7 +304,7 @@ fun HomeScreen(
 private fun HomeScreenPreview() {
   WasteManagementTheme {
     HomeScreen(
-      state = HomeState(
+      state = ClientHomeState(
         state = appState(LocalContext.current)
       ),
       channel = flow { },

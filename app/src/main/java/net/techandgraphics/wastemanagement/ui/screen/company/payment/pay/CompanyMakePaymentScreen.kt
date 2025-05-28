@@ -40,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,14 +52,14 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.appState
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentChannel
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentChannel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyMakePaymentScreen(
   state: CompanyMakePaymentState,
-  channel: Flow<PaymentChannel>,
+  channel: Flow<ClientPaymentChannel>,
   onEvent: (CompanyMakePaymentEvent) -> Unit
 ) {
 

@@ -12,4 +12,7 @@ interface PaymentGatewayDao : BaseDao<PaymentGatewayEntity> {
 
   @Query("SELECT * FROM payment_gateway")
   fun flow(): Flow<List<PaymentGatewayEntity>>
+
+  @Query("SELECT * FROM payment_gateway WHERE id=:id")
+  suspend fun get(id: Long): PaymentGatewayEntity
 }

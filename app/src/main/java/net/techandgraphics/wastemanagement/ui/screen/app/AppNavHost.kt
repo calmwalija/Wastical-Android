@@ -13,16 +13,16 @@ import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainAc
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
-import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeViewModel
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceEvent
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.InvoiceViewModel
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentResponseScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentScreen
-import net.techandgraphics.wastemanagement.ui.screen.client.payment.PaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentResponseScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientViewModel
@@ -37,7 +37,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Company.Payment
+    startDestination = Route.Client.Home
   ) {
 
     composable<Route.SignIn> {
@@ -55,36 +55,36 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.Payment> {
-      with(hiltViewModel<PaymentViewModel>()) {
+    composable<Route.Client.Payment> {
+      with(hiltViewModel<ClientPaymentViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(PaymentEvent.AppState(appState))
-        PaymentScreen(state, channel) { event ->
+        onEvent(ClientPaymentEvent.AppState(appState))
+        ClientPaymentScreen(state, channel) { event ->
           when (event) {
-            is PaymentEvent.Response ->
-              navController.navigate(Route.PaymentResponse(event.isSuccess, event.error)) {
-                popUpTo(Route.Payment) { inclusive = true }
+            is ClientPaymentEvent.Response ->
+              navController.navigate(Route.Client.PaymentResponse(event.isSuccess, event.error)) {
+                popUpTo(Route.Client.Payment) { inclusive = true }
               }
 
-            PaymentEvent.GoTo.BackHandler -> navController.navigateUp()
+            ClientPaymentEvent.GoTo.BackHandler -> navController.navigateUp()
             else -> onEvent(event)
           }
         }
       }
     }
 
-    composable<Route.Home> {
-      with(hiltViewModel<HomeViewModel>()) {
+    composable<Route.Client.Home> {
+      with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(HomeEvent.AppState(appState))
+        onEvent(ClientHomeEvent.AppState(appState))
         HomeScreen(state, channel) { event ->
           when (event) {
-            is HomeEvent.Goto ->
+            is ClientHomeEvent.Goto ->
               when (event) {
-                HomeEvent.Goto.Invoice -> navController.navigate(Route.Invoice)
+                ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice)
               }
 
-            HomeEvent.Button.MakePayment -> navController.navigate(Route.Payment)
+            ClientHomeEvent.Button.MakePayment -> navController.navigate(Route.Client.Payment)
 
             else -> onEvent(event)
           }
@@ -92,21 +92,21 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.PaymentResponse> {
-      val isSuccess = it.toRoute<Route.PaymentResponse>().isSuccess
-      val error = it.toRoute<Route.PaymentResponse>().error
-      PaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
+    composable<Route.Client.PaymentResponse> {
+      val isSuccess = it.toRoute<Route.Client.PaymentResponse>().isSuccess
+      val error = it.toRoute<Route.Client.PaymentResponse>().error
+      ClientPaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
-    composable<Route.Invoice> {
-      with(hiltViewModel<InvoiceViewModel>()) {
+    composable<Route.Client.Invoice> {
+      with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(InvoiceEvent.AppState(appState))
-        InvoiceScreen(state, channel) { event ->
+        onEvent(ClientInvoiceEvent.AppState(appState))
+        ClientInvoiceScreen(state, channel) { event ->
           when (event) {
-            is InvoiceEvent.GoTo ->
+            is ClientInvoiceEvent.GoTo ->
               when (event) {
-                InvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
+                ClientInvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
               }
 
             else -> onEvent(event)
