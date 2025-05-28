@@ -19,22 +19,22 @@ import net.techandgraphics.wastemanagement.ui.screen.client.invoice.pdf.invoiceT
 import java.io.File
 import javax.inject.Inject
 
-@HiltViewModel class HomeViewModel @Inject constructor(
+@HiltViewModel class ClientHomeViewModel @Inject constructor(
   private val application: Application,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(HomeState())
-  private val _channel = Channel<HomeChannel>()
+  private val _state = MutableStateFlow(ClientHomeState())
+  private val _channel = Channel<ClientHomeChannel>()
   val channel = _channel.receiveAsFlow()
 
   val state = _state.onStart {
   }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5_000L),
-    initialValue = HomeState(),
+    initialValue = ClientHomeState(),
   )
 
-  private fun onAppState(event: HomeEvent.AppState) {
+  private fun onAppState(event: ClientHomeEvent.AppState) {
     _state.update { it.copy(state = event.state) }
   }
 
@@ -52,7 +52,7 @@ import javax.inject.Inject
       )
     }
 
-  private fun onPaymentTap(event: HomeEvent.Button.Payment.Invoice) {
+  private fun onPaymentTap(event: ClientHomeEvent.Button.Payment.Invoice) {
     when (event.payment.status) {
       PaymentStatus.Approved -> onInvoiceToPdf(event.payment) { file ->
         file?.preview(application)
@@ -62,17 +62,17 @@ import javax.inject.Inject
     }
   }
 
-  private fun onPaymentShare(event: HomeEvent.Button.Payment.Share) {
+  private fun onPaymentShare(event: ClientHomeEvent.Button.Payment.Share) {
     onInvoiceToPdf(event.payment) { file ->
       file?.share(application)
     }
   }
 
-  fun onEvent(event: HomeEvent) {
+  fun onEvent(event: ClientHomeEvent) {
     when (event) {
-      is HomeEvent.Button.Payment.Invoice -> onPaymentTap(event)
-      is HomeEvent.Button.Payment.Share -> onPaymentShare(event)
-      is HomeEvent.AppState -> onAppState(event)
+      is ClientHomeEvent.Button.Payment.Invoice -> onPaymentTap(event)
+      is ClientHomeEvent.Button.Payment.Share -> onPaymentShare(event)
+      is ClientHomeEvent.AppState -> onAppState(event)
       else -> Unit
     }
   }

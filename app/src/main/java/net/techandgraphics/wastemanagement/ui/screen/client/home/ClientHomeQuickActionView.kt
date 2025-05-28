@@ -18,14 +18,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.ui.screen.client.home.model.HomeQuickActionUiModel
+import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeQuickActionItemModel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun HomeQuickActionView(
-  homeQuickActionUiModel: HomeQuickActionUiModel,
+@Composable fun ClientHomeQuickActionView(
+  homeQuickActionUiModel: ClientHomeQuickActionItemModel,
   modifier: Modifier = Modifier,
-  onEvent: (HomeEvent) -> Unit
+  onEvent: (ClientHomeEvent) -> Unit
 ) {
 
   OutlinedCard(
@@ -60,10 +60,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeQuickActionViewPreview() {
+private fun ClientHomeQuickActionViewPreview() {
   WasteManagementTheme {
 
-    HomeQuickActionView(
+    ClientHomeQuickActionView(
       onEvent = {},
       homeQuickActionUiModel = homeQuickActionUiModels.first()
     )

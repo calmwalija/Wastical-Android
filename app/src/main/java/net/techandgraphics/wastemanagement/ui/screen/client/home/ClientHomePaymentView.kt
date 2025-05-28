@@ -37,7 +37,7 @@ import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@Composable fun HomePaymentView(
+@Composable fun ClientHomePaymentView(
   payment: PaymentUiModel,
   imageLoader: ImageLoader?,
 ) {
@@ -105,9 +105,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Preview(showBackground = true)
-@Composable fun HomePaymentViewPreview() {
+@Composable fun ClientHomePaymentViewPreview() {
   WasteManagementTheme {
-    HomePaymentView(
+    ClientHomePaymentView(
       payment = payment4Preview,
       imageLoader = imageLoader(LocalContext.current),
     )
