@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.payment
 
 import android.net.Uri
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 
 sealed interface PaymentEvent {
@@ -15,6 +16,7 @@ sealed interface PaymentEvent {
     data class ShowCropView(val show: Boolean) : PaymentEvent
     data class NumberOfMonths(val isAdd: Boolean) : PaymentEvent
     data class TextToClipboard(val text: String) : PaymentEvent
+    data class PaymentMethod(val method: PaymentMethodUiModel) : PaymentEvent
   }
 
   sealed interface GoTo : PaymentEvent {

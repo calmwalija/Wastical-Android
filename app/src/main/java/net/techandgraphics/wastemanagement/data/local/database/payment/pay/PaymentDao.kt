@@ -19,7 +19,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
   fun flowOfAllInvoices(status: String = Approved.name): Flow<List<PaymentEntity>>
 
   @Query("SELECT id FROM payment ORDER BY id DESC LIMIT 1")
-  suspend fun getLastId(): Long?
+  fun getLastId(): Flow<Long?>
 
   @Query("SELECT * FROM payment WHERE payment_status=:status")
   suspend fun queryRetry(status: String = Failed.name): List<PaymentEntity>

@@ -52,6 +52,7 @@ fun PaymentMethodEntity.toPaymentMethodUiModel() = PaymentMethodUiModel(
   paymentGatewayId = paymentGatewayId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+  isSelected = isSelected,
 )
 
 fun AccountEntity.toAccountUiModel() = AccountUiModel(

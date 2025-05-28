@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +51,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -66,6 +68,10 @@ fun PaymentScreen(
   val hapticFeedback = LocalHapticFeedback.current
   val context = LocalContext.current
   var loading by remember { mutableStateOf(false) }
+
+  val payByCash = state.state.paymentMethods
+    .filter { it.type == PaymentType.Cash }
+    .any { it.isSelected.not() }
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
@@ -131,14 +137,17 @@ fun PaymentScreen(
           }
           Spacer(modifier = Modifier.weight(1f))
           Button(
-            enabled = state.screenshotAttached && loading.not(),
+            enabled = payByCash.not() || (state.screenshotAttached && loading.not()),
             onClick = { onEvent(PaymentEvent.Button.Pay); loading = true },
             modifier = Modifier.fillMaxWidth(.8f),
           ) {
             if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
-              CircularProgressIndicator(modifier = Modifier.size(16.dp))
+              CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                color = Color.White
+              )
               Text(
-                text = "Please wait ",
+                text = "Please wait",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold,
@@ -177,9 +186,12 @@ fun PaymentScreen(
         item { PaymentPlanView(state, onEvent) }
         item { Spacer(modifier = Modifier.height(24.dp)) }
         item { PaymentMethodView(state, onEvent) }
-        item { Spacer(modifier = Modifier.height(24.dp)) }
-        item { PaymentReferenceView(state, onEvent) }
-
+        item {
+          if (payByCash) {
+            Spacer(modifier = Modifier.height(24.dp))
+            PaymentReferenceView(state, onEvent)
+          }
+        }
         item { Spacer(modifier = Modifier.height(24.dp)) }
       }
     }

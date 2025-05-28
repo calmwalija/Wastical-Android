@@ -37,7 +37,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Company.Payment
+    startDestination = Route.Client.Home
   ) {
 
     composable<Route.SignIn> {
@@ -55,7 +55,7 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.Payment> {
+    composable<Route.Client.Payment> {
       with(hiltViewModel<PaymentViewModel>()) {
         val state = state.collectAsState().value
         onEvent(PaymentEvent.AppState(appState))
@@ -63,7 +63,7 @@ fun AppNavHost(
           when (event) {
             is PaymentEvent.Response ->
               navController.navigate(Route.PaymentResponse(event.isSuccess, event.error)) {
-                popUpTo(Route.Payment) { inclusive = true }
+                popUpTo(Route.Client.Payment) { inclusive = true }
               }
 
             PaymentEvent.GoTo.BackHandler -> navController.navigateUp()
@@ -73,7 +73,7 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.Home> {
+    composable<Route.Client.Home> {
       with(hiltViewModel<HomeViewModel>()) {
         val state = state.collectAsState().value
         onEvent(HomeEvent.AppState(appState))
@@ -84,7 +84,7 @@ fun AppNavHost(
                 HomeEvent.Goto.Invoice -> navController.navigate(Route.Invoice)
               }
 
-            HomeEvent.Button.MakePayment -> navController.navigate(Route.Payment)
+            HomeEvent.Button.MakePayment -> navController.navigate(Route.Client.Payment)
 
             else -> onEvent(event)
           }

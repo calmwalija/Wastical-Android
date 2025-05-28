@@ -245,15 +245,8 @@ fun HomeScreen(
           fontWeight = FontWeight.Bold,
         )
 
-
-        state.state.paymentPlans.forEach { paymentPlan ->
-          state.state.payments.forEach { payment ->
-            val gatewayId =
-              state.state.paymentMethods
-                .first { it.paymentPlanId == paymentPlan.id }
-                .paymentGatewayId
-            HomePaymentView(payment, gatewayId, paymentPlan, state.state.imageLoader)
-          }
+        state.state.payments.forEach { payment ->
+          HomePaymentView(payment, state.state.imageLoader)
         }
       }
 

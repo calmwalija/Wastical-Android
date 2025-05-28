@@ -3,15 +3,16 @@ package net.techandgraphics.wastemanagement.ui
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
+
+  @Serializable sealed interface Client : Route {
+    @Serializable data object Home : Client
+
+    @Serializable data object Payment : Client
+  }
+
   @Serializable data object SignIn : Route
 
-  @Serializable data object SignUp : Route
-
-  @Serializable data object Home : Route
-
   @Serializable data object Invoice : Route
-
-  @Serializable data object Payment : Route
 
   @Serializable data class PaymentResponse(
     val isSuccess: Boolean,

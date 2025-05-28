@@ -88,11 +88,7 @@ import java.io.File
       modifier = Modifier.padding(8.dp)
     )
     Card(
-      colors = CardDefaults.elevatedCardColors(
-        containerColor = if (state.screenshotAttached) CardDefaults.elevatedCardColors().containerColor else {
-          MaterialTheme.colorScheme.error.copy(.2f)
-        }
-      ),
+      colors = CardDefaults.elevatedCardColors(),
       onClick = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
 
       ) {
