@@ -5,6 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat.getSystemService
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -34,3 +36,7 @@ fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
 fun Context.onTextToClipboard(text: String) = copyTextToClipboard(text)
 
 fun Context.getUCropFile(fileId: Number) = File(cacheDir, "$fileId.jpg")
+
+fun Color.toGradient() = Brush.horizontalGradient(
+  listOf(this.copy(.7f), this.copy(.8f), this),
+)
