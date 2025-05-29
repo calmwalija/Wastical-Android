@@ -137,4 +137,10 @@ dependencies {
   ksp("androidx.hilt:hilt-compiler:1.0.0")
 
 
+
+  implementation(libs.ktor.client.content.negotiation)
+  implementation(libs.ktor.client.logging)
+  implementation(libs.ktor.client.okhttp)
+  implementation(libs.ktor.serialization.gson)
+
 }
