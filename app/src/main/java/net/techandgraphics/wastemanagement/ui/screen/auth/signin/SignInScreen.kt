@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -64,23 +63,7 @@ fun SignInScreen(
       channel.collect { event ->
         isProcessing = false
         when (event) {
-          is SignInChannel.Response.Failure -> when (val response = event.exception) {
-            is SignInChannel.LoginException.Http -> {
-              context.toast(response.message.plus(" ${response.code}"))
-            }
-
-            is SignInChannel.LoginException.IO -> {
-              response.message?.let { context.toast(it) }
-            }
-
-            is SignInChannel.LoginException.Default ->
-              response.message?.let { context.toast(it) }
-
-            is SignInChannel.LoginException.KeycloakError -> {
-              context.toast(response.error.description)
-              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
-          }
+          is SignInChannel.Response.Failure -> context.toast(event.error.message)
 
           SignInChannel.Response.Success -> onEvent(SignInEvent.GoTo.Main)
         }

@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.data.local.database.payment.pay
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Approved
@@ -22,8 +23,9 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
   fun getLastId(): Flow<Long?>
 
   @Query("SELECT * FROM payment WHERE payment_status=:status")
-  suspend fun queryRetry(status: String = Failed.name): List<PaymentEntity>
+  suspend fun qPaymentByStatus(status: String = Failed.name): List<PaymentEntity>
 
+  @Transaction
   @Query("SELECT * FROM payment ORDER BY id DESC")
   fun flowOfPaymentAccount(): Flow<List<PaymentAccountEntity>>
 }

@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
-import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
-import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentRepository
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
 import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
 import javax.inject.Inject
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyVerifyPaymentViewModel @Inject constructor(
   private val database: AppDatabase,
-  private val repository: PaymentRepository,
+  private val api: PaymentApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(CompanyVerifyPaymentState())
@@ -56,8 +56,8 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
   private fun onPaymentStatus(event: CompanyVerifyPaymentEvent.Payment.Button.Status) =
     viewModelScope.launch {
       val request = event.payment.copy(status = event.status).toPaymentRequest()
-      runCatching { repository.onPut(event.payment.id, request) }
-        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(onApiErrorHandler(it))) }
+      runCatching { api.put(event.payment.id, request) }
+        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(mapApiError(it))) }
         .onSuccess {
           it.map { it.toPaymentEntity() }.run {
             database.paymentDao.upsert(this)

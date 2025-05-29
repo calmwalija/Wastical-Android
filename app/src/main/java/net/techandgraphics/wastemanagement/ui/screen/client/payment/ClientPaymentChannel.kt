@@ -6,6 +6,6 @@ sealed interface ClientPaymentChannel {
 
   sealed interface Pay : ClientPaymentChannel {
     data object Success : Pay
-    data class Failure(val errorHandler: ApiResult.Error) : Pay
+    data class Failure(val error: ApiResult.Error) : Pay
   }
 }

@@ -15,18 +15,18 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEn
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
-import net.techandgraphics.wastemanagement.data.remote.account.session.AccountSessionApiService
-import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
+import net.techandgraphics.wastemanagement.data.remote.account.session.AccountSessionApi
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
   private val database: AppDatabase,
-  private val sessionService: AccountSessionApiService,
+  private val sessionService: AccountSessionApi,
 ) : AccountSessionRepository {
 
   override suspend fun fetchSession() {
     runCatching { sessionService.get() }
-      .onFailure { println(onApiErrorHandler(it)) }
+      .onFailure { println(mapApiError(it)) }
       .onSuccess { accountSession ->
         try {
           with(database) {

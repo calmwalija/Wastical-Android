@@ -109,11 +109,6 @@ dependencies {
   implementation(libs.androidx.paging.runtime)
   implementation(libs.androidx.paging.compose)
 
-  implementation(libs.retrofit)
-  implementation(libs.converter.gson)
-  implementation(libs.logging.interceptor)
-
-  implementation(libs.okhttp)
   implementation(libs.hilt.android)
   ksp(libs.hilt.android.compiler)
   implementation(libs.androidx.hilt.navigation.compose)

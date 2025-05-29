@@ -19,12 +19,12 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.data.local.database.toAccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
-import net.techandgraphics.wastemanagement.data.remote.AppApi
 import net.techandgraphics.wastemanagement.data.remote.account.AccountRequest
-import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
+import net.techandgraphics.wastemanagement.keycloak.KeycloakApi
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.AppState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create
@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyCreateClientViewModel @Inject constructor(
   private val database: AppDatabase,
-  private val api: AppApi,
+  private val api: KeycloakApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(CreateAccountState())
@@ -73,8 +73,8 @@ class CompanyCreateClientViewModel @Inject constructor(
 
         println(Gson().toJson(request))
 
-        runCatching { api.keycloakApi.create(request) }
-          .onFailure { onApiErrorHandler(it) }
+        runCatching { api.create(request) }
+          .onFailure { mapApiError(it) }
           .onSuccess { response ->
             database.withTransaction {
               with(database) {
