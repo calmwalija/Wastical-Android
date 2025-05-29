@@ -9,7 +9,6 @@ sealed interface CompanyVerifyPaymentEvent {
 
   sealed interface Payment : CompanyVerifyPaymentEvent {
     sealed interface Button : Payment {
-
       data class Status(val payment: PaymentUiModel, val status: PaymentStatus) : Button
     }
   }

@@ -27,6 +27,8 @@ sealed interface Route {
       @Serializable data object Create : Account
     }
 
-    @Serializable data object Payment : Company
+    @Serializable sealed interface Payment : Company {
+      @Serializable data object Verify : Payment
+    }
   }
 }

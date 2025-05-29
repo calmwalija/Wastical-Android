@@ -23,7 +23,9 @@ object AppModule {
     return Room.databaseBuilder(app, AppDatabase::class.java, AppDatabase.NAME)
       .fallbackToDestructiveMigration()
       .setQueryCallback(
-        queryCallback = { query, args -> println("query $query == args $args") },
+        queryCallback = { query, args ->
+//          println("query $query == args $args")
+        },
         Executors.newSingleThreadExecutor(),
       )
       .build()

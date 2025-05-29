@@ -37,7 +37,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Client.Home
+    startDestination = Route.Company.Payment.Verify
   ) {
 
     composable<Route.SignIn> {
@@ -124,7 +124,7 @@ fun AppNavHost(
       }
 
     }
-    composable<Route.Company.Payment> {
+    composable<Route.Company.Payment.Verify> {
       with(hiltViewModel<CompanyVerifyPaymentViewModel>()) {
         val state = state.collectAsState().value
         LaunchedEffect(appState) { onEvent(CompanyVerifyPaymentEvent.AppState(appState)) }

@@ -28,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -43,9 +42,6 @@ import net.techandgraphics.wastemanagement.imageScreenshotUrl
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.toast
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.dialog.CompanyPaymentViewDialog
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentChannel
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
