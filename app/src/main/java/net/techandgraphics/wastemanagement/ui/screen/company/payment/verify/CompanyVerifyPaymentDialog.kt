@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.dialog
+package net.techandgraphics.wastemanagement.ui.screen.company.payment.verify
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -33,17 +33,17 @@ import androidx.compose.ui.zIndex
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment.Button
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
-@Composable fun CompanyPaymentViewDialog(
+@Composable fun CompanyVerifyPaymentDialog(
   paymentAccount: PaymentAccountUiModel,
   onEvent: (CompanyVerifyPaymentEvent) -> Unit,
   onDismissRequest: () -> Unit
@@ -54,15 +54,16 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   val payment = paymentAccount.payment
 
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
-    Image(
-      painterResource(R.drawable.im_placeholder),
-      contentDescription = null,
-      modifier = Modifier
-        .zIndex(1f)
-        .offset(y = 42.dp)
-        .clip(CircleShape)
-        .size(120.dp)
-    )
+    if (payment.paymentGatewayName != PaymentType.Cash.name)
+      Image(
+        painterResource(R.drawable.im_placeholder),
+        contentDescription = null,
+        modifier = Modifier
+          .zIndex(1f)
+          .offset(y = 42.dp)
+          .clip(CircleShape)
+          .size(120.dp)
+      )
     Card(modifier = Modifier.fillMaxWidth()) {
       Column(
         modifier = Modifier
@@ -106,7 +107,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           colors = CardDefaults.outlinedCardColors(),
         ) {
           Text(
-            text = payment.screenshotText,
+            text =
+              if (payment.paymentGatewayName == PaymentType.Cash.name)
+                "Not Applicable" else payment.screenshotText,
             modifier = Modifier
               .padding(32.dp)
               .fillMaxWidth(),
@@ -115,7 +118,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         }
 
 
-        Row {
+        Row (modifier = Modifier.padding(top = 8.dp)){
           TextButton(
             onClick = { onEvent(Button.Status(payment, PaymentStatus.Declined)) },
             modifier = Modifier.fillMaxWidth(.4f)
@@ -136,9 +139,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 }
 
 @Preview
-@Composable fun CompanyPaymentViewDialogPreview() {
+@Composable fun CompanyVerifyPaymentDialogPreview() {
   WasteManagementTheme {
-    CompanyPaymentViewDialog(
+    CompanyVerifyPaymentDialog(
       paymentAccount = paymentAccount4Preview,
       onEvent = {},
       onDismissRequest = {}

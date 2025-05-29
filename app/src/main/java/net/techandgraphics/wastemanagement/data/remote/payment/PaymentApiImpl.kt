@@ -1,11 +1,11 @@
 package net.techandgraphics.wastemanagement.data.remote.payment
 
+import com.google.gson.Gson
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -31,7 +31,7 @@ class PaymentApiImpl @Inject constructor(
     val formData = formData {
       append(
         "request",
-        request,
+        Gson().toJson(request),
         Headers.build {
           append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
         },
@@ -52,12 +52,11 @@ class PaymentApiImpl @Inject constructor(
   }
 
   override suspend fun put(id: Long, request: PaymentRequest) =
-    httpClient.put(URL_STRING) {
+    httpClient.put("$URL_STRING/$id") {
       url {
-        parameter("id", id)
         header("Authorization", "Bearer")
       }
       contentType(ContentType.Application.Json)
-      setBody(request)
+      setBody(Gson().toJson(request))
     }.body<List<PaymentResponse>>()
 }

@@ -19,6 +19,8 @@ import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
 import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.AppState
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,7 +45,10 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
       initialValue = CompanyVerifyPaymentState(),
     )
 
-  private fun onAppState(event: CompanyVerifyPaymentEvent.AppState) {
+  private fun getPaymentMethod() = viewModelScope.launch {
+  }
+
+  private fun onAppState(event: AppState) {
     _state.update { it.copy(state = event.state) }
   }
 
@@ -53,7 +58,7 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
       .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
   }
 
-  private fun onPaymentStatus(event: CompanyVerifyPaymentEvent.Payment.Button.Status) =
+  private fun onPaymentStatus(event: Payment.Button.Status) =
     viewModelScope.launch {
       val request = event.payment.copy(status = event.status).toPaymentRequest()
       runCatching { api.put(event.payment.id, request) }
@@ -68,8 +73,8 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
 
   fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
-      is CompanyVerifyPaymentEvent.AppState -> onAppState(event)
-      is CompanyVerifyPaymentEvent.Payment.Button.Status -> onPaymentStatus(event)
+      is AppState -> onAppState(event)
+      is Payment.Button.Status -> onPaymentStatus(event)
     }
   }
 }

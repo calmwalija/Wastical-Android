@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,12 +38,12 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.defaultDate
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.imageScreenshotUrl
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.toast
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.dialog.CompanyPaymentViewDialog
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
@@ -59,6 +58,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
   var showOptions by remember { mutableStateOf(false) }
   var showDialog by remember { mutableStateOf(false) }
+  var paymentMethod by remember { mutableStateOf<PaymentMethodUiModel?>(null) }
 
   val context = LocalContext.current
   val payment = paymentAccount.payment
@@ -81,7 +81,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
   if (showDialog) {
     Dialog(onDismissRequest = { showDialog = false }) {
-      CompanyPaymentViewDialog(
+      CompanyVerifyPaymentDialog(
         paymentAccount = paymentAccount,
         onEvent = onEvent
       ) { showDialog = false }
@@ -96,7 +96,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   ) {
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
-      Box(modifier = Modifier.size(56.dp)) {
+      Box(modifier = Modifier.size(48.dp)) {
 
         val gatewayImagePainter =
           imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
@@ -141,23 +141,16 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             text = payment.createdAt.toZonedDateTime().defaultDate(),
             style = MaterialTheme.typography.bodyMedium
           )
-          Text(
-            text = payment.calculate(),
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis,
-            modifier = Modifier.padding(end = 8.dp)
-          )
+
         }
 
         Text(
-          text = payment.status.name,
+          text = payment.calculate(),
           style = MaterialTheme.typography.bodySmall,
-          fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(end = 24.dp)
+          maxLines = 1,
+          overflow = TextOverflow.MiddleEllipsis,
+          modifier = Modifier.padding(end = 16.dp)
         )
-
 
       }
     }
