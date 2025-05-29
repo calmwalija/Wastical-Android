@@ -79,7 +79,7 @@ fun ClientPaymentScreen(
       channel.collect { event ->
         when (event) {
           is ClientPaymentChannel.Pay.Failure ->
-            onEvent(ClientPaymentEvent.Response(false, event.errorHandler.message))
+            onEvent(ClientPaymentEvent.Response(false, event.error.message))
 
           ClientPaymentChannel.Pay.Success ->
             onEvent(ClientPaymentEvent.Response(true, null))

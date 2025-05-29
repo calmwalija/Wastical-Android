@@ -18,10 +18,10 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
-import net.techandgraphics.wastemanagement.data.remote.onApiErrorHandler
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
-import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentRepository
 import net.techandgraphics.wastemanagement.getUCropFile
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.onTextToClipboard
@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ClientPaymentViewModel @Inject constructor(
-  private val repository: PaymentRepository,
+  private val api: PaymentApi,
   private val application: Application,
   private val database: AppDatabase,
 ) : ViewModel() {
@@ -87,7 +87,7 @@ class ClientPaymentViewModel @Inject constructor(
 
       Log.e("TAG", "Before send : lastPaymentId " + lastPaymentId)
 
-      runCatching { repository.onPay(theFile(), paymentRequest) }
+      runCatching { api.pay(theFile(), paymentRequest) }
         .onFailure {
           application.schedulePaymentRetryWorker()
 
@@ -103,7 +103,7 @@ class ClientPaymentViewModel @Inject constructor(
           val oldFile = application.getUCropFile(lastPaymentId)
           oldFile.renameTo(application.getUCropFile(cachedPayment.id))
           database.paymentDao.upsert(cachedPayment)
-          _channel.send(ClientPaymentChannel.Pay.Failure(onApiErrorHandler(it)))
+          _channel.send(ClientPaymentChannel.Pay.Failure(mapApiError(it)))
         }
         .onSuccess {
           database.paymentDao.upsert(it.toPaymentEntity())

@@ -14,15 +14,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.account.AuthenticatorHelper
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.keycloak.AccessTokenResponse
 import net.techandgraphics.wastemanagement.keycloak.JwtManager
 import net.techandgraphics.wastemanagement.keycloak.KeycloakSignInRequest
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInChannel.LoginException
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInChannel.Response
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent.Button
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent.Input
-import okio.IOException
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,46 +42,13 @@ class SignInViewModel @Inject constructor(
       delay(2_000)
       val chunkedContactNumber = state.value.contactNumber.chunked(3).joinToString("-")
       val signInRequest = KeycloakSignInRequest(chunkedContactNumber, state.value.password)
-      jwtManager.fetchAccessToken(signInRequest)
+      runCatching { jwtManager.fetchAccessToken(signInRequest) }
         .onSuccess { jsonObject ->
           val accessToken = gson.fromJson(jsonObject, AccessTokenResponse::class.java)
           accountHelper.addAccount(accessToken, jwtManager)
           _channel.send(Response.Success)
         }
-        .onFailure { throwable ->
-          println(throwable)
-          when (throwable) {
-            is HttpException -> {
-              _channel.send(
-                Response.Failure(
-                  exception = LoginException.Http(
-                    code = throwable.code(),
-                    message = throwable.message,
-                  ),
-                ),
-              )
-            }
-
-            is IOException -> {
-              _channel.send(
-                Response.Failure(
-                  exception = LoginException.IO(
-                    message = throwable.message,
-                  ),
-                ),
-              )
-            }
-
-            else ->
-              _channel.send(
-                Response.Failure(
-                  exception = LoginException.Default(
-                    message = throwable.message,
-                  ),
-                ),
-              )
-          }
-        }
+        .onFailure { _channel.send(Response.Failure(mapApiError(it))) }
     }
   }
 

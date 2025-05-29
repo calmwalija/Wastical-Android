@@ -33,11 +33,7 @@ class JwtManager @Inject constructor(private val keycloakApi: KeycloakApi) {
     }
   }
 
-  suspend fun fetchAccessToken(keycloakSignInRequest: KeycloakSignInRequest): Result<JsonObject?> {
-    return try {
-      Result.success(keycloakApi.getToken(keycloakSignInRequest).body())
-    } catch (exception: Exception) {
-      Result.failure(exception)
-    }
+  suspend fun fetchAccessToken(keycloakSignInRequest: KeycloakSignInRequest): JsonObject? {
+    return keycloakApi.getToken(keycloakSignInRequest)
   }
 }

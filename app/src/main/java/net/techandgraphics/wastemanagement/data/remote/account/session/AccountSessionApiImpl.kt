@@ -5,9 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import javax.inject.Inject
 
-class AccountSessionApiServiceImpl @Inject constructor(
+class AccountSessionApiImpl @Inject constructor(
   private val httpClient: HttpClient,
-) : AccountSessionApiService {
+) : AccountSessionApi {
 
   override suspend fun get() = httpClient
     .get("session")

@@ -1,12 +1,13 @@
 package net.techandgraphics.wastemanagement.ui.screen.auth.signin
 
+import net.techandgraphics.wastemanagement.data.remote.ApiResult
 import net.techandgraphics.wastemanagement.keycloak.KeycloakErrorResponse
 
 sealed interface SignInChannel {
 
   sealed interface Response {
     data object Success : SignInChannel
-    data class Failure(val exception: LoginException) : SignInChannel
+    data class Failure(val error: ApiResult.Error) : SignInChannel
   }
 
   sealed interface LoginException {
