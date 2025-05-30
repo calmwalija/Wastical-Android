@@ -8,6 +8,7 @@ plugins {
   id("com.google.devtools.ksp")
   id("com.diffplug.spotless")
   id("dagger.hilt.android.plugin")
+  alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -84,6 +85,7 @@ dependencies {
   implementation(libs.androidx.ui.graphics)
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
+  implementation(libs.firebase.messaging)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
@@ -131,6 +133,7 @@ dependencies {
   implementation("androidx.hilt:hilt-work:1.0.0")
   ksp("androidx.hilt:hilt-compiler:1.0.0")
 
+  implementation(libs.firebase.analytics.ktx)
 
 
   implementation(libs.ktor.client.content.negotiation)
