@@ -28,4 +28,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
   @Transaction
   @Query("SELECT * FROM payment ORDER BY id DESC")
   fun flowOfPaymentAccount(): Flow<List<PaymentAccountEntity>>
+
+  @Query("SELECT * FROM payment ORDER BY updated_at DESC LIMIT 1")
+  suspend fun getByUpdatedAtLatest(): PaymentEntity?
 }

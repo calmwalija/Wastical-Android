@@ -11,6 +11,6 @@ data class CompanyUiModel(
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: Status = Status.Active,
-  val updatedAt: Long? = null,
+  val updatedAt: Long,
   val createdAt: Long,
 )

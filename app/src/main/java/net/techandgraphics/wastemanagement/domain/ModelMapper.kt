@@ -89,6 +89,7 @@ fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   paymentGatewayId = paymentGatewayId,
   paymentGatewayType = paymentGatewayType,
   paymentGatewayName = paymentGatewayName,
+  companyId = companyId,
 )
 
 fun CompanyEntity.toCompanyUiModel() = CompanyUiModel(

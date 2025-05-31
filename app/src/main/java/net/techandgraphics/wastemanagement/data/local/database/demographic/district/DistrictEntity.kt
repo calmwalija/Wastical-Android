@@ -10,5 +10,5 @@ data class DistrictEntity(
   val name: String,
   val region: String,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

@@ -77,6 +77,7 @@ class ClientPaymentViewModel @Inject constructor(
         paymentMethodId = state.paymentMethods.first().id,
         accountId = database.accountDao.query().first().id,
         numberOfMonths = numberOfMonths,
+        companyId = state.accounts.first().companyId,
       )
 
       /** Pay by cash creates a dummy File **/
@@ -85,8 +86,6 @@ class ClientPaymentViewModel @Inject constructor(
         .any { it.isSelected.not() }
         .also { theFile().createNewFile() }
 
-      Log.e("TAG", "Before send : lastPaymentId " + lastPaymentId)
-
       runCatching { api.pay(theFile(), paymentRequest) }
         .onFailure {
           application.schedulePaymentRetryWorker()
@@ -94,10 +93,7 @@ class ClientPaymentViewModel @Inject constructor(
           val plan = state.paymentPlans.first()
           val method = state.paymentMethods.first { it.isSelected }
           val gateway = state.paymentGateways.first { it.id == method.paymentGatewayId }
-
           val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
-
-          Log.e("TAG", "onfail : lastPaymentId " + lastPaymentId)
 
           /** Rename the File **/
           val oldFile = application.getUCropFile(lastPaymentId)
@@ -138,7 +134,7 @@ class ClientPaymentViewModel @Inject constructor(
         .map { it.copy(isSelected = false) }
         .also { database.paymentMethodDao.update(it) }
       event.method.toPaymentMethodEntity()
-        .copy(isSelected = !event.method.isSelected)
+        .copy(isSelected = true)
         .also { database.paymentMethodDao.update(it) }
     }
 

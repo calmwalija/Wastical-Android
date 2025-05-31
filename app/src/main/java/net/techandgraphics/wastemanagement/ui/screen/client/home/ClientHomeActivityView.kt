@@ -57,7 +57,7 @@ import java.time.temporal.ChronoUnit
     onClick = { onEvent(homeActivity.event) },
     enabled = homeActivity.clickable
   ) {
-    if (homeActivity.activity == homeActivityUiModels.first().activity) {
+    if (homeActivity.activity == homeActivityUiModels.last().activity) {
       state.state.invoices.firstOrNull()?.let { oldPay ->
         state.state.paymentPlans.firstOrNull()?.let { plan ->
           Column(modifier = Modifier.padding(16.dp)) {

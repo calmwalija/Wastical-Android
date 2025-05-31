@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.payment
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -136,30 +137,32 @@ fun ClientPaymentScreen(
             }
           }
           Spacer(modifier = Modifier.weight(1f))
-          Button(
-            enabled = payByCash.not() || (state.screenshotAttached && loading.not()),
-            onClick = { onEvent(ClientPaymentEvent.Button.Pay); loading = true },
-            modifier = Modifier.fillMaxWidth(.8f),
-          ) {
-            if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
-              CircularProgressIndicator(
-                modifier = Modifier.size(16.dp),
-                color = Color.White
-              )
-              Text(
-                text = "Please wait",
+          AnimatedVisibility(state.screenshotAttached) {
+            Button(
+              enabled = payByCash.not() || (state.screenshotAttached && loading.not()),
+              onClick = { onEvent(ClientPaymentEvent.Button.Pay); loading = true },
+              modifier = Modifier.fillMaxWidth(.8f),
+            ) {
+              if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(
+                  modifier = Modifier.size(16.dp),
+                  color = Color.White
+                )
+                Text(
+                  text = "Please wait",
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  fontWeight = FontWeight.Bold,
+                  modifier = Modifier.padding(start = 8.dp)
+                )
+              } else Text(
+                text = "Send Screenshot",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
               )
-            } else Text(
-              text = "Make Payment",
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis,
-              fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(start = 8.dp)
-            )
+            }
           }
         }
       }
@@ -177,7 +180,7 @@ fun ClientPaymentScreen(
       ) {
         item {
           Text(
-            text = "Payment",
+            text = "Payment Screenshot",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(vertical = 16.dp)
           )

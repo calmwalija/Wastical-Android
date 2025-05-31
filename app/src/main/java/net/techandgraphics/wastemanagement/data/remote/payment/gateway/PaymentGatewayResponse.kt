@@ -7,5 +7,5 @@ data class PaymentGatewayResponse(
   val name: String,
   val type: String,
   @SerializedName("created_at") val createdAt: Long,
-  @SerializedName("updated_at") val updatedAt: Long?,
+  @SerializedName("updated_at") val updatedAt: Long,
 )

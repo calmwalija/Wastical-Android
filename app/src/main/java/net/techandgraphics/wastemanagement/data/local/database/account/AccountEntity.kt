@@ -42,6 +42,6 @@ data class AccountEntity(
   @ColumnInfo(name = "company_id") val companyId: Long,
   @ColumnInfo(name = "leaving_reason") val leavingReason: String? = null,
   @ColumnInfo(name = "leaving_timestamp") val leavingTimestamp: Long?,
-  @ColumnInfo(name = "updated_at") val updatedAt: Long? = null,
+  @ColumnInfo(name = "updated_at") val updatedAt: Long,
   @ColumnInfo(name = "created_at") val createdAt: Long,
 )

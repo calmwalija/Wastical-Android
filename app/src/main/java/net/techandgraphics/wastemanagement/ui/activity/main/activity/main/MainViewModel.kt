@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import coil.ImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.account.session.AccountSessionRepository
+import net.techandgraphics.wastemanagement.data.local.database.toAccountFcmTokenEntity
+import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
+import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.toAccountFcmTokenRequest
 import net.techandgraphics.wastemanagement.domain.toAccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toAreaUiModel
@@ -33,6 +39,7 @@ class MainViewModel @Inject constructor(
   private val accountSession: AccountSessionRepository,
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
+  private val api: AccountApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(MainActivityState())
@@ -53,6 +60,7 @@ class MainViewModel @Inject constructor(
       launch { getAreas() }
       launch { getDistricts() }
       launch { getTrashCollectionSchedules() }
+      launch { syncFcmToken() }
     }
   }.stateIn(
     scope = viewModelScope,
@@ -146,5 +154,23 @@ class MainViewModel @Inject constructor(
     database.districtDao.flow()
       .map { dbDistricts -> dbDistricts.map { it.toDistrictUiModel() } }
       .collectLatest { districts -> _state.update { it.copy(districts = districts) } }
+  }
+
+  private suspend fun syncFcmToken() {
+    database.accountFcmTokenDao.query()
+      .filterNot { it.sync.not() }
+      .map { it.toAccountFcmTokenRequest(ACCOUNT_ID) }
+      .onEach {
+        runCatching { api.fcmToken(it) }
+          .onSuccess {
+            database.withTransaction {
+              with(database.accountFcmTokenDao) {
+                deleteAll()
+                insert(it.toAccountFcmTokenEntity())
+              }
+            }
+          }
+          .onFailure { println(mapApiError(it)) }
+      }
   }
 }

@@ -25,5 +25,5 @@ data class StreetEntity(
   val longitude: Float,
   @ColumnInfo("area_id") val areaId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

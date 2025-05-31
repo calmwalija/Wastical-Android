@@ -13,5 +13,5 @@ data class CompanyResponse(
   val address: String,
   val slogan: String,
   @SerializedName("created_at") val createdAt: Long,
-  @SerializedName("updated_at") val updatedAt: Long?,
+  @SerializedName("updated_at") val updatedAt: Long,
 )

@@ -26,5 +26,5 @@ data class AccountContactEntity(
   val primary: Boolean,
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

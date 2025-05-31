@@ -7,5 +7,5 @@ data class StreetUiModel(
   val longitude: Float,
   val areaId: Long,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

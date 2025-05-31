@@ -27,7 +27,7 @@ object NetworkModule {
     install(ContentNegotiation) { gson() }
     install(Logging) {
       logger = Logger.SIMPLE
-      level = LogLevel.ALL
+      level = LogLevel.INFO
     }
     defaultRequest {
       url {

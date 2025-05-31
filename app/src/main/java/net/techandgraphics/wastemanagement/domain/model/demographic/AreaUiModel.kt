@@ -9,5 +9,5 @@ data class AreaUiModel(
   val longitude: Float,
   val districtId: Long,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

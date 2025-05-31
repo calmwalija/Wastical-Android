@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.data.local.database
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
@@ -17,6 +18,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
+import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmTokenResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
 import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
@@ -110,6 +112,7 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   paymentGatewayId = gateway!!.id,
   paymentGatewayName = gateway.name,
   paymentGatewayType = gateway.type,
+  companyId = companyId,
 )
 
 fun AccountResponse.toAccountEntity() = AccountEntity(
@@ -152,13 +155,14 @@ fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: Payme
     transactionId = UUID.randomUUID().toString(),
     createdAt = ZonedDateTime.now().toEpochSecond(),
     id = System.currentTimeMillis().times(1_000),
-    updatedAt = null,
+    updatedAt = ZonedDateTime.now().toEpochSecond(),
     paymentPlanId = plan.id,
     paymentPlanFee = plan.fee,
     paymentPlanPeriod = plan.period.name,
     paymentGatewayId = gateway.id,
     paymentGatewayName = gateway.name,
     paymentGatewayType = gateway.type,
+    companyId = companyId,
   )
 
 fun DistrictResponse.toDistrictEntity() = DistrictEntity(
@@ -238,4 +242,11 @@ fun PaymentMethodUiModel.toPaymentMethodEntity() = PaymentMethodEntity(
   createdAt = createdAt,
   updatedAt = updatedAt,
   isSelected = isSelected,
+)
+
+fun AccountFcmTokenResponse.toAccountFcmTokenEntity() = AccountFcmTokenEntity(
+  token = token,
+  sync = false,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
 )

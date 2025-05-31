@@ -15,6 +15,6 @@ data class CompanyEntity(
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: Status = Status.Active,
-  @ColumnInfo(name = "updated_at") val updatedAt: Long? = null,
+  @ColumnInfo(name = "updated_at") val updatedAt: Long,
   @ColumnInfo(name = "created_at") val createdAt: Long,
 )

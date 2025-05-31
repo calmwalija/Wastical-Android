@@ -31,7 +31,7 @@ internal val account4Preview = AccountUiModel(
   companyId = 1L,
   createdAt = System.currentTimeMillis(),
   leavingTimestamp = null,
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val paymentPlan4Preview = PaymentPlanUiModel(
@@ -42,7 +42,7 @@ internal val paymentPlan4Preview = PaymentPlanUiModel(
   status = Status.Active,
   companyId = 1L,
   createdAt = System.currentTimeMillis(),
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val paymentMethod4Preview = PaymentMethodUiModel(
@@ -53,7 +53,7 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   paymentPlanId = 1L,
   paymentGatewayId = 1L,
   createdAt = System.currentTimeMillis(),
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
   isSelected = true,
 )
 
@@ -63,7 +63,7 @@ internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(
   companyId = 1L,
   streetId = 1L,
   createdAt = ZonedDateTime.now().toEpochSecond(),
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val gateway4Preview = PaymentGatewayUiModel(
@@ -71,7 +71,7 @@ internal val gateway4Preview = PaymentGatewayUiModel(
   name = "Airtel Money",
   type = "Wallet",
   createdAt = ZonedDateTime.now().toEpochSecond(),
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val company4Preview = CompanyUiModel(
@@ -81,7 +81,7 @@ internal val company4Preview = CompanyUiModel(
   slogan = "Lorem Ipsum",
   address = "John Smith, 123 Main Street, Suite 2, Downtown, CA 91234, GA",
   createdAt = ZonedDateTime.now().toEpochSecond(),
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val payment4Preview = PaymentUiModel(
@@ -93,13 +93,14 @@ internal val payment4Preview = PaymentUiModel(
   createdAt = ZonedDateTime.now().toEpochSecond(),
   screenshotText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
   accountId = 1L,
-  updatedAt = null,
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
   paymentPlanId = 1L,
   paymentPlanFee = paymentPlan4Preview.fee,
   paymentPlanPeriod = paymentPlan4Preview.period.name,
   paymentGatewayId = gateway4Preview.id,
   paymentGatewayName = gateway4Preview.name,
   paymentGatewayType = gateway4Preview.type,
+  companyId = account4Preview.companyId,
 )
 
 internal val paymentAccount4Preview = PaymentAccountUiModel(

@@ -25,5 +25,5 @@ data class CompanyContactEntity(
   val primary: Boolean,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

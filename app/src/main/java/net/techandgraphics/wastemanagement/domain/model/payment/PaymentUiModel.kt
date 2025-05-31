@@ -11,7 +11,8 @@ data class PaymentUiModel(
   val accountId: Long,
   val status: PaymentStatus,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
+  val companyId: Long,
 
   val paymentPlanId: Long,
   val paymentPlanFee: Int,

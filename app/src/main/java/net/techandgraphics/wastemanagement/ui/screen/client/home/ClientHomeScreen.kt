@@ -156,54 +156,59 @@ fun HomeScreen(
 
       Spacer(modifier = Modifier.height(24.dp))
 
-      if (state.state.invoices.isNotEmpty()) {
 
-        Text(
-          text = "Upcoming Activities",
-          modifier = Modifier.padding(8.dp),
-          fontWeight = FontWeight.Bold,
+
+      homeQuickActionUiModels.forEach {
+        ClientHomeQuickActionView(
+          homeQuickActionUiModel = it,
+          onEvent = onEvent
         )
-
-        FlowRow(maxItemsInEachRow = 2) {
-          homeActivityUiModels
-            .mapIndexed { index, item ->
-              if (index == 0) item.copy(
-                containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
-                iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
-              ) else item
-            }
-            .forEach {
-              HomeActivityView(
-                state = state,
-                modifier = Modifier.fillMaxWidth(.5f),
-                homeActivity = it,
-                onEvent = onEvent
-              )
-            }
-        }
       }
 
       Spacer(modifier = Modifier.height(24.dp))
 
+
+
+
       Text(
-        text = "Quick Actions",
+        text = "Upcoming Activities",
         modifier = Modifier.padding(8.dp),
         fontWeight = FontWeight.Bold,
       )
 
       FlowRow(maxItemsInEachRow = 2) {
-        homeQuickActionUiModels.forEach {
-          ClientHomeQuickActionView(
-            homeQuickActionUiModel = it,
-            modifier = Modifier.fillMaxWidth(.5f),
-            onEvent = onEvent
-          )
-        }
+        homeActivityUiModels
+          .mapIndexed { index, item ->
+            if (index == 1) item.copy(
+              containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
+              iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
+            ) else item
+          }
+          .forEach {
+            HomeActivityView(
+              state = state,
+              modifier = Modifier.fillMaxWidth(.5f),
+              homeActivity = it,
+              onEvent = onEvent
+            )
+          }
       }
-
 
       Spacer(modifier = Modifier.height(24.dp))
 
+
+
+
+      Text(
+        text = "Payment Methods",
+        modifier = Modifier.padding(8.dp),
+        fontWeight = FontWeight.Bold,
+      )
+
+      ClientPaymentMethodView(state, onEvent)
+
+
+      Spacer(modifier = Modifier.height(24.dp))
 
       Row(
         verticalAlignment = Alignment.CenterVertically,

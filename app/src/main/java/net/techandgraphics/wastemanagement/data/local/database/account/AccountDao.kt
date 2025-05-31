@@ -12,4 +12,10 @@ interface AccountDao : BaseDao<AccountEntity> {
 
   @Query("SELECT * FROM account")
   fun flow(): Flow<List<AccountEntity>>
+
+  @Query("SELECT * FROM account WHERE id IN (:id)")
+  suspend fun get(id: Long): AccountEntity
+
+  @Query("SELECT * FROM account WHERE id IN (:ids)")
+  suspend fun gets(ids: List<Long>): List<AccountEntity>
 }
