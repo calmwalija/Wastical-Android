@@ -7,5 +7,5 @@ data class CompanyContactUiModel(
   val primary: Boolean,
   val companyId: Long,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

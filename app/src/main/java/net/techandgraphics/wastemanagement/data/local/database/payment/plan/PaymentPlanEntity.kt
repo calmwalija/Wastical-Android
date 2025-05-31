@@ -26,5 +26,5 @@ data class PaymentPlanEntity(
   val status: String,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

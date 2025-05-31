@@ -10,5 +10,5 @@ data class PaymentGatewayEntity(
   val name: String,
   val type: String,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

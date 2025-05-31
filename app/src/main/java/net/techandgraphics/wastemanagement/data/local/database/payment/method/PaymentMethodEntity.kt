@@ -36,5 +36,5 @@ data class PaymentMethodEntity(
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
   @ColumnInfo("payment_gateway_id") val paymentGatewayId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

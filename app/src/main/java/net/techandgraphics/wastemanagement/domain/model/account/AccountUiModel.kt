@@ -15,7 +15,7 @@ data class AccountUiModel(
   val companyId: Long,
   val leavingReason: String? = null,
   val leavingTimestamp: Long?,
-  val updatedAt: Long? = null,
+  val updatedAt: Long,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val createdAt: Long,

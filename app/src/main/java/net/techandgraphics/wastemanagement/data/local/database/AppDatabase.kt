@@ -9,6 +9,8 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanDao
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenDao
+import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyDao
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactDao
@@ -48,6 +50,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     PaymentCollectionDayEntity::class,
     AccountPaymentPlanEntity::class,
     PaymentGatewayEntity::class,
+    AccountFcmTokenEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -69,6 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val paymentDayDao: PaymentCollectionDayDao
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
   abstract val paymentGatewayDao: PaymentGatewayDao
+  abstract val accountFcmTokenDao: AccountFcmTokenDao
 
   companion object {
     const val NAME = "waste_management_db"

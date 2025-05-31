@@ -5,15 +5,13 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,9 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,7 +92,13 @@ import java.io.File
           .padding(16.dp)
           .fillMaxWidth()
       ) {
-        if (state.screenshotAttached) ScreenshotSuccess() else {
+        if (state.screenshotAttached)
+          Icon(
+            Icons.Outlined.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(32.dp),
+            tint = MaterialTheme.colorScheme.primary
+          ) else {
           Icon(
             painterResource(R.drawable.ic_add_photo), null,
             modifier = Modifier.size(32.dp)
@@ -105,49 +106,13 @@ import java.io.File
         }
         Text(
           modifier = Modifier.padding(4.dp),
-          text = if (state.screenshotAttached) "Payment Screenshot Attached" else "Attach Payment Screenshot",
-          color = if (state.screenshotAttached) MaterialTheme.colorScheme.primary else {
-            CardDefaults.elevatedCardColors().contentColor
+          text = if (state.screenshotAttached) "Payment Screenshot Attached" else {
+            "Attach Payment Screenshot"
           }
         )
       }
     }
   }
-}
-
-@Composable fun ScreenshotSuccess() {
-  val brush = Brush.horizontalGradient(
-    listOf(
-      MaterialTheme.colorScheme.primary.copy(.7f),
-      MaterialTheme.colorScheme.primary.copy(.8f),
-      MaterialTheme.colorScheme.primary
-    )
-  )
-
-  Box(contentAlignment = Alignment.Center) {
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(30.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.2f))
-    )
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(32.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.1f))
-    )
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(24.dp)
-        .background(
-          brush = brush
-        )
-    )
-    Icon(Icons.Default.Check, null, tint = Color.White)
-  }
-
 }
 
 @Preview(showBackground = true)

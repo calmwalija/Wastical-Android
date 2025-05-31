@@ -11,5 +11,5 @@ data class AreaResponse(
   val description: String,
   @SerializedName("district_id") val districtId: Long,
   @SerializedName("created_at") val createdAt: Long,
-  @SerializedName("updated_at") val updatedAt: Long?,
+  @SerializedName("updated_at") val updatedAt: Long,
 )

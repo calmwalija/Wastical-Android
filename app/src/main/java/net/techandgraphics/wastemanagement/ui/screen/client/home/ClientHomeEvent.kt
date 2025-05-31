@@ -11,6 +11,7 @@ sealed interface ClientHomeEvent {
     sealed interface Payment : Button {
       data class Invoice(val payment: PaymentUiModel) : Payment
       data class Share(val payment: PaymentUiModel) : Payment
+      data class TextToClipboard(val text: String) : Payment
     }
 
     data object MakePayment : Button

@@ -5,5 +5,5 @@ data class PaymentGatewayUiModel(
   val name: String,
   val type: String,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

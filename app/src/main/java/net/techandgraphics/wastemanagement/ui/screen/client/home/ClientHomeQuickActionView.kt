@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeQuickActionItemModel
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +31,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
   OutlinedCard(
     modifier = modifier.padding(4.dp),
+    colors = CardDefaults.elevatedCardColors(),
     onClick = { onEvent(homeQuickActionUiModel.event) },
   ) {
     Column(
@@ -40,8 +42,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Icon(
-        painterResource(homeQuickActionUiModel.drawableRes), null,
-        tint = MaterialTheme.colorScheme.primary
+        painterResource(homeQuickActionUiModel.drawableRes),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(32.dp)
       )
       Text(
         text = homeQuickActionUiModel.title,
@@ -51,7 +55,6 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         modifier = Modifier
           .fillMaxWidth()
           .padding(8.dp),
-        style = MaterialTheme.typography.bodyMedium
       )
     }
   }

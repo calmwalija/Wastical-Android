@@ -1,12 +1,11 @@
-package net.techandgraphics.wastemanagement.data.remote.account.plan
+package net.techandgraphics.wastemanagement.data.remote.account.token
 
 import com.google.gson.annotations.SerializedName
 
-data class AccountPaymentPlanResponse(
+data class AccountFcmTokenResponse(
   val id: Long,
-  @SerializedName("account_uuid") val accountUuid: String,
+  val token: String,
   @SerializedName("account_id") val accountId: Long,
-  @SerializedName("payment_plan_id") val paymentPlanId: Long,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long,
 )

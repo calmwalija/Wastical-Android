@@ -33,5 +33,5 @@ data class TrashCollectionScheduleEntity(
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("street_id") val streetId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long?,
+  @ColumnInfo("updated_at") val updatedAt: Long,
 )

@@ -13,7 +13,8 @@ data class PaymentResponse(
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("payment_status") val status: String,
   @SerializedName("created_at") val createdAt: Long,
-  @SerializedName("updated_at") val updatedAt: Long?,
+  @SerializedName("updated_at") val updatedAt: Long,
+  @SerializedName("company_id") val companyId: Long,
   // Optional by Required
   @SerializedName("payment_plan") val plan: PaymentPlanResponse? = null,
   @SerializedName("payment_gateway") val gateway: PaymentGatewayResponse? = null,

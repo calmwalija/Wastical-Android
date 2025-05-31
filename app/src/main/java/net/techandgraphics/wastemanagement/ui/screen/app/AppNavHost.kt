@@ -8,14 +8,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
 import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
-import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.ClientInvoiceViewModel
@@ -37,7 +38,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Company.Payment.Verify
+    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Payment.Verify
   ) {
 
     composable<Route.SignIn> {

@@ -1,11 +1,9 @@
 package net.techandgraphics.wastemanagement.domain.model.account
 
-data class AccountContactUiModel(
+data class AccountFcmTokenUiModel(
   val id: Long,
-  val uuid: String,
-  val email: String?,
-  val contact: String,
-  val primary: Boolean,
+  val token: String,
+  val sync: Boolean = true,
   val accountId: Long,
   val createdAt: Long,
   val updatedAt: Long,

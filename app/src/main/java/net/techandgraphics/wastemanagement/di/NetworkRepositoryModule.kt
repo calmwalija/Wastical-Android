@@ -6,8 +6,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApiImpl
-import net.techandgraphics.wastemanagement.data.remote.account.session.AccountSessionApi
-import net.techandgraphics.wastemanagement.data.remote.account.session.AccountSessionApiImpl
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyApi
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyApiImpl
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
@@ -18,9 +16,6 @@ import net.techandgraphics.wastemanagement.keycloak.KeycloakApiImpl
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class NetworkRepositoryModule {
-
-  @Binds
-  abstract fun bindsAccountSessionApi(p0: AccountSessionApiImpl): AccountSessionApi
 
   @Binds
   abstract fun bindsKeycloakApi(p0: KeycloakApiImpl): KeycloakApi

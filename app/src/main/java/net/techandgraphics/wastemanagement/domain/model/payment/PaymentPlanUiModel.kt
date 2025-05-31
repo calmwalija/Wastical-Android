@@ -11,5 +11,5 @@ data class PaymentPlanUiModel(
   val status: Status,
   val companyId: Long,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

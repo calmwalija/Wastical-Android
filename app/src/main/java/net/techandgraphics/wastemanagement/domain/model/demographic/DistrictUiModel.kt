@@ -5,5 +5,5 @@ data class DistrictUiModel(
   val name: String,
   val region: String,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )

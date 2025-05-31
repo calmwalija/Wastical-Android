@@ -6,5 +6,5 @@ data class TrashCollectionScheduleUiModel(
   val companyId: Long,
   val streetId: Long,
   val createdAt: Long,
-  val updatedAt: Long?,
+  val updatedAt: Long,
 )
