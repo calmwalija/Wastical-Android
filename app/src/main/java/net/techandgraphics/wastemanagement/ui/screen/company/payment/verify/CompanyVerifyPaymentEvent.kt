@@ -18,5 +18,4 @@ sealed interface CompanyVerifyPaymentEvent {
       data class Status(val status: PaymentStatus) : Button
     }
   }
-
 }

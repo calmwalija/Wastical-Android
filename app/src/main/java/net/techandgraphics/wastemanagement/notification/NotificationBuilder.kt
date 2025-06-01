@@ -60,7 +60,6 @@ class NotificationBuilder(private val context: Context) {
         .notify(Random.nextInt(), build())
     }
 
-
   fun show(notification: NotificationUiModel) {
     builder(notification).run {
       configs(notification)
@@ -77,6 +76,4 @@ class NotificationBuilder(private val context: Context) {
 
   fun builder(notification: NotificationUiModel): NotificationCompat.Builder =
     NotificationCompat.Builder(context, notification.type.id)
-
-
 }

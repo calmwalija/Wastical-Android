@@ -79,7 +79,6 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
     }
 
-
   fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
       is AppState -> onAppState(event)

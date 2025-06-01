@@ -43,8 +43,8 @@ class FcmService : FirebaseMessagingService() {
   private val accountRole = if (ACCOUNT_ID == 1L) AccountRole.Client else AccountRole.Company
 
   /**
-  Based on [net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity]
-  logged in [net.techandgraphics.wastemanagement.data.local.database.AccountRole]
+   Based on [net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity]
+   logged in [net.techandgraphics.wastemanagement.data.local.database.AccountRole]
    */
 
   private suspend fun onVerificationEvent(payments: List<PaymentEntity>) {
@@ -103,20 +103,20 @@ class FcmService : FirebaseMessagingService() {
         this,
         0,
         intent.also { it.action = "APPROVE" },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
       )
 
       val verifyIntent = PendingIntent.getBroadcast(
         this,
         1,
         intent.also { it.action = "VERIFY" },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
       )
 
       NotificationBuilder(this).withActions(
         NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
         NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
-        notification = notification
+        notification = notification,
       )
     }
 
