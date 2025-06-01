@@ -31,17 +31,38 @@ class NotificationBuilder(private val context: Context) {
     }
   }
 
+  private fun NotificationCompat.Builder.configs(notification: NotificationUiModel) {
+    setSmallIcon(R.drawable.ic_alternate)
+    setPriority(NotificationCompat.PRIORITY_HIGH)
+    setColor(ContextCompat.getColor(context, R.color.teal_700))
+    setCategory(NotificationCompat.CATEGORY_MESSAGE)
+    setAutoCancel(true)
+    setDefaults(Notification.DEFAULT_ALL)
+    setContentText(notification.body)
+    setContentTitle(notification.title)
+    setStyle(notification.style)
+  }
+
+  fun withActions(
+    vararg actions: NotificationCompat.Action,
+    notification: NotificationUiModel,
+  ) = builder(notification)
+    .run {
+      configs(notification)
+      actions.forEach(::addAction)
+      if (ActivityCompat.checkSelfPermission(
+          context, Manifest.permission.POST_NOTIFICATIONS,
+        ) != PackageManager.PERMISSION_GRANTED
+      ) {
+        return
+      }
+      NotificationManagerCompat.from(context)
+        .notify(Random.nextInt(), build())
+    }
+
   fun show(notification: NotificationUiModel) {
-    NotificationCompat.Builder(context, notification.type.id).run {
-      setSmallIcon(R.drawable.ic_alternate)
-      setPriority(NotificationCompat.PRIORITY_HIGH)
-      setColor(ContextCompat.getColor(context, R.color.teal_700))
-      setCategory(NotificationCompat.CATEGORY_MESSAGE)
-      setAutoCancel(true)
-      setDefaults(Notification.DEFAULT_ALL)
-      setContentText(notification.body)
-      setContentTitle(notification.title)
-      setStyle(notification.style)
+    builder(notification).run {
+      configs(notification)
       if (ActivityCompat.checkSelfPermission(
           context, Manifest.permission.POST_NOTIFICATIONS,
         ) != PackageManager.PERMISSION_GRANTED
@@ -52,4 +73,7 @@ class NotificationBuilder(private val context: Context) {
         .notify(Random.nextInt(), build())
     }
   }
+
+  fun builder(notification: NotificationUiModel): NotificationCompat.Builder =
+    NotificationCompat.Builder(context, notification.type.id)
 }

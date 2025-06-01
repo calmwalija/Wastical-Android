@@ -27,7 +27,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable
 fun CompanyManageClientView(
   account: AccountUiModel,
-  onEvent: (CompanyManageClientEvent) -> Unit
+  onEvent: (CompanyManageClientEvent) -> Unit,
 ) {
 
   Row(
@@ -55,13 +55,6 @@ fun CompanyManageClientView(
         style = MaterialTheme.typography.bodyMedium,
       )
     }
-
-    Text(
-      text = account.status.name,
-      style = MaterialTheme.typography.bodySmall,
-      modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
 
     IconButton(onClick = { }) {
       Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)

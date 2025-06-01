@@ -4,14 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +39,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
@@ -45,13 +47,12 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyClientProfileScreen(
   state: CompanyClientProfileState,
   channel: Flow<CompanyClientProfileChannel>,
-  onEvent: (CompanyClientProfileEvent) -> Unit
+  onEvent: (CompanyClientProfileEvent) -> Unit,
 ) {
 
 
@@ -104,7 +105,11 @@ fun CompanyClientProfileScreen(
       ) {
         ProfileLetterView(account)
 
-        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+        Column(
+          modifier = Modifier
+            .weight(1f)
+            .padding(horizontal = 8.dp)
+        ) {
           Text(
             text = account.toFullName(),
             style = MaterialTheme.typography.titleMedium,
@@ -118,6 +123,13 @@ fun CompanyClientProfileScreen(
             style = MaterialTheme.typography.bodyMedium,
           )
         }
+
+        IconButton(onClick = {}) {
+          Icon(Icons.Default.Phone, null)
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
       }
 
 
