@@ -16,7 +16,7 @@ interface BaseDao<Table : Any> {
 
   @Upsert suspend fun upsert(table: Table)
 
-  @Update suspend fun upsert(table: List<Table>)
+  @Upsert suspend fun upsert(table: List<Table>)
 
   @Delete suspend fun delete(table: Table)
 

@@ -1,5 +1,7 @@
 package net.techandgraphics.wastemanagement.services
 
+import android.app.PendingIntent
+import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.room.withTransaction
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -9,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.local.database.AccountRole
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
@@ -26,6 +29,7 @@ import net.techandgraphics.wastemanagement.notification.NotificationType
 import net.techandgraphics.wastemanagement.notification.NotificationUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
+import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,8 +43,8 @@ class FcmService : FirebaseMessagingService() {
   private val accountRole = if (ACCOUNT_ID == 1L) AccountRole.Client else AccountRole.Company
 
   /**
-   Based on [net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity]
-   logged in [net.techandgraphics.wastemanagement.data.local.database.AccountRole]
+  Based on [net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity]
+  logged in [net.techandgraphics.wastemanagement.data.local.database.AccountRole]
    */
 
   private suspend fun onVerificationEvent(payments: List<PaymentEntity>) {
@@ -92,8 +96,28 @@ class FcmService : FirebaseMessagingService() {
             "using ${gateway.name} on ${payment.updatedAt.toZonedDateTime().defaultDateTime()}",
         ),
       )
-      val builder = NotificationBuilder(this)
-      builder.show(notification)
+
+      val intent = Intent(this, MainActivity::class.java)
+
+      val approveIntent = PendingIntent.getBroadcast(
+        this,
+        0,
+        intent.also { it.action = "APPROVE" },
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+      )
+
+      val verifyIntent = PendingIntent.getBroadcast(
+        this,
+        1,
+        intent.also { it.action = "VERIFY" },
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+      )
+
+      NotificationBuilder(this).withActions(
+        NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
+        NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
+        notification = notification
+      )
     }
 
   override fun onMessageReceived(p0: RemoteMessage) {

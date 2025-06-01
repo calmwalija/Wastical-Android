@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,8 +37,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import coil.ImageLoader
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
-import net.techandgraphics.wastemanagement.defaultDate
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
@@ -53,7 +57,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   channel: Flow<CompanyVerifyPaymentChannel>,
   paymentAccount: PaymentAccountUiModel,
   imageLoader: ImageLoader?,
-  onEvent: (CompanyVerifyPaymentEvent) -> Unit
+  onEvent: (CompanyVerifyPaymentEvent) -> Unit,
 ) {
 
   var showOptions by remember { mutableStateOf(false) }
@@ -133,15 +137,29 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         ) {
           Text(
             text = account.toFullName(),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
           Text(
-            text = payment.createdAt.toZonedDateTime().defaultDate(),
-            style = MaterialTheme.typography.bodyMedium
+            text = payment.createdAt.toZonedDateTime().defaultDateTime(),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis
           )
 
+        }
+
+        when (payment.status) {
+          PaymentStatus.Verifying -> R.drawable.ic_help
+          PaymentStatus.Approved -> R.drawable.ic_check_circle
+          else -> R.drawable.ic_close
+        }.also {
+          Icon(
+            painterResource(it),
+            contentDescription = null,
+            modifier = Modifier.padding(horizontal = 16.dp),
+          )
         }
 
         Text(

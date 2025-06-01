@@ -28,4 +28,4 @@ class AccountApiImpl @Inject constructor(
     }.body<AccountFcmTokenResponse>()
 }
 
-const val ACCOUNT_ID = 1L
+const val ACCOUNT_ID = 3L

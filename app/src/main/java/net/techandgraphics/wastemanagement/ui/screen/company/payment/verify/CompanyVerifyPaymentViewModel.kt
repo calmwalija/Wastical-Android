@@ -21,6 +21,7 @@ import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
 import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.AppState
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Verify
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,10 +72,19 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         }
     }
 
+  private fun onVerifyStatusChange(event: Verify.Button.Status) =
+    viewModelScope.launch {
+      database.paymentDao.flowOfPaymentAccount(event.status.name)
+        .map { fromDb -> fromDb.map { it.toPaymentAccountUiModel() } }
+        .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
+    }
+
+
   fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
       is AppState -> onAppState(event)
       is Payment.Button.Status -> onPaymentStatus(event)
+      is Verify.Button.Status -> onVerifyStatusChange(event)
     }
   }
 }
