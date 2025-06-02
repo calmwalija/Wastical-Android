@@ -55,7 +55,7 @@ fun CompanyMakePaymentClientView(
             overflow = TextOverflow.MiddleEllipsis,
           )
           Text(
-            text = account.email!!,
+            text = account.username,
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,
             style = MaterialTheme.typography.bodyMedium,

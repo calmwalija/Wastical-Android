@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
 
 import android.app.Activity.RESULT_OK
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,8 +40,8 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyMakePaymentReferenceView(
-  state: CompanyMakePaymentState,
-  onEvent: (CompanyMakePaymentEvent) -> Unit
+  state: CompanyMakePaymentState.Success,
+  onEvent: (CompanyMakePaymentEvent) -> Unit,
 ) {
 
   val context = LocalContext.current
@@ -87,11 +88,7 @@ import java.io.File
       modifier = Modifier.padding(8.dp)
     )
     Card(
-      colors = CardDefaults.elevatedCardColors(
-        containerColor = if (state.screenshotAttached) CardDefaults.elevatedCardColors().containerColor else {
-          MaterialTheme.colorScheme.error.copy(.2f)
-        }
-      ),
+      colors = CardDefaults.elevatedCardColors(),
       onClick = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
 
       ) {
@@ -161,9 +158,7 @@ private fun CompanyMakePaymentReferenceViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(32.dp)) {
       CompanyMakePaymentReferenceView(
-        state = CompanyMakePaymentState(
-          screenshotAttached = false
-        ),
+        state = companySuccessState(LocalContext.current),
         onEvent = {}
       )
     }

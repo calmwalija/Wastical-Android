@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toAccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
+import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyEntity
@@ -17,6 +18,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
@@ -45,9 +47,14 @@ class AccountSessionRepositoryImpl @Inject constructor(
                 accountContacts.map { it.toAccountContactEntity() }
                   .also { accountContactDao.insert(it) }
                 plans.map { it.toPaymentPlanEntity() }.also { paymentPlanDao.insert(it) }
+                accountPaymentPlans.map { it.toAccountPaymentPlanEntity() }
+                  .also { accountPaymentPlanDao.insert(it) }
                 paymentDays.map { it.toPaymentCollectionDayEntity() }
                   .also { paymentDayDao.insert(it) }
-                methods.toPaymentMethodEntity(gateways).also { paymentMethodDao.insert(it) }
+                methods.toPaymentMethodEntity(gateways)
+                  .map { method ->
+                    paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
+                  }
                 payments.map { it.toPaymentEntity() }.also { paymentDao.insert(it) }
               }
             }

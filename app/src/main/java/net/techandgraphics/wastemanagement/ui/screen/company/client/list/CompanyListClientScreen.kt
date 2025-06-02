@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.manage
+package net.techandgraphics.wastemanagement.ui.screen.company.client.list
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -25,14 +26,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyManageClientScreen(
-  state: CompanyManageClientState,
-  channel: Flow<CompanyManageClientChannel>,
-  onEvent: (CompanyManageClientEvent) -> Unit,
+fun CompanyListClientScreen(
+  state: CompanyListClientState,
+  channel: Flow<CompanyListClientChannel>,
+  onEvent: (CompanyListClientEvent) -> Unit,
 ) {
 
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -67,14 +69,14 @@ fun CompanyManageClientScreen(
     Column(modifier = Modifier.padding(it)) {
 
       Text(
-        text = "Manage Clients",
+        text = "List Of Clients",
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
       )
 
       LazyColumn {
-        items(state.accounts) { account ->
-          CompanyManageClientView(account, onEvent)
+        items(state.state.accounts) { account ->
+          CompanyListClientView(account, onEvent)
         }
       }
 
@@ -86,14 +88,17 @@ fun CompanyManageClientScreen(
 
 @Preview
 @Composable
-private fun CompanyManageClientScreenPreview() {
+private fun CompanyListClientScreenPreview() {
   WasteManagementTheme {
-    CompanyManageClientScreen(
-      state = CompanyManageClientState(
-        (1..3)
-          .map { listOf(account4Preview, account4Preview) }
-          .toList()
-          .flatten()
+    CompanyListClientScreen(
+      state = CompanyListClientState(
+        state = appState(LocalContext.current).copy(
+          accounts = (1..3)
+            .map { listOf(account4Preview, account4Preview) }
+            .toList()
+            .flatten()
+        ),
+        accounts = listOf()
       ),
       channel = flow { },
       onEvent = {}

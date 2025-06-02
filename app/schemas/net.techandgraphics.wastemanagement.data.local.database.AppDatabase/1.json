@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a1ec14bb60e32edb563a0c0d560f61f8",
+    "identityHash": "68ec12e93c68aa7c5ec9c6c7e760a81c",
     "entities": [
       {
         "tableName": "account",
@@ -394,7 +394,7 @@
       },
       {
         "tableName": "payment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `number_of_months` INTEGER NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `payment_plan_fee` INTEGER NOT NULL, `payment_plan_period` TEXT NOT NULL, `payment_gateway_id` INTEGER NOT NULL, `payment_gateway_name` TEXT NOT NULL, `payment_gateway_type` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_gateway_id`) REFERENCES `payment_gateway`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `number_of_months` INTEGER NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `payment_plan_fee` INTEGER NOT NULL, `payment_plan_period` TEXT NOT NULL, `payment_gateway_id` INTEGER NOT NULL, `payment_gateway_name` TEXT NOT NULL, `payment_gateway_type` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_gateway_id`) REFERENCES `payment_gateway`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -453,6 +453,12 @@
           {
             "fieldPath": "companyId",
             "columnName": "company_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "executedById",
+            "columnName": "executed_by_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -535,6 +541,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_payment_gateway_id` ON `${TABLE_NAME}` (`payment_gateway_id`)"
+          },
+          {
+            "name": "index_payment_executed_by_id",
+            "unique": false,
+            "columnNames": [
+              "executed_by_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_executed_by_id` ON `${TABLE_NAME}` (`executed_by_id`)"
           }
         ],
         "foreignKeys": [
@@ -544,6 +559,17 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "account_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "account",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "executed_by_id"
             ],
             "referencedColumns": [
               "id"
@@ -1326,7 +1352,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1ec14bb60e32edb563a0c0d560f61f8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '68ec12e93c68aa7c5ec9c6c7e760a81c')"
     ]
   }
 }

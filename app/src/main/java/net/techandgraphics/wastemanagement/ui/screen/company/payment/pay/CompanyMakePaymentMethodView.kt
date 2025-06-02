@@ -1,15 +1,21 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,19 +28,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.CachePolicy
-import coil.request.ImageRequest
-import net.techandgraphics.wastemanagement.AppUrl
-import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.ui.screen.appState
+import net.techandgraphics.wastemanagement.gatewayDrawableRes
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyMakePaymentMethodView(
-  state: CompanyMakePaymentState,
-  onEvent: (CompanyMakePaymentEvent) -> Unit
+  state: CompanyMakePaymentState.Success,
+  onEvent: (CompanyMakePaymentEvent) -> Unit,
 ) {
 
 
@@ -49,35 +50,22 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       colors = CardDefaults.elevatedCardColors(),
       modifier = Modifier.padding(vertical = 8.dp),
     ) {
-      state.state.paymentMethods.forEachIndexed { index, paymentMethod ->
+      state.paymentMethods.forEachIndexed { index, paymentMethod ->
         Row(
           modifier = Modifier
+            .clickable { onEvent(CompanyMakePaymentEvent.Button.PaymentMethod(paymentMethod)) }
             .fillMaxWidth()
             .padding(16.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
 
-
-          val imageUrl = AppUrl.FILE_URL.plus("gateway/").plus(paymentMethod.paymentGatewayId)
-          val asyncImagePainter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current)
-              .data(imageUrl)
-              .diskCacheKey(imageUrl)
-              .networkCachePolicy(CachePolicy.ENABLED)
-              .crossfade(true)
-              .build(),
-            imageLoader = state.state.imageLoader!!,
-            placeholder = painterResource(R.drawable.im_placeholder),
-            error = painterResource(R.drawable.im_placeholder)
-          )
-
           Image(
-            painter = asyncImagePainter,
+            painterResource(gatewayDrawableRes[paymentMethod.paymentGatewayId.minus(1).toInt()]),
             contentDescription = paymentMethod.name,
             modifier = Modifier
               .clip(CircleShape)
               .size(48.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
           )
           Column(
             modifier = Modifier
@@ -94,6 +82,17 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               color = MaterialTheme.colorScheme.primary
             )
           }
+
+          if (paymentMethod.isSelected)
+            Icon(
+              Icons.Outlined.CheckCircle,
+              contentDescription = null,
+              modifier = Modifier.size(24.dp),
+              tint = MaterialTheme.colorScheme.primary
+            )
+
+          Spacer(modifier = Modifier.width(8.dp))
+
         }
       }
     }
@@ -108,9 +107,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 private fun CompanyMakePaymentMethodViewPreview() {
   WasteManagementTheme {
     CompanyMakePaymentMethodView(
-      state = CompanyMakePaymentState(
-        state = appState(LocalContext.current)
-      ),
+      state = companySuccessState(LocalContext.current),
       onEvent = {}
     )
   }

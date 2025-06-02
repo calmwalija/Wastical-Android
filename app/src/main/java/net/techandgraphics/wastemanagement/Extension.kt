@@ -40,3 +40,16 @@ fun Context.getUCropFile(fileId: Number) = File(cacheDir, "$fileId.jpg")
 fun Color.toGradient() = Brush.horizontalGradient(
   listOf(this.copy(.7f), this.copy(.8f), this),
 )
+
+val gatewayDrawableRes = listOf(
+  R.drawable.im_airtel_money,
+  R.drawable.im_eco_bank,
+  R.drawable.im_fdh_bank,
+  R.drawable.im_first_capital_bank,
+  R.drawable.im_inde_bank,
+  R.drawable.im_nbs_bank,
+  R.drawable.im_national_bank,
+  R.drawable.im_standard_bank,
+  R.drawable.im_tnm_mpamba,
+  R.drawable.im_placeholder,
+)

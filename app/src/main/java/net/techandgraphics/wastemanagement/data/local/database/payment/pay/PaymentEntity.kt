@@ -21,6 +21,11 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
       childColumns = ["account_id"],
     ),
     ForeignKey(
+      entity = AccountEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["executed_by_id"],
+    ),
+    ForeignKey(
       entity = PaymentMethodEntity::class,
       parentColumns = ["id"],
       childColumns = ["payment_method_id"],
@@ -41,6 +46,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     Index("payment_method_id"),
     Index("payment_plan_id"),
     Index("payment_gateway_id"),
+    Index("executed_by_id"),
   ],
 )
 data class PaymentEntity(
@@ -54,7 +60,7 @@ data class PaymentEntity(
   @ColumnInfo("created_at") val createdAt: Long,
   @ColumnInfo("updated_at") val updatedAt: Long,
   @ColumnInfo("company_id") val companyId: Long,
-
+  @ColumnInfo("executed_by_id") val executedById: Long,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
   @ColumnInfo("payment_plan_fee") val paymentPlanFee: Int,
   @ColumnInfo("payment_plan_period") val paymentPlanPeriod: String,

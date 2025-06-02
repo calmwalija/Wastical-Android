@@ -78,6 +78,7 @@ class ClientPaymentViewModel @Inject constructor(
         accountId = database.accountDao.query().first().id,
         numberOfMonths = numberOfMonths,
         companyId = state.accounts.first().companyId,
+        executedById = database.accountDao.query().first().id,
       )
 
       /** Pay by cash creates a dummy File **/

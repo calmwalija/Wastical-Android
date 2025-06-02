@@ -12,4 +12,5 @@ data class PaymentPlanUiModel(
   val companyId: Long,
   val createdAt: Long,
   val updatedAt: Long,
+  val belongTo: Boolean = false,
 )

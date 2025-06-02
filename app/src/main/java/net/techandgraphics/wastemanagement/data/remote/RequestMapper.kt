@@ -12,6 +12,7 @@ fun PaymentEntity.toPaymentRequest() = PaymentRequest(
   accountId = accountId,
   companyId = companyId,
   numberOfMonths = numberOfMonths,
+  executedById = executedById,
 )
 
 fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
@@ -21,6 +22,7 @@ fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
   numberOfMonths = numberOfMonths,
   status = status,
   companyId = companyId,
+  executedById = executedById,
 )
 
 fun AccountFcmTokenEntity.toAccountFcmTokenRequest(accountId: Long) =

@@ -32,4 +32,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
 
   @Query("SELECT * FROM payment ORDER BY updated_at DESC LIMIT 1")
   suspend fun getByUpdatedAtLatest(): PaymentEntity?
+
+  @Query("SELECT * FROM payment WHERE account_id=:id")
+  fun flowOfByAccountId(id: Long): Flow<List<PaymentEntity>>
 }

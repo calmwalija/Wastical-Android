@@ -27,6 +27,15 @@ import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentViewModel
@@ -34,11 +43,11 @@ import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.Comp
 @Composable
 fun AppNavHost(
   navController: NavHostController,
-  appState: MainActivityState
+  appState: MainActivityState,
 ) {
   NavHost(
     navController = navController,
-    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Payment.Verify
+    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Client.List
   ) {
 
     composable<Route.SignIn> {
@@ -123,8 +132,8 @@ fun AppNavHost(
         LaunchedEffect(appState) { onEvent(CompanyCreateClientEvent.AppState(appState)) }
         CompanyCreateClientScreen(state, channel, ::onEvent)
       }
-
     }
+
     composable<Route.Company.Payment.Verify> {
       with(hiltViewModel<CompanyVerifyPaymentViewModel>()) {
         val state = state.collectAsState().value
@@ -133,6 +142,58 @@ fun AppNavHost(
       }
     }
 
+    composable<Route.Company.Client.List> {
+      with(hiltViewModel<CompanyListClientViewModel>()) {
+        val state = state.collectAsState().value
+        LaunchedEffect(appState) { onEvent(CompanyListClientEvent.AppState(appState)) }
+        CompanyListClientScreen(state, channel) { event ->
+          when (event) {
+            is CompanyListClientEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id))
+
+            else -> onEvent(event)
+          }
+
+        }
+      }
+    }
+
+    composable<Route.Company.Client.Profile> {
+      with(hiltViewModel<CompanyClientProfileViewModel>()) {
+        val id = it.toRoute<Route.Company.Client.Profile>().id
+        val state = state.collectAsState().value
+        LaunchedEffect(id) { onEvent(CompanyClientProfileEvent.Load(id)) }
+        CompanyClientProfileScreen(state) { event ->
+          when (event) {
+
+            CompanyClientProfileEvent.Option.History -> Unit
+            CompanyClientProfileEvent.Option.Location -> Unit
+
+            CompanyClientProfileEvent.Option.Payment ->
+              navController.navigate(Route.Company.Client.Payment(id))
+
+            CompanyClientProfileEvent.Option.Plan -> Unit
+            CompanyClientProfileEvent.Option.Revoke -> Unit
+
+            else -> Unit
+          }
+        }
+      }
+    }
+
+    composable<Route.Company.Client.Payment> {
+      with(hiltViewModel<CompanyMakePaymentViewModel>()) {
+        val id = it.toRoute<Route.Company.Client.Payment>().id
+        val state = state.collectAsState().value
+        LaunchedEffect(id) { onEvent(CompanyMakePaymentEvent.Load(id)) }
+        CompanyMakePaymentScreen(state, channel) { event ->
+          when (event) {
+            CompanyMakePaymentEvent.GoTo.BackHandler -> navController.navigateUp()
+            else -> onEvent(event)
+          }
+        }
+      }
+    }
 
   }
 }
