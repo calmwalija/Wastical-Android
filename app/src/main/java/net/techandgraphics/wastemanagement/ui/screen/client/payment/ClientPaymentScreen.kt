@@ -189,12 +189,8 @@ fun ClientPaymentScreen(
         item { ClientPaymentPlanView(state, onEvent) }
         item { Spacer(modifier = Modifier.height(24.dp)) }
         item { ClientPaymentMethodView(state, onEvent) }
-        item {
-          if (payByCash) {
-            Spacer(modifier = Modifier.height(24.dp))
-            ClientPaymentReferenceView(state, onEvent)
-          }
-        }
+        item { Spacer(modifier = Modifier.height(24.dp)) }
+        item { ClientPaymentReferenceView(state, onEvent) }
         item { Spacer(modifier = Modifier.height(24.dp)) }
       }
     }

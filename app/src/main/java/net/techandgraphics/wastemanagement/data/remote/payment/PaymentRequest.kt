@@ -8,5 +8,6 @@ data class PaymentRequest(
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("number_of_months") val numberOfMonths: Int,
   @SerializedName("company_id") val companyId: Long,
+  @SerializedName("executed_by_id") val executedById: Long,
   @SerializedName("payment_status") val status: PaymentStatus = PaymentStatus.Failed,
 )

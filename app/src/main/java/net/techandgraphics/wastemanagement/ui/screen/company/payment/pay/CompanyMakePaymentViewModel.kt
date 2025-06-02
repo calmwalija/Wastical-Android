@@ -1,29 +1,173 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
+
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
+import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
+import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
+import net.techandgraphics.wastemanagement.getUCropFile
+import net.techandgraphics.wastemanagement.image2Text
+import net.techandgraphics.wastemanagement.toBitmap
+import net.techandgraphics.wastemanagement.toSoftwareBitmap
+import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyMakePaymentViewModel @Inject constructor() : ViewModel() {
+class CompanyMakePaymentViewModel @Inject constructor(
+  private val database: AppDatabase,
+  private val imageLoader: ImageLoader,
+  private val application: Application,
+  private val api: PaymentApi,
+) : ViewModel() {
 
-  private val _state = MutableStateFlow(CompanyMakePaymentState())
-  val state = _state
-    .onStart {
+  private val _state = MutableStateFlow<CompanyMakePaymentState>(CompanyMakePaymentState.Loading)
+  val state = _state.asStateFlow()
+
+  private val _channel = Channel<CompanyMakePaymentChannel>()
+  val channel = _channel.receiveAsFlow()
+
+  private fun onLoad(event: CompanyMakePaymentEvent.Load) =
+    viewModelScope.launch {
+      _state.value = CompanyMakePaymentState.Loading
+      val account = database.accountDao.get(event.id).toAccountUiModel()
+      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+      val paymentPlan =
+        database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
+      val paymentMethods = database.paymentMethodDao.getByPaymentPlanId(paymentPlan.id)
+        .map { it.toPaymentMethodUiModel() }
+      _state.value = CompanyMakePaymentState.Success(
+        account = account,
+        paymentPlan = paymentPlan,
+        paymentMethods = paymentMethods,
+        imageLoader = imageLoader,
+      )
     }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = CompanyMakePaymentState(),
-    )
+
+  private fun onRecordPayment() = viewModelScope.launch {
+    with(state.value as CompanyMakePaymentState.Success) {
+      val paymentMethod = paymentMethods.first { it.isSelected }
+      fun theFile() = application.getUCropFile(lastPaymentId)
+
+      val paymentRequest = PaymentRequest(
+        screenshotText = screenshotText,
+        paymentMethodId = paymentMethod.id,
+        accountId = account.id,
+        numberOfMonths = numberOfMonths,
+        companyId = account.companyId,
+        executedById = ACCOUNT_ID,
+        status = PaymentStatus.Approved,
+      )
+
+      /** Pay by cash creates a dummy File **/
+      paymentMethods
+        .filter { it.type == PaymentType.Cash }
+        .any { it.isSelected.not() }
+        .also { theFile().createNewFile() }
+
+      runCatching { api.pay(theFile(), paymentRequest) }
+        .onFailure {
+          application.schedulePaymentRetryWorker()
+
+          val plan = database.paymentPlanDao
+            .get(paymentMethod.paymentPlanId)
+            .toPaymentPlanUiModel()
+
+          val gateway = database.paymentGatewayDao
+            .get(paymentMethod.paymentGatewayId)
+            .toPaymentGatewayUiModel()
+
+          val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
+
+          /** Rename the File **/
+          val oldFile = application.getUCropFile(lastPaymentId)
+          oldFile.renameTo(application.getUCropFile(cachedPayment.id))
+          database.paymentDao.upsert(cachedPayment)
+          _channel.send(CompanyMakePaymentChannel.Pay.Failure(mapApiError(it)))
+        }
+        .onSuccess {
+          database.paymentDao.upsert(it.toPaymentEntity())
+          _channel.send(CompanyMakePaymentChannel.Pay.Success)
+          theFile().delete()
+        }
+
+      _state.value = getState().copy(imageUri = null)
+    }
+  }
+
+  private fun getState() = (_state.value as CompanyMakePaymentState.Success)
+
+  private fun onPaymentMethod(event: CompanyMakePaymentEvent.Button.PaymentMethod) =
+    viewModelScope.launch {
+      database.paymentMethodDao.query().map { it.copy(isSelected = false) }
+        .also { database.paymentMethodDao.update(it) }
+      event.method.toPaymentMethodEntity().copy(isSelected = true)
+        .also { database.paymentMethodDao.update(it) }
+      val paymentMethods = database.paymentMethodDao
+        .getByPaymentPlanId(event.method.paymentPlanId)
+        .map { it.toPaymentMethodUiModel() }
+      _state.value = getState().copy(paymentMethods = paymentMethods)
+    }
+
+  private fun onNumberOfMonths(event: CompanyMakePaymentEvent.Button.NumberOfMonths) {
+    var state = _state.value as CompanyMakePaymentState.Success
+    _state.value = if (event.isAdd) {
+      state.copy(numberOfMonths = state.numberOfMonths.plus(1))
+    } else {
+      state.copy(numberOfMonths = state.numberOfMonths.minus(1))
+    }
+  }
+
+  private fun onScreenshotAttached() {
+    var state = _state.value as CompanyMakePaymentState.Success
+    _state.value = getState().copy(screenshotAttached = true)
+    state.imageUri?.toBitmap(application)?.toSoftwareBitmap()?.run {
+      image2Text {
+        it.onSuccess { text -> _state.value = getState().copy(screenshotAttached = true) }
+        it.onFailure(::println)
+      }
+    }
+  }
 
   fun onEvent(event: CompanyMakePaymentEvent) {
     when (event) {
-      else -> TODO("Handle actions")
+      is CompanyMakePaymentEvent.Load -> onLoad(event)
+      is CompanyMakePaymentEvent.Button.PaymentMethod -> onPaymentMethod(event)
+      is CompanyMakePaymentEvent.Button.NumberOfMonths -> onNumberOfMonths(event)
+
+      is CompanyMakePaymentEvent.Button.RecordPayment -> onRecordPayment()
+      CompanyMakePaymentEvent.Button.ScreenshotAttached -> onScreenshotAttached()
+
+      is CompanyMakePaymentEvent.Button.ImageUri -> {
+        _state.value =
+          (_state.value as CompanyMakePaymentState.Success).copy(imageUri = event.uri)
+      }
+
+      is CompanyMakePaymentEvent.Button.ShowCropView -> {
+        _state.value =
+          (_state.value as CompanyMakePaymentState.Success).copy(showCropView = event.show)
+      }
+
+      else -> Unit
     }
   }
 }

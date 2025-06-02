@@ -30,5 +30,16 @@ sealed interface Route {
     @Serializable sealed interface Payment : Company {
       @Serializable data object Verify : Payment
     }
+
+    @Serializable data object Home : Company
+
+    @Serializable
+    sealed interface Client : Company {
+      @Serializable data object List : Client
+
+      @Serializable data class Profile(val id: Long) : Client
+
+      @Serializable data class Payment(val id: Long) : Client
+    }
   }
 }

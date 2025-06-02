@@ -21,15 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.toAmount
-import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyMakePaymentPlanView(
-  state: CompanyMakePaymentState,
-  onEvent: (CompanyMakePaymentEvent) -> Unit
-) = state.state.paymentPlans.forEach { paymentPlan ->
-
+  state: CompanyMakePaymentState.Success,
+  onEvent: (CompanyMakePaymentEvent) -> Unit,
+) {
   Column {
     Text(
       text = "Payment Plan",
@@ -44,14 +42,14 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       ) {
 
         Column(modifier = Modifier.weight(1f)) {
-          Text(text = paymentPlan.name)
+          Text(text = state.paymentPlan.name)
           Text(
-            text = paymentPlan.fee.toAmount(),
+            text = state.paymentPlan.fee.toAmount(),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
           )
           Text(
-            text = paymentPlan.period.name,
+            text = state.paymentPlan.period.name,
             style = MaterialTheme.typography.bodySmall
           )
         }
@@ -91,9 +89,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 private fun CompanyMakePaymentPlanViewPreview() {
   WasteManagementTheme {
     CompanyMakePaymentPlanView(
-      state = CompanyMakePaymentState(
-        state = appState(LocalContext.current)
-      ),
+      state = companySuccessState(LocalContext.current),
       onEvent = {}
     )
   }

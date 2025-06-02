@@ -13,7 +13,7 @@ data class PaymentUiModel(
   val createdAt: Long,
   val updatedAt: Long,
   val companyId: Long,
-
+  val executedById: Long,
   val paymentPlanId: Long,
   val paymentPlanFee: Int,
   val paymentPlanPeriod: String,

@@ -113,6 +113,7 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   paymentGatewayName = gateway.name,
   paymentGatewayType = gateway.type,
   companyId = companyId,
+  executedById = executedById,
 )
 
 fun AccountResponse.toAccountEntity() = AccountEntity(
@@ -163,6 +164,7 @@ fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: Payme
     paymentGatewayName = gateway.name,
     paymentGatewayType = gateway.type,
     companyId = companyId,
+    executedById = executedById,
   )
 
 fun DistrictResponse.toDistrictEntity() = DistrictEntity(

@@ -8,4 +8,5 @@ data class StreetUiModel(
   val areaId: Long,
   val createdAt: Long,
   val updatedAt: Long,
+  val belongTo: Boolean = false,
 )

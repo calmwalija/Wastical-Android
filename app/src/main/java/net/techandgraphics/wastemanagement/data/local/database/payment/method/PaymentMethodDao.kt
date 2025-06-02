@@ -15,4 +15,7 @@ interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
 
   @Query("SELECT * FROM payment_method WHERE id=:id")
   suspend fun get(id: Long): PaymentMethodEntity
+
+  @Query("SELECT * FROM payment_method WHERE payment_plan_id=:id")
+  suspend fun getByPaymentPlanId(id: Long): List<PaymentMethodEntity>
 }
