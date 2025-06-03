@@ -141,4 +141,7 @@ dependencies {
   implementation(libs.ktor.client.okhttp)
   implementation(libs.ktor.serialization.gson)
 
+  implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+
 }
