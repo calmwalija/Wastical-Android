@@ -1,6 +1,5 @@
-package net.techandgraphics.wastemanagement.ui.screen.auth.signin
+package net.techandgraphics.wastemanagement.ui.screen.auth.phone.verify
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,15 +21,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -41,19 +42,16 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.InputField
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent.Input.Credentials
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent.Input.Type
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable
-fun SignInScreen(
-  state: SignInState,
-  channel: Flow<SignInChannel>,
-  onEvent: (SignInEvent) -> Unit
+fun VerifyPhoneScreen(
+  state: VerifyPhoneState,
+  channel: Flow<VerifyPhoneChannel>,
+  onEvent: (VerifyPhoneEvent) -> Unit,
 ) {
 
   val context = LocalContext.current
-  var hidePassword by remember { mutableStateOf(true) }
   var isProcessing by remember { mutableStateOf(false) }
   val hapticFeedback = LocalHapticFeedback.current
 
@@ -63,9 +61,9 @@ fun SignInScreen(
       channel.collect { event ->
         isProcessing = false
         when (event) {
-          is SignInChannel.Response.Failure -> context.toast(event.error.message)
+          is VerifyPhoneChannel.Response.Failure -> context.toast(event.error.message)
 
-          SignInChannel.Response.Success -> onEvent(SignInEvent.GoTo.Main)
+          is VerifyPhoneChannel.Response.Success -> onEvent(VerifyPhoneEvent.Goto.Otp(event.phone))
         }
       }
     }
@@ -77,10 +75,15 @@ fun SignInScreen(
       .fillMaxSize()
   ) {
 
-    Column(modifier = Modifier.padding(32.dp)) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(32.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
       Icon(
-        painter = painterResource(R.drawable.ic_login),
+        painter = painterResource(R.drawable.ic_tag),
         contentDescription = null,
         modifier = Modifier
           .fillMaxWidth()
@@ -90,59 +93,63 @@ fun SignInScreen(
       )
 
       Text(
-        text = "Sign In",
+        text = "Verify Your Number",
         fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.padding(bottom = 24.dp)
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier
+          .padding(bottom = 8.dp)
+          .fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.primary
       )
+
+      Text(
+        text = buildAnnotatedString {
+          append("Enter your phone number and we will send you a ")
+          withStyle(
+            SpanStyle(
+              fontWeight = FontWeight.Bold,
+              fontSize = MaterialTheme.typography.titleMedium.fontSize
+            )
+          ) {
+            append("One Time Password (OTP)")
+          }
+          append(". Use the four digit code to verify your account.")
+
+        },
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center
+      )
+
+
+      Spacer(modifier = Modifier.height(24.dp))
 
 
       InputField(
         painterResource = R.drawable.ic_tag,
-        value = state.contactNumber,
+        value = state.contact,
         prompt = "type phone number",
-        onValueChange = { if (it.length < 10) onEvent(Credentials(it, Type.ContactNumber)) },
-        maskTransformation = "XXX-XXX-XXX",
+        onValueChange = { if (it.length < 15) onEvent(VerifyPhoneEvent.Input.Phone(it)) },
         keyboardType = KeyboardType.Phone
       )
 
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.height(32.dp))
 
-
-      InputField(
-        painterResource = R.drawable.ic_password,
-        value = state.password,
-        prompt = "type password",
-        onValueChange = { onEvent(Credentials(it, Type.Password)) },
-        keyboardType = KeyboardType.Password,
-        hidePassword = hidePassword,
-        togglePasswordVisual = { hidePassword = !hidePassword }
-      )
-
-      Text(
-        text = "Forgot password ?",
-        textAlign = TextAlign.End,
-        modifier = Modifier
-          .align(Alignment.End)
-          .padding(vertical = 8.dp)
-          .clip(CircleShape)
-          .clickable {}
-          .padding(8.dp),
-        color = MaterialTheme.colorScheme.secondary
-      )
-
-      Spacer(modifier = Modifier.height(16.dp))
-
-      ElevatedButton(
-        enabled = state.contactNumber.isNotEmpty() && state.password.isNotEmpty(),
-        shape = RoundedCornerShape(8),
-        modifier = Modifier.fillMaxWidth(),
-        onClick = { onEvent(SignInEvent.Button.AccessToken); isProcessing = true }
+      Button(
+        enabled = state.contact.isDigitsOnly() && state.contact.length > 8,
+        modifier = Modifier.fillMaxWidth(.7f),
+        onClick = { onEvent(VerifyPhoneEvent.Button.Verify); isProcessing = true }
       ) {
         Box {
-          if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {
-            Text(text = "Sign in")
+          if (isProcessing) CircularProgressIndicator(
+            modifier = Modifier.size(16.dp),
+            color = MaterialTheme.colorScheme.secondary
+          ) else {
+            Text(text = "Verify")
           }
         }
       }
@@ -152,10 +159,10 @@ fun SignInScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun SignInScreenPreview() {
+private fun VerifyPhoneScreenPreview() {
   WasteManagementTheme {
-    SignInScreen(
-      state = SignInState(),
+    VerifyPhoneScreen(
+      state = VerifyPhoneState(),
       channel = flow { },
       onEvent = {}
     )

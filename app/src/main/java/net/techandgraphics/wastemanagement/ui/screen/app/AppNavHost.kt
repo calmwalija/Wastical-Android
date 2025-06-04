@@ -8,12 +8,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInEvent
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInScreen
-import net.techandgraphics.wastemanagement.ui.screen.auth.signin.SignInViewModel
+import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneNavGraphBuilder
+import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneRoute
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
@@ -59,23 +57,11 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Home
+    startDestination = PhoneRoute.Verify
   ) {
 
-    composable<Route.SignIn> {
-      with(hiltViewModel<SignInViewModel>()) {
-        val state = state.collectAsState().value
-        SignInScreen(state, channel) { event ->
-          when (event) {
-            is SignInEvent.GoTo -> when (event) {
-              SignInEvent.GoTo.Main -> Unit
-            }
+    PhoneNavGraphBuilder(navController)
 
-            else -> onEvent(event)
-          }
-        }
-      }
-    }
 
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {

@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.auth.opt
+package net.techandgraphics.wastemanagement.ui.screen.auth.phone.opt
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Composable fun OtpNumberPadView(onEvent: (String) -> Unit) {
@@ -31,11 +32,11 @@ import androidx.compose.ui.unit.dp
           TextButton(
             enabled = number.isNotEmpty(),
             onClick = { onEvent(number) },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
           ) {
             Text(
               text = number,
-              style = MaterialTheme.typography.headlineMedium
+              style = MaterialTheme.typography.titleLarge
             )
           }
         }
@@ -45,8 +46,10 @@ import androidx.compose.ui.unit.dp
 }
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun VerifyOptScreenPreview() {
-  OtpNumberPadView {}
+  WasteManagementTheme {
+    OtpNumberPadView {}
+  }
 }

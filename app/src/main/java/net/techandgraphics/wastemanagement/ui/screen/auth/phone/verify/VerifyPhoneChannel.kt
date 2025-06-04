@@ -1,13 +1,13 @@
-package net.techandgraphics.wastemanagement.ui.screen.auth.signin
+package net.techandgraphics.wastemanagement.ui.screen.auth.phone.verify
 
 import net.techandgraphics.wastemanagement.data.remote.ApiResult
 import net.techandgraphics.wastemanagement.keycloak.KeycloakErrorResponse
 
-sealed interface SignInChannel {
+sealed interface VerifyPhoneChannel {
 
   sealed interface Response {
-    data object Success : SignInChannel
-    data class Failure(val error: ApiResult.Error) : SignInChannel
+    data class Success(val phone: String) : VerifyPhoneChannel
+    data class Failure(val error: ApiResult.Error) : VerifyPhoneChannel
   }
 
   sealed interface LoginException {
