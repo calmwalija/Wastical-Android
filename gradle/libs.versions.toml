@@ -1,6 +1,8 @@
 [versions]
+accompanistDrawablepainter = "0.37.2"
 agp = "8.10.0"
 firebaseAnalyticsKtx = "22.4.0"
+hiltWork = "1.0.0"
 kotlin = "2.0.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -19,6 +21,7 @@ pagingCompose = "3.3.6"
 #> java.lang.IllegalArgumentException:
 #Provided Metadata instance has version 2.1.0, while maximum supported version is 2.0.0.
 #To support newer versions, update the kotlinx-metadata-jvm library.
+playServicesAuth = "21.3.0"
 roomRuntime = "2.6.1"
 ##################################
 
@@ -32,11 +35,17 @@ spotlessPluginGradle = "7.0.3"
 ktor-version = "3.0.3"
 googleGmsGoogleServices = "4.4.2"
 firebaseMessaging = "24.1.1"
+textRecognition = "16.0.1"
+ucrop = "2.2.10"
+workRuntimeKtx = "2.10.0"
 
 
 
 [libraries]
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -75,9 +84,12 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-ve
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor-version" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor-version" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor-version" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 spotless-plugin-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotlessPluginGradle" }
 ktor-serialization-gson = { module = "io.ktor:ktor-serialization-gson", version.ref = "ktor-version" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
+ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
 
 
 [plugins]
