@@ -18,13 +18,7 @@ dependencyResolutionManagement {
     mavenCentral()
     maven { setUrl("https://jitpack.io") }
   }
-  versionCatalogs {
-    create("deps") {
-      from(files("./gradle/libs.versions.toml"))
-    }
-  }
 }
 
 rootProject.name = "Waste Management"
 include(":app")
-include(":deps")
