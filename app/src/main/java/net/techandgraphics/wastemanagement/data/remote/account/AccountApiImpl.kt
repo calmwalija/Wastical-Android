@@ -26,6 +26,12 @@ class AccountApiImpl @Inject constructor(
       contentType(ContentType.Application.Json)
       setBody(Gson().toJson(request))
     }.body<AccountFcmTokenResponse>()
+
+  override suspend fun verify(contact: String) =
+    httpClient.post("verify") {
+      contentType(ContentType.Application.Json)
+      setBody(contact)
+    }.body<AccountSessionResponse>()
 }
 
 const val ACCOUNT_ID = 6L

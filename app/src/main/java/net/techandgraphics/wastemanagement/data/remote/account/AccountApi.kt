@@ -6,5 +6,6 @@ import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmT
 
 interface AccountApi {
   suspend fun get(): AccountSessionResponse
+  suspend fun verify(contact: String): AccountSessionResponse
   suspend fun fcmToken(request: AccountFcmTokenRequest): AccountFcmTokenResponse
 }

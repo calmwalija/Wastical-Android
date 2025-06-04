@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.auth.opt
+package net.techandgraphics.wastemanagement.ui.screen.auth.phone.opt
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,19 +12,24 @@ import javax.inject.Inject
 @HiltViewModel
 class OptViewModel @Inject constructor() : ViewModel() {
 
-  private val _state = MutableStateFlow(OptState())
+  private val _state = MutableStateFlow<OptState>(OptState.Loading)
   val state = _state
     .onStart {
     }
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = OptState(),
+      initialValue = OptState.Loading,
     )
+
+  private fun onLoad(event: OptEvent.Load) {
+    _state.value = OptState.Success(phone = event.phone)
+  }
 
   fun onEvent(event: OptEvent) {
     when (event) {
-      else -> TODO("Handle actions")
+      is OptEvent.Load -> onLoad(event)
+      else -> Unit
     }
   }
 }

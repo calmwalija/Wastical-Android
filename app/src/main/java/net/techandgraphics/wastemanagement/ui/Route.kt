@@ -17,8 +17,6 @@ sealed interface Route {
     ) : Client
   }
 
-  @Serializable data object SignIn : Route
-
   @Serializable
   sealed interface Company : Route {
 
