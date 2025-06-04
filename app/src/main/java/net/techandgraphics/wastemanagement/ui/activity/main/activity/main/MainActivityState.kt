@@ -9,6 +9,7 @@ import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionS
 import net.techandgraphics.wastemanagement.domain.model.demographic.AreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DistrictUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
@@ -22,6 +23,7 @@ data class MainActivityState(
   val companyContacts: List<CompanyContactUiModel> = listOf(),
   val payments: List<PaymentUiModel> = listOf(),
   val invoices: List<PaymentUiModel> = listOf(),
+  val paymentAccounts: List<PaymentAccountUiModel> = listOf(),
   val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   val paymentMethods: List<PaymentMethodUiModel> = listOf(),
   val trashSchedules: List<TrashCollectionScheduleUiModel> = listOf(),

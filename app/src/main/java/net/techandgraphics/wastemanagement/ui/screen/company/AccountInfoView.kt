@@ -1,19 +1,16 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.list
+package net.techandgraphics.wastemanagement.ui.screen.company
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,42 +22,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
-import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun CompanyListClientView(
-  account: AccountUiModel,
-  onEvent: (CompanyListClientEvent) -> Unit,
-) {
+fun AccountInfoView(account: AccountUiModel) {
 
   Row(
-    modifier = Modifier
-      .clickable { onEvent(CompanyListClientEvent.Goto.Profile(account.id)) }
-      .padding(16.dp)
-      .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier.padding(horizontal = 16.dp)
   ) {
-    CompanyListClientLetterView(account)
+    ProfileLetterView(account)
+
     Column(
       modifier = Modifier
-        .padding(horizontal = 8.dp)
         .weight(1f)
+        .padding(horizontal = 8.dp)
     ) {
-      Text(
-        text = account.toFullName(),
-        style = MaterialTheme.typography.titleMedium,
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-      )
       Text(
         text = account.username,
         maxLines = 1,
@@ -68,25 +51,31 @@ fun CompanyListClientView(
         style = MaterialTheme.typography.bodyMedium,
       )
       Text(
+        text = account.toFullName(),
+        style = MaterialTheme.typography.titleMedium,
+        maxLines = 1,
+        overflow = TextOverflow.MiddleEllipsis,
+      )
+      Text(
         text = account.createdAt.toZonedDateTime().defaultDateTime(),
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,
       )
+
     }
 
-    IconButton(onClick = { }) {
+    IconButton(onClick = {}) {
       Icon(Icons.Default.Phone, null)
     }
 
     Spacer(modifier = Modifier.width(8.dp))
 
   }
-
-
 }
 
-@Composable private fun CompanyListClientLetterView(account: AccountUiModel) {
+
+@Composable private fun ProfileLetterView(account: AccountUiModel) {
   val brush = Brush.horizontalGradient(
     listOf(
       MaterialTheme.colorScheme.primary.copy(.7f),
@@ -99,41 +88,29 @@ fun CompanyListClientView(
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(58.dp)
+        .size(78.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.2f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(64.dp)
+        .size(84.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(52.dp)
+        .size(72.dp)
         .background(
           brush = brush
         )
     )
     Text(
       text = account.toInitials(),
+      style = MaterialTheme.typography.headlineSmall,
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,
-      style = MaterialTheme.typography.bodyLarge
     )
   }
 
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun CompanyListClientViewPreview() {
-  WasteManagementTheme {
-    CompanyListClientView(
-      account = account4Preview,
-      onEvent = {}
-    )
-  }
 }

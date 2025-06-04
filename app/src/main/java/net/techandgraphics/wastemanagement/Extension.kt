@@ -18,7 +18,7 @@ fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_
 
 fun Number.toAmount() = "K${format(this)}"
 
-private fun format(number: Number): String = DecimalFormat("#,###").format(number)
+fun format(number: Number): String = DecimalFormat("#,###").format(number)
 
 fun Context.copyTextToClipboard(text: String) {
   val clipboard = getSystemService(this, ClipboardManager::class.java)

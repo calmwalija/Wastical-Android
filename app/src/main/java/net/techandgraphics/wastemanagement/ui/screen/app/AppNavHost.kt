@@ -24,15 +24,27 @@ import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.client.payment.ClientPaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.browse.CompanyBrowseClientListEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.browse.CompanyBrowseClientScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.browse.CompanyBrowseClientViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientEvent
-import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientScreen
-import net.techandgraphics.wastemanagement.ui.screen.company.client.list.CompanyListClientViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.AppState
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Goto
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
@@ -47,7 +59,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Client.List
+    startDestination = if (ACCOUNT_ID == 1L) Route.Client.Home else Route.Company.Home
   ) {
 
     composable<Route.SignIn> {
@@ -126,7 +138,7 @@ fun AppNavHost(
     }
 
 
-    composable<Route.Company.Account.Create> {
+    composable<Route.Company.Client.Create> {
       with(hiltViewModel<CompanyCreateClientViewModel>()) {
         val state = state.collectAsState().value
         LaunchedEffect(appState) { onEvent(CompanyCreateClientEvent.AppState(appState)) }
@@ -142,13 +154,12 @@ fun AppNavHost(
       }
     }
 
-    composable<Route.Company.Client.List> {
-      with(hiltViewModel<CompanyListClientViewModel>()) {
+    composable<Route.Company.Client.Browse> {
+      with(hiltViewModel<CompanyBrowseClientViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(appState) { onEvent(CompanyListClientEvent.AppState(appState)) }
-        CompanyListClientScreen(state, channel) { event ->
+        CompanyBrowseClientScreen(state, channel) { event ->
           when (event) {
-            is CompanyListClientEvent.Goto.Profile ->
+            is CompanyBrowseClientListEvent.Goto.Profile ->
               navController.navigate(Route.Company.Client.Profile(event.id))
 
             else -> onEvent(event)
@@ -166,13 +177,17 @@ fun AppNavHost(
         CompanyClientProfileScreen(state) { event ->
           when (event) {
 
-            CompanyClientProfileEvent.Option.History -> Unit
+            CompanyClientProfileEvent.Option.History ->
+              navController.navigate(Route.Company.Client.History(id))
+
             CompanyClientProfileEvent.Option.Location -> Unit
 
             CompanyClientProfileEvent.Option.Payment ->
               navController.navigate(Route.Company.Client.Payment(id))
 
-            CompanyClientProfileEvent.Option.Plan -> Unit
+            CompanyClientProfileEvent.Option.Plan ->
+              navController.navigate(Route.Company.Client.Plan(id))
+
             CompanyClientProfileEvent.Option.Revoke -> Unit
 
             else -> Unit
@@ -191,6 +206,56 @@ fun AppNavHost(
             CompanyMakePaymentEvent.GoTo.BackHandler -> navController.navigateUp()
             else -> onEvent(event)
           }
+        }
+      }
+    }
+
+
+    composable<Route.Company.Client.History> {
+      with(hiltViewModel<CompanyClientHistoryViewModel>()) {
+        val id = it.toRoute<Route.Company.Client.History>().id
+        val state = state.collectAsState().value
+        LaunchedEffect(id) { onEvent(CompanyClientHistoryEvent.Load(id)) }
+        CompanyClientHistoryScreen(state) {}
+      }
+    }
+
+
+
+    composable<Route.Company.Client.Plan> {
+      with(hiltViewModel<CompanyClientPlanViewModel>()) {
+        val id = it.toRoute<Route.Company.Client.Plan>().id
+        val state = state.collectAsState().value
+        LaunchedEffect(id) { onEvent(CompanyClientPlanEvent.Load(id)) }
+        CompanyClientPlanScreen(state, ::onEvent)
+      }
+    }
+
+
+    composable<Route.Company.Info> {
+      with(hiltViewModel<CompanyInfoViewModel>()) {
+        val state = state.collectAsState().value
+        CompanyInfoScreen(state) {}
+      }
+    }
+
+
+    composable<Route.Company.Home> {
+      with(hiltViewModel<CompanyHomeViewModel>()) {
+        LaunchedEffect(appState) { onEvent(AppState(appState)) }
+        val state = state.collectAsState().value
+        CompanyHomeScreen(state) { event ->
+          when (event) {
+            is Goto -> when (event) {
+              Goto.Create -> navController.navigate(Route.Company.Client.Create)
+              Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
+              Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
+              Goto.Profile -> navController.navigate(Route.Company.Info)
+            }
+
+            else -> onEvent(event)
+          }
+
         }
       }
     }
