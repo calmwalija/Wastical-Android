@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -32,11 +33,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
@@ -50,8 +48,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable
 fun CompanyHomeScreen(
   state: CompanyHomeState,
-  channel: Flow<CompanyHomeChannel>,
-  onEvent: (CompanyHomeEvent) -> Unit
+  onEvent: (CompanyHomeEvent) -> Unit,
 ) {
 
 
@@ -110,6 +107,7 @@ fun CompanyHomeScreen(
     Column(
       modifier = Modifier
         .padding(it)
+        .verticalScroll(rememberScrollState())
         .padding(horizontal = 24.dp)
         .fillMaxWidth()
         .padding(bottom = 24.dp),
@@ -135,30 +133,45 @@ fun CompanyHomeScreen(
 
       Spacer(modifier = Modifier.height(32.dp))
 
-      CompanyHomeClientView(state) { }
+      CompanyHomeClientView(state, onEvent)
 
-
-      CompanyHomeSectionsView(state) { }
-
+      Spacer(modifier = Modifier.height(32.dp))
 
       Text(
-        text = "Pending Transactions",
+        text = "Manage",
+        style = MaterialTheme.typography.titleLarge,
         modifier = Modifier.padding(8.dp)
       )
-      LazyColumn {
-        items(state.payments) { payment ->
-          CompanyHomeVerifyPaymentView(
-            paymentAccount = payment,
-            imageLoader = state.state.imageLoader!!,
-            channel = flow { },
-            onEvent = {}
-          )
+
+      CompanyHomeSectionsView(onEvent)
+
+      Spacer(modifier = Modifier.height(32.dp))
+
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = "Transactions",
+          modifier = Modifier
+            .weight(1f)
+            .padding(8.dp),
+          style = MaterialTheme.typography.titleLarge,
+        )
+
+        TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.Payments) }) {
+          Text(text = "See All")
         }
       }
 
+      Spacer(modifier = Modifier.height(8.dp))
+
+      state.payments.forEach { payment ->
+        CompanyHomeVerifyPaymentView(
+          paymentAccount = payment,
+          imageLoader = state.state.imageLoader!!,
+          onEvent = onEvent
+        )
+      }
 
       Spacer(modifier = Modifier.height(24.dp))
-
 
     }
 
@@ -176,7 +189,6 @@ private fun CompanyHomeScreenPreview() {
         state = appState(LocalContext.current),
         payments = listOf(paymentAccount4Preview, paymentAccount4Preview, paymentAccount4Preview)
       ),
-      channel = flow { },
       onEvent = {}
     )
   }

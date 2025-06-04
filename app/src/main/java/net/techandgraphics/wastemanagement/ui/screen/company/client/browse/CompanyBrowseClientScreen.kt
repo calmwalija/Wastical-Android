@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.list
+package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -26,15 +27,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
-import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyListClientScreen(
-  state: CompanyListClientState,
-  channel: Flow<CompanyListClientChannel>,
-  onEvent: (CompanyListClientEvent) -> Unit,
+fun CompanyBrowseClientScreen(
+  state: CompanyBrowseClientState,
+  channel: Flow<CompanyBrowseClientChannel>,
+  onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
 
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -65,18 +65,30 @@ fun CompanyListClientScreen(
         colors = TopAppBarDefaults.topAppBarColors()
       )
     },
+
+    floatingActionButton = {
+      FloatingActionButton(
+        onClick = {},
+        containerColor = MaterialTheme.colorScheme.primary,
+      ) {
+        Icon(Icons.Rounded.Add, null)
+      }
+    }
   ) {
     Column(modifier = Modifier.padding(it)) {
 
       Text(
-        text = "List Of Clients",
+        text = "Clients",
         style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
+        modifier = Modifier.padding(16.dp)
       )
 
+
+      CompanyBrowseClientSearchView(state, onEvent)
+
       LazyColumn {
-        items(state.state.accounts) { account ->
-          CompanyListClientView(account, onEvent)
+        items(state.accounts) { account ->
+          CompanyBrowseClientView(account, onEvent)
         }
       }
 
@@ -88,17 +100,14 @@ fun CompanyListClientScreen(
 
 @Preview
 @Composable
-private fun CompanyListClientScreenPreview() {
+private fun CompanyBrowseClientScreenPreview() {
   WasteManagementTheme {
-    CompanyListClientScreen(
-      state = CompanyListClientState(
-        state = appState(LocalContext.current).copy(
-          accounts = (1..3)
-            .map { listOf(account4Preview, account4Preview) }
-            .toList()
-            .flatten()
-        ),
-        accounts = listOf()
+    CompanyBrowseClientScreen(
+      state = CompanyBrowseClientState(
+        accounts = (1..3)
+          .map { listOf(account4Preview, account4Preview) }
+          .toList()
+          .flatten()
       ),
       channel = flow { },
       onEvent = {}

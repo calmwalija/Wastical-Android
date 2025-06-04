@@ -6,6 +6,7 @@ data class ProfileItem(
   val title: String,
   val drawableRes: Int = 1,
   val event: CompanyClientProfileEvent = CompanyClientProfileEvent.Load(3),
+  val badgeCount: Int = 0,
 )
 
 val profileItems = listOf(

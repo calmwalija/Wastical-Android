@@ -22,10 +22,7 @@ sealed interface Route {
   @Serializable
   sealed interface Company : Route {
 
-    @Serializable
-    sealed interface Account : Company {
-      @Serializable data object Create : Account
-    }
+    @Serializable data object Info : Client
 
     @Serializable sealed interface Payment : Company {
       @Serializable data object Verify : Payment
@@ -35,7 +32,13 @@ sealed interface Route {
 
     @Serializable
     sealed interface Client : Company {
-      @Serializable data object List : Client
+      @Serializable data object Browse : Client
+
+      @Serializable data object Create : Company
+
+      @Serializable data class Plan(val id: Long) : Company
+
+      @Serializable data class History(val id: Long) : Company
 
       @Serializable data class Profile(val id: Long) : Client
 

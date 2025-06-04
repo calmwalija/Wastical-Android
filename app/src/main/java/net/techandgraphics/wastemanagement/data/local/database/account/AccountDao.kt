@@ -18,4 +18,14 @@ interface AccountDao : BaseDao<AccountEntity> {
 
   @Query("SELECT * FROM account WHERE id IN (:ids)")
   suspend fun gets(ids: List<Long>): List<AccountEntity>
+
+  @Query(
+    """ SELECT * FROM account WHERE
+               (firstname LIKE'%' || :query || '%'  OR
+               username LIKE'%' || :query || '%'  OR
+               title LIKE'%' || :query || '%'  OR
+               lastname LIKE'%' || :query || '%')
+      """,
+  )
+  fun query(query: String = ""): Flow<List<AccountEntity>>
 }

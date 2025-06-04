@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,10 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
@@ -48,26 +43,12 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable
 fun CompanyInfoScreen(
   state: CompanyInfoState,
-  channel: Flow<CompanyInfoChannel>,
-  onEvent: (CompanyInfoEvent) -> Unit
+  onEvent: (CompanyInfoEvent) -> Unit,
 ) {
 
 
   val account = account4Preview
   val company = company4Preview
-
-  val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-  LaunchedEffect(key1 = channel) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-      channel.collect { event ->
-        when (event) {
-          else -> {
-            TODO()
-          }
-        }
-      }
-    }
-  }
 
 
   Scaffold(
@@ -219,7 +200,6 @@ private fun CompanyInfoScreenPreview() {
   WasteManagementTheme {
     CompanyInfoScreen(
       state = CompanyInfoState(),
-      channel = flow { },
       onEvent = {}
     )
   }

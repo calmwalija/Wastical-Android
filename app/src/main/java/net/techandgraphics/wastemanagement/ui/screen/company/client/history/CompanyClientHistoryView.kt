@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.home
+package net.techandgraphics.wastemanagement.ui.screen.company.client.history
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -12,13 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,43 +26,37 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
+import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
-import net.techandgraphics.wastemanagement.defaultDate
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.defaultDateTime
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.gatewayDrawableRes
 import net.techandgraphics.wastemanagement.imageScreenshotUrl
-import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
+import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@Composable fun CompanyHomeVerifyPaymentView(
-  paymentAccount: PaymentAccountUiModel,
-  imageLoader: ImageLoader?,
-  onEvent: (CompanyHomeEvent) -> Unit,
+@Composable fun CompanyClientHistoryView(
+  payment: PaymentUiModel,
+  imageLoader: ImageLoader,
+  onEvent: (CompanyVerifyPaymentEvent) -> Unit,
 ) {
 
-  var showOptions by remember { mutableStateOf(false) }
-  var showDialog by remember { mutableStateOf(false) }
-
-  val payment = paymentAccount.payment
-  val account = paymentAccount.account
-
-
   Card(
-    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+    modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { showDialog = true }
   ) {
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
       Box(modifier = Modifier.size(48.dp)) {
 
         val screenshotImagePainter =
-          imageGatewayPainter(payment.imageScreenshotUrl(), imageLoader!!)
+          imageGatewayPainter(payment.imageScreenshotUrl(), imageLoader)
 
         Image(
           painter = screenshotImagePainter,
@@ -95,16 +86,30 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             .padding(horizontal = 8.dp)
         ) {
           Text(
-            text = account.toFullName(),
-            style = MaterialTheme.typography.bodySmall,
+            text = payment.paymentGatewayName,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
           Text(
-            text = payment.createdAt.toZonedDateTime().defaultDate(),
-            style = MaterialTheme.typography.bodyMedium
+            text = payment.createdAt.toZonedDateTime().defaultDateTime(),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis
           )
 
+        }
+
+        when (payment.status) {
+          PaymentStatus.Verifying -> R.drawable.ic_help
+          PaymentStatus.Approved -> R.drawable.ic_check_circle
+          else -> R.drawable.ic_close
+        }.also {
+          Icon(
+            painterResource(it),
+            contentDescription = null,
+            modifier = Modifier.padding(horizontal = 16.dp),
+          )
         }
 
         Text(
@@ -122,10 +127,10 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Preview(showBackground = true)
-@Composable fun CompanyHomeVerifyPaymentViewPreview() {
+@Composable fun CompanyClientHistoryViewPreview() {
   WasteManagementTheme {
-    CompanyHomeVerifyPaymentView(
-      paymentAccount = paymentAccount4Preview,
+    CompanyClientHistoryView(
+      payment = payment4Preview,
       imageLoader = imageLoader(LocalContext.current),
       onEvent = {}
     )
