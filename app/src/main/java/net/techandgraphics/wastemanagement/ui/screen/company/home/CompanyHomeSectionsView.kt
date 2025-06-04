@@ -27,13 +27,13 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 private val leftCompanyHomeItems = listOf(
   CompanyHomeItemModel(
     title = "Company",
-    drawableRes = R.drawable.ic_location_city,
+    drawableRes = R.drawable.ic_warehouse,
     containerColor = Blue,
     event = CompanyHomeEvent.Goto.Profile
   ),
   CompanyHomeItemModel(
     title = "Clients",
-    drawableRes = R.drawable.ic_account,
+    drawableRes = R.drawable.ic_supervisor_account,
     containerColor = Green,
     event = CompanyHomeEvent.Goto.Clients
   ),
@@ -69,8 +69,8 @@ fun CompanyHomeSectionsView(
             painterResource(item.drawableRes),
             contentDescription = null,
             modifier = Modifier
-              .padding(vertical = 8.dp)
-              .size(42.dp)
+              .padding(bottom = 8.dp)
+              .size(32.dp)
           )
           Text(
             text = item.title,
