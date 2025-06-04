@@ -76,72 +76,12 @@ android {
 }
 
 dependencies {
-
-  implementation(libs.androidx.core.ktx)
-  implementation(libs.androidx.lifecycle.runtime.ktx)
-  implementation(libs.androidx.activity.compose)
-  implementation(platform(libs.androidx.compose.bom))
-  implementation(libs.androidx.ui)
-  implementation(libs.androidx.ui.graphics)
-  implementation(libs.androidx.ui.tooling.preview)
-  implementation(libs.androidx.material3)
-  implementation(libs.firebase.messaging)
+  implementation(project(":deps"))
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.ui.test.junit4)
-  debugImplementation(libs.androidx.ui.tooling)
-  debugImplementation(libs.androidx.ui.test.manifest)
-
-
-  implementation(libs.androidx.navigation.runtime.ktx)
-  implementation(libs.androidx.navigation.compose)
-
-
-  implementation(libs.androidx.datastore.preferences)
-
-  implementation(libs.kotlinx.serialization.json)
-
-  implementation(libs.jjwt)
-
-  implementation(libs.coil.compose)
-
-
-  implementation(libs.androidx.paging.runtime)
-  implementation(libs.androidx.paging.compose)
-
   implementation(libs.hilt.android)
   ksp(libs.hilt.android.compiler)
-  implementation(libs.androidx.hilt.navigation.compose)
-
-  implementation(libs.androidx.room.runtime)
-  ksp(libs.androidx.room.compiler)
-  implementation(libs.androidx.room.paging)
-  implementation(libs.androidx.room.ktx)
-
-
-  implementation(libs.ktor.client.core)
-  implementation(libs.ktor.client.cio)
-  implementation(libs.ktor.client.websockets)
-
-  implementation("com.google.mlkit:text-recognition:16.0.1")
-  implementation("com.google.accompanist:accompanist-drawablepainter:0.37.2")
-  implementation("com.github.yalantis:ucrop:2.2.10")
-
-  implementation("androidx.work:work-runtime-ktx:2.10.0")
-  implementation("androidx.hilt:hilt-work:1.0.0")
-  ksp("androidx.hilt:hilt-compiler:1.0.0")
-
-  implementation(libs.firebase.analytics.ktx)
-
-
-  implementation(libs.ktor.client.content.negotiation)
-  implementation(libs.ktor.client.logging)
-  implementation(libs.ktor.client.okhttp)
-  implementation(libs.ktor.serialization.gson)
-
-  implementation("com.google.android.gms:play-services-auth:21.3.0")
-
-
 }
