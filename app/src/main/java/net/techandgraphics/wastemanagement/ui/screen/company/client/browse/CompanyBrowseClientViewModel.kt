@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -15,8 +16,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.Pattern
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toAccountStreetUiModel
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,10 +34,20 @@ class CompanyBrowseClientViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
   private var searchJob: Job? = null
 
+  private fun getByMonth() = viewModelScope.launch {
+    val ago4hour = ZonedDateTime
+      .now()
+      .minusHours(3)
+      .format(DateTimeFormatter.ofPattern(Pattern.DATE_YYYY_MM))
+    val results = database.accountDao.getByCreatedAt(ago4hour)
+    println("✅ ${Gson().toJson(results)}")
+  }
+
   val state = _state
     .onStart {
       viewModelScope.launch {
         launch { onQueryChange() }
+        launch { getByMonth() }
       }
     }
     .stateIn(
@@ -53,13 +67,18 @@ class CompanyBrowseClientViewModel @Inject constructor(
 
   private suspend fun onQueryChange() = database.accountDao
     .query(_state.value.query.trim())
-    .map { it.map { it.toAccountUiModel() } }
+    .map { it.map { it.toAccountStreetUiModel() } }
     .collectLatest { _state.value = _state.value.copy(accounts = it) }
 
   fun onEvent(event: CompanyBrowseClientListEvent) {
     when (event) {
       is CompanyBrowseClientListEvent.Input.Search -> onSearch(event)
-      CompanyBrowseClientListEvent.Button.Clear -> onSearch(CompanyBrowseClientListEvent.Input.Search(""))
+      CompanyBrowseClientListEvent.Button.Clear -> onSearch(
+        CompanyBrowseClientListEvent.Input.Search(
+          "",
+        ),
+      )
+
       else -> Unit
     }
   }

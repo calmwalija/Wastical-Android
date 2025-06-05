@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.domain
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
@@ -19,6 +20,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
@@ -178,4 +180,9 @@ fun PaymentGatewayEntity.toPaymentGatewayUiModel() = PaymentGatewayUiModel(
 fun PaymentAccountEntity.toPaymentAccountUiModel() = PaymentAccountUiModel(
   payment = payment.toPaymentUiModel(),
   account = account.toAccountUiModel(),
+)
+
+fun AccountStreetEntity.toAccountStreetUiModel() = AccountStreetUiModel(
+  account = account.toAccountUiModel(),
+  street = street.toStreetUiModel(),
 )

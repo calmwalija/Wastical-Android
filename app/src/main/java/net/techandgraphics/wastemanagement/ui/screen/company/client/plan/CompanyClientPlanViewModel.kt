@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
+import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import javax.inject.Inject
@@ -14,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyClientPlanViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val accountApi: AccountApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyClientPlanState>(CompanyClientPlanState.Loading)
@@ -27,17 +31,42 @@ class CompanyClientPlanViewModel @Inject constructor(
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val paymentPlans = database.paymentPlanDao.query()
         .mapIndexed { index, plan ->
-          plan.toPaymentPlanUiModel().copy(belongTo = accountPlan.paymentPlanId == plan.id)
+          plan.toPaymentPlanUiModel().copy(active = accountPlan.paymentPlanId == plan.id)
         }
       _state.value = CompanyClientPlanState.Success(
         account = account,
         paymentPlans = paymentPlans,
+        plan = paymentPlans.first { it.id == accountPlan.paymentPlanId },
       )
     }
+
+  private fun onChange(event: CompanyClientPlanEvent.Button.ChangePlan) =
+    viewModelScope.launch {
+      val paymentPlans = database.paymentPlanDao.query()
+        .mapIndexed { index, plan ->
+          plan.toPaymentPlanUiModel().copy(active = event.plan.id == plan.id)
+        }
+      _state.value =
+        (_state.value as CompanyClientPlanState.Success).copy(
+          plan = event.plan,
+          paymentPlans = paymentPlans,
+        )
+    }
+
+  private fun onSubmit() = viewModelScope.launch {
+    if (_state.value is CompanyClientPlanState.Success) {
+      val state = (_state.value as CompanyClientPlanState.Success)
+      runCatching { accountApi.plan(state.plan, state.account) }
+        .onFailure { mapApiError(it).also(::println) }
+        .onSuccess { database.accountPaymentPlanDao.update(it.toAccountPaymentPlanEntity()) }
+    }
+  }
 
   fun onEvent(event: CompanyClientPlanEvent) {
     when (event) {
       is CompanyClientPlanEvent.Load -> onLoad(event)
+      CompanyClientPlanEvent.Button.Submit -> onSubmit()
+      is CompanyClientPlanEvent.Button.ChangePlan -> onChange(event)
       else -> Unit
     }
   }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "68ec12e93c68aa7c5ec9c6c7e760a81c",
+    "identityHash": "08d540bae7b7ca6376600c989fd36737",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `trash_collection_schedule_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`trash_collection_schedule_id`) REFERENCES `company_trash_collection_schedule`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `trash_collection_schedule_id` INTEGER NOT NULL, `street_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`street_id`) REFERENCES `demographic_street`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`trash_collection_schedule_id`) REFERENCES `company_trash_collection_schedule`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -75,6 +75,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "streetId",
+            "columnName": "street_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "companyId",
             "columnName": "company_id",
             "affinity": "INTEGER",
@@ -129,6 +135,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_account_company_id` ON `${TABLE_NAME}` (`company_id`)"
+          },
+          {
+            "name": "index_account_street_id",
+            "unique": false,
+            "columnNames": [
+              "street_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_street_id` ON `${TABLE_NAME}` (`street_id`)"
           }
         ],
         "foreignKeys": [
@@ -138,6 +153,17 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "company_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "demographic_street",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "street_id"
             ],
             "referencedColumns": [
               "id"
@@ -1352,7 +1378,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '68ec12e93c68aa7c5ec9c6c7e760a81c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08d540bae7b7ca6376600c989fd36737')"
     ]
   }
 }

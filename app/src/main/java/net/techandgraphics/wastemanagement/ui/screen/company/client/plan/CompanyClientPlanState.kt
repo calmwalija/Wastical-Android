@@ -9,6 +9,7 @@ sealed interface CompanyClientPlanState {
 
   data class Success(
     val account: AccountUiModel,
+    val plan: PaymentPlanUiModel,
     val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   ) : CompanyClientPlanState
 }

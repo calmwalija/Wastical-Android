@@ -27,8 +27,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
 ) : AccountSessionRepository {
 
   override suspend fun fetchSession() {
-    runCatching { sessionService.get() }
-      .onFailure { println(mapApiError(it)) }
+    runCatching { sessionService.get() }.onFailure { println(mapApiError(it)) }
       .onSuccess { accountSession ->
         try {
           with(database) {
@@ -43,7 +42,10 @@ class AccountSessionRepositoryImpl @Inject constructor(
                   .also { companyContactDao.insert(it) }
                 trashSchedules.map { it.toTrashCollectionScheduleEntity() }
                   .also { trashScheduleDao.insert(it) }
-                account.map { it.toAccountEntity() }.also { accountDao.insert(it) }
+                account.map { it.toAccountEntity() }.forEach { account ->
+                  val streetId = trashScheduleDao.get(account.trashCollectionScheduleId).streetId
+                  accountDao.insert(account.copy(streetId = streetId))
+                }
                 accountContacts.map { it.toAccountContactEntity() }
                   .also { accountContactDao.insert(it) }
                 plans.map { it.toPaymentPlanEntity() }.also { paymentPlanDao.insert(it) }
@@ -51,10 +53,9 @@ class AccountSessionRepositoryImpl @Inject constructor(
                   .also { accountPaymentPlanDao.insert(it) }
                 paymentDays.map { it.toPaymentCollectionDayEntity() }
                   .also { paymentDayDao.insert(it) }
-                methods.toPaymentMethodEntity(gateways)
-                  .map { method ->
-                    paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
-                  }
+                methods.toPaymentMethodEntity(gateways).map { method ->
+                  paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
+                }
                 payments.map { it.toPaymentEntity() }.also { paymentDao.insert(it) }
               }
             }

@@ -26,7 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.accountStreet4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,8 +104,8 @@ private fun CompanyBrowseClientScreenPreview() {
   WasteManagementTheme {
     CompanyBrowseClientScreen(
       state = CompanyBrowseClientState(
-        accounts = (1..3)
-          .map { listOf(account4Preview, account4Preview) }
+        accounts = (1..6)
+          .map { listOf(accountStreet4Preview) }
           .toList()
           .flatten()
       ),

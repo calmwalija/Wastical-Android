@@ -9,6 +9,7 @@ object Pattern {
   const val TIME_K_MM_A = "K:mm a" // 12-hour format without leading zero → 2:34 PM
 
   const val DATE_YYYY_MM_DD = "yyyy-MM-dd" // ISO date → 2025-03-23
+  const val DATE_YYYY_MM = "yyyy-MM"
   const val DATE_DD_MM_YYYY = "dd-MM-yyyy" // European format → 23-03-2025
   const val DATE_MM_DD_YYYY = "MM/dd/yyyy" // US format → 03/23/2025
   const val DATE_EEE_MMM_D_YYYY = "EEE, MMM d, yyyy" // Short weekday → Sat, Mar 23, 2025

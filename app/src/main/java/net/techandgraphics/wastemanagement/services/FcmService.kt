@@ -15,7 +15,6 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.local.database.AccountRole
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
@@ -138,7 +137,7 @@ class FcmService : FirebaseMessagingService() {
 
   override fun onNewToken(token: String) {
     coroutineScope.launch {
-      database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = token))
+//      database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = token))
     }
     super.onNewToken(token)
   }

@@ -1,10 +1,13 @@
 package net.techandgraphics.wastemanagement
 
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 
-fun AccountUiModel.toFullName() = "${this.title.title} ${this.firstname} ${this.lastname}"
+fun AccountUiModel.toFullName() =
+  "${if (this.title == AccountTitle.Na) "" else this.title} ${this.firstname} ${this.lastname}"
+    .trim()
 
 fun calculateToTextAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String {
   return calculate(plan, pay).toAmount()
@@ -16,12 +19,13 @@ fun calculate(plan: PaymentPlanUiModel, pay: PaymentUiModel) = plan.fee.times(pa
 
 fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
 
-fun PaymentUiModel.imageScreenshotUrl() = AppUrl.FILE_URL.plus("screenshot/$accountId").plus(createdAt)
+fun PaymentUiModel.imageScreenshotUrl() =
+  AppUrl.FILE_URL.plus("screenshot/$accountId").plus(createdAt)
 
 fun String.capitalize(): String =
   this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
 fun AccountUiModel.toInitials(): String {
-  return firstname.first().uppercase()
-    .plus(lastname.first().lowercase())
+  return lastname.first().uppercase()
+    .plus(lastname.last().lowercase())
 }
