@@ -38,7 +38,7 @@ interface AccountDao : BaseDao<AccountEntity> {
         WHERE strftime('%Y-%m', datetime(created_at, 'unixepoch')) = :createAt
     """,
   )
-  suspend fun getByCreatedAt(createAt: String): List<AccountStreetEntity>
+  suspend fun getByCreatedAt(createAt: String): List<AccountEntity>
 }
 
 enum class TimeUnit(val format: String) {

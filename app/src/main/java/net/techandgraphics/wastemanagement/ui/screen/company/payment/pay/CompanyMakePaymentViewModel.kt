@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
@@ -84,7 +83,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         .any { it.isSelected.not() }
         .also { theFile().createNewFile() }
 
-      runCatching { api.pay(theFile(), paymentRequest) }
+      runCatching { api.pay(paymentRequest) }
         .onFailure {
           application.schedulePaymentRetryWorker()
 

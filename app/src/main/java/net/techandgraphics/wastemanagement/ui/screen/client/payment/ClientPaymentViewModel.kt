@@ -87,7 +87,7 @@ class ClientPaymentViewModel @Inject constructor(
         .any { it.isSelected.not() }
         .also { theFile().createNewFile() }
 
-      runCatching { api.pay(theFile(), paymentRequest) }
+      runCatching { api.pay(paymentRequest) }
         .onFailure {
           application.schedulePaymentRetryWorker()
 
