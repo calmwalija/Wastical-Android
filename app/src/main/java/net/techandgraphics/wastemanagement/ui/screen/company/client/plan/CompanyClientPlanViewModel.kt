@@ -10,6 +10,7 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.remote.toAccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import javax.inject.Inject
@@ -56,7 +57,8 @@ class CompanyClientPlanViewModel @Inject constructor(
   private fun onSubmit() = viewModelScope.launch {
     if (_state.value is CompanyClientPlanState.Success) {
       val state = (_state.value as CompanyClientPlanState.Success)
-      runCatching { accountApi.plan(state.plan, state.account) }
+      val request = state.plan.toAccountPaymentPlanRequest(state.account)
+      runCatching { accountApi.plan(state.plan.id, request) }
         .onFailure { mapApiError(it).also(::println) }
         .onSuccess { database.accountPaymentPlanDao.update(it.toAccountPaymentPlanEntity()) }
     }

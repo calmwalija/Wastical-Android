@@ -11,7 +11,6 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
-import net.techandgraphics.wastemanagement.getUCropFile
 import net.techandgraphics.wastemanagement.notification.NotificationBuilder
 import net.techandgraphics.wastemanagement.notification.NotificationType
 import net.techandgraphics.wastemanagement.notification.NotificationUiModel
@@ -25,12 +24,10 @@ import net.techandgraphics.wastemanagement.notification.NotificationUiModel
   override suspend fun doWork(): Result {
     return try {
       database.paymentDao.qPaymentByStatus().onEach { paymentEntity ->
-        val file = context.getUCropFile(paymentEntity.id)
         val request = paymentEntity.toPaymentRequest()
-        val newValue = api.pay(file, request)
+        val newValue = api.pay(request)
         database.paymentDao.delete(paymentEntity)
         database.paymentDao.upsert(newValue.toPaymentEntity())
-        file.delete()
         val notification = NotificationUiModel(
           type = NotificationType.PaymentVerification,
           title = "Payment Sent for Verification",

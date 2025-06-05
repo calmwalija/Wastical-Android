@@ -16,6 +16,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEn
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
+import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
@@ -27,7 +28,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
 ) : AccountSessionRepository {
 
   override suspend fun fetchSession() {
-    runCatching { sessionService.get() }.onFailure { println(mapApiError(it)) }
+    runCatching { sessionService.get(ACCOUNT_ID) }.onFailure { println(mapApiError(it)) }
       .onSuccess { accountSession ->
         try {
           with(database) {

@@ -121,9 +121,12 @@ dependencies {
   implementation(libs.androidx.room.ktx)
 
 
-  implementation(libs.ktor.client.core)
-  implementation(libs.ktor.client.cio)
-  implementation(libs.ktor.client.websockets)
+
+  implementation(libs.retrofit)
+  implementation(libs.converter.gson)
+  implementation(libs.logging.interceptor)
+  implementation(libs.okhttp)
+
 
   implementation("com.google.mlkit:text-recognition:16.0.1")
   implementation("com.google.accompanist:accompanist-drawablepainter:0.37.2")
@@ -134,12 +137,6 @@ dependencies {
   ksp("androidx.hilt:hilt-compiler:1.0.0")
 
   implementation(libs.firebase.analytics.ktx)
-
-
-  implementation(libs.ktor.client.content.negotiation)
-  implementation(libs.ktor.client.logging)
-  implementation(libs.ktor.client.okhttp)
-  implementation(libs.ktor.serialization.gson)
 
   implementation("com.google.android.gms:play-services-auth:21.3.0")
 
