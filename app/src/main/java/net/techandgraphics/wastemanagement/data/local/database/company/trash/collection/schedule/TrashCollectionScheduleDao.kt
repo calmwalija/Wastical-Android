@@ -18,6 +18,9 @@ interface TrashCollectionScheduleDao : BaseDao<TrashCollectionScheduleEntity> {
   @Query("SELECT * FROM company_trash_collection_schedule")
   fun flow(): Flow<List<TrashCollectionScheduleEntity>>
 
+  @Query("SELECT * FROM company_trash_collection_schedule WHERE id =:id")
+  suspend fun get(id: Long): TrashCollectionScheduleEntity
+
   @Transaction
   @Query("SELECT * FROM company_trash_collection_schedule WHERE company_id =:companyId")
   fun flowOfTxn(companyId: Long): Flow<List<TrashCompanyStreetEntity>>

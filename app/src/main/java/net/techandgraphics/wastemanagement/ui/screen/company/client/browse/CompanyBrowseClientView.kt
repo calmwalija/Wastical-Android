@@ -23,20 +23,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.defaultDateTime
+import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
-import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.accountStreet4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyBrowseClientView(
-  account: AccountUiModel,
+  accountStreet: AccountStreetUiModel,
   onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
+
+  val street = accountStreet.street
+  val account = accountStreet.account
 
   Row(
     modifier = Modifier
@@ -58,13 +60,13 @@ fun CompanyBrowseClientView(
         overflow = TextOverflow.MiddleEllipsis,
       )
       Text(
-        text = account.createdAt.toZonedDateTime().defaultDateTime(),
+        text = account.username,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
       )
       Text(
-        text = account.username,
+        text = street.name,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,
@@ -117,7 +119,7 @@ fun CompanyBrowseClientView(
 private fun CompanyBrowseClientViewPreview() {
   WasteManagementTheme {
     CompanyBrowseClientView(
-      account = account4Preview,
+      accountStreet = accountStreet4Preview,
       onEvent = {}
     )
   }

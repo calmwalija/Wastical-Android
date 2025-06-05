@@ -57,11 +57,10 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = PhoneRoute.Verify
+    startDestination = Route.Company.Home
   ) {
 
     PhoneNavGraphBuilder(navController)
-
 
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {

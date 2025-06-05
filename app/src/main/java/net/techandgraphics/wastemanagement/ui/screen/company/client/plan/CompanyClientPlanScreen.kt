@@ -73,6 +73,7 @@ private fun CompanyClientPlanScreenPreview() {
     CompanyClientPlanScreen(
       state = CompanyClientPlanState.Success(
         account = account4Preview,
+        plan = paymentPlan4Preview,
         paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview)
       ),
       onEvent = {}

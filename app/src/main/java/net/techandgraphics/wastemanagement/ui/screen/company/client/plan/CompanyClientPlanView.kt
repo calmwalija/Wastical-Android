@@ -44,7 +44,7 @@ fun CompanyClientPlanView(
     state.paymentPlans.forEachIndexed { index, paymentPlan ->
       OutlinedCard(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = if (paymentPlan.belongTo) CardDefaults.outlinedCardColors(
+        colors = if (paymentPlan.active) CardDefaults.outlinedCardColors(
           containerColor = MaterialTheme.colorScheme.primary.copy(.1f)
         ) else {
           CardDefaults.elevatedCardColors()
@@ -52,13 +52,15 @@ fun CompanyClientPlanView(
       ) {
         Row(
           modifier = Modifier
-            .clickable { }
+            .clickable { onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan)) }
             .fillMaxWidth()
             .padding(16.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
 
-          RadioButton(selected = paymentPlan.belongTo, onClick = {})
+          RadioButton(selected = paymentPlan.active, onClick = {
+            onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan))
+          })
 
           Column(
             modifier = Modifier
@@ -109,7 +111,7 @@ fun CompanyClientPlanView(
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Button(onClick = { onEvent(CompanyClientPlanEvent.Button.ChangePlan) }) {
+    Button(onClick = { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
       Text(
         text = "Change Payment Plan",
         modifier = Modifier
@@ -132,6 +134,7 @@ private fun CompanyClientPlanViewPreview() {
     CompanyClientPlanView(
       state = CompanyClientPlanState.Success(
         account = account4Preview,
+        plan = paymentPlan4Preview,
         paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview)
       ),
       onEvent = {}

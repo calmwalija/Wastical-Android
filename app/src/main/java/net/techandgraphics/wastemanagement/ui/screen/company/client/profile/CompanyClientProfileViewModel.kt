@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import javax.inject.Inject
 
@@ -28,16 +27,8 @@ class CompanyClientProfileViewModel @Inject constructor(
     viewModelScope.launch {
       _state.value = CompanyClientProfileState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
-      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
-      val paymentPlans = database.paymentPlanDao.query()
-        .mapIndexed { index, plan ->
-          plan.toPaymentPlanUiModel().copy(belongTo = accountPlan.paymentPlanId == plan.id)
-        }
       launch { getPayments(account) }
-      _state.value = CompanyClientProfileState.Success(
-        account = account,
-        paymentPlans = paymentPlans,
-      )
+      _state.value = CompanyClientProfileState.Success(account = account)
     }
 
   private fun getState() = (_state.value as CompanyClientProfileState.Success)

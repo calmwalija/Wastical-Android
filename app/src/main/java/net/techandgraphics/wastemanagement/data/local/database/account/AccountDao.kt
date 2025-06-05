@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.data.local.database.account
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 
@@ -19,6 +20,7 @@ interface AccountDao : BaseDao<AccountEntity> {
   @Query("SELECT * FROM account WHERE id IN (:ids)")
   suspend fun gets(ids: List<Long>): List<AccountEntity>
 
+  @Transaction
   @Query(
     """ SELECT * FROM account WHERE
                (firstname LIKE'%' || :query || '%'  OR
@@ -27,5 +29,33 @@ interface AccountDao : BaseDao<AccountEntity> {
                lastname LIKE'%' || :query || '%')
       """,
   )
-  fun query(query: String = ""): Flow<List<AccountEntity>>
+  fun query(query: String = ""): Flow<List<AccountStreetEntity>>
+
+  @Query(
+    """
+        SELECT *
+        FROM account
+        WHERE strftime('%Y-%m', datetime(created_at, 'unixepoch')) = :createAt
+    """,
+  )
+  suspend fun getByCreatedAt(createAt: String): List<AccountStreetEntity>
+}
+
+enum class TimeUnit(val format: String) {
+  Minute("%Y-%m-%d %H:%M"),
+  Hour("%Y-%m-%d %H"),
+  Day("%Y-%m-%d"),
+  Month("%Y-%m"),
+  ;
+
+  companion object {
+    fun fromUnit(unit: String): TimeUnit? {
+      return TimeUnit.entries.find { it.name.equals(unit, ignoreCase = true) }
+    }
+  }
+}
+
+fun getTimeFormatForUnit(unit: String): String? {
+  val timeUnit = TimeUnit.fromUnit(unit)
+  return timeUnit?.format
 }

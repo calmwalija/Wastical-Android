@@ -7,9 +7,11 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
+import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
@@ -122,5 +124,18 @@ internal fun appState(context: Context) = MainActivityState(
   imageLoader = imageLoader(context),
   trashSchedules = listOf(trashSchedules4Preview),
 )
+
+internal val street4Preview = StreetUiModel(
+  id = 1L,
+  name = "Sector 5",
+  latitude = -1F,
+  longitude = -1F,
+  areaId = 1L,
+  createdAt = 1L,
+  updatedAt = 1L,
+  belongTo = true,
+)
+
+internal val accountStreet4Preview = AccountStreetUiModel(account4Preview, street4Preview)
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)
