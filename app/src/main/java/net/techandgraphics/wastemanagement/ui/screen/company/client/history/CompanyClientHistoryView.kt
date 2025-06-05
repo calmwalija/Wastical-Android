@@ -1,7 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.history
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,31 +18,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.gatewayDrawableRes
-import net.techandgraphics.wastemanagement.imageScreenshotUrl
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
-import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
-import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun CompanyClientHistoryView(
   payment: PaymentUiModel,
-  imageLoader: ImageLoader,
-  onEvent: (CompanyVerifyPaymentEvent) -> Unit,
+  onEvent: (CompanyClientHistoryEvent) -> Unit,
 ) {
 
   Card(
@@ -54,28 +46,14 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
       Box(modifier = Modifier.size(48.dp)) {
-
-        val screenshotImagePainter =
-          imageGatewayPainter(payment.imageScreenshotUrl(), imageLoader)
-
         Image(
-          painter = screenshotImagePainter,
+          painterResource(gatewayDrawableRes[payment.paymentGatewayId.minus(1).toInt()]),
           contentDescription = null,
           modifier = Modifier
             .padding(4.dp)
             .fillMaxSize()
             .clickable {}
             .clip(CircleShape)
-        )
-        Image(
-          painterResource(gatewayDrawableRes[payment.paymentGatewayId.minus(1).toInt()]),
-          contentDescription = null,
-          modifier = Modifier
-            .border(1.dp, MaterialTheme.colorScheme.onSecondary, CircleShape)
-            .clip(CircleShape)
-            .size(18.dp)
-            .align(Alignment.BottomEnd),
-          contentScale = ContentScale.Crop
         )
       }
 
@@ -131,7 +109,6 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   WasteManagementTheme {
     CompanyClientHistoryView(
       payment = payment4Preview,
-      imageLoader = imageLoader(LocalContext.current),
       onEvent = {}
     )
   }

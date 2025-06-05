@@ -6,7 +6,6 @@ import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import net.techandgraphics.wastemanagement.notification.NotificationBuilder
 import net.techandgraphics.wastemanagement.worker.AppWorkerFactory
-import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
 import javax.inject.Inject
 
 @HiltAndroidApp class AppKlass : Application(), Configuration.Provider {
@@ -22,7 +21,6 @@ import javax.inject.Inject
 
   override fun onCreate() {
     super.onCreate()
-    schedulePaymentRetryWorker()
     NotificationBuilder(this).registerChannels()
   }
 }

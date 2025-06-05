@@ -11,7 +11,6 @@ val MerriWeatherSans = FontFamily(
   Font(R.font.merri_weather_sans_bold, FontWeight.Bold),
   Font(R.font.merri_weather_sans_regular, FontWeight.Normal),
   Font(R.font.merri_weather_sans_medium, FontWeight.Medium),
-  Font(R.font.merri_weather_sans_semi_bold, FontWeight.SemiBold),
   Font(R.font.merri_weather_sans_extra_bold, FontWeight.ExtraBold),
 )
 

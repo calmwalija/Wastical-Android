@@ -19,7 +19,6 @@ import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.bold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.light
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.mailMan
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.time.ZonedDateTime
 
@@ -364,7 +363,7 @@ fun CanvasPdfView(modifier: Modifier = Modifier) {
       theSentence = "With Thanks",
       theYAxis = theYAxis,
       theXAxis = theXAxis.times(6),
-      paint = Paint().also { it.typeface = mailMan(context); it.textSize = 120f },
+      paint = Paint().also { it.typeface = extraBold(context); it.textSize = 120f },
     )
     /***************************************************************/
 

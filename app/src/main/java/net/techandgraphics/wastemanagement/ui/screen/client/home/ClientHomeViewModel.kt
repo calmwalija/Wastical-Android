@@ -48,6 +48,7 @@ import javax.inject.Inject
         paymentPlan = paymentPlans.first(),
         company = companies.first(),
         companyContact = companyContacts.first { it.primary },
+        paymentMethod = state.value.state.paymentMethods.first { it.id == payment.paymentMethodId },
         onEvent = onEvent,
       )
     }

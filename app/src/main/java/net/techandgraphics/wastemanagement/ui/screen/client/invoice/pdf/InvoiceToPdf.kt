@@ -1,15 +1,20 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.invoice.pdf
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
+import androidx.core.graphics.scale
+import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculateToTextAmount
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toAmount
@@ -18,8 +23,6 @@ import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.bold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.light
-import net.techandgraphics.wastemanagement.ui.screen.client.invoice.mailMan
-import net.techandgraphics.wastemanagement.ui.screen.paymentMethod4Preview
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -46,6 +49,7 @@ fun invoiceToPdf(
   accountContact: AccountContactUiModel,
   payment: PaymentUiModel,
   paymentPlan: PaymentPlanUiModel,
+  paymentMethod: PaymentMethodUiModel,
   onEvent: (File?) -> Unit,
 ) {
   val pdfDocument = PdfDocument()
@@ -53,7 +57,7 @@ fun invoiceToPdf(
   val tableData = tableData(payment, paymentPlan)
   val targetDpi = 300f
   val widthInches = 5.27f
-  val heightInches = 6.8f
+  val heightInches = 6.1f
   val tableDataHeight = (53 * tableData.size.minus(1)).toFloat()
   val pdfWidthPx = (widthInches * targetDpi).toInt()
   val pdfHeightPx = (heightInches * targetDpi).plus(tableDataHeight).toInt()
@@ -234,7 +238,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = paymentMethod4Preview.name,
+      theSentence = paymentMethod.name,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -244,15 +248,16 @@ fun invoiceToPdf(
     yAxis = yAxis.plus(textSize72.textSize.minus(20))
 
     /***************************************************************/
-    pdfSentence(
-      theSentence = "Account # : ${paymentMethod4Preview.account}",
-      xAxis = xAxis,
-      yAxis = yAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-    )
+    if (paymentMethod.type != PaymentType.Cash) {
+      pdfSentence(
+        theSentence = "Account # : ${paymentMethod.account}",
+        xAxis = xAxis,
+        yAxis = yAxis,
+        paint = textSize32.also { it.typeface = light(context) },
+      )
+      yAxis = yAxis.plus(textSize72.textSize.minus(20))
+    }
     /***************************************************************/
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
 
     /***************************************************************/
     pdfSentence(
@@ -355,28 +360,25 @@ fun invoiceToPdf(
     )
     /***************************************************************/
 
-    yAxis = yAxis.plus(textSize72.textSize.plus(120))
-
     /***************************************************************/
-    pdfSentence(
-      theSentence = "With Thanks",
-      yAxis = yAxis,
-      xAxis = xAxis,
-      paint = Paint().also {
-        it.typeface = mailMan(context)
-        it.textSize = 120f
-      },
-    )
+    val bitmap = BitmapFactory
+      .decodeResource(context.resources, R.drawable.im_signature)
+      .scale(500, 200)
+    drawBitmap(bitmap, xAxis, yAxis, null)
     /***************************************************************/
 
     pdfDocument.finishPage(pdfPage)
-    onEvent.invoke(pdfDocument.saveToInternal(context, payment))
+    onEvent.invoke(pdfDocument.saveToInternal(context, payment, account))
     pdfDocument.close()
   }
 }
 
-private fun PdfDocument.saveToInternal(context: Context, payment: PaymentUiModel): File? {
-  val pdfFile = File(context.filesDir, "${payment.transactionId}.pdf")
+private fun PdfDocument.saveToInternal(
+  context: Context,
+  payment: PaymentUiModel,
+  account: AccountUiModel,
+): File? {
+  val pdfFile = File(context.filesDir, "Invoice-${account.id.times(5983)}-${payment.createdAt}.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)

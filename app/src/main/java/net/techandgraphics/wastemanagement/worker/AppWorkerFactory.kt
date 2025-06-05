@@ -15,5 +15,5 @@ class AppWorkerFactory @Inject constructor(
     appContext: Context,
     workerClassName: String,
     workerParameters: WorkerParameters,
-  ) = PaymentRetryWorker(appContext, workerParameters, database, api)
+  ) = PaymentWorker(appContext, workerParameters, database, api)
 }

@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Approved
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Failed
 
 @Dao interface PaymentDao : BaseDao<PaymentEntity> {
 
@@ -24,7 +23,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Fai
   fun getLastId(): Flow<Long?>
 
   @Query("SELECT * FROM payment WHERE payment_status=:status")
-  suspend fun qPaymentByStatus(status: String = Failed.name): List<PaymentEntity>
+  suspend fun qPaymentByStatus(status: String = PaymentStatus.Waiting.name): List<PaymentEntity>
 
   @Transaction
   @Query("SELECT * FROM payment WHERE payment_status=:status ORDER BY id DESC")

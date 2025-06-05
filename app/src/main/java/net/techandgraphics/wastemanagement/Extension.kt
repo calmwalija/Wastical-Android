@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import java.io.File
 import java.text.DecimalFormat
 
@@ -40,6 +42,8 @@ fun Context.getUCropFile(fileId: Number) = File(cacheDir, "$fileId.jpg")
 fun Color.toGradient() = Brush.horizontalGradient(
   listOf(this.copy(.7f), this.copy(.8f), this),
 )
+
+fun PaymentRequest.asApproved() = copy(status = PaymentStatus.Approved)
 
 val gatewayDrawableRes = listOf(
   R.drawable.im_airtel_money,
