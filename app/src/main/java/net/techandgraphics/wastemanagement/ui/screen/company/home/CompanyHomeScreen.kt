@@ -1,5 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
+import android.content.Context
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -21,9 +23,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -33,15 +35,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.PaidThisMonthIndicator
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.screen.client.home.LetterView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
+import net.techandgraphics.wastemanagement.ui.screen.streetPaidThisMonthIndicator4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -104,92 +109,87 @@ fun CompanyHomeScreen(
       )
     },
   ) {
-    Column(
-      modifier = Modifier
-        .padding(it)
-        .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp)
-        .fillMaxWidth()
-        .padding(bottom = 24.dp),
-    ) {
-
-
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        LetterView(account)
-        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-          Text(
-            text = "Good ${getTimeOfDay()}",
-            style = MaterialTheme.typography.bodySmall,
-          )
-          Text(
-            text = account.toFullName(),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-          )
-        }
-      }
-
-
-      Spacer(modifier = Modifier.height(32.dp))
-
-      CompanyHomeClientView(state, onEvent)
-
-      Spacer(modifier = Modifier.height(32.dp))
-
-      Text(
-        text = "Manage",
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(8.dp)
-      )
-
-      CompanyHomeSectionsView(onEvent)
-
-      Spacer(modifier = Modifier.height(32.dp))
-
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-          text = "Transactions",
+    when (state) {
+      CompanyHomeState.Loading -> LoadingIndicatorView()
+      is CompanyHomeState.Success ->
+        Column(
           modifier = Modifier
-            .weight(1f)
-            .padding(8.dp),
-          style = MaterialTheme.typography.titleLarge,
-        )
+            .padding(it)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth()
+            .padding(bottom = 24.dp),
+        ) {
 
-        TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.Payments) }) {
-          Text(text = "See All")
+
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            LetterView(account)
+            Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+              Text(
+                text = "Good ${getTimeOfDay()}",
+                style = MaterialTheme.typography.bodySmall,
+              )
+              Text(
+                text = account.toFullName(),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary
+              )
+            }
+          }
+
+
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+          CompanyHomeClientPaidView(state.paidThisMonth)
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+
+
+          Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            OutlinedButton(onClick = { onEvent(CompanyHomeEvent.Goto.Clients) }) {
+              Text(text = "Record Payment")
+            }
+          }
+
+
+          Spacer(modifier = Modifier.height(16.dp))
+
+          CompanyHomeSectionsView(onEvent)
+
+          Spacer(modifier = Modifier.height(8.dp))
+
+
+          state.streetPaidThisMonth.forEach { streetPaid ->
+            CompanyHomeClientPaidStreetView(streetPaid)
+          }
+
+
+
+          Spacer(modifier = Modifier.height(24.dp))
+
         }
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      state.payments.forEach { payment ->
-        CompanyHomeVerifyPaymentView(
-          paymentAccount = payment,
-          imageLoader = state.state.imageLoader!!,
-          onEvent = onEvent
-        )
-      }
-
-      Spacer(modifier = Modifier.height(24.dp))
-
     }
-
-
   }
 }
 
 
-@PreviewLightDark
+@Preview(showBackground = true)
 @Composable
 private fun CompanyHomeScreenPreview() {
   WasteManagementTheme {
     CompanyHomeScreen(
-      state = CompanyHomeState(
-        state = appState(LocalContext.current),
-        payments = listOf(paymentAccount4Preview, paymentAccount4Preview, paymentAccount4Preview)
-      ),
+      state = companyHomeStateSuccess(LocalContext.current),
       onEvent = {}
     )
   }
 }
+
+fun companyHomeStateSuccess(context: Context) = CompanyHomeState.Success(
+  state = appState(context),
+  payments = listOf(paymentAccount4Preview, paymentAccount4Preview, paymentAccount4Preview),
+  paidThisMonth = PaidThisMonthIndicator(2, 4, 100, .4f),
+  streetPaidThisMonth = listOf(streetPaidThisMonthIndicator4Preview)
+)

@@ -140,5 +140,6 @@ dependencies {
 
   implementation("com.google.android.gms:play-services-auth:21.3.0")
 
+  implementation("io.github.ehsannarmani:compose-charts:0.1.7")
 
 }

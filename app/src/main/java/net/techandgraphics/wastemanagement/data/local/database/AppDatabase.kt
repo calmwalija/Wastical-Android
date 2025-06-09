@@ -17,6 +17,9 @@ import net.techandgraphics.wastemanagement.data.local.database.company.contact.C
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleDao
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.AccountIndicatorDao
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.PaymentIndicatorDao
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetIndicatorDao
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaDao
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictDao
@@ -73,6 +76,10 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
   abstract val paymentGatewayDao: PaymentGatewayDao
   abstract val accountFcmTokenDao: AccountFcmTokenDao
+
+  abstract val streetIndicatorDao: StreetIndicatorDao
+  abstract val accountIndicatorDao: AccountIndicatorDao
+  abstract val paymentIndicatorDao: PaymentIndicatorDao
 
   companion object {
     const val NAME = "waste_management_db"
