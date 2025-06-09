@@ -2,7 +2,6 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -40,14 +39,12 @@ class CompanyBrowseClientViewModel @Inject constructor(
       .minusHours(3)
       .format(DateTimeFormatter.ofPattern(Pattern.DATE_YYYY_MM))
     val results = database.accountDao.getByCreatedAt(ago4hour)
-    println("✅ ${Gson().toJson(results)}")
   }
 
   val state = _state
     .onStart {
       viewModelScope.launch {
         launch { onQueryChange() }
-        launch { getByMonth() }
       }
     }
     .stateIn(

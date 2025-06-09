@@ -45,16 +45,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastemanagement.data.remote.ApiResult
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.paymentMethod4Preview
@@ -71,47 +69,27 @@ fun CompanyMakePaymentScreen(
 
   val scrollState = rememberLazyListState()
   var loading by remember { mutableStateOf(false) }
-  var showResultDialog by remember { mutableStateOf(false) }
   var isSuccess by remember { mutableStateOf(false) }
-  var error by remember { mutableStateOf<ApiResult.Error?>(null) }
+  val context = LocalContext.current
 
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
       channel.collect { event ->
-        showResultDialog = true
         loading = false
-        isSuccess = when (event) {
-          is CompanyMakePaymentChannel.Pay.Failure -> {
-            error = event.error
-            false
-          }
-
-          CompanyMakePaymentChannel.Pay.Success -> true
+        when (event) {
+          CompanyMakePaymentChannel.Pay.Success -> isSuccess = true
         }
       }
     }
   }
 
-  if (showResultDialog) {
-    Dialog(
-      onDismissRequest = { showResultDialog = false },
-      properties = DialogProperties(
-        dismissOnBackPress = false,
-        dismissOnClickOutside = false
-      )
-    ) {
-      CompanyRecordPaymentResponseDialog(
-        account = (state as CompanyMakePaymentState.Success).account,
-        isSuccess = isSuccess,
-        error = error
-      ) {
-        showResultDialog = false
-        error = null
-        onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
-      }
-    }
+
+  if (isSuccess) {
+    context.toast("Your request is submitted. You'll be notified when it's complete.")
+    onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
+    isSuccess = false
   }
 
 

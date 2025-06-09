@@ -148,7 +148,7 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
 
 fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: PaymentGatewayUiModel) =
   PaymentEntity(
-    status = PaymentStatus.Failed.name,
+    status = PaymentStatus.Waiting.name,
     accountId = accountId,
     screenshotText = screenshotText,
     numberOfMonths = numberOfMonths,

@@ -200,8 +200,8 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientHistoryViewModel>()) {
         val id = it.toRoute<Route.Company.Client.History>().id
         val state = state.collectAsState().value
-        LaunchedEffect(id) { onEvent(CompanyClientHistoryEvent.Load(id)) }
-        CompanyClientHistoryScreen(state) {}
+        LaunchedEffect(id) { onEvent(CompanyClientHistoryEvent.Load(id, appState)) }
+        CompanyClientHistoryScreen(state, ::onEvent)
       }
     }
 

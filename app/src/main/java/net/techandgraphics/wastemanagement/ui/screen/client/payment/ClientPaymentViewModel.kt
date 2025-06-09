@@ -27,7 +27,6 @@ import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.onTextToClipboard
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
-import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -89,8 +88,6 @@ class ClientPaymentViewModel @Inject constructor(
 
       runCatching { api.pay(paymentRequest) }
         .onFailure {
-          application.schedulePaymentRetryWorker()
-
           val plan = state.paymentPlans.first()
           val method = state.paymentMethods.first { it.isSelected }
           val gateway = state.paymentGateways.first { it.id == method.paymentGatewayId }

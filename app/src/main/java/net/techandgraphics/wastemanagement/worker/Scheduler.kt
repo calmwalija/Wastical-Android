@@ -16,3 +16,11 @@ fun Context.schedulePaymentRetryWorker() {
     .build()
   WorkManager.getInstance(this).enqueue(workRequest)
 }
+
+fun Context.schedulePaymentWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<PaymentWorker>()
+    .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+    .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .build()
+  WorkManager.getInstance(this).enqueue(workRequest)
+}

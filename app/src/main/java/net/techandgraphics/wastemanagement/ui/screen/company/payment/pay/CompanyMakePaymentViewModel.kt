@@ -12,23 +12,19 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
-import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
-import net.techandgraphics.wastemanagement.getUCropFile
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
-import net.techandgraphics.wastemanagement.worker.schedulePaymentRetryWorker
+import net.techandgraphics.wastemanagement.worker.schedulePaymentWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,51 +60,23 @@ class CompanyMakePaymentViewModel @Inject constructor(
 
   private fun onRecordPayment() = viewModelScope.launch {
     with(state.value as CompanyMakePaymentState.Success) {
-      val paymentMethod = paymentMethods.first { it.isSelected }
-      fun theFile() = application.getUCropFile(lastPaymentId)
-
-      val paymentRequest = PaymentRequest(
+      val method = paymentMethods.first { it.isSelected }
+      val gateway = database
+        .paymentGatewayDao
+        .get(method.paymentGatewayId)
+        .toPaymentGatewayUiModel()
+      val cachedPayment = PaymentRequest(
         screenshotText = screenshotText,
-        paymentMethodId = paymentMethod.id,
+        paymentMethodId = method.id,
         accountId = account.id,
         numberOfMonths = numberOfMonths,
         companyId = account.companyId,
         executedById = ACCOUNT_ID,
-        status = PaymentStatus.Approved,
-      )
-
-      /** Pay by cash creates a dummy File **/
-      paymentMethods
-        .filter { it.type == PaymentType.Cash }
-        .any { it.isSelected.not() }
-        .also { theFile().createNewFile() }
-
-      runCatching { api.pay(paymentRequest) }
-        .onFailure {
-          application.schedulePaymentRetryWorker()
-
-          val plan = database.paymentPlanDao
-            .get(paymentMethod.paymentPlanId)
-            .toPaymentPlanUiModel()
-
-          val gateway = database.paymentGatewayDao
-            .get(paymentMethod.paymentGatewayId)
-            .toPaymentGatewayUiModel()
-
-          val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
-
-          /** Rename the File **/
-          val oldFile = application.getUCropFile(lastPaymentId)
-          oldFile.renameTo(application.getUCropFile(cachedPayment.id))
-          database.paymentDao.upsert(cachedPayment)
-          _channel.send(CompanyMakePaymentChannel.Pay.Failure(mapApiError(it)))
-        }
-        .onSuccess {
-          database.paymentDao.upsert(it.toPaymentEntity())
-          _channel.send(CompanyMakePaymentChannel.Pay.Success)
-          theFile().delete()
-        }
-
+        status = PaymentStatus.Waiting,
+      ).toPaymentCacheEntity(paymentPlan, gateway)
+      database.paymentDao.upsert(cachedPayment)
+      application.schedulePaymentWorker()
+      _channel.send(CompanyMakePaymentChannel.Pay.Success)
       _state.value = getState().copy(imageUri = null)
     }
   }

@@ -11,17 +11,5 @@ fun bold(context: Context): Typeface? =
 fun light(context: Context): Typeface? =
   ResourcesCompat.getFont(context, R.font.merri_weather_sans_light)
 
-fun regular(context: Context): Typeface? =
-  ResourcesCompat.getFont(context, R.font.merri_weather_sans_regular)
-
-fun medium(context: Context): Typeface? =
-  ResourcesCompat.getFont(context, R.font.merri_weather_sans_medium)
-
-fun semiBold(context: Context): Typeface? =
-  ResourcesCompat.getFont(context, R.font.merri_weather_sans_semi_bold)
-
 fun extraBold(context: Context): Typeface? =
   ResourcesCompat.getFont(context, R.font.merri_weather_sans_extra_bold)
-
-fun mailMan(context: Context): Typeface? =
-  ResourcesCompat.getFont(context, R.font.mail_man_regular)
