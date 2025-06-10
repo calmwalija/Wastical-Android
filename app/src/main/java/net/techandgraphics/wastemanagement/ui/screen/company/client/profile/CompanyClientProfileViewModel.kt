@@ -31,12 +31,17 @@ class CompanyClientProfileViewModel @Inject constructor(
       _state.value = CompanyClientProfileState.Success(account = account)
     }
 
-  private fun getState() = (_state.value as CompanyClientProfileState.Success)
-
   private fun getPayments(account: AccountUiModel) = viewModelScope.launch {
     database.paymentDao.flowOfByAccountId(account.id)
       .map { flowOf -> flowOf.map { it.toPaymentUiModel() } }
-      .collectLatest { payments -> _state.value = getState().copy(payments = payments) }
+      .collectLatest { payments ->
+        if (_state.value is CompanyClientProfileState.Success) {
+          _state.value = CompanyClientProfileState.Success(
+            payments = payments,
+            account = (_state.value as CompanyClientProfileState.Success).account,
+          )
+        }
+      }
   }
 
   fun onEvent(event: CompanyClientProfileEvent) {

@@ -11,7 +11,6 @@ import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneNavGraphBuilder
-import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneRoute
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.wastemanagement.ui.screen.client.home.HomeScreen
@@ -37,7 +36,7 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.Company
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.AppState
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Load
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Goto
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeViewModel
@@ -227,7 +226,7 @@ fun AppNavHost(
 
     composable<Route.Company.Home> {
       with(hiltViewModel<CompanyHomeViewModel>()) {
-        LaunchedEffect(appState) { onEvent(AppState(appState)) }
+        LaunchedEffect(appState) { onEvent(Load(appState)) }
         val state = state.collectAsState().value
         CompanyHomeScreen(state) { event ->
           when (event) {

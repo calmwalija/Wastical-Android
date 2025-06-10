@@ -124,6 +124,7 @@ fun CompanyVerifyPaymentScreen(
           .entries
           .drop(1)
           .toList()
+          .takeLast(2)
           .toTypedArray()
       }
 
@@ -154,7 +155,10 @@ fun CompanyVerifyPaymentScreen(
           ) {
             Text(
               text = status.name,
-              modifier = Modifier.padding(8.dp)
+              modifier = Modifier.padding(8.dp),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              style = MaterialTheme.typography.bodyMedium
             )
           }
         }

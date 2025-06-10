@@ -27,7 +27,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
 
   @Transaction
   @Query("SELECT * FROM payment WHERE payment_status=:status ORDER BY id DESC")
-  fun flowOfPaymentAccount(status: String = PaymentStatus.Verifying.name): Flow<List<PaymentAccountEntity>>
+  fun flowOfPaymentAccount(status: String = Approved.name): Flow<List<PaymentAccountEntity>>
 
   @Query("SELECT * FROM payment ORDER BY updated_at DESC LIMIT 1")
   suspend fun getByUpdatedAtLatest(): PaymentEntity?

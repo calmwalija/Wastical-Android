@@ -4,6 +4,7 @@ import android.content.Context
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetPaidThisMonthIndicator
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
@@ -134,6 +135,13 @@ internal val street4Preview = StreetUiModel(
   createdAt = 1L,
   updatedAt = 1L,
   belongTo = true,
+)
+
+internal val streetPaidThisMonthIndicator4Preview = StreetPaidThisMonthIndicator(
+  streetName = "Area 25",
+  areaName = "Sector 3",
+  totalAccounts = 10,
+  paidAccounts = 3,
 )
 
 internal val accountStreet4Preview = AccountStreetUiModel(account4Preview, street4Preview)

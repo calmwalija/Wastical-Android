@@ -7,7 +7,7 @@ import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainAc
 sealed interface CompanyHomeEvent {
   data object Tap : CompanyHomeEvent
 
-  data class AppState(val state: MainActivityState) : CompanyHomeEvent
+  data class Load(val state: MainActivityState) : CompanyHomeEvent
 
   sealed interface Goto : CompanyHomeEvent {
     data object Profile : Goto
