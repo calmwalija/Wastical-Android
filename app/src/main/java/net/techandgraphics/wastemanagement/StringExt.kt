@@ -9,6 +9,12 @@ fun AccountUiModel.toFullName() =
   "${if (this.title == AccountTitle.Na) "" else this.title} ${this.firstname} ${this.lastname}"
     .trim()
 
+fun toFullName(title: String, firstname: String, lastname: String): String {
+  val accountTitle = AccountTitle.valueOf(title)
+  return "${if (accountTitle == AccountTitle.Na) "" else accountTitle.title} $firstname $lastname"
+    .trim()
+}
+
 fun calculateToTextAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String {
   return calculate(plan, pay).toAmount()
 }
@@ -29,3 +35,7 @@ fun AccountUiModel.toInitials(): String {
   return lastname.first().uppercase()
     .plus(lastname.last().lowercase())
 }
+
+fun String.toInitials() = first().uppercase().plus(last().lowercase())
+
+fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1-$2-$3")

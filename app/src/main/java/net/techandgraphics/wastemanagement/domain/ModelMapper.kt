@@ -5,6 +5,7 @@ import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountWithStreetAndAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
@@ -22,6 +23,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
@@ -186,3 +188,14 @@ fun AccountStreetEntity.toAccountStreetUiModel() = AccountStreetUiModel(
   account = account.toAccountUiModel(),
   street = street.toStreetUiModel(),
 )
+
+fun AccountWithStreetAndAreaEntity.toAccountWithStreetAndAreaUiModel() =
+  AccountWithStreetAndAreaUiModel(
+    lastname = lastname,
+    firstname = firstname,
+    accountId = accountId,
+    streetName = streetName,
+    areaName = areaName,
+    username = username,
+    title = title,
+  )

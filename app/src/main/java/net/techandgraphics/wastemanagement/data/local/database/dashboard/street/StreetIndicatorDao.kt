@@ -22,19 +22,16 @@ interface StreetIndicatorDao {
         COUNT(DISTINCT a.id) AS totalAccounts,
         s.name AS streetName,
         da.name AS areaName,
-        COUNT(DISTINCT CASE
-            WHEN  p.created_at >= :duration AND :duration < strftime('%s', datetime(p.created_at, 'unixepoch', '+' || p.number_of_months || ' months'))
-            THEN p.account_id
-        END) AS paidAccounts
+        COUNT(p.account_id) AS paidAccounts
       FROM demographic_street s
       JOIN account a ON s.id = a.street_id
       LEFT JOIN payment p ON p.account_id = a.id
       JOIN demographic_area da ON da.id = s.area_id
       GROUP BY s.id
-      ORDER BY paidAccounts DESC LIMIT 5
+      ORDER BY paidAccounts DESC
     """,
   )
-  suspend fun getStreetPaidThisMonth(duration: Long): List<StreetPaidThisMonthIndicator>
+  suspend fun getStreetPaidThisMonth(): List<StreetPaidThisMonthIndicator>
 
   @Query(
     """

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.Pattern
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.domain.toAccountStreetUiModel
+import net.techandgraphics.wastemanagement.domain.toAccountWithStreetAndAreaUiModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -63,8 +63,8 @@ class CompanyBrowseClientViewModel @Inject constructor(
   }
 
   private suspend fun onQueryChange() = database.accountDao
-    .query(_state.value.query.trim())
-    .map { it.map { it.toAccountStreetUiModel() } }
+    .qAccountWithStreetAndArea(_state.value.query.trim())
+    .map { it.map { it.toAccountWithStreetAndAreaUiModel() } }
     .collectLatest { _state.value = _state.value.copy(accounts = it) }
 
   fun onEvent(event: CompanyBrowseClientListEvent) {
