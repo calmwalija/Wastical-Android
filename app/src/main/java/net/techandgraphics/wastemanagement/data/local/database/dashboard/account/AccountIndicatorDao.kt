@@ -26,15 +26,13 @@ interface AccountIndicatorDao {
     SELECT COUNT(DISTINCT account_id) as totalAccount,
     SUM(payment_plan_fee*number_of_months) as totalPaid
     FROM payment
-    WHERE created_at >= :duration
-      AND :duration < strftime('%s', datetime(created_at, 'unixepoch', '+' || number_of_months || ' months'))
 """,
   )
-  suspend fun getAccountsPaidThisMonth(duration: Long): PaidThisMonth
+  suspend fun getAccountsPaidThisMonth(): PaidThisMonth
 
   suspend fun getPaidThisMonthIndicator(duration: Long): PaidThisMonthIndicator {
     val total = getTotalActiveAccounts()
-    val paid = getAccountsPaidThisMonth(duration)
+    val paid = getAccountsPaidThisMonth()
     val percent = if (total > 0) paid.totalAccount.toFloat() / total else 0f
     return PaidThisMonthIndicator(total, paid.totalPaid, paid.totalAccount, percent)
   }

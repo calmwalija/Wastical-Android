@@ -10,6 +10,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
@@ -28,7 +29,7 @@ internal val account4Preview = AccountUiModel(
   title = AccountTitle.DR,
   firstname = "Lorem",
   lastname = "Ipsum",
-  username = "lorem.ipsum",
+  username = "999001122",
   email = "example@email.com",
   status = Status.Active,
   companyId = 1L,
@@ -145,5 +146,15 @@ internal val streetPaidThisMonthIndicator4Preview = StreetPaidThisMonthIndicator
 )
 
 internal val accountStreet4Preview = AccountStreetUiModel(account4Preview, street4Preview)
+
+internal val accountWithStreetAndArea4Preview = AccountWithStreetAndAreaUiModel(
+  lastname = account4Preview.lastname,
+  firstname = account4Preview.firstname,
+  accountId = account4Preview.id,
+  streetName = street4Preview.name,
+  areaName = street4Preview.name,
+  title = AccountTitle.MR.name,
+  username = account4Preview.username,
+)
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

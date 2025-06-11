@@ -18,55 +18,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
-import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
+import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
-import net.techandgraphics.wastemanagement.ui.screen.accountStreet4Preview
+import net.techandgraphics.wastemanagement.ui.screen.accountWithStreetAndArea4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyBrowseClientView(
-  accountStreet: AccountStreetUiModel,
+  account: AccountWithStreetAndAreaUiModel,
   onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
-
-  val street = accountStreet.street
-  val account = accountStreet.account
-
   Row(
     modifier = Modifier
-      .clickable { onEvent(CompanyBrowseClientListEvent.Goto.Profile(account.id)) }
+      .clickable { onEvent(CompanyBrowseClientListEvent.Goto.Profile(account.accountId)) }
       .padding(16.dp)
       .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
   ) {
-    CompanyListClientLetterView(account)
+    CompanyListClientLetterView(account.lastname)
     Column(
       modifier = Modifier
         .padding(horizontal = 8.dp)
         .weight(1f)
     ) {
       Text(
-        text = account.toFullName(),
+        text = toFullName(account.title, account.firstname, account.lastname),
         style = MaterialTheme.typography.titleMedium,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
       )
       Text(
-        text = account.username,
+        text = account.username.toPhoneFormat(),
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodySmall,
       )
       Text(
-        text = street.name,
+        text = "${account.areaName} - ${account.streetName}",
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,
@@ -81,14 +76,7 @@ fun CompanyBrowseClientView(
 
 }
 
-@Composable private fun CompanyListClientLetterView(account: AccountUiModel) {
-  val brush = Brush.horizontalGradient(
-    listOf(
-      MaterialTheme.colorScheme.primary.copy(.7f),
-      MaterialTheme.colorScheme.primary.copy(.8f),
-      MaterialTheme.colorScheme.primary
-    )
-  )
+@Composable private fun CompanyListClientLetterView(lastname: String) {
 
   Box(contentAlignment = Alignment.Center) {
     Box(
@@ -104,7 +92,7 @@ fun CompanyBrowseClientView(
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Text(
-      text = account.toInitials(),
+      text = lastname.toInitials(),
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,
       style = MaterialTheme.typography.bodyLarge
@@ -119,7 +107,7 @@ fun CompanyBrowseClientView(
 private fun CompanyBrowseClientViewPreview() {
   WasteManagementTheme {
     CompanyBrowseClientView(
-      accountStreet = accountStreet4Preview,
+      account = accountWithStreetAndArea4Preview,
       onEvent = {}
     )
   }

@@ -34,7 +34,7 @@ class CompanyHomeViewModel @Inject constructor(
     val calendar = Calendar.getInstance()
     val duration =
       getMonthStartTimestamp(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH).plus(1))
-    val streetPaidThisMonth = database.streetIndicatorDao.getStreetPaidThisMonth(duration)
+    val streetPaidThisMonth = database.streetIndicatorDao.getStreetPaidThisMonth()
     val paidThisMonth = database.accountIndicatorDao.getPaidThisMonthIndicator(duration)
     val dailyPayments = database.paymentIndicatorDao.getDailyPaymentSummary()
     _state.value = CompanyHomeState.Success(
