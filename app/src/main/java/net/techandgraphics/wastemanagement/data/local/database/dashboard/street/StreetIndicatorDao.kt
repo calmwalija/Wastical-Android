@@ -35,7 +35,7 @@ interface StreetIndicatorDao {
 
   @Query(
     """
-    SELECT S.name AS streetName, SUM(P.payment_plan_fee * P.number_of_months) AS totalPayments
+    SELECT S.name AS streetName, SUM(P.payment_plan_fee) AS totalPayments
     FROM payment P
     INNER JOIN account A ON P.id = A.id
     INNER JOIN demographic_street S ON A.id = S.id

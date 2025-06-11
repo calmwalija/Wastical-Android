@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 
 @Dao
 interface TrashCollectionScheduleDao : BaseDao<TrashCollectionScheduleEntity> {
@@ -33,10 +33,10 @@ interface TrashCollectionScheduleDao : BaseDao<TrashCollectionScheduleEntity> {
 data class TrashCompanyStreetEntity(
   @Embedded val tCSEntity: TrashCollectionScheduleEntity,
   @Relation(
-    entity = StreetEntity::class,
+    entity = DemographicStreetEntity::class,
     parentColumn = "street_id",
     entityColumn = "id",
-  ) val streetEntity: StreetEntity,
+  ) val streetEntity: DemographicStreetEntity,
   @Relation(
     entity = CompanyEntity::class,
     parentColumn = "company_id",

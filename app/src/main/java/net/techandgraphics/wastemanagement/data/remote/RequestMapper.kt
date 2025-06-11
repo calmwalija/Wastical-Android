@@ -14,7 +14,7 @@ fun PaymentEntity.toPaymentRequest() = PaymentRequest(
   paymentMethodId = paymentMethodId,
   accountId = accountId,
   companyId = companyId,
-  numberOfMonths = numberOfMonths,
+  months = months,
   executedById = executedById,
 )
 
@@ -22,7 +22,7 @@ fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
   screenshotText = screenshotText,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
-  numberOfMonths = numberOfMonths,
+  months = numberOfMonths,
   status = status,
   companyId = companyId,
   executedById = executedById,
