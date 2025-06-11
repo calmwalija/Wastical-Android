@@ -72,7 +72,6 @@ class AccountSessionRepositoryImpl @Inject constructor(
 
                 paymentMonthsCovered?.map { it.toPaymentMonthCoveredEntity() }
                   ?.also { paymentMonthCoveredDao.insert(it) }
-
               }
             }
           }
