@@ -13,6 +13,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentCollecti
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
@@ -59,11 +60,6 @@ class AccountSessionRepositoryImpl @Inject constructor(
                 paymentCollectionDays?.map { it.toPaymentCollectionDayEntity() }
                   ?.also { paymentDayDao.insert(it) }
 
-                payments?.map { it.toPaymentEntity() }?.also { paymentDao.insert(it) }
-
-//                paymentMonthsCovered?.map { it.toPaymentMonthCoveredEntity() }
-//                  ?.also { paymentMonthCoveredDao.insert(it) }
-
                 paymentGateways?.also {
                   paymentMethods
                     ?.toPaymentMethodEntity(it)
@@ -71,6 +67,12 @@ class AccountSessionRepositoryImpl @Inject constructor(
                       paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
                     }
                 }
+
+                payments?.map { it.toPaymentEntity() }?.also { paymentDao.insert(it) }
+
+                paymentMonthsCovered?.map { it.toPaymentMonthCoveredEntity() }
+                  ?.also { paymentMonthCoveredDao.insert(it) }
+
               }
             }
           }
