@@ -24,7 +24,7 @@ interface AccountIndicatorDao {
   @Query(
     """
     SELECT COUNT(DISTINCT account_id) as totalAccount,
-    SUM(payment_plan_fee*number_of_months) as totalPaid
+    SUM(payment_plan_fee) as totalPaid
     FROM payment
 """,
   )
@@ -39,7 +39,7 @@ interface AccountIndicatorDao {
 
   @Query(
     """
-    SELECT SUM(payment_plan_fee * number_of_months)
+    SELECT SUM(payment_plan_fee)
     FROM payment
     WHERE strftime('%Y-%m', datetime(created_at / 1000, 'unixepoch')) = strftime('%Y-%m', 'now')
 """,
@@ -59,13 +59,13 @@ interface AccountIndicatorDao {
   )
   suspend fun getTotalUnpaidAccountsThisMonth(): Int
 
-  @Query("SELECT SUM(payment_plan_fee * number_of_months) FROM payment")
+  @Query("SELECT SUM(payment_plan_fee) FROM payment")
   suspend fun getTotalAmountReceived(): Int?
 
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(
     """
-    SELECT A.*, SUM(P.payment_plan_fee * P.number_of_months) as totalPaid
+    SELECT A.*, SUM(P.payment_plan_fee) as totalPaid
     FROM account A
     JOIN payment P ON A.id = P.id
     GROUP BY A.id

@@ -20,12 +20,12 @@ import net.techandgraphics.wastemanagement.data.local.database.company.trash.col
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.AccountIndicatorDao
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.PaymentIndicatorDao
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetIndicatorDao
-import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaDao
-import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictDao
-import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetDao
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaDao
+import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictDao
+import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetDao
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayDao
@@ -34,6 +34,8 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredDao
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 
@@ -46,14 +48,15 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     PaymentEntity::class,
     PaymentPlanEntity::class,
     PaymentMethodEntity::class,
-    DistrictEntity::class,
-    StreetEntity::class,
-    AreaEntity::class,
+    DemographicDistrictEntity::class,
+    DemographicStreetEntity::class,
+    DemographicAreaEntity::class,
     TrashCollectionScheduleEntity::class,
     PaymentCollectionDayEntity::class,
     AccountPaymentPlanEntity::class,
     PaymentGatewayEntity::class,
     AccountFcmTokenEntity::class,
+    PaymentMonthCoveredEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -68,9 +71,9 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val paymentPlanDao: PaymentPlanDao
   abstract val paymentMethodDao: PaymentMethodDao
   abstract val companyContactDao: CompanyContactDao
-  abstract val districtDao: DistrictDao
-  abstract val streetDao: StreetDao
-  abstract val areaDao: AreaDao
+  abstract val demographicDistrictDao: DemographicDistrictDao
+  abstract val demographicStreetDao: DemographicStreetDao
+  abstract val demographicAreaDao: DemographicAreaDao
   abstract val trashScheduleDao: TrashCollectionScheduleDao
   abstract val paymentDayDao: PaymentCollectionDayDao
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
@@ -80,6 +83,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val streetIndicatorDao: StreetIndicatorDao
   abstract val accountIndicatorDao: AccountIndicatorDao
   abstract val paymentIndicatorDao: PaymentIndicatorDao
+  abstract val paymentMonthCoveredDao: PaymentMonthCoveredDao
 
   companion object {
     const val NAME = "waste_management_db"

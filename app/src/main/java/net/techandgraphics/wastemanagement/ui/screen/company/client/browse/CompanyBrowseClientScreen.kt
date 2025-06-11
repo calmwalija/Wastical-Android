@@ -57,7 +57,7 @@ fun CompanyBrowseClientScreen(
       TopAppBar(
         title = {},
         navigationIcon = {
-          IconButton(onClick = { }) {
+          IconButton(onClick = { onEvent(CompanyBrowseClientListEvent.Goto.BackHandler) }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
           }
         },
@@ -68,7 +68,7 @@ fun CompanyBrowseClientScreen(
 
     floatingActionButton = {
       FloatingActionButton(
-        onClick = {},
+        onClick = { onEvent(CompanyBrowseClientListEvent.Goto.Create) },
         containerColor = MaterialTheme.colorScheme.primary,
       ) {
         Icon(Icons.Rounded.Add, null)
@@ -78,7 +78,7 @@ fun CompanyBrowseClientScreen(
     Column(modifier = Modifier.padding(it)) {
 
       Text(
-        text = "Clients",
+        text = "Browse Clients",
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(16.dp)
       )

@@ -54,7 +54,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
     )
 
   private fun onSearch(event: CompanyBrowseClientListEvent.Input.Search) {
-    _state.update { it.copy(query = event.query.trim()) }
+    _state.update { it.copy(query = event.query) }
     searchJob?.cancel()
     searchJob = viewModelScope.launch {
       delay(5_00)
