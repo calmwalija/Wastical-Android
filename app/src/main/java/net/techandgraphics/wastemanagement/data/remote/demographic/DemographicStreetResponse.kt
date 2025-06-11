@@ -2,7 +2,7 @@ package net.techandgraphics.wastemanagement.data.remote.demographic
 
 import com.google.gson.annotations.SerializedName
 
-data class StreetResponse(
+data class DemographicStreetResponse(
   val id: Long,
   val name: String,
   val latitude: Float,

@@ -10,9 +10,9 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentAccountEntity
@@ -80,7 +80,7 @@ fun AccountEntity.toAccountUiModel() = AccountUiModel(
 fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   id = id,
   screenshotText = screenshotText,
-  numberOfMonths = numberOfMonths,
+  numberOfMonths = months,
   transactionId = transactionId,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
@@ -141,7 +141,7 @@ fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
     updatedAt = updatedAt,
   )
 
-fun StreetEntity.toStreetUiModel() = StreetUiModel(
+fun DemographicStreetEntity.toStreetUiModel() = StreetUiModel(
   id = id,
   name = name,
   latitude = latitude,
@@ -151,7 +151,7 @@ fun StreetEntity.toStreetUiModel() = StreetUiModel(
   updatedAt = updatedAt,
 )
 
-fun AreaEntity.toAreaUiModel() = AreaUiModel(
+fun DemographicAreaEntity.toAreaUiModel() = AreaUiModel(
   id = id,
   name = name,
   type = type,
@@ -163,7 +163,7 @@ fun AreaEntity.toAreaUiModel() = AreaUiModel(
   updatedAt = updatedAt,
 )
 
-fun DistrictEntity.toDistrictUiModel() = DistrictUiModel(
+fun DemographicDistrictEntity.toDistrictUiModel() = DistrictUiModel(
   id = id,
   name = name,
   region = region,

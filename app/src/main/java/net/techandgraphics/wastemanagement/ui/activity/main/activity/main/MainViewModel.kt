@@ -139,19 +139,19 @@ class MainViewModel @Inject constructor(
   }
 
   private suspend fun getStreets() {
-    database.streetDao.flow()
+    database.demographicStreetDao.flow()
       .map { dbStreets -> dbStreets.map { it.toStreetUiModel() } }
       .collectLatest { streets -> _state.update { it.copy(streets = streets) } }
   }
 
   private suspend fun getAreas() {
-    database.areaDao.flow()
+    database.demographicAreaDao.flow()
       .map { dbAreas -> dbAreas.map { it.toAreaUiModel() } }
       .collectLatest { areas -> _state.update { it.copy(areas = areas) } }
   }
 
   private suspend fun getDistricts() {
-    database.districtDao.flow()
+    database.demographicDistrictDao.flow()
       .map { dbDistricts -> dbDistricts.map { it.toDistrictUiModel() } }
       .collectLatest { districts -> _state.update { it.copy(districts = districts) } }
   }

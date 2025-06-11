@@ -7,13 +7,14 @@ import net.techandgraphics.wastemanagement.data.local.database.account.token.Acc
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.area.AreaEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DistrictEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
@@ -22,15 +23,16 @@ import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmT
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
 import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
-import net.techandgraphics.wastemanagement.data.remote.demographic.AreaResponse
-import net.techandgraphics.wastemanagement.data.remote.demographic.DistrictResponse
-import net.techandgraphics.wastemanagement.data.remote.demographic.StreetResponse
+import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicAreaResponse
+import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicDistrictResponse
+import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicStreetResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.collection.PaymentCollectionDayResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.gateway.PaymentGatewayResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMethodResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
+import net.techandgraphics.wastemanagement.data.remote.payment.pay.month.covered.PaymentMonthCoveredResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
@@ -101,7 +103,7 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   status = status,
   accountId = accountId,
   screenshotText = screenshotText,
-  numberOfMonths = numberOfMonths,
+  months = months,
   transactionId = transactionId,
   paymentMethodId = paymentMethodId,
   createdAt = createdAt,
@@ -151,7 +153,7 @@ fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: Payme
     status = PaymentStatus.Waiting.name,
     accountId = accountId,
     screenshotText = screenshotText,
-    numberOfMonths = numberOfMonths,
+    months = months,
     paymentMethodId = paymentMethodId,
     transactionId = UUID.randomUUID().toString(),
     createdAt = ZonedDateTime.now().toEpochSecond(),
@@ -167,7 +169,7 @@ fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: Payme
     executedById = executedById,
   )
 
-fun DistrictResponse.toDistrictEntity() = DistrictEntity(
+fun DemographicDistrictResponse.toDistrictEntity() = DemographicDistrictEntity(
   id = id,
   name = name,
   region = region,
@@ -175,7 +177,7 @@ fun DistrictResponse.toDistrictEntity() = DistrictEntity(
   updatedAt = updatedAt,
 )
 
-fun AreaResponse.toAreaEntity() = AreaEntity(
+fun DemographicAreaResponse.toAreaEntity() = DemographicAreaEntity(
   id = id,
   name = name,
   type = type,
@@ -187,7 +189,7 @@ fun AreaResponse.toAreaEntity() = AreaEntity(
   updatedAt = updatedAt,
 )
 
-fun StreetResponse.toStreetEntity() = StreetEntity(
+fun DemographicStreetResponse.toStreetEntity() = DemographicStreetEntity(
   id = id,
   name = name,
   latitude = latitude,
@@ -252,3 +254,14 @@ fun AccountFcmTokenResponse.toAccountFcmTokenEntity() = AccountFcmTokenEntity(
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
+
+fun PaymentMonthCoveredResponse.toPaymentMonthCoveredEntity() =
+  PaymentMonthCoveredEntity(
+    id = id,
+    month = month,
+    year = year,
+    paymentId = paymentId,
+    accountId = accountId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
