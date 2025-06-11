@@ -69,7 +69,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         screenshotText = screenshotText,
         paymentMethodId = method.id,
         accountId = account.id,
-        numberOfMonths = numberOfMonths,
+        months = numberOfMonths,
         companyId = account.companyId,
         executedById = ACCOUNT_ID,
         status = PaymentStatus.Waiting,

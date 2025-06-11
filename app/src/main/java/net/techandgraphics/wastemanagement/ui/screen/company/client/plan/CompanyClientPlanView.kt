@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.ui.DottedBorderBox
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -111,15 +111,22 @@ fun CompanyClientPlanView(
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Button(onClick = { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
-      Text(
-        text = "Change Payment Plan",
-        modifier = Modifier
-          .fillMaxWidth(.8f)
-          .padding(8.dp),
-        textAlign = TextAlign.Center
-      )
+    DottedBorderBox(
+      modifier = Modifier
+        .background(MaterialTheme.colorScheme.primary.copy(.06f))
+        .clickable { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
+      Row {
+        Text(
+          text = "Change Payment Plan",
+          modifier = Modifier
+            .fillMaxWidth(.8f)
+            .padding(4.dp),
+          textAlign = TextAlign.Center,
+          style = MaterialTheme.typography.bodyMedium
+        )
+      }
     }
+
 
   }
 
@@ -127,7 +134,7 @@ fun CompanyClientPlanView(
 }
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun CompanyClientPlanViewPreview() {
   WasteManagementTheme {

@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 
 @Dao
-interface DistrictDao : BaseDao<DistrictEntity> {
+interface DemographicDistrictDao : BaseDao<DemographicDistrictEntity> {
   @Query("SELECT * FROM demographic_district")
-  suspend fun query(): List<DistrictEntity>
+  suspend fun query(): List<DemographicDistrictEntity>
 
   @Query("SELECT * FROM demographic_district")
-  fun flow(): Flow<List<DistrictEntity>>
+  fun flow(): Flow<List<DemographicDistrictEntity>>
 }
