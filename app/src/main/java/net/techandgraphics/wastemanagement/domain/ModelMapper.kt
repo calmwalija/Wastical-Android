@@ -3,13 +3,12 @@ package net.techandgraphics.wastemanagement.domain
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
-import net.techandgraphics.wastemanagement.data.local.database.account.AccountStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountWithStreetAndAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
-import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
@@ -21,15 +20,14 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
-import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.AreaUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.DistrictUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
@@ -131,39 +129,37 @@ fun AccountContactEntity.toAccountContactUiModel() = AccountContactUiModel(
   updatedAt = updatedAt,
 )
 
-fun TrashCollectionScheduleEntity.toTrashCollectionScheduleUiModel() =
+fun CompanyBinCollectionEntity.toTrashCollectionScheduleUiModel() =
   TrashCollectionScheduleUiModel(
     id = id,
     dayOfWeek = dayOfWeek,
     companyId = companyId,
-    streetId = streetId,
+    streetId = companyLocationId,
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
 
-fun DemographicStreetEntity.toStreetUiModel() = StreetUiModel(
+fun DemographicStreetEntity.toStreetUiModel() = DemographicStreetUiModel(
   id = id,
   name = name,
   latitude = latitude,
   longitude = longitude,
-  areaId = areaId,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
 
-fun DemographicAreaEntity.toAreaUiModel() = AreaUiModel(
+fun DemographicAreaEntity.toAreaUiModel() = DemographicAreaUiModel(
   id = id,
   name = name,
   type = type,
   latitude = latitude,
   longitude = longitude,
   description = description,
-  districtId = districtId,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
 
-fun DemographicDistrictEntity.toDistrictUiModel() = DistrictUiModel(
+fun DemographicDistrictEntity.toDistrictUiModel() = DemographicDistrictUiModel(
   id = id,
   name = name,
   region = region,
@@ -182,11 +178,6 @@ fun PaymentGatewayEntity.toPaymentGatewayUiModel() = PaymentGatewayUiModel(
 fun PaymentAccountEntity.toPaymentAccountUiModel() = PaymentAccountUiModel(
   payment = payment.toPaymentUiModel(),
   account = account.toAccountUiModel(),
-)
-
-fun AccountStreetEntity.toAccountStreetUiModel() = AccountStreetUiModel(
-  account = account.toAccountUiModel(),
-  street = street.toStreetUiModel(),
 )
 
 fun AccountWithStreetAndAreaEntity.toAccountWithStreetAndAreaUiModel() =

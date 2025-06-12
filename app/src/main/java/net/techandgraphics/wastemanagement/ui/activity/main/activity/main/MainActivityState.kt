@@ -6,9 +6,9 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.AreaUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.DistrictUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
@@ -29,7 +29,7 @@ data class MainActivityState(
   val trashSchedules: List<TrashCollectionScheduleUiModel> = listOf(),
   val methods: List<PaymentMethodUiModel> = listOf(),
   val paymentGateways: List<PaymentGatewayUiModel> = listOf(),
-  val streets: List<StreetUiModel> = listOf(),
-  val areas: List<AreaUiModel> = listOf(),
-  val districts: List<DistrictUiModel> = listOf(),
+  val streets: List<DemographicStreetUiModel> = listOf(),
+  val areas: List<DemographicAreaUiModel> = listOf(),
+  val districts: List<DemographicDistrictUiModel> = listOf(),
 )

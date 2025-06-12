@@ -13,7 +13,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
-import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
@@ -127,12 +127,11 @@ internal fun appState(context: Context) = MainActivityState(
   trashSchedules = listOf(trashSchedules4Preview),
 )
 
-internal val street4Preview = StreetUiModel(
+internal val street4Preview = DemographicStreetUiModel(
   id = 1L,
   name = "Sector 5",
   latitude = -1F,
   longitude = -1F,
-  areaId = 1L,
   createdAt = 1L,
   updatedAt = 1L,
   belongTo = true,
