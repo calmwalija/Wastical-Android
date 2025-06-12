@@ -16,22 +16,22 @@ interface StreetIndicatorDao {
   )
   suspend fun getAccountCountPerStreet(): List<StreetAccountStat>
 
-  @Query(
-    """
-      SELECT
-        COUNT(DISTINCT a.id) AS totalAccounts,
-        s.name AS streetName,
-        da.name AS areaName,
-        COUNT(p.account_id) AS paidAccounts
-      FROM demographic_street s
-      JOIN account a ON s.id = a.street_id
-      LEFT JOIN payment p ON p.account_id = a.id
-      JOIN demographic_area da ON da.id = s.area_id
-      GROUP BY s.id
-      ORDER BY paidAccounts DESC
-    """,
-  )
-  suspend fun getStreetPaidThisMonth(): List<StreetPaidThisMonthIndicator>
+//  @Query(
+//    """
+//      SELECT
+//        COUNT(DISTINCT a.id) AS totalAccounts,
+//        s.name AS streetName,
+//        da.name AS areaName,
+//        COUNT(p.account_id) AS paidAccounts
+//      FROM demographic_street s
+//      JOIN account a ON s.id = a.street_id
+//      LEFT JOIN payment p ON p.account_id = a.id
+//      JOIN demographic_area da ON da.id = s.area_id
+//      GROUP BY s.id
+//      ORDER BY paidAccounts DESC
+//    """,
+//  )
+//  suspend fun getStreetPaidThisMonth(): List<StreetPaidThisMonthIndicator>
 
   @Query(
     """
