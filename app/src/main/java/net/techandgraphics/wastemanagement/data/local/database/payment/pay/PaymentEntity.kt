@@ -51,8 +51,8 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 )
 data class PaymentEntity(
   @PrimaryKey val id: Long,
+  val months: Int = -1,
   @ColumnInfo("screenshot_text") val screenshotText: String,
-  @ColumnInfo("number_of_months") val numberOfMonths: Int,
   @ColumnInfo("transaction_id") val transactionId: String,
   @ColumnInfo("payment_method_id") val paymentMethodId: Long,
   @ColumnInfo("account_id") val accountId: Long,

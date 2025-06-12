@@ -7,7 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
-import net.techandgraphics.wastemanagement.data.local.database.demographic.street.StreetEntity
+import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 
 @Entity(
   tableName = "account",
@@ -18,7 +18,7 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.stree
       childColumns = ["company_id"],
     ),
     ForeignKey(
-      entity = StreetEntity::class,
+      entity = DemographicStreetEntity::class,
       parentColumns = ["id"],
       childColumns = ["street_id"],
     ),

@@ -2,12 +2,14 @@ package net.techandgraphics.wastemanagement.data.remote.demographic
 
 import com.google.gson.annotations.SerializedName
 
-data class StreetResponse(
+data class DemographicAreaResponse(
   val id: Long,
   val name: String,
+  val type: String,
   val latitude: Float,
   val longitude: Float,
-  @SerializedName("area_id") val areaId: Long,
+  val description: String,
+  @SerializedName("district_id") val districtId: Long,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long,
 )

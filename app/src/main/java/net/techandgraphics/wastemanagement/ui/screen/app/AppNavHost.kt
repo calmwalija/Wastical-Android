@@ -36,8 +36,8 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.Company
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Load
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Goto
+import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Load
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoScreen
@@ -143,8 +143,15 @@ fun AppNavHost(
         val state = state.collectAsState().value
         CompanyBrowseClientScreen(state, channel) { event ->
           when (event) {
-            is CompanyBrowseClientListEvent.Goto.Profile ->
-              navController.navigate(Route.Company.Client.Profile(event.id))
+            is CompanyBrowseClientListEvent.Goto ->
+              when (event) {
+                CompanyBrowseClientListEvent.Goto.BackHandler -> navController.navigateUp()
+                CompanyBrowseClientListEvent.Goto.Create ->
+                  navController.navigate(Route.Company.Client.Create)
+
+                is CompanyBrowseClientListEvent.Goto.Profile ->
+                  navController.navigate(Route.Company.Client.Profile(event.id))
+              }
 
             else -> onEvent(event)
           }

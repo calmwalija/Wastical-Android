@@ -55,10 +55,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.InputField
 import net.techandgraphics.wastemanagement.ui.screen.appState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create.Button
@@ -70,7 +72,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable fun CompanyCreateClientScreen(
   state: CreateAccountState,
   channel: Flow<CompanyCreateClientChannel>,
-  onEvent: (CompanyCreateClientEvent) -> Unit
+  onEvent: (CompanyCreateClientEvent) -> Unit,
 ) {
 
   val context = LocalContext.current
@@ -86,7 +88,12 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
+      channel.collectLatest { event ->
+        when (event) {
+          is CompanyCreateClientChannel.Error -> context.toast(event.error.message)
+          CompanyCreateClientChannel.Success -> context.toast("Account Created")
+        }
+      }
     }
   }
 

@@ -75,7 +75,7 @@ class ClientPaymentViewModel @Inject constructor(
         screenshotText = screenshotText,
         paymentMethodId = state.paymentMethods.first().id,
         accountId = database.accountDao.query().first().id,
-        numberOfMonths = numberOfMonths,
+        months = numberOfMonths,
         companyId = state.accounts.first().companyId,
         executedById = database.accountDao.query().first().id,
       )

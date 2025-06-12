@@ -19,12 +19,12 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountTi
 import net.techandgraphics.wastemanagement.data.local.database.toAccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.account.AccountRequest
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
-import net.techandgraphics.wastemanagement.keycloak.KeycloakApi
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.AppState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create
@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyCreateClientViewModel @Inject constructor(
   private val database: AppDatabase,
-  private val api: KeycloakApi,
+  private val api: AccountApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(CreateAccountState())
@@ -66,24 +66,28 @@ class CompanyCreateClientViewModel @Inject constructor(
         companyId = appState.companies.random().id,
         paymentPlanId = account.paymentPlan!!.id,
         tCSId = tCSId,
-        lastname = account.lastname.trim().ifEmpty { "Na" },
-        firstname = account.firstname.trim().ifEmpty { "Na" },
+        lastname = account.lastname.trim(),
+        firstname = account.firstname.trim(),
         contacts = contacts,
       ).also { request ->
 
         println(Gson().toJson(request))
 
         runCatching { api.create(request) }
-          .onFailure { mapApiError(it) }
+          .onFailure { _channel.send(CompanyCreateClientChannel.Error(mapApiError(it))) }
           .onSuccess { response ->
             database.withTransaction {
               with(database) {
-                response.account.map { it.toAccountEntity() }.also { accountDao.insert(it) }
-                response.accountContacts.map { it.toAccountContactEntity() }
-                  .also { accountContactDao.insert(it) }
-                response.accountPaymentPlans.map { it.toAccountPaymentPlanEntity() }
-                  .also { accountPaymentPlanDao.insert(it) }
+                response.accounts
+                  ?.map { it.toAccountEntity() }?.also { accountDao.insert(it) }
+                response.accountContacts
+                  ?.map { it.toAccountContactEntity() }
+                  ?.also { accountContactDao.insert(it) }
+                response.accountPaymentPlans
+                  ?.map { it.toAccountPaymentPlanEntity() }
+                  ?.also { accountPaymentPlanDao.insert(it) }
               }
+              _channel.send(CompanyCreateClientChannel.Success)
             }
           }
       }

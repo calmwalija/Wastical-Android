@@ -10,7 +10,7 @@ interface PaymentPlanDao : BaseDao<PaymentPlanEntity> {
   @Query("SELECT * FROM payment_plan")
   suspend fun query(): List<PaymentPlanEntity>
 
-  @Query("SELECT * FROM payment_plan")
+  @Query("SELECT * FROM payment_plan ORDER BY fee")
   fun flow(): Flow<List<PaymentPlanEntity>>
 
   @Query("SELECT * FROM payment_plan WHERE id=:id")

@@ -9,6 +9,8 @@ sealed interface CompanyBrowseClientListEvent {
 
   sealed interface Goto : CompanyBrowseClientListEvent {
     data class Profile(val id: Long) : Goto
+    data object Create : Goto
+    data object BackHandler : Goto
   }
 
   sealed interface Input : CompanyBrowseClientListEvent {

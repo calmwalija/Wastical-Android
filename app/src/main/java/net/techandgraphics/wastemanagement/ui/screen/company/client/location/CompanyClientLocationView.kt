@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
+package net.techandgraphics.wastemanagement.ui.screen.company.client.location
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,11 +26,13 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.DottedBorderBox
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanState
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable
-fun CompanyClientPlanView(
+fun CompanyClientLocationView(
   state: CompanyClientPlanState.Success,
   onEvent: (CompanyClientPlanEvent) -> Unit,
 ) {
@@ -136,9 +138,9 @@ fun CompanyClientPlanView(
 
 @Preview(showBackground = true)
 @Composable
-private fun CompanyClientPlanViewPreview() {
+private fun CompanyClientLocationViewPreview() {
   WasteManagementTheme {
-    CompanyClientPlanView(
+    CompanyClientLocationView(
       state = CompanyClientPlanState.Success(
         account = account4Preview,
         plan = paymentPlan4Preview,

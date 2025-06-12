@@ -11,7 +11,7 @@ interface PaymentIndicatorDao {
         SELECT
             date(created_at, 'unixepoch') AS paymentDate,
             COUNT(*) AS totalPayments,
-            SUM(payment_plan_fee*number_of_months) AS totalAmount
+            SUM(payment_plan_fee) AS totalAmount
         FROM payment
         GROUP BY paymentDate
         ORDER BY paymentDate

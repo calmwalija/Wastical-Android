@@ -13,6 +13,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentCollecti
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
@@ -34,30 +35,43 @@ class AccountSessionRepositoryImpl @Inject constructor(
           with(database) {
             withTransaction {
               accountSession.run {
-                gateways.map { it.toPaymentGatewayEntity() }.also { paymentGatewayDao.insert(it) }
-                districts.map { it.toDistrictEntity() }.also { districtDao.insert(it) }
-                areas.map { it.toAreaEntity() }.also { areaDao.insert(it) }
-                streets.map { it.toStreetEntity() }.also { streetDao.insert(it) }
-                companies.map { it.toCompanyEntity() }.also { companyDao.insert(it) }
-                companyContacts.map { it.toCompanyContactEntity() }
-                  .also { companyContactDao.insert(it) }
-                trashSchedules.map { it.toTrashCollectionScheduleEntity() }
-                  .also { trashScheduleDao.insert(it) }
-                account.map { it.toAccountEntity() }.forEach { account ->
+                paymentGateways?.map { it.toPaymentGatewayEntity() }?.also {
+                  paymentGatewayDao.insert(it)
+                }
+                demographicDistricts?.map { it.toDistrictEntity() }
+                  ?.also { demographicDistrictDao.insert(it) }
+                demographicAreas?.map { it.toAreaEntity() }?.also { demographicAreaDao.insert(it) }
+                demographicStreets?.map { it.toStreetEntity() }
+                  ?.also { demographicStreetDao.insert(it) }
+                companies?.map { it.toCompanyEntity() }?.also { companyDao.insert(it) }
+                companyContacts?.map { it.toCompanyContactEntity() }
+                  ?.also { companyContactDao.insert(it) }
+                trashCollectionSchedules?.map { it.toTrashCollectionScheduleEntity() }
+                  ?.also { trashScheduleDao.insert(it) }
+                accounts?.map { it.toAccountEntity() }?.forEach { account ->
                   val streetId = trashScheduleDao.get(account.trashCollectionScheduleId).streetId
                   accountDao.insert(account.copy(streetId = streetId))
                 }
-                accountContacts.map { it.toAccountContactEntity() }
-                  .also { accountContactDao.insert(it) }
-                plans.map { it.toPaymentPlanEntity() }.also { paymentPlanDao.insert(it) }
-                accountPaymentPlans.map { it.toAccountPaymentPlanEntity() }
-                  .also { accountPaymentPlanDao.insert(it) }
-                paymentDays.map { it.toPaymentCollectionDayEntity() }
-                  .also { paymentDayDao.insert(it) }
-                methods.toPaymentMethodEntity(gateways).map { method ->
-                  paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
+                accountContacts?.map { it.toAccountContactEntity() }
+                  ?.also { accountContactDao.insert(it) }
+                paymentPlans?.map { it.toPaymentPlanEntity() }?.also { paymentPlanDao.insert(it) }
+                accountPaymentPlans?.map { it.toAccountPaymentPlanEntity() }
+                  ?.also { accountPaymentPlanDao.insert(it) }
+                paymentCollectionDays?.map { it.toPaymentCollectionDayEntity() }
+                  ?.also { paymentDayDao.insert(it) }
+
+                paymentGateways?.also {
+                  paymentMethods
+                    ?.toPaymentMethodEntity(it)
+                    ?.map { method ->
+                      paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
+                    }
                 }
-                payments.map { it.toPaymentEntity() }.also { paymentDao.insert(it) }
+
+                payments?.map { it.toPaymentEntity() }?.also { paymentDao.insert(it) }
+
+                paymentMonthsCovered?.map { it.toPaymentMonthCoveredEntity() }
+                  ?.also { paymentMonthCoveredDao.insert(it) }
               }
             }
           }

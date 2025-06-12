@@ -36,6 +36,6 @@ fun AccountUiModel.toInitials(): String {
     .plus(lastname.last().lowercase())
 }
 
-fun String.toInitials() = first().uppercase().plus(last().lowercase())
+fun String.toInitials() = firstOrNull()?.uppercase().plus(lastOrNull()?.lowercase())
 
 fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1-$2-$3")

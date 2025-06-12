@@ -1,6 +1,8 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -55,6 +57,7 @@ fun CompanyClientPlanScreen(
 
       if (state is CompanyClientPlanState.Success) {
         AccountInfoView(state.account)
+        Spacer(modifier = Modifier.height(16.dp))
         CompanyClientPlanView(state, onEvent)
       } else LoadingIndicatorView()
 
