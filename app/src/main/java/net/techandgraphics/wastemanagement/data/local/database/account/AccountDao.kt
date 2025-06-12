@@ -29,30 +29,30 @@ interface AccountDao : BaseDao<AccountEntity> {
                lastname LIKE'%' || :query || '%')
       """,
   )
-  fun query(query: String = ""): Flow<List<AccountStreetEntity>>
+  fun query(query: String = ""): Flow<List<AccountEntity>>
 
-  @Transaction
-  @Query(
-    """
-      SELECT a.firstname,
-           a.lastname,
-           a.username,
-           a.title,
-           a.id as accountId,
-           ds.name AS streetName,
-           da.name AS areaName
-    FROM account a
-    JOIN demographic_street ds ON a.street_id = ds.id
-    JOIN demographic_area da ON ds.area_id = da.id
-    WHERE (a.firstname LIKE'%' || :query || '%'
-           OR a.username LIKE'%' || :query || '%'
-           OR a.title LIKE'%' || :query || '%'
-           OR ds.name LIKE'%' || :query || '%'
-           OR da.name LIKE'%' || :query || '%'
-           OR a.lastname LIKE'%' || :query || '%')
-      """,
-  )
-  fun qAccountWithStreetAndArea(query: String = ""): Flow<List<AccountWithStreetAndAreaEntity>>
+//  @Transaction
+//  @Query(
+//    """
+//      SELECT a.firstname,
+//           a.lastname,
+//           a.username,
+//           a.title,
+//           a.id as accountId,
+//           ds.name AS streetName,
+//           da.name AS areaName
+//    FROM account a
+//    JOIN demographic_street ds ON a.street_id = ds.id
+//    JOIN demographic_area da ON ds.area_id = da.id
+//    WHERE (a.firstname LIKE'%' || :query || '%'
+//           OR a.username LIKE'%' || :query || '%'
+//           OR a.title LIKE'%' || :query || '%'
+//           OR ds.name LIKE'%' || :query || '%'
+//           OR da.name LIKE'%' || :query || '%'
+//           OR a.lastname LIKE'%' || :query || '%')
+//      """,
+//  )
+//  fun qAccountWithStreetAndArea(query: String = ""): Flow<List<AccountWithStreetAndAreaEntity>>
 
   @Query(
     """

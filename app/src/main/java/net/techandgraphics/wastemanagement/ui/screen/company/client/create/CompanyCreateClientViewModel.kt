@@ -8,9 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,10 +20,8 @@ import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentP
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.account.AccountRequest
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
-import net.techandgraphics.wastemanagement.domain.model.demographic.StreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
-import net.techandgraphics.wastemanagement.domain.toStreetUiModel
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.AppState
 import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create
 import javax.inject.Inject
@@ -45,7 +41,7 @@ class CompanyCreateClientViewModel @Inject constructor(
 
   private fun onAppState(event: AppState) {
     _state.update { it.copy(appState = event.state) }
-    setInitialValues(event.state)
+//    setInitialValues(event.state)
   }
 
   private fun onSubmit() = viewModelScope.launch {
@@ -56,9 +52,10 @@ class CompanyCreateClientViewModel @Inject constructor(
 
       val tCSId =
         database
-          .trashScheduleDao
-          .getByStreetId(account.street!!.id)
-          .tCSEntity
+          .companyBinCollectionDao
+          .query()
+          .first()
+//          .getByStreetId(account.street!!.id)
           .id
 
       AccountRequest(
@@ -102,28 +99,28 @@ class CompanyCreateClientViewModel @Inject constructor(
     }
   }
 
-  private fun setInitialValues(appState: MainActivityState) {
-    appState.companies.firstOrNull()?.let { company ->
-      database.trashScheduleDao.flowOfTxn(company.id)
-        .map { it.map { it.streetEntity.toStreetUiModel() } }
-        .onEach { streets ->
-          _state.update { it.copy(account = account().copy(companyStreets = streets)) }
-
-          streets
-            .firstOrNull()
-            ?.let { street ->
-              _state.update { it.copy(account = account().copy(street = street)) }
-            }
-        }
-        .launchIn(viewModelScope)
-    }
-
-    appState.paymentPlans
-      .firstOrNull()
-      ?.let { plan ->
-        _state.update { it.copy(account = account().copy(paymentPlan = plan)) }
-      }
-  }
+//  private fun setInitialValues(appState: MainActivityState) {
+//    appState.companies.firstOrNull()?.let { company ->
+//      database.companyBinCollectionDao.flowOfTxn(company.id)
+//        .map { it.map { it.streetEntity.toStreetUiModel() } }
+//        .onEach { streets ->
+//          _state.update { it.copy(account = account().copy(companyStreets = streets)) }
+//
+//          streets
+//            .firstOrNull()
+//            ?.let { street ->
+//              _state.update { it.copy(account = account().copy(street = street)) }
+//            }
+//        }
+//        .launchIn(viewModelScope)
+//    }
+//
+//    appState.paymentPlans
+//      .firstOrNull()
+//      ?.let { plan ->
+//        _state.update { it.copy(account = account().copy(paymentPlan = plan)) }
+//      }
+//  }
 
   private fun onAccountCreateInfo(event: Create.Input.Info) {
     when (event.type) {
@@ -157,7 +154,7 @@ class CompanyCreateClientViewModel @Inject constructor(
       Create.Input.Type.Street -> {
         _state.update {
           it.copy(
-            account = account().copy(street = event.value as StreetUiModel),
+            account = account().copy(street = event.value as DemographicStreetUiModel),
           )
         }
       }

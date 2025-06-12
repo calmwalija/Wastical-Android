@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b885faddedf95957a664671587565990",
+    "identityHash": "5f62477d7a898c43a6870f6d4981d96d",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `trash_collection_schedule_id` INTEGER NOT NULL, `street_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`street_id`) REFERENCES `demographic_street`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`trash_collection_schedule_id`) REFERENCES `company_trash_collection_schedule`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `company_location_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -69,14 +69,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "trashCollectionScheduleId",
-            "columnName": "trash_collection_schedule_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "streetId",
-            "columnName": "street_id",
+            "fieldPath": "companyLocationId",
+            "columnName": "company_location_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -119,13 +113,13 @@
         },
         "indices": [
           {
-            "name": "index_account_trash_collection_schedule_id",
+            "name": "index_account_company_location_id",
             "unique": false,
             "columnNames": [
-              "trash_collection_schedule_id"
+              "company_location_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_trash_collection_schedule_id` ON `${TABLE_NAME}` (`trash_collection_schedule_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_company_location_id` ON `${TABLE_NAME}` (`company_location_id`)"
           },
           {
             "name": "index_account_company_id",
@@ -135,15 +129,6 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_account_company_id` ON `${TABLE_NAME}` (`company_id`)"
-          },
-          {
-            "name": "index_account_street_id",
-            "unique": false,
-            "columnNames": [
-              "street_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_street_id` ON `${TABLE_NAME}` (`street_id`)"
           }
         ],
         "foreignKeys": [
@@ -159,22 +144,11 @@
             ]
           },
           {
-            "table": "demographic_street",
+            "table": "company_location",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "street_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "company_trash_collection_schedule",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "trash_collection_schedule_id"
+              "company_location_id"
             ],
             "referencedColumns": [
               "id"
@@ -876,7 +850,7 @@
       },
       {
         "tableName": "demographic_street",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `area_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`area_id`) REFERENCES `demographic_area`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -903,12 +877,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "areaId",
-            "columnName": "area_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "createdAt",
             "columnName": "created_at",
             "affinity": "INTEGER",
@@ -927,34 +895,12 @@
             "id"
           ]
         },
-        "indices": [
-          {
-            "name": "index_demographic_street_area_id",
-            "unique": false,
-            "columnNames": [
-              "area_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_demographic_street_area_id` ON `${TABLE_NAME}` (`area_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "demographic_area",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "area_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       },
       {
         "tableName": "demographic_area",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `description` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `district_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`district_id`) REFERENCES `demographic_district`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `description` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -993,12 +939,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "districtId",
-            "columnName": "district_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "createdAt",
             "columnName": "created_at",
             "affinity": "INTEGER",
@@ -1017,34 +957,12 @@
             "id"
           ]
         },
-        "indices": [
-          {
-            "name": "index_demographic_area_district_id",
-            "unique": false,
-            "columnNames": [
-              "district_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_demographic_area_district_id` ON `${TABLE_NAME}` (`district_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "demographic_district",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "district_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       },
       {
-        "tableName": "company_trash_collection_schedule",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `day_of_week` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `street_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`street_id`) REFERENCES `demographic_street`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "tableName": "company_bin_collection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `day_of_week` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1065,8 +983,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "streetId",
-            "columnName": "street_id",
+            "fieldPath": "companyLocationId",
+            "columnName": "company_location_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1091,31 +1009,31 @@
         },
         "indices": [
           {
-            "name": "index_company_trash_collection_schedule_street_id",
+            "name": "index_company_bin_collection_company_location_id",
             "unique": false,
             "columnNames": [
-              "street_id"
+              "company_location_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_trash_collection_schedule_street_id` ON `${TABLE_NAME}` (`street_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_bin_collection_company_location_id` ON `${TABLE_NAME}` (`company_location_id`)"
           },
           {
-            "name": "index_company_trash_collection_schedule_company_id",
+            "name": "index_company_bin_collection_company_id",
             "unique": false,
             "columnNames": [
               "company_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_trash_collection_schedule_company_id` ON `${TABLE_NAME}` (`company_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_bin_collection_company_id` ON `${TABLE_NAME}` (`company_id`)"
           }
         ],
         "foreignKeys": [
           {
-            "table": "demographic_street",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "table": "company_location",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
-              "street_id"
+              "company_location_id"
             ],
             "referencedColumns": [
               "id"
@@ -1123,8 +1041,8 @@
           },
           {
             "table": "company",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_id"
             ],
@@ -1471,12 +1389,156 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "company_location",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `status` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `demographic_street_id` INTEGER NOT NULL, `demographic_area_id` INTEGER NOT NULL, `demographic_district_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`demographic_street_id`) REFERENCES `demographic_street`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`demographic_area_id`) REFERENCES `demographic_area`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`demographic_district_id`) REFERENCES `demographic_district`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "company_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demographicStreetId",
+            "columnName": "demographic_street_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demographicAreaId",
+            "columnName": "demographic_area_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demographicDistrictId",
+            "columnName": "demographic_district_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_company_location_demographic_street_id",
+            "unique": false,
+            "columnNames": [
+              "demographic_street_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_location_demographic_street_id` ON `${TABLE_NAME}` (`demographic_street_id`)"
+          },
+          {
+            "name": "index_company_location_demographic_area_id",
+            "unique": false,
+            "columnNames": [
+              "demographic_area_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_location_demographic_area_id` ON `${TABLE_NAME}` (`demographic_area_id`)"
+          },
+          {
+            "name": "index_company_location_demographic_district_id",
+            "unique": false,
+            "columnNames": [
+              "demographic_district_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_location_demographic_district_id` ON `${TABLE_NAME}` (`demographic_district_id`)"
+          },
+          {
+            "name": "index_company_location_company_id",
+            "unique": false,
+            "columnNames": [
+              "company_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_company_location_company_id` ON `${TABLE_NAME}` (`company_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "demographic_street",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "demographic_street_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "demographic_area",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "demographic_area_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "demographic_district",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "demographic_district_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "company",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "company_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b885faddedf95957a664671587565990')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5f62477d7a898c43a6870f6d4981d96d')"
     ]
   }
 }

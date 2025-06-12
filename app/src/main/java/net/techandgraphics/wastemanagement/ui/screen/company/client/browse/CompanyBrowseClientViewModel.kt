@@ -8,8 +8,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.Pattern
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.domain.toAccountWithStreetAndAreaUiModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -44,7 +41,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
   val state = _state
     .onStart {
       viewModelScope.launch {
-        launch { onQueryChange() }
+//        launch { onQueryChange() }
       }
     }
     .stateIn(
@@ -58,14 +55,14 @@ class CompanyBrowseClientViewModel @Inject constructor(
     searchJob?.cancel()
     searchJob = viewModelScope.launch {
       delay(5_00)
-      onQueryChange()
+//      onQueryChange()
     }
   }
 
-  private suspend fun onQueryChange() = database.accountDao
-    .qAccountWithStreetAndArea(_state.value.query.trim())
-    .map { it.map { it.toAccountWithStreetAndAreaUiModel() } }
-    .collectLatest { _state.value = _state.value.copy(accounts = it) }
+//  private suspend fun onQueryChange() = database.accountDao
+//    .qAccountWithStreetAndArea(_state.value.query.trim())
+//    .map { it.map { it.toAccountWithStreetAndAreaUiModel() } }
+//    .collectLatest { _state.value = _state.value.copy(accounts = it) }
 
   fun onEvent(event: CompanyBrowseClientListEvent) {
     when (event) {
