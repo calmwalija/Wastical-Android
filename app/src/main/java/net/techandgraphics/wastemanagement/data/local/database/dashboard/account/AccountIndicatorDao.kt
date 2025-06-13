@@ -75,15 +75,15 @@ interface AccountIndicatorDao {
   )
   suspend fun getTopPayingAccounts(): List<TopPayingAccount>
 
-  @Query(
-    """
-    SELECT s.name AS streetName, COUNT(a.id) AS accountCount
-    FROM account a
-    INNER JOIN demographic_street s ON a.street_id = s.id
-    GROUP BY s.id
-""",
-  )
-  fun getAccountsPerStreet(): List<StreetAccountCount>
+//  @Query(
+//    """
+//    SELECT s.name AS streetName, COUNT(a.id) AS accountCount
+//    FROM account a
+//    INNER JOIN demographic_street s ON a.street_id = s.id
+//    GROUP BY s.id
+// """,
+//  )
+//  fun getAccountsPerStreet(): List<StreetAccountCount>
 }
 
 fun getMonthStartTimestamp(year: Int, month: Int): Long {

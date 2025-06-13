@@ -6,7 +6,8 @@ import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountCo
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
-import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
+import net.techandgraphics.wastemanagement.data.remote.company.bin.collection.CompanyBinCollectionResponse
+import net.techandgraphics.wastemanagement.data.remote.company.location.CompanyLocationResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicAreaResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicDistrictResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicStreetResponse
@@ -26,11 +27,12 @@ data class ServerResponse(
   @SerializedName("payments") val payments: List<PaymentResponse>? = null,
   @SerializedName("payment_methods") val paymentMethods: List<PaymentMethodResponse>? = null,
   @SerializedName("payment_gateways") val paymentGateways: List<PaymentGatewayResponse>? = null,
-  @SerializedName("trash_collection_schedules") val trashCollectionSchedules: List<TrashCollectionScheduleResponse>? = null,
+  @SerializedName("company_bin_collection") val companyBinCollections: List<CompanyBinCollectionResponse>? = null,
   @SerializedName("payment_collection_days") val paymentCollectionDays: List<PaymentCollectionDayResponse>? = null,
   @SerializedName("account_payment_plans") val accountPaymentPlans: List<AccountPaymentPlanResponse>? = null,
   @SerializedName("payment_months_covered") val paymentMonthsCovered: List<PaymentMonthCoveredResponse>? = null,
   @SerializedName("demographic_streets") val demographicStreets: List<DemographicStreetResponse>? = null,
   @SerializedName("demographic_areas") val demographicAreas: List<DemographicAreaResponse>? = null,
   @SerializedName("demographic_districts") val demographicDistricts: List<DemographicDistrictResponse>? = null,
+  @SerializedName("company_locations") val companyLocations: List<CompanyLocationResponse>? = null,
 )

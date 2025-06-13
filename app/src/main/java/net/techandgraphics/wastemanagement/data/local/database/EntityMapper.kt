@@ -5,8 +5,9 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
-import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.location.CompanyLocationEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
@@ -22,7 +23,8 @@ import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPayme
 import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmTokenResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyResponse
-import net.techandgraphics.wastemanagement.data.remote.company.trash.collection.schedule.TrashCollectionScheduleResponse
+import net.techandgraphics.wastemanagement.data.remote.company.bin.collection.CompanyBinCollectionResponse
+import net.techandgraphics.wastemanagement.data.remote.company.location.CompanyLocationResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicAreaResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicDistrictResponse
 import net.techandgraphics.wastemanagement.data.remote.demographic.DemographicStreetResponse
@@ -134,7 +136,7 @@ fun AccountResponse.toAccountEntity() = AccountEntity(
   leavingTimestamp = leavingTimestamp,
   updatedAt = updatedAt,
   createdAt = createdAt,
-  trashCollectionScheduleId = trashCollectionScheduleId,
+  companyLocationId = companyLocationId,
 )
 
 fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
@@ -169,7 +171,7 @@ fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: Payme
     executedById = executedById,
   )
 
-fun DemographicDistrictResponse.toDistrictEntity() = DemographicDistrictEntity(
+fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(
   id = id,
   name = name,
   region = region,
@@ -177,34 +179,32 @@ fun DemographicDistrictResponse.toDistrictEntity() = DemographicDistrictEntity(
   updatedAt = updatedAt,
 )
 
-fun DemographicAreaResponse.toAreaEntity() = DemographicAreaEntity(
+fun DemographicAreaResponse.toDemographicAreaEntity() = DemographicAreaEntity(
   id = id,
   name = name,
   type = type,
   latitude = latitude,
   longitude = longitude,
   description = description,
-  districtId = districtId,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
 
-fun DemographicStreetResponse.toStreetEntity() = DemographicStreetEntity(
+fun DemographicStreetResponse.toDemographicStreetEntity() = DemographicStreetEntity(
   id = id,
   name = name,
   latitude = latitude,
   longitude = longitude,
-  areaId = areaId,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
 
-fun TrashCollectionScheduleResponse.toTrashCollectionScheduleEntity() =
-  TrashCollectionScheduleEntity(
+fun CompanyBinCollectionResponse.toCompanyBinCollectionEntity() =
+  CompanyBinCollectionEntity(
     id = id,
     dayOfWeek = dayOfWeek.name,
     companyId = companyId,
-    streetId = streetId,
+    companyLocationId = companyLocationId,
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
@@ -265,3 +265,14 @@ fun PaymentMonthCoveredResponse.toPaymentMonthCoveredEntity() =
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
+
+fun CompanyLocationResponse.toCompanyLocationRequest() = CompanyLocationEntity(
+  id = id,
+  status = status.name,
+  companyId = companyId,
+  demographicStreetId = demographicStreetId,
+  demographicAreaId = demographicAreaId,
+  demographicDistrictId = demographicDistrictId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)

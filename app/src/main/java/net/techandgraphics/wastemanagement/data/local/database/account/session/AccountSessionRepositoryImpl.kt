@@ -5,18 +5,19 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toAccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
-import net.techandgraphics.wastemanagement.data.local.database.toAreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.toCompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyEntity
-import net.techandgraphics.wastemanagement.data.local.database.toDistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.toCompanyLocationRequest
+import net.techandgraphics.wastemanagement.data.local.database.toDemographicAreaEntity
+import net.techandgraphics.wastemanagement.data.local.database.toDemographicDistrictEntity
+import net.techandgraphics.wastemanagement.data.local.database.toDemographicStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentCollectionDayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEntity
-import net.techandgraphics.wastemanagement.data.local.database.toStreetEntity
-import net.techandgraphics.wastemanagement.data.local.database.toTrashCollectionScheduleEntity
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
@@ -38,20 +39,26 @@ class AccountSessionRepositoryImpl @Inject constructor(
                 paymentGateways?.map { it.toPaymentGatewayEntity() }?.also {
                   paymentGatewayDao.insert(it)
                 }
-                demographicDistricts?.map { it.toDistrictEntity() }
+                demographicDistricts?.map { it.toDemographicDistrictEntity() }
                   ?.also { demographicDistrictDao.insert(it) }
-                demographicAreas?.map { it.toAreaEntity() }?.also { demographicAreaDao.insert(it) }
-                demographicStreets?.map { it.toStreetEntity() }
+                demographicAreas?.map { it.toDemographicAreaEntity() }
+                  ?.also { demographicAreaDao.insert(it) }
+                demographicStreets?.map { it.toDemographicStreetEntity() }
                   ?.also { demographicStreetDao.insert(it) }
                 companies?.map { it.toCompanyEntity() }?.also { companyDao.insert(it) }
+
                 companyContacts?.map { it.toCompanyContactEntity() }
                   ?.also { companyContactDao.insert(it) }
-                trashCollectionSchedules?.map { it.toTrashCollectionScheduleEntity() }
-                  ?.also { trashScheduleDao.insert(it) }
-                accounts?.map { it.toAccountEntity() }?.forEach { account ->
-                  val streetId = trashScheduleDao.get(account.trashCollectionScheduleId).streetId
-                  accountDao.insert(account.copy(streetId = streetId))
-                }
+
+                companyLocations?.map { it.toCompanyLocationRequest() }
+                  ?.also { companyLocationDao.insert(it) }
+
+                companyBinCollections?.map { it.toCompanyBinCollectionEntity() }
+                  ?.also { companyBinCollectionDao.insert(it) }
+
+                accounts?.map { it.toAccountEntity() }
+                  ?.forEach { account -> accountDao.insert(account) }
+
                 accountContacts?.map { it.toAccountContactEntity() }
                   ?.also { accountContactDao.insert(it) }
                 paymentPlans?.map { it.toPaymentPlanEntity() }?.also { paymentPlanDao.insert(it) }

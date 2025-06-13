@@ -13,10 +13,12 @@ import net.techandgraphics.wastemanagement.data.local.database.account.token.Acc
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyDao
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionDao
+import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactDao
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
-import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleDao
-import net.techandgraphics.wastemanagement.data.local.database.company.trash.collection.schedule.TrashCollectionScheduleEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.location.CompanyLocationDao
+import net.techandgraphics.wastemanagement.data.local.database.company.location.CompanyLocationEntity
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.AccountIndicatorDao
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.PaymentIndicatorDao
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetIndicatorDao
@@ -51,12 +53,13 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
     DemographicDistrictEntity::class,
     DemographicStreetEntity::class,
     DemographicAreaEntity::class,
-    TrashCollectionScheduleEntity::class,
+    CompanyBinCollectionEntity::class,
     PaymentCollectionDayEntity::class,
     AccountPaymentPlanEntity::class,
     PaymentGatewayEntity::class,
     AccountFcmTokenEntity::class,
     PaymentMonthCoveredEntity::class,
+    CompanyLocationEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -74,11 +77,12 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val demographicDistrictDao: DemographicDistrictDao
   abstract val demographicStreetDao: DemographicStreetDao
   abstract val demographicAreaDao: DemographicAreaDao
-  abstract val trashScheduleDao: TrashCollectionScheduleDao
+  abstract val companyBinCollectionDao: CompanyBinCollectionDao
   abstract val paymentDayDao: PaymentCollectionDayDao
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
   abstract val paymentGatewayDao: PaymentGatewayDao
   abstract val accountFcmTokenDao: AccountFcmTokenDao
+  abstract val companyLocationDao: CompanyLocationDao
 
   abstract val streetIndicatorDao: StreetIndicatorDao
   abstract val accountIndicatorDao: AccountIndicatorDao

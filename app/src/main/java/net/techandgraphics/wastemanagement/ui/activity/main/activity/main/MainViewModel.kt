@@ -133,7 +133,7 @@ class MainViewModel @Inject constructor(
   }
 
   private suspend fun getTrashCollectionSchedules() {
-    database.trashScheduleDao.flow()
+    database.companyBinCollectionDao.flow()
       .map { dbTCSchedules -> dbTCSchedules.map { it.toTrashCollectionScheduleUiModel() } }
       .collectLatest { tCSchedules -> _state.update { it.copy(trashSchedules = tCSchedules) } }
   }

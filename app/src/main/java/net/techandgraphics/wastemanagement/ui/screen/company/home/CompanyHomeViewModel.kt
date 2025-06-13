@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.getMonthStartTimestamp
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetPaidThisMonthIndicator
 import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
 import java.util.Calendar
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class CompanyHomeViewModel @Inject constructor(
     val calendar = Calendar.getInstance()
     val duration =
       getMonthStartTimestamp(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH).plus(1))
-    val streetPaidThisMonth = database.streetIndicatorDao.getStreetPaidThisMonth()
+    val streetPaidThisMonth: List<StreetPaidThisMonthIndicator> = listOf()
     val paidThisMonth = database.accountIndicatorDao.getPaidThisMonthIndicator(duration)
     val dailyPayments = database.paymentIndicatorDao.getDailyPaymentSummary()
     _state.value = CompanyHomeState.Success(
