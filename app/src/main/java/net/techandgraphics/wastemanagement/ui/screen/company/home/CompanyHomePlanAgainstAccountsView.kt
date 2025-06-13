@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,16 +21,13 @@ import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
 import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
 import ir.ehsannarmani.compose_charts.models.LabelProperties
-import ir.ehsannarmani.compose_charts.models.Pie
-import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.DailyPaymentSummary
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyHomeClientPaymentDailyView(dailyPayments: List<DailyPaymentSummary>) {
+fun CompanyHomePlanAgainstAccountsView(state: CompanyHomeState.Success) {
 
-
-  val containerColor = MaterialTheme.colorScheme.primary
+  val theColor = MaterialTheme.colorScheme.primary
 
   ColumnChart(
     modifier = Modifier
@@ -50,28 +43,31 @@ fun CompanyHomeClientPaymentDailyView(dailyPayments: List<DailyPaymentSummary>) 
       textStyle = TextStyle(
         color = MaterialTheme.colorScheme.primary
       ),
-    ), indicatorProperties = HorizontalIndicatorProperties(
+    ),
+    indicatorProperties = HorizontalIndicatorProperties(
       textStyle = TextStyle(
         color = MaterialTheme.colorScheme.primary
       ),
 
-    ),
+      ),
     data = remember {
-      dailyPayments.map {
-        Bars(
-          label = it.paymentDate,
-          values = listOf(
-            Bars.Data(
-              label = null,
-              value = it.totalAmount.toDouble(),
-              color = SolidColor(containerColor),
-              properties = BarProperties(
-                cornerRadius = Bars.Data.Radius.Circular(20.dp)
+      state.paymentPlanAgainstAccounts
+        .filter { it.accountCount != 0 }
+        .map {
+          Bars(
+            label = "${it.fee}",
+            values = listOf(
+              Bars.Data(
+                label = null,
+                value = it.accountCount.toDouble(),
+                color = SolidColor(theColor),
+                properties = BarProperties(
+                  cornerRadius = Bars.Data.Radius.Circular(20.dp)
+                )
               )
-            )
-          ),
-        )
-      }
+            ),
+          )
+        }
     },
     barProperties = BarProperties(
       cornerRadius = Bars.Data.Radius.Rectangle(topRight = 6.dp, topLeft = 6.dp),
@@ -89,10 +85,10 @@ fun CompanyHomeClientPaymentDailyView(dailyPayments: List<DailyPaymentSummary>) 
 
 @Preview(showBackground = true)
 @Composable
-private fun CompanyHomeClientPaymentDailyViewPreview() {
+private fun CompanyHomePlanAgainstAccountsPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(16.dp)) {
-      CompanyHomeClientPaymentDailyView(dailyPayments = listOf())
+      CompanyHomePlanAgainstAccountsView(state = companyHomeStateSuccess())
     }
   }
 }

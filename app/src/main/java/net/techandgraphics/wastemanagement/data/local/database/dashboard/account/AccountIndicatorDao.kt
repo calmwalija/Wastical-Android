@@ -6,8 +6,20 @@ import androidx.room.RoomWarnings
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-@Dao
-interface AccountIndicatorDao {
+@Dao interface AccountIndicatorDao {
+
+  @Query(
+    """
+     SELECT
+        COUNT(DISTINCT p.account_id) as totalPaidAccounts,
+        SUM(payment_plan_fee) as totalPaidAmount
+    FROM payment p
+    INNER JOIN payment_month_covered pm ON p.id = pm.payment_id
+    WHERE pm.month = :month AND pm.year = :year
+
+""",
+  )
+  suspend fun getPayment4CurrentMonth(month: Int, year: Int): Payment4CurrentMonth
 
   @Query(
     """
@@ -17,25 +29,6 @@ interface AccountIndicatorDao {
     """,
   )
   suspend fun getExpectedTotalThisMonth(): Int
-
-  @Query("SELECT COUNT(*) FROM account ")
-  suspend fun getTotalActiveAccounts(): Int
-
-  @Query(
-    """
-    SELECT COUNT(DISTINCT account_id) as totalAccount,
-    SUM(payment_plan_fee) as totalPaid
-    FROM payment
-""",
-  )
-  suspend fun getAccountsPaidThisMonth(): PaidThisMonth
-
-  suspend fun getPaidThisMonthIndicator(duration: Long): PaidThisMonthIndicator {
-    val total = getTotalActiveAccounts()
-    val paid = getAccountsPaidThisMonth()
-    val percent = if (total > 0) paid.totalAccount.toFloat() / total else 0f
-    return PaidThisMonthIndicator(total, paid.totalPaid, paid.totalAccount, percent)
-  }
 
   @Query(
     """
