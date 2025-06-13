@@ -1,6 +1,6 @@
 package net.techandgraphics.wastemanagement.data.local.database.dashboard.street
 
-data class StreetPaidThisMonthIndicator(
+data class Payment4CurrentLocationMonth(
   val streetName: String,
   val areaName: String,
   val totalAccounts: Int,

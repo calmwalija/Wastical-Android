@@ -41,7 +41,7 @@ private val leftCompanyHomeItems = listOf(
     title = "Number of Streets",
     drawableRes = R.drawable.ic_house,
     containerColor = Orange,
-    event = CompanyHomeEvent.Goto.Profile
+    event = CompanyHomeEvent.Goto.Company
   ),
 
   )

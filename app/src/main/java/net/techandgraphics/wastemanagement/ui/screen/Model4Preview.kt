@@ -4,13 +4,14 @@ import android.content.Context
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
-import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetPaidThisMonthIndicator
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
@@ -88,6 +89,16 @@ internal val company4Preview = CompanyUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
+internal val companyContact4Preview = CompanyContactUiModel(
+  id = 1,
+  email = "example@email.com",
+  contact = "999112233",
+  primary = true,
+  companyId = 1,
+  createdAt = 1,
+  updatedAt = 1,
+)
+
 internal val payment4Preview = PaymentUiModel(
   id = 1L,
   status = PaymentStatus.Approved,
@@ -137,7 +148,7 @@ internal val street4Preview = DemographicStreetUiModel(
   belongTo = true,
 )
 
-internal val streetPaidThisMonthIndicator4Preview = StreetPaidThisMonthIndicator(
+internal val streetPaidThisMonthIndicator4Preview = Payment4CurrentLocationMonth(
   streetName = "Area 25",
   areaName = "Sector 3",
   totalAccounts = 10,

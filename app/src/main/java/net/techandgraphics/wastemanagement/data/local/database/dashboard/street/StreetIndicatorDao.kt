@@ -16,22 +16,28 @@ interface StreetIndicatorDao {
   )
   suspend fun getAccountCountPerStreet(): List<StreetAccountStat>
 
-//  @Query(
-//    """
-//      SELECT
-//        COUNT(DISTINCT a.id) AS totalAccounts,
-//        s.name AS streetName,
-//        da.name AS areaName,
-//        COUNT(p.account_id) AS paidAccounts
-//      FROM demographic_street s
-//      JOIN account a ON s.id = a.street_id
-//      LEFT JOIN payment p ON p.account_id = a.id
-//      JOIN demographic_area da ON da.id = s.area_id
-//      GROUP BY s.id
-//      ORDER BY paidAccounts DESC
-//    """,
-//  )
-//  suspend fun getStreetPaidThisMonth(): List<StreetPaidThisMonthIndicator>
+  @Query(
+    """
+    SELECT
+        ds.id AS streetId,
+        ds.name AS streetName,
+        da.name AS areaName,
+        COUNT(DISTINCT a.id) AS totalAccounts,
+        COUNT(DISTINCT p.account_id) AS paidAccounts
+    FROM company_location cl
+    JOIN account a ON cl.id = a.company_location_id
+    JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+    JOIN demographic_area da ON da.id = cl.demographic_area_id
+    LEFT JOIN (
+        SELECT DISTINCT p.account_id
+        FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
+        WHERE pm.month = :month AND pm.year =:year
+    ) p ON p.account_id = a.id
+    GROUP BY ds.id, ds.name, da.name
+    ORDER BY paidAccounts DESC LIMIT 3
+    """,
+  )
+  suspend fun getPayment4CurrentLocationMonth(month: Int, year: Int): List<Payment4CurrentLocationMonth>
 
   @Query(
     """
