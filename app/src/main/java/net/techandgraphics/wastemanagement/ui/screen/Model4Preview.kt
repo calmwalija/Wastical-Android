@@ -8,12 +8,12 @@ import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
-import net.techandgraphics.wastemanagement.domain.model.account.AccountStreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
-import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
@@ -155,9 +155,7 @@ internal val streetPaidThisMonthIndicator4Preview = Payment4CurrentLocationMonth
   paidAccounts = 3,
 )
 
-internal val accountStreet4Preview = AccountStreetUiModel(account4Preview, street4Preview)
-
-internal val accountWithStreetAndArea4Preview = AccountWithStreetAndAreaUiModel(
+internal val accountWithStreetAndArea4Preview = AccountInfoUiModel(
   lastname = account4Preview.lastname,
   firstname = account4Preview.firstname,
   accountId = account4Preview.id,
@@ -165,6 +163,27 @@ internal val accountWithStreetAndArea4Preview = AccountWithStreetAndAreaUiModel(
   areaName = street4Preview.name,
   title = AccountTitle.MR.name,
   username = account4Preview.username,
+)
+
+internal val demographicArea4Preview = DemographicAreaUiModel(
+  id = 1,
+  name = "Lorem Area",
+  type = "",
+  description = "",
+  latitude = 1f,
+  longitude = 1f,
+  createdAt = 1,
+  updatedAt = 1,
+)
+
+internal val accountInfo4Preview = AccountInfoUiModel(
+  lastname = account4Preview.lastname,
+  firstname = account4Preview.firstname,
+  title = account4Preview.title.name,
+  username = account4Preview.username,
+  accountId = account4Preview.id,
+  streetName = street4Preview.name,
+  areaName = demographicArea4Preview.name,
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

@@ -36,15 +36,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.ui.screen.accountInfo4Preview
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CompanyBrowseClientSearchView(
-  state: CompanyBrowseClientState,
+  state: CompanyBrowseClientState.Success,
   onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
-
   Row(
     verticalAlignment = Alignment.CenterVertically,
     modifier = Modifier.padding(horizontal = 16.dp)
@@ -98,7 +99,8 @@ fun CompanyBrowseClientSearchView(
                   text = "Input client keyword",
                   color = LocalContentColor.current.copy(alpha = 0.5f),
                   maxLines = 1,
-                  overflow = TextOverflow.Ellipsis
+                  overflow = TextOverflow.Ellipsis,
+                  modifier = Modifier.padding(vertical = 1.dp)
                 )
             }
             AnimatedVisibility(visible = state.query.isNotEmpty()) {
@@ -126,7 +128,8 @@ fun CompanyBrowseClientSearchView(
       onClick = { onEvent(CompanyBrowseClientListEvent.Button.Filter) },
       shape = RoundedCornerShape(16),
       colors = IconButtonDefaults.iconButtonColors(
-        containerColor = CardDefaults.elevatedCardColors().containerColor
+        containerColor = if (state.filters.isEmpty()) CardDefaults.elevatedCardColors().containerColor
+        else MaterialTheme.colorScheme.primary
       )
     ) {
       Icon(
@@ -146,6 +149,11 @@ fun CompanyBrowseClientSearchView(
 @Composable
 fun CompanyBrowseClientSearchViewPreview() {
   WasteManagementTheme {
-    CompanyBrowseClientSearchView(state = CompanyBrowseClientState(), {})
+    CompanyBrowseClientSearchView(
+      state = CompanyBrowseClientState.Success(
+        accounts = listOf(accountInfo4Preview),
+        company = company4Preview
+      )
+    ) {}
   }
 }
