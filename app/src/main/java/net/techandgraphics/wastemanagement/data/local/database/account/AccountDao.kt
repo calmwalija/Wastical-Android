@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
+import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
 
 @Dao
 interface AccountDao : BaseDao<AccountEntity> {
@@ -34,28 +35,55 @@ interface AccountDao : BaseDao<AccountEntity> {
   )
   fun query(query: String = ""): Flow<List<AccountEntity>>
 
-//  @Transaction
-//  @Query(
-//    """
-//      SELECT a.firstname,
-//           a.lastname,
-//           a.username,
-//           a.title,
-//           a.id as accountId,
-//           ds.name AS streetName,
-//           da.name AS areaName
-//    FROM account a
-//    JOIN demographic_street ds ON a.street_id = ds.id
-//    JOIN demographic_area da ON ds.area_id = da.id
-//    WHERE (a.firstname LIKE'%' || :query || '%'
-//           OR a.username LIKE'%' || :query || '%'
-//           OR a.title LIKE'%' || :query || '%'
-//           OR ds.name LIKE'%' || :query || '%'
-//           OR da.name LIKE'%' || :query || '%'
-//           OR a.lastname LIKE'%' || :query || '%')
-//      """,
-//  )
-//  fun qAccountWithStreetAndArea(query: String = ""): Flow<List<AccountWithStreetAndAreaEntity>>
+  @Query(
+    """
+    SELECT a.firstname,
+           a.lastname,
+           a.username,
+           a.title,
+           a.id as accountId,
+           ds.name AS streetName,
+           da.name AS areaName
+    FROM account a
+    JOIN company_location cl ON a.company_location_id = cl.id
+    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
+    JOIN demographic_area da ON cl.demographic_area_id = da.id
+    WHERE (a.firstname LIKE '%' || :query || '%'
+        OR a.username LIKE '%' || :query || '%'
+        OR a.title LIKE '%' || :query || '%'
+        OR ds.name LIKE '%' || :query || '%'
+        OR da.name LIKE '%' || :query || '%'
+        OR a.lastname LIKE '%' || :query || '%')
+    """,
+  )
+  fun qAccountInfo(query: String = ""): Flow<List<AccountInfoUiModel>>
+
+  @Query(
+    """
+    SELECT a.firstname,
+           a.lastname,
+           a.username,
+           a.title,
+           a.id as accountId,
+           ds.name AS streetName,
+           da.name AS areaName
+    FROM account a
+    JOIN company_location cl ON a.company_location_id = cl.id
+    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
+    JOIN demographic_area da ON cl.demographic_area_id = da.id
+    WHERE (a.firstname LIKE '%' || :query || '%'
+        OR a.username LIKE '%' || :query || '%'
+        OR a.title LIKE '%' || :query || '%'
+        OR ds.name LIKE '%' || :query || '%'
+        OR da.name LIKE '%' || :query || '%'
+        OR a.lastname LIKE '%' || :query || '%')
+      AND da.id IN (:ids)
+    """,
+  )
+  fun qAccountInfoFiltered(query: String = "", ids: Set<Long>): Flow<List<AccountInfoUiModel>>
+
+  fun qAccountData(query: String = "", ids: Set<Long>? = null) =
+    if (ids == null) qAccountInfo(query) else qAccountInfoFiltered(query, ids)
 
   @Query(
     """
@@ -65,23 +93,4 @@ interface AccountDao : BaseDao<AccountEntity> {
     """,
   )
   suspend fun getByCreatedAt(createAt: String): List<AccountEntity>
-}
-
-enum class TimeUnit(val format: String) {
-  Minute("%Y-%m-%d %H:%M"),
-  Hour("%Y-%m-%d %H"),
-  Day("%Y-%m-%d"),
-  Month("%Y-%m"),
-  ;
-
-  companion object {
-    fun fromUnit(unit: String): TimeUnit? {
-      return TimeUnit.entries.find { it.name.equals(unit, ignoreCase = true) }
-    }
-  }
-}
-
-fun getTimeFormatForUnit(unit: String): String? {
-  val timeUnit = TimeUnit.fromUnit(unit)
-  return timeUnit?.format
 }

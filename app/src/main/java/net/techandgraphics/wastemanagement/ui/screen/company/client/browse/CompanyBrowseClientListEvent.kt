@@ -1,9 +1,14 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
+import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
+
 sealed interface CompanyBrowseClientListEvent {
 
   sealed interface Button : CompanyBrowseClientListEvent {
     data object Filter : Button
+    data class FilterBy(val id: Long) : Button
+    data object HistoryTag : Button
+    data class Tag(val tag: SearchTagUiModel) : Button
     data object Clear : Button
   }
 

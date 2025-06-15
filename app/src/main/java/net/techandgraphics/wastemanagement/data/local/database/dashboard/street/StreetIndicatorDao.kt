@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.data.local.database.dashboard.street
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 
 @Dao
 interface StreetIndicatorDao {
@@ -16,6 +17,7 @@ interface StreetIndicatorDao {
   )
   suspend fun getAccountCountPerStreet(): List<StreetAccountStat>
 
+  @RewriteQueriesToDropUnusedColumns
   @Query(
     """
     SELECT

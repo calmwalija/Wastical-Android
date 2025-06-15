@@ -4,7 +4,6 @@ import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
-import net.techandgraphics.wastemanagement.data.local.database.account.AccountWithStreetAndAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
@@ -17,11 +16,11 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
-import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
@@ -33,6 +32,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUi
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
 fun PaymentPlanEntity.toPaymentPlanUiModel() = PaymentPlanUiModel(
   id = id,
@@ -180,13 +180,9 @@ fun PaymentAccountEntity.toPaymentAccountUiModel() = PaymentAccountUiModel(
   account = account.toAccountUiModel(),
 )
 
-fun AccountWithStreetAndAreaEntity.toAccountWithStreetAndAreaUiModel() =
-  AccountWithStreetAndAreaUiModel(
-    lastname = lastname,
-    firstname = firstname,
-    accountId = accountId,
-    streetName = streetName,
-    areaName = areaName,
-    username = username,
-    title = title,
-  )
+fun SearchTagEntity.toSearchTagUiModel() = SearchTagUiModel(
+  query = query,
+  tag = tag,
+  timestamp = timestamp,
+  id = id,
+)

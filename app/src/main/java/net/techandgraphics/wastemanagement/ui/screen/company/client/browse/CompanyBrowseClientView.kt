@@ -22,21 +22,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.domain.model.account.AccountWithStreetAndAreaUiModel
-import net.techandgraphics.wastemanagement.toPhoneFormat
+import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
+import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.ui.screen.accountWithStreetAndArea4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyBrowseClientView(
-  account: AccountWithStreetAndAreaUiModel,
+  account: AccountInfoUiModel,
+  modifier: Modifier = Modifier,
   onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
   Row(
-    modifier = Modifier
+    modifier = modifier
       .clickable { onEvent(CompanyBrowseClientListEvent.Goto.Profile(account.accountId)) }
       .padding(16.dp)
       .fillMaxWidth(),

@@ -43,10 +43,10 @@ fun CompanyHomeClientPaidStreetView(
   var targetValue by remember { mutableFloatStateOf(0f) }
   val animateAsFloat by animateFloatAsState(
     targetValue = targetValue,
-    animationSpec = tween(durationMillis = Random.nextInt(4_000))
+    animationSpec = tween(durationMillis = Random.nextInt(7_000, 10_000))
   )
   var rowHeightPx by remember { mutableIntStateOf(0) }
-  val progressText = String.format(locale = Locale.getDefault(), "%.1f", targetValue * 100)
+  val progressText = String.format(locale = Locale.getDefault(), "%.1f", animateAsFloat * 100)
 
   LaunchedEffect(location) {
     targetValue =

@@ -17,6 +17,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
@@ -39,6 +40,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanR
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -275,4 +277,11 @@ fun CompanyLocationResponse.toCompanyLocationRequest() = CompanyLocationEntity(
   demographicDistrictId = demographicDistrictId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+)
+
+fun SearchTagUiModel.toSearchTagEntity() = SearchTagEntity(
+  query = query,
+  tag = tag,
+  timestamp = timestamp,
+  id = id,
 )

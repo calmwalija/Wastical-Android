@@ -22,7 +22,7 @@ android {
     versionCode = 1
     versionName = "1.0"
 
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunner = "net.techandgraphics.wastemanagement.HiltTestRunner"
 
     val localProperties = Properties()
     localProperties.load(project.rootProject.file("local.properties").inputStream())
@@ -141,5 +141,9 @@ dependencies {
   implementation("com.google.android.gms:play-services-auth:21.3.0")
 
   implementation("io.github.ehsannarmani:compose-charts:0.1.7")
+  testImplementation(libs.androidx.room.testing)
+
+  androidTestImplementation("com.google.dagger:hilt-android-testing:2.51")
+  kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
 
 }

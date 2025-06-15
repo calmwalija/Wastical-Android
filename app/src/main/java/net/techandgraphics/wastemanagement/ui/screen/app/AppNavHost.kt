@@ -148,8 +148,10 @@ fun AppNavHost(
                 CompanyBrowseClientListEvent.Goto.Create ->
                   navController.navigate(Route.Company.Client.Create)
 
-                is CompanyBrowseClientListEvent.Goto.Profile ->
+                is CompanyBrowseClientListEvent.Goto.Profile -> {
+                  onEvent(CompanyBrowseClientListEvent.Button.HistoryTag)
                   navController.navigate(Route.Company.Client.Profile(event.id))
+                }
               }
 
             else -> onEvent(event)

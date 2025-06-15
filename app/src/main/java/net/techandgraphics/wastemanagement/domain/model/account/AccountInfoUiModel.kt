@@ -1,6 +1,6 @@
 package net.techandgraphics.wastemanagement.domain.model.account
 
-data class AccountWithStreetAndAreaUiModel(
+data class AccountInfoUiModel(
   val lastname: String,
   val firstname: String,
   val title: String,
