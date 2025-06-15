@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.info
+package net.techandgraphics.wastemanagement.ui.screen.company.info.plan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,16 +9,17 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyInfoViewModel @Inject constructor(
+class CompanyInfoPlanViewModel @Inject constructor(
   private val database: AppDatabase,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow<CompanyInfoState>(CompanyInfoState.Loading)
+  private val _state = MutableStateFlow<CompanyInfoPlanState>(CompanyInfoPlanState.Loading)
+
   val state = _state
     .onStart {
       viewModelScope.launch { launch { onLoad() } }
@@ -26,16 +27,16 @@ class CompanyInfoViewModel @Inject constructor(
     .stateIn(
       scope = viewModelScope,
       started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = CompanyInfoState.Loading,
+      initialValue = CompanyInfoPlanState.Loading,
     )
 
   private suspend fun onLoad() {
     val company = database.companyDao.query().first().toCompanyUiModel()
-    val contacts = database.companyContactDao.query().map { it.toCompanyContactUiModel() }
-    _state.value = CompanyInfoState.Success(company = company, contacts = contacts)
+    val plans = database.paymentPlanDao.query().map { it.toPaymentPlanUiModel() }
+    _state.value = CompanyInfoPlanState.Success(company = company, plans = plans)
   }
 
-  fun onEvent(event: CompanyInfoEvent) {
+  fun onEvent(event: CompanyInfoPlanEvent) {
     when (event) {
       else -> TODO("Handle actions")
     }

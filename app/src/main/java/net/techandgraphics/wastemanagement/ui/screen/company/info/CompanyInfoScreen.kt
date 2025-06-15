@@ -1,7 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.info
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,15 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.toPhoneFormat
+import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
@@ -46,160 +46,120 @@ fun CompanyInfoScreen(
   onEvent: (CompanyInfoEvent) -> Unit,
 ) {
 
-
-  val account = account4Preview
-  val company = company4Preview
-
-
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-          }
+  when (state) {
+    CompanyInfoState.Loading -> LoadingIndicatorView()
+    is CompanyInfoState.Success ->
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = {},
+            navigationIcon = {
+              IconButton(onClick = { onEvent(CompanyInfoEvent.Button.BackHandler) }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+              }
+            },
+            modifier = Modifier.shadow(0.dp),
+            colors = TopAppBarDefaults.topAppBarColors()
+          )
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-  ) {
-
-    Column(
-      modifier = Modifier
-        .padding(16.dp)
-        .padding(it)
-    ) {
-
-
-      Text(
-        text = "Company Info",
-        style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 16.dp, horizontal = 8.dp),
-      )
-
-
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
       ) {
 
-        CompanyLetterView(company)
+        Column(
+          modifier = Modifier
+            .padding(top = 16.dp)
+            .padding(horizontal = 16.dp)
+            .padding(it)
+        ) {
+          Text(
+            text = "Company Info",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 8.dp, horizontal = 8.dp),
+          )
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
 
-        Text(
-          text = company.name,
-          style = MaterialTheme.typography.titleMedium,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-        )
-        Text(
-          text = company.slogan,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-          text = company.address,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-          text = company.email,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-          text = company.slogan,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          style = MaterialTheme.typography.bodyMedium,
-        )
+            Image(
+              painterResource(R.drawable.im_placeholder),
+              contentDescription = null,
+              modifier = Modifier
+                .padding(vertical = 24.dp)
+                .clip(CircleShape)
+                .size(180.dp)
+            )
+            Text(
+              text = state.company.name,
+              style = MaterialTheme.typography.headlineSmall,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis,
+              color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+              text = state.company.email,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis,
+              style = MaterialTheme.typography.bodyMedium,
+            )
+            state.contacts.forEach { contact ->
+              Text(
+                text = contact.contact.toPhoneFormat(),
+                maxLines = 1,
+                overflow = TextOverflow.MiddleEllipsis,
+                style = MaterialTheme.typography.bodyMedium,
+              )
+            }
 
-
-        Card(modifier = Modifier.padding(vertical = 24.dp)) {
-
-          LazyColumn {
-            items(companyInfoItems) { item ->
-              Column {
-                Row(modifier = Modifier.padding(24.dp)) {
-                  Icon(painterResource(item.drawableRes), null)
-                  Text(
-                    text = item.title,
+            Card(modifier = Modifier.padding(vertical = 24.dp)) {
+              LazyColumn {
+                items(companyInfoItems) { item ->
+                  Column(
                     modifier = Modifier
-                      .padding(start = 16.dp)
-                      .weight(1f)
-                  )
-                  Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                      .fillMaxWidth()
+                      .clickable { onEvent(item.event) }
+                  ) {
+                    Row(modifier = Modifier.padding(24.dp)) {
+                      Icon(
+                        painterResource(item.drawableRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                      )
+                      Text(
+                        text = item.title,
+                        modifier = Modifier
+                          .padding(start = 16.dp)
+                          .weight(1f),
+                      )
+                      Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null
+                      )
+                    }
+                  }
                 }
               }
             }
           }
-
         }
-
-
       }
-
-
-    }
-  }
-
-
-}
-
-@Composable private fun CompanyLetterView(company: CompanyUiModel) {
-  val brush = Brush.horizontalGradient(
-    listOf(
-      MaterialTheme.colorScheme.primary.copy(.7f),
-      MaterialTheme.colorScheme.primary.copy(.8f),
-      MaterialTheme.colorScheme.primary
-    )
-  )
-
-  Box(contentAlignment = Alignment.Center) {
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(98.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.2f))
-    )
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(104.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.1f))
-    )
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(92.dp)
-        .background(
-          brush = brush
-        )
-    )
-    Text(
-      text = company.name.first().toString(),
-      style = MaterialTheme.typography.headlineSmall,
-      modifier = Modifier.padding(4.dp),
-      fontWeight = FontWeight.Bold,
-    )
   }
 
 }
+
 
 @Preview
 @Composable
 private fun CompanyInfoScreenPreview() {
   WasteManagementTheme {
     CompanyInfoScreen(
-      state = CompanyInfoState(),
+      state = CompanyInfoState.Success(
+        company = company4Preview,
+        contacts = listOf(companyContact4Preview)
+      ),
       onEvent = {}
     )
   }
