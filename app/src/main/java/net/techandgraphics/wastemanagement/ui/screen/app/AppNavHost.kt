@@ -39,8 +39,15 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.Comp
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Goto
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.info.method.CompanyInfoMethodEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.info.method.CompanyInfoMethodScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.info.method.CompanyInfoMethodViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
@@ -224,13 +231,46 @@ fun AppNavHost(
     }
 
 
-    composable<Route.Company.Info> {
+    composable<Route.Company.Info.This> {
       with(hiltViewModel<CompanyInfoViewModel>()) {
         val state = state.collectAsState().value
-        CompanyInfoScreen(state) {}
+        CompanyInfoScreen(state) { event ->
+          when (event) {
+            CompanyInfoEvent.Button.BackHandler -> navController.navigateUp()
+            is CompanyInfoEvent.Goto -> when (event) {
+              CompanyInfoEvent.Goto.Edit -> Unit
+              CompanyInfoEvent.Goto.Method -> navController.navigate(Route.Company.Info.Method)
+              CompanyInfoEvent.Goto.Plan -> navController.navigate(Route.Company.Info.Plan)
+            }
+          }
+        }
       }
     }
 
+
+    composable<Route.Company.Info.Plan> {
+      with(hiltViewModel<CompanyInfoPlanViewModel>()) {
+        val state = state.collectAsState().value
+        CompanyInfoPlanScreen(state) { event ->
+          when (event) {
+            CompanyInfoPlanEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyInfoPlanEvent.Button.Plan -> Unit
+          }
+        }
+      }
+    }
+
+    composable<Route.Company.Info.Method> {
+      with(hiltViewModel<CompanyInfoMethodViewModel>()) {
+        val state = state.collectAsState().value
+        CompanyInfoMethodScreen(state) { event ->
+          when (event) {
+            CompanyInfoMethodEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyInfoMethodEvent.Button.Plan -> Unit
+          }
+        }
+      }
+    }
 
     composable<Route.Company.Home> {
       with(hiltViewModel<CompanyHomeViewModel>()) {
@@ -241,7 +281,7 @@ fun AppNavHost(
               Goto.Create -> navController.navigate(Route.Company.Client.Create)
               Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
               Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
-              Goto.Company -> navController.navigate(Route.Company.Info)
+              Goto.Company -> navController.navigate(Route.Company.Info.This)
             }
 
             else -> onEvent(event)

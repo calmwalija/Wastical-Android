@@ -20,7 +20,13 @@ sealed interface Route {
   @Serializable
   sealed interface Company : Route {
 
-    @Serializable data object Info : Client
+    @Serializable sealed interface Info : Company {
+      @Serializable data object This : Client
+
+      @Serializable data object Plan : Client
+
+      @Serializable data object Method : Client
+    }
 
     @Serializable sealed interface Payment : Company {
       @Serializable data object Verify : Payment

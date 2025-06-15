@@ -1,5 +1,12 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.info
 
-data class CompanyInfoState(
-  val id: Int = 0,
-)
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+
+sealed interface CompanyInfoState {
+  data object Loading : CompanyInfoState
+  data class Success(
+    val company: CompanyUiModel,
+    val contacts: List<CompanyContactUiModel>,
+  ) : CompanyInfoState
+}
