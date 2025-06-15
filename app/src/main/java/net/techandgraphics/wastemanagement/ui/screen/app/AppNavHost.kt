@@ -37,7 +37,6 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.Comp
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.profile.CompanyClientProfileViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Goto
-import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeEvent.Load
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.home.CompanyHomeViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.info.CompanyInfoScreen
@@ -233,7 +232,6 @@ fun AppNavHost(
 
     composable<Route.Company.Home> {
       with(hiltViewModel<CompanyHomeViewModel>()) {
-        LaunchedEffect(appState) { onEvent(Load(appState)) }
         val state = state.collectAsState().value
         CompanyHomeScreen(state) { event ->
           when (event) {
@@ -241,7 +239,7 @@ fun AppNavHost(
               Goto.Create -> navController.navigate(Route.Company.Client.Create)
               Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
               Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
-              Goto.Profile -> navController.navigate(Route.Company.Info)
+              Goto.Company -> navController.navigate(Route.Company.Info)
             }
 
             else -> onEvent(event)

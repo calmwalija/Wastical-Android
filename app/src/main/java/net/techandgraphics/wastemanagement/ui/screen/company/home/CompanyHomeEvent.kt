@@ -2,15 +2,14 @@ package net.techandgraphics.wastemanagement.ui.screen.company.home
 
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.remote.ApiResult
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 
 sealed interface CompanyHomeEvent {
   data object Tap : CompanyHomeEvent
 
-  data class Load(val state: MainActivityState) : CompanyHomeEvent
+  data object Load : CompanyHomeEvent
 
   sealed interface Goto : CompanyHomeEvent {
-    data object Profile : Goto
+    data object Company : Goto
     data object Clients : Goto
     data object Payments : Goto
     data object Create : Goto

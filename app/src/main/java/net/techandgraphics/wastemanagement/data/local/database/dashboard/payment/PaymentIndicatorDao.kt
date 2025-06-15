@@ -8,20 +8,35 @@ interface PaymentIndicatorDao {
 
   @Query(
     """
-        SELECT
-            date(created_at, 'unixepoch') AS paymentDate,
-            COUNT(*) AS totalPayments,
-            SUM(payment_plan_fee) AS totalAmount
-        FROM payment
-        GROUP BY paymentDate
-        ORDER BY paymentDate
+      SELECT
+        pp.id AS planId,
+        pp.name AS planName,
+        pp.fee AS fee,
+        pp.period AS period,
+        COUNT(app.account_id) AS accountCount,
+        (pp.fee * COUNT(app.account_id)) AS expectedRevenue
+      FROM payment_plan pp
+      LEFT JOIN account_payment_plan app ON pp.id = app.payment_plan_id
+      GROUP BY pp.id
     """,
   )
-  suspend fun getDailyPaymentSummary(): List<DailyPaymentSummary>
+  suspend fun getPaymentPlanAgainstAccounts(): List<PaymentPlanAgainstAccounts>
+
+  @Query(
+    """
+    SELECT SUM(pp.fee) AS expectedTotal
+    FROM account_payment_plan app
+    INNER JOIN payment_plan pp ON app.payment_plan_id = pp.id
+""",
+  )
+  suspend fun getExpectedAmountToCollect(): Int
 }
 
-data class DailyPaymentSummary(
-  val paymentDate: String,
-  val totalPayments: Int,
-  val totalAmount: Int,
+data class PaymentPlanAgainstAccounts(
+  val planId: Long,
+  val planName: String,
+  val fee: Int,
+  val period: String,
+  val accountCount: Int,
+  val expectedRevenue: Int,
 )

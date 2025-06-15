@@ -1,81 +1,111 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.StreetPaidThisMonthIndicator
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
+import java.util.Locale
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyHomeClientPaidStreetView(
-  street: StreetPaidThisMonthIndicator,
+  location: Payment4CurrentLocationMonth,
 ) {
 
-  val percentage =
-    if (street.totalAccounts > 0) street.paidAccounts.toFloat() / street.totalAccounts else 0f
+  var targetValue by remember { mutableFloatStateOf(0f) }
+  val animateAsFloat by animateFloatAsState(
+    targetValue = targetValue,
+    animationSpec = tween(durationMillis = Random.nextInt(4_000))
+  )
+  var rowHeightPx by remember { mutableIntStateOf(0) }
+  val progressText = String.format(locale = Locale.getDefault(), "%.1f", targetValue * 100)
+
+  LaunchedEffect(location) {
+    targetValue =
+      (location.paidAccounts.toFloat() / location.totalAccounts.toFloat()).coerceIn(0f, 1f)
+  }
 
   OutlinedCard(shape = CircleShape, modifier = Modifier.padding(8.dp)) {
-    Row(
-      modifier = Modifier
-        .padding(horizontal = 24.dp, vertical = 16.dp)
-        .fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-
-
-      Column(
+    Box(modifier = Modifier.fillMaxWidth()) {
+      Box(
         modifier = Modifier
-          .padding(start = 8.dp)
-          .weight(1f)
+          .height(with(LocalDensity.current) { rowHeightPx.toDp() })
+          .fillMaxWidth(fraction = animateAsFloat)
+          .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+      )
+
+      Row(
+        modifier = Modifier
+          .onGloballyPositioned { coordinates ->
+            rowHeightPx = coordinates.size.height
+          }
+          .padding(horizontal = 24.dp, vertical = 16.dp)
+          .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
       ) {
+        Column(
+          modifier = Modifier
+            .padding(start = 8.dp)
+            .weight(1f)
+        ) {
+          Text(
+            text = location.areaName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodySmall,
+          )
+          Text(
+            text = location.streetName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
+
         Text(
-          text = street.areaName,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
+          text = "${progressText}%",
+          fontWeight = FontWeight.Bold,
           style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.primary,
+          modifier = Modifier.padding(horizontal = 8.dp)
         )
 
         Text(
-          text = street.streetName,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-          text = "${street.paidAccounts} of ${street.totalAccounts}",
+          text = "${location.paidAccounts} of ${location.totalAccounts}",
           fontWeight = FontWeight.Bold,
           style = MaterialTheme.typography.bodySmall,
         )
 
       }
-
-      CircularProgressIndicator(
-        progress = { percentage },
-        modifier = Modifier
-          .padding(horizontal = 16.dp)
-          .size(42.dp),
-        strokeWidth = 8.dp
-      )
-
     }
   }
 
@@ -89,7 +119,7 @@ private fun CompanyHomeClientPaidStreetViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(16.dp)) {
       CompanyHomeClientPaidStreetView(
-        street = companyHomeStateSuccess(LocalContext.current).streetPaidThisMonth.first(),
+        location = companyHomeStateSuccess().payment4CurrentLocationMonth.first(),
       )
     }
   }
