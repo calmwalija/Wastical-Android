@@ -48,6 +48,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.info.method.Company
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
@@ -284,11 +287,24 @@ fun AppNavHost(
               Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
               Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
               Goto.Company -> navController.navigate(Route.Company.Info.This)
+              Goto.PerLocation -> navController.navigate(Route.Company.PerLocation)
             }
 
             else -> onEvent(event)
           }
+        }
+      }
+    }
 
+
+    composable<Route.Company.PerLocation> {
+      with(hiltViewModel<CompanyPaymentPerLocationViewModel>()) {
+        val state = state.collectAsState().value
+        CompanyPaymentPerLocationScreen(state) { event ->
+          when (event) {
+            CompanyPaymentPerLocationEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyPaymentPerLocationEvent.Load -> Unit
+          }
         }
       }
     }

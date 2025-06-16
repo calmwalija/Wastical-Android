@@ -13,6 +13,7 @@ sealed interface CompanyHomeEvent {
     data object Clients : Goto
     data object Payments : Goto
     data object Create : Goto
+    data object PerLocation : Goto
   }
 
   sealed interface Payment : CompanyHomeEvent {

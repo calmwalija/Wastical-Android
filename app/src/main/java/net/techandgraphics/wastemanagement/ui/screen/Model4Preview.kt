@@ -141,7 +141,7 @@ internal val demographicStreet4Preview = DemographicStreetUiModel(
   belongTo = true,
 )
 
-internal val streetPaidThisMonthIndicator4Preview = Payment4CurrentLocationMonth(
+internal val payment4CurrentLocationMonth4Preview = Payment4CurrentLocationMonth(
   streetName = "Area 25",
   areaName = "Sector 3",
   totalAccounts = 10,
