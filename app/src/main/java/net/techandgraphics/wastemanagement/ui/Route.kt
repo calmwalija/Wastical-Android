@@ -34,6 +34,8 @@ sealed interface Route {
 
     @Serializable data object Home : Company
 
+    @Serializable data object PerLocation : Company
+
     @Serializable
     sealed interface Client : Company {
       @Serializable data object Browse : Client

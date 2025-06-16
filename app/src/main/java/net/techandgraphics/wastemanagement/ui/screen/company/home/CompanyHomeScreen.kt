@@ -46,7 +46,7 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.client.home.LetterView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
-import net.techandgraphics.wastemanagement.ui.screen.streetPaidThisMonthIndicator4Preview
+import net.techandgraphics.wastemanagement.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -173,15 +173,15 @@ fun CompanyHomeScreen(
             modifier = Modifier.weight(1f)
           )
 
-          TextButton(onClick = {}) {
+          TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
             Text(text = "See all")
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
           }
         }
 
 
-        state.payment4CurrentLocationMonth.forEach { streetPaid ->
-          CompanyHomeClientPaidStreetView(streetPaid)
+        state.payment4CurrentLocationMonth.forEach { location ->
+          CompanyHomeClientPaidStreetView(location)
         }
 
 
@@ -208,7 +208,7 @@ private fun CompanyHomeScreenPreview() {
 }
 
 fun companyHomeStateSuccess() = CompanyHomeState.Success(
-  payment4CurrentLocationMonth = listOf(streetPaidThisMonthIndicator4Preview),
+  payment4CurrentLocationMonth = listOf(payment4CurrentLocationMonth4Preview),
   account = account4Preview,
   company = company4Preview,
   companyContact = companyContact4Preview,
