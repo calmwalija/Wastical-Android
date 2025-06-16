@@ -13,12 +13,12 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.distr
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
-import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentMethodWithGatewayEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithAccountAndMethodWithGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
@@ -27,11 +27,12 @@ import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionS
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
 fun PaymentPlanEntity.toPaymentPlanUiModel() = PaymentPlanUiModel(
@@ -47,8 +48,6 @@ fun PaymentPlanEntity.toPaymentPlanUiModel() = PaymentPlanUiModel(
 
 fun PaymentMethodEntity.toPaymentMethodUiModel() = PaymentMethodUiModel(
   id = id,
-  name = name,
-  type = PaymentType.valueOf(type),
   account = account,
   paymentPlanId = paymentPlanId,
   paymentGatewayId = paymentGatewayId,
@@ -78,19 +77,12 @@ fun AccountEntity.toAccountUiModel() = AccountUiModel(
 fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   id = id,
   screenshotText = screenshotText,
-  numberOfMonths = months,
   transactionId = transactionId,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
   status = PaymentStatus.valueOf(status),
   createdAt = createdAt,
   updatedAt = updatedAt,
-  paymentPlanId = paymentPlanId,
-  paymentPlanFee = paymentPlanFee,
-  paymentPlanPeriod = paymentPlanPeriod,
-  paymentGatewayId = paymentGatewayId,
-  paymentGatewayType = paymentGatewayType,
-  paymentGatewayName = paymentGatewayName,
   companyId = companyId,
   executedById = accountId,
 )
@@ -175,14 +167,23 @@ fun PaymentGatewayEntity.toPaymentGatewayUiModel() = PaymentGatewayUiModel(
   updatedAt = updatedAt,
 )
 
-fun PaymentAccountEntity.toPaymentAccountUiModel() = PaymentAccountUiModel(
-  payment = payment.toPaymentUiModel(),
-  account = account.toAccountUiModel(),
-)
-
 fun SearchTagEntity.toSearchTagUiModel() = SearchTagUiModel(
   query = query,
   tag = tag,
   timestamp = timestamp,
   id = id,
 )
+
+fun PaymentMethodWithGatewayEntity.toPaymentMethodWithGatewayUiModel() =
+  PaymentMethodWithGatewayUiModel(
+    method = method.toPaymentMethodUiModel(),
+    gateway = gateway.toPaymentGatewayUiModel(),
+  )
+
+fun PaymentWithAccountAndMethodWithGatewayEntity.toPaymentWithAccountAndMethodWithGatewayUiModel() =
+  PaymentWithAccountAndMethodWithGatewayUiModel(
+    payment = payment.toPaymentUiModel(),
+    account = account.toAccountUiModel(),
+    method = method.toPaymentMethodUiModel(),
+    gateway = gateway.toPaymentGatewayUiModel(),
+  )

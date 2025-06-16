@@ -6,7 +6,6 @@ import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
@@ -20,6 +19,8 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUi
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
@@ -52,8 +53,6 @@ internal val paymentPlan4Preview = PaymentPlanUiModel(
 
 internal val paymentMethod4Preview = PaymentMethodUiModel(
   id = 1L,
-  name = "National Bank",
-  type = PaymentType.Bank,
   account = "1005099530",
   paymentPlanId = 1L,
   paymentGatewayId = 7L,
@@ -102,19 +101,12 @@ internal val companyContact4Preview = CompanyContactUiModel(
 internal val payment4Preview = PaymentUiModel(
   id = 1L,
   status = PaymentStatus.Approved,
-  numberOfMonths = 1,
   transactionId = "TXN-5983-1747899108",
   paymentMethodId = 1L,
   createdAt = ZonedDateTime.now().toEpochSecond(),
   screenshotText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
   accountId = account4Preview.id,
   updatedAt = ZonedDateTime.now().toEpochSecond(),
-  paymentPlanId = 1L,
-  paymentPlanFee = paymentPlan4Preview.fee,
-  paymentPlanPeriod = paymentPlan4Preview.period.name,
-  paymentGatewayId = gateway4Preview.id,
-  paymentGatewayName = gateway4Preview.name,
-  paymentGatewayType = gateway4Preview.type,
   companyId = account4Preview.companyId,
   executedById = account4Preview.id,
 )
@@ -185,5 +177,16 @@ internal val accountInfo4Preview = AccountInfoUiModel(
   streetName = street4Preview.name,
   areaName = demographicArea4Preview.name,
 )
+
+internal val paymentMethodWithGateway4Preview =
+  PaymentMethodWithGatewayUiModel(paymentMethod4Preview, gateway4Preview)
+
+internal val paymentWithAccountAndMethodWithGateway4Preview =
+  PaymentWithAccountAndMethodWithGatewayUiModel(
+    payment4Preview,
+    account4Preview,
+    paymentMethod4Preview,
+    gateway4Preview,
+  )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)
