@@ -13,6 +13,7 @@ data class AccountUiModel(
   val email: String?,
   val status: Status,
   val companyId: Long,
+  val companyLocationId: Long,
   val leavingReason: String? = null,
   val leavingTimestamp: Long?,
   val updatedAt: Long,

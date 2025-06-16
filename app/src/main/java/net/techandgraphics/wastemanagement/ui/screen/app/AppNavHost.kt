@@ -242,6 +242,8 @@ fun AppNavHost(
               CompanyInfoEvent.Goto.Method -> navController.navigate(Route.Company.Info.Method)
               CompanyInfoEvent.Goto.Plan -> navController.navigate(Route.Company.Info.Plan)
             }
+
+            else -> Unit
           }
         }
       }

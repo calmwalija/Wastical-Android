@@ -73,6 +73,15 @@ android {
       endWithNewline()
     }
   }
+
+
+  sourceSets {
+    named("androidTest") {
+      dependencies {
+        implementation("app.cash.turbine:turbine:1.1.0")
+      }
+    }
+  }
 }
 
 dependencies {

@@ -72,6 +72,7 @@ fun AccountEntity.toAccountUiModel() = AccountUiModel(
   latitude = latitude,
   longitude = longitude,
   createdAt = createdAt,
+  companyLocationId = companyLocationId,
 )
 
 fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
