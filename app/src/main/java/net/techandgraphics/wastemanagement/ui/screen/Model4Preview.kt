@@ -37,6 +37,7 @@ internal val account4Preview = AccountUiModel(
   companyId = 1L,
   createdAt = System.currentTimeMillis(),
   leavingTimestamp = null,
+  companyLocationId = 1L,
   updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
@@ -55,7 +56,7 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   id = 1L,
   account = "1005099530",
   paymentPlanId = 1L,
-  paymentGatewayId = 7L,
+  paymentGatewayId = 1L,
   createdAt = System.currentTimeMillis(),
   updatedAt = ZonedDateTime.now().toEpochSecond(),
   isSelected = true,
@@ -70,7 +71,7 @@ internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
-internal val gateway4Preview = PaymentGatewayUiModel(
+internal val paymentGateway4Preview = PaymentGatewayUiModel(
   id = 1L,
   name = "Airtel Money",
   type = "Wallet",
@@ -130,7 +131,7 @@ internal fun appState(context: Context) = MainActivityState(
   trashSchedules = listOf(trashSchedules4Preview),
 )
 
-internal val street4Preview = DemographicStreetUiModel(
+internal val demographicStreet4Preview = DemographicStreetUiModel(
   id = 1L,
   name = "Sector 5",
   latitude = -1F,
@@ -151,8 +152,8 @@ internal val accountWithStreetAndArea4Preview = AccountInfoUiModel(
   lastname = account4Preview.lastname,
   firstname = account4Preview.firstname,
   accountId = account4Preview.id,
-  streetName = street4Preview.name,
-  areaName = street4Preview.name,
+  streetName = demographicStreet4Preview.name,
+  areaName = demographicStreet4Preview.name,
   title = AccountTitle.MR.name,
   username = account4Preview.username,
 )
@@ -174,19 +175,19 @@ internal val accountInfo4Preview = AccountInfoUiModel(
   title = account4Preview.title.name,
   username = account4Preview.username,
   accountId = account4Preview.id,
-  streetName = street4Preview.name,
+  streetName = demographicStreet4Preview.name,
   areaName = demographicArea4Preview.name,
 )
 
 internal val paymentMethodWithGateway4Preview =
-  PaymentMethodWithGatewayUiModel(paymentMethod4Preview, gateway4Preview)
+  PaymentMethodWithGatewayUiModel(paymentMethod4Preview, paymentGateway4Preview)
 
 internal val paymentWithAccountAndMethodWithGateway4Preview =
   PaymentWithAccountAndMethodWithGatewayUiModel(
     payment4Preview,
     account4Preview,
     paymentMethod4Preview,
-    gateway4Preview,
+    paymentGateway4Preview,
   )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

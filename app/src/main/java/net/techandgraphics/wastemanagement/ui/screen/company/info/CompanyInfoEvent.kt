@@ -2,6 +2,8 @@ package net.techandgraphics.wastemanagement.ui.screen.company.info
 
 sealed interface CompanyInfoEvent {
 
+  data object Load : CompanyInfoEvent
+
   sealed interface Button : CompanyInfoEvent {
     data object BackHandler : Button
   }

@@ -38,7 +38,11 @@ import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMet
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.month.covered.PaymentMonthCoveredResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
+import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
@@ -247,4 +251,56 @@ fun SearchTagUiModel.toSearchTagEntity() = SearchTagEntity(
   tag = tag,
   timestamp = timestamp,
   id = id,
+)
+
+fun CompanyUiModel.toCompanyEntity() = CompanyEntity(
+  id = id,
+  name = name,
+  latitude = latitude,
+  email = email,
+  longitude = longitude,
+  status = status,
+  address = address,
+  slogan = slogan,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun PaymentGatewayUiModel.toPaymentGatewayEntity() =
+  PaymentGatewayEntity(
+    id = id,
+    name = name,
+    type = type,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
+
+fun AccountUiModel.toAccountEntity() = AccountEntity(
+  id = id,
+  uuid = uuid,
+  title = title.name,
+  firstname = firstname,
+  lastname = lastname,
+  username = username,
+  email = email,
+  latitude = latitude,
+  longitude = longitude,
+  status = status.name,
+  companyId = companyId,
+  leavingReason = leavingReason,
+  leavingTimestamp = leavingTimestamp,
+  updatedAt = updatedAt,
+  createdAt = createdAt,
+  companyLocationId = companyLocationId,
+)
+
+fun PaymentPlanUiModel.toPaymentPlanEntity() = PaymentPlanEntity(
+  id = id,
+  fee = fee,
+  name = name,
+  period = period.name,
+  status = status.name,
+  companyId = companyId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
 )
