@@ -36,7 +36,7 @@ import net.techandgraphics.wastemanagement.gatewayDrawableRes
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
-import net.techandgraphics.wastemanagement.ui.screen.paymentMethod4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +78,7 @@ fun CompanyInfoMethodScreen(
         LazyColumn(
           modifier = Modifier.padding(vertical = 16.dp),
         ) {
-          items(state.methods) { method ->
+          items(state.methods) { ofType ->
             OutlinedCard(
               modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
               colors = CardDefaults.elevatedCardColors()
@@ -92,8 +92,8 @@ fun CompanyInfoMethodScreen(
               ) {
 
                 Image(
-                  painterResource(gatewayDrawableRes[method.paymentGatewayId.minus(1).toInt()]),
-                  contentDescription = method.name,
+                  painterResource(gatewayDrawableRes[ofType.gateway.id.minus(1).toInt()]),
+                  contentDescription = null,
                   modifier = Modifier
                     .clip(CircleShape)
                     .size(32.dp),
@@ -107,14 +107,14 @@ fun CompanyInfoMethodScreen(
                 ) {
 
                   Text(
-                    text = method.account,
+                    text = ofType.method.account,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.MiddleEllipsis
                   )
 
                   Text(
-                    text = method.name,
+                    text = ofType.gateway.name,
                     style = MaterialTheme.typography.titleMedium
                   )
 
@@ -136,7 +136,7 @@ private fun CompanyInfoMethodScreenPreview() {
     CompanyInfoMethodScreen(
       state = CompanyInfoMethodState.Success(
         company = company4Preview,
-        methods = (1..3).map { listOf(paymentMethod4Preview, paymentMethod4Preview) }.flatten()
+        methods = (1..3).map { listOf(paymentMethodWithGateway4Preview) }.flatten()
       ),
       onEvent = {}
     )

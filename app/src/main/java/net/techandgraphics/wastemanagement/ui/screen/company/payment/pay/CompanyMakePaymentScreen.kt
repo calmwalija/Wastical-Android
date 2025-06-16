@@ -55,7 +55,7 @@ import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.paymentMethod4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -110,8 +110,8 @@ fun CompanyMakePaymentScreen(
       if (state is CompanyMakePaymentState.Success) {
 
         val isPaymentMethodCash = state.paymentMethods
-          .filter { it.type == PaymentType.Cash }
-          .any { it.isSelected }
+          .filter { it.gateway.type == PaymentType.Cash.name }
+          .any { it.method.isSelected }
 
 
         Surface(shadowElevation = 10.dp, tonalElevation = 1.dp) {
@@ -205,8 +205,8 @@ fun CompanyMakePaymentScreen(
           item { Spacer(modifier = Modifier.height(24.dp)) }
           item {
             if (state.paymentMethods
-                .filter { it.type == PaymentType.Cash }
-                .any { it.isSelected.not() }
+                .filter { it.gateway.type == PaymentType.Cash.name }
+                .any { it.method.isSelected.not() }
             ) CompanyMakePaymentReferenceView(state, onEvent)
           }
           item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -233,6 +233,9 @@ private fun CompanyMakePaymentScreenPreview() {
 fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
   account = account4Preview,
   paymentPlan = paymentPlan4Preview,
-  paymentMethods = listOf(paymentMethod4Preview, paymentMethod4Preview),
+  paymentMethods = listOf(
+    paymentMethodWithGateway4Preview,
+    paymentMethodWithGateway4Preview
+  ),
   imageLoader = imageLoader(context)
 )
