@@ -14,11 +14,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
-import net.techandgraphics.wastemanagement.data.remote.mapApiError
+import net.techandgraphics.wastemanagement.data.local.database.relations.toEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
-import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
-import net.techandgraphics.wastemanagement.domain.toPaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.AppState
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Verify
@@ -54,28 +52,37 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
   }
 
   private suspend fun flowOfPayments() {
-    database.paymentDao.flowOfPaymentAccount()
-      .map { fromDb -> fromDb.map { it.toPaymentAccountUiModel() } }
+    database.paymentDao.qPaymentWithAccountAndMethodWithGateway()
+      .map { fromDb ->
+        fromDb.map {
+          it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+        }
+      }
       .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
   }
 
   private fun onPaymentStatus(event: Payment.Button.Status) =
     viewModelScope.launch {
-      val request = event.payment.copy(status = event.status).toPaymentRequest()
-      runCatching { api.put(event.payment.id, request) }
-        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(mapApiError(it))) }
-        .onSuccess {
-          it.map { it.toPaymentEntity() }.run {
-            database.paymentDao.upsert(this)
-            _channel.send(CompanyVerifyPaymentChannel.Payment.Success(this))
-          }
-        }
+      // TODO - This should be done through a worker
+//      val request = event.payment.copy(status = event.status).toPaymentRequest()
+//      runCatching { api.put(event.payment.id, request) }
+//        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(mapApiError(it))) }
+//        .onSuccess {
+//          it.map { it.toPaymentEntity() }.run {
+//            database.paymentDao.upsert(this)
+//            _channel.send(CompanyVerifyPaymentChannel.Payment.Success(this))
+//          }
+//        }
     }
 
   private fun onVerifyStatusChange(event: Verify.Button.Status) =
     viewModelScope.launch {
-      database.paymentDao.flowOfPaymentAccount(event.status.name)
-        .map { fromDb -> fromDb.map { it.toPaymentAccountUiModel() } }
+      database.paymentDao.qPaymentWithAccountAndMethodWithGateway(event.status.name)
+        .map { fromDb ->
+          fromDb.map {
+            it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+          }
+        }
         .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
     }
 

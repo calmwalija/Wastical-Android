@@ -43,7 +43,7 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.toGradient
 import net.techandgraphics.wastemanagement.ui.screen.appState
-import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,9 +168,9 @@ fun CompanyVerifyPaymentScreen(
       Spacer(modifier = Modifier.height(8.dp))
 
       LazyColumn {
-        items(state.payments) { payment ->
+        items(state.payments) { entity ->
           CompanyVerifyPaymentView(
-            paymentAccount = payment,
+            entity = entity,
             imageLoader = state.state.imageLoader!!,
             channel = channel,
             onEvent = onEvent
@@ -191,7 +191,7 @@ private fun CompanyVerifyScreenPreview() {
       state = CompanyVerifyPaymentState(
         state = appState(LocalContext.current),
         payments = (1..3)
-          .map { listOf(paymentAccount4Preview, paymentAccount4Preview) }
+          .map { listOf(paymentWithAccountAndMethodWithGateway4Preview) }
           .toList()
           .flatten()
       ),
