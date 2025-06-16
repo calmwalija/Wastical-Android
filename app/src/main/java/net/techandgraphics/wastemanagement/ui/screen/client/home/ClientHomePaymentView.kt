@@ -52,7 +52,8 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Box(modifier = Modifier.size(42.dp)) {
 
         val asyncImagePainter =
-          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
+          imageGatewayPainter(imageGatewayUrl(1), imageLoader!!)
+//          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
 
         Icon(
           painterResource(R.drawable.ic_compare_arrows), null,

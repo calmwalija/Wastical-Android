@@ -52,7 +52,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
     )
 
     state.state.paymentMethods
-      .filterNot { it.type == PaymentType.Cash }
+//      .filterNot { it.type == PaymentType.Cash }
       .forEachIndexed { index, paymentMethod ->
         Card(
           colors = CardDefaults.elevatedCardColors(),
@@ -82,7 +82,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
             Image(
               painter = asyncImagePainter,
-              contentDescription = paymentMethod.name,
+              contentDescription = null,
               modifier = Modifier
                 .clip(CircleShape)
                 .size(48.dp),
@@ -94,7 +94,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
                 .weight(1f)
             ) {
               Text(
-                text = paymentMethod.name,
+                text = "paymentMethod.name",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
               )

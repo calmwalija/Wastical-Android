@@ -2,7 +2,6 @@ package net.techandgraphics.wastemanagement.data.local.database.dashboard.accoun
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.RoomWarnings
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -12,10 +11,12 @@ import java.time.ZonedDateTime
     """
      SELECT
         COUNT(DISTINCT p.account_id) as totalPaidAccounts,
-        SUM(payment_plan_fee) as totalPaidAmount
+        SUM(pp.fee) as totalPaidAmount
     FROM payment p
-    INNER JOIN payment_month_covered pm ON p.id = pm.payment_id
-    WHERE pm.month = :month AND pm.year = :year
+    INNER JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    INNER JOIN payment_method pm ON pm.id = p.payment_method_id
+    INNER JOIN payment_plan pp ON pp.id = pm.payment_plan_id
+    WHERE pmc.month = :month AND pmc.year = :year
 
 """,
   )
@@ -30,14 +31,14 @@ import java.time.ZonedDateTime
   )
   suspend fun getExpectedTotalThisMonth(): Int
 
-  @Query(
-    """
-    SELECT SUM(payment_plan_fee)
-    FROM payment
-    WHERE strftime('%Y-%m', datetime(created_at / 1000, 'unixepoch')) = strftime('%Y-%m', 'now')
-""",
-  )
-  suspend fun getTotalPaymentsThisMonth(): Int?
+//  @Query(
+//    """
+//    SELECT SUM(payment_plan_fee)
+//    FROM payment
+//    WHERE strftime('%Y-%m', datetime(created_at / 1000, 'unixepoch')) = strftime('%Y-%m', 'now')
+// """,
+//  )
+//  suspend fun getTotalPaymentsThisMonth(): Int?
 
   @Query(
     """
@@ -52,21 +53,27 @@ import java.time.ZonedDateTime
   )
   suspend fun getTotalUnpaidAccountsThisMonth(): Int
 
-  @Query("SELECT SUM(payment_plan_fee) FROM payment")
-  suspend fun getTotalAmountReceived(): Int?
-
-  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(
     """
-    SELECT A.*, SUM(P.payment_plan_fee) as totalPaid
-    FROM account A
-    JOIN payment P ON A.id = P.id
-    GROUP BY A.id
-    ORDER BY totalPaid DESC
-    LIMIT 10
-""",
+    SELECT SUM(pp.fee) FROM payment p
+    JOIN payment_method pm ON pm.id = p.payment_method_id
+    JOIN payment_plan pp ON pp.id = pm.payment_plan_id
+  """,
   )
-  suspend fun getTopPayingAccounts(): List<TopPayingAccount>
+  suspend fun getTotalAmountReceived(): Int?
+
+//  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+//  @Query(
+//    """
+//    SELECT A.*, SUM(P.payment_plan_fee) as totalPaid
+//    FROM account A
+//    JOIN payment P ON A.id = P.id
+//    GROUP BY A.id
+//    ORDER BY totalPaid DESC
+//    LIMIT 10
+// """,
+//  )
+//  suspend fun getTopPayingAccounts(): List<TopPayingAccount>
 
 //  @Query(
 //    """

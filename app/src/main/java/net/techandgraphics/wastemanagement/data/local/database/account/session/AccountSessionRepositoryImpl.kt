@@ -21,7 +21,6 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentPlanEnti
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
@@ -67,13 +66,8 @@ class AccountSessionRepositoryImpl @Inject constructor(
                 paymentCollectionDays?.map { it.toPaymentCollectionDayEntity() }
                   ?.also { paymentDayDao.insert(it) }
 
-                paymentGateways?.also {
-                  paymentMethods
-                    ?.toPaymentMethodEntity(it)
-                    ?.map { method ->
-                      paymentMethodDao.insert(method.copy(isSelected = method.type == PaymentType.Cash.name))
-                    }
-                }
+                paymentMethods?.map { it.toPaymentMethodEntity() }
+                  ?.also { paymentMethodDao.insert(it) }
 
                 payments?.map { it.toPaymentEntity() }?.also { paymentDao.insert(it) }
 
