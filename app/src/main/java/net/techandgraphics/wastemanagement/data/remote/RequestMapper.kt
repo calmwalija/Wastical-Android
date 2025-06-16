@@ -1,7 +1,7 @@
 package net.techandgraphics.wastemanagement.data.remote
 
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
-import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmTokenRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
@@ -9,7 +9,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 
-fun PaymentEntity.toPaymentRequest() = PaymentRequest(
+fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   screenshotText = screenshotText,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
@@ -22,7 +22,8 @@ fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
   screenshotText = screenshotText,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
-  months = numberOfMonths,
+  // TODO
+  months = 2,
   status = status,
   companyId = companyId,
   executedById = executedById,
@@ -34,8 +35,16 @@ fun AccountFcmTokenEntity.toAccountFcmTokenRequest(accountId: Long) =
     accountId = accountId,
   )
 
-fun PaymentPlanUiModel.toAccountPaymentPlanRequest(account: AccountUiModel) = AccountPaymentPlanRequest(
-  accountId = account.id,
-  accountUuid = account.uuid,
-  paymentPlanId = id,
-)
+fun PaymentPlanUiModel.toAccountPaymentPlanRequest(account: AccountUiModel) =
+  AccountPaymentPlanRequest(
+    accountId = account.id,
+    accountUuid = account.uuid,
+    paymentPlanId = id,
+  )
+
+// fun PaymentRequest.toPaymentRequest() =
+//  PaymentRequest(
+//    accountId = account.id,
+//    accountUuid = account.uuid,
+//    paymentPlanId = id,
+//  )

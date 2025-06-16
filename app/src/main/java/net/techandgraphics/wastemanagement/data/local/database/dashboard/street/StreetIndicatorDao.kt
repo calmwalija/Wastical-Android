@@ -41,16 +41,16 @@ interface StreetIndicatorDao {
   )
   suspend fun getPayment4CurrentLocationMonth(month: Int, year: Int): List<Payment4CurrentLocationMonth>
 
-  @Query(
-    """
-    SELECT S.name AS streetName, SUM(P.payment_plan_fee) AS totalPayments
-    FROM payment P
-    INNER JOIN account A ON P.id = A.id
-    INNER JOIN demographic_street S ON A.id = S.id
-    GROUP BY S.id
-""",
-  )
-  suspend fun getTotalPaymentsPerStreet(): List<StreetPaymentStat>
+//  @Query(
+//    """
+//    SELECT S.name AS streetName, SUM(P.payment_plan_fee) AS totalPayments
+//    FROM payment P
+//    INNER JOIN account A ON P.id = A.id
+//    INNER JOIN demographic_street S ON A.id = S.id
+//    GROUP BY S.id
+// """,
+//  )
+//  suspend fun getTotalPaymentsPerStreet(): List<StreetPaymentStat>
 
   @Query(
     """
