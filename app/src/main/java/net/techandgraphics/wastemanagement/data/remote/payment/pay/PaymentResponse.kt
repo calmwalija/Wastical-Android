@@ -1,12 +1,9 @@
 package net.techandgraphics.wastemanagement.data.remote.payment.pay
 
 import com.google.gson.annotations.SerializedName
-import net.techandgraphics.wastemanagement.data.remote.payment.gateway.PaymentGatewayResponse
-import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
 
 data class PaymentResponse(
   val id: Long,
-  val months: Int = -1,
   @SerializedName("screenshot_text") val screenshotText: String,
   @SerializedName("transaction_id") val transactionId: String,
   @SerializedName("payment_method_id") val paymentMethodId: Long,
@@ -16,6 +13,4 @@ data class PaymentResponse(
   @SerializedName("updated_at") val updatedAt: Long,
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("executed_by_id") val executedById: Long,
-  @SerializedName("payment_plan") val plan: PaymentPlanResponse? = null,
-  @SerializedName("payment_gateway") val gateway: PaymentGatewayResponse? = null,
 )

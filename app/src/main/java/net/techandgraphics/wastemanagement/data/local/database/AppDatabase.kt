@@ -38,6 +38,8 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.pay.Payme
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestDao
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanDao
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagDao
@@ -63,6 +65,7 @@ import net.techandgraphics.wastemanagement.data.local.database.search.tag.Search
     PaymentMonthCoveredEntity::class,
     CompanyLocationEntity::class,
     SearchTagEntity::class,
+    PaymentRequestEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -92,6 +95,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val paymentIndicatorDao: PaymentIndicatorDao
   abstract val paymentMonthCoveredDao: PaymentMonthCoveredDao
   abstract val searchTagDao: SearchTagDao
+  abstract val paymentRequestDao: PaymentRequestDao
 
   companion object {
     const val NAME = "waste_management_db"

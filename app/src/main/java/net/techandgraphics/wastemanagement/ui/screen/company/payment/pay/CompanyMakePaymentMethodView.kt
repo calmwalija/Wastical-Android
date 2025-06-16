@@ -50,18 +50,18 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       colors = CardDefaults.elevatedCardColors(),
       modifier = Modifier.padding(vertical = 8.dp),
     ) {
-      state.paymentMethods.forEachIndexed { index, paymentMethod ->
+      state.paymentMethods.forEachIndexed { index, ofType ->
         Row(
           modifier = Modifier
-            .clickable { onEvent(CompanyMakePaymentEvent.Button.PaymentMethod(paymentMethod)) }
+            .clickable { onEvent(CompanyMakePaymentEvent.Button.PaymentMethod(ofType.method)) }
             .fillMaxWidth()
             .padding(16.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
 
           Image(
-            painterResource(gatewayDrawableRes[paymentMethod.paymentGatewayId.minus(1).toInt()]),
-            contentDescription = paymentMethod.name,
+            painterResource(gatewayDrawableRes[ofType.gateway.id.minus(1).toInt()]),
+            contentDescription = null,
             modifier = Modifier
               .clip(CircleShape)
               .size(48.dp),
@@ -73,17 +73,17 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               .weight(1f)
           ) {
             Text(
-              text = paymentMethod.name,
+              text = ofType.gateway.name,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis,
             )
             Text(
-              text = paymentMethod.account,
+              text = ofType.method.account,
               color = MaterialTheme.colorScheme.primary
             )
           }
 
-          if (paymentMethod.isSelected)
+          if (ofType.method.isSelected)
             Icon(
               Icons.Outlined.CheckCircle,
               contentDescription = null,

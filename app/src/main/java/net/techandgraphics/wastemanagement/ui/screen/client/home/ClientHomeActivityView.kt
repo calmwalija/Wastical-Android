@@ -63,7 +63,9 @@ import java.time.temporal.ChronoUnit
           Column(modifier = Modifier.padding(16.dp)) {
 
             val dueDate =
-              oldPay.createdAt.toZonedDateTime().plusMonths(oldPay.numberOfMonths.toLong())
+              oldPay.createdAt.toZonedDateTime().plusMonths(3)
+//              oldPay.createdAt.toZonedDateTime().plusMonths(oldPay.numberOfMonths.toLong())
+
             val monthCount = ChronoUnit.MONTHS.between(ZonedDateTime.now(), dueDate)
 
             val overdueFee = plan.fee.times(monthCount).toAmount()

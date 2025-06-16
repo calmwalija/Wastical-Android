@@ -35,26 +35,27 @@ import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.defaultDateTime
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment.Button
 import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Composable fun CompanyVerifyPaymentDialog(
-  paymentAccount: PaymentAccountUiModel,
+  entity: PaymentWithAccountAndMethodWithGatewayUiModel,
   onEvent: (CompanyVerifyPaymentEvent) -> Unit,
   onDismissRequest: () -> Unit
 ) {
 
-
-  val account = paymentAccount.account
-  val payment = paymentAccount.payment
+  val account = entity.account
+  val payment = entity.payment
+  val gateway = entity.gateway
 
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
-    if (payment.paymentGatewayName != PaymentType.Cash.name)
+    if (gateway.type != PaymentType.Cash.name)
       Image(
         painterResource(R.drawable.im_placeholder),
         contentDescription = null,
@@ -91,7 +92,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             text = payment.createdAt.toZonedDateTime().defaultDateTime(),
             style = MaterialTheme.typography.bodyMedium
           )
-          Text(text = payment.paymentGatewayName)
+          Text(text = gateway.name)
 
           Text(
             text = payment.calculate(),
@@ -108,7 +109,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
         ) {
           Text(
             text =
-              if (payment.paymentGatewayName == PaymentType.Cash.name)
+              if (gateway.name == PaymentType.Cash.name)
                 "Not Applicable" else payment.screenshotText,
             modifier = Modifier
               .padding(32.dp)
@@ -142,7 +143,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable fun CompanyVerifyPaymentDialogPreview() {
   WasteManagementTheme {
     CompanyVerifyPaymentDialog(
-      paymentAccount = paymentAccount4Preview,
+      entity = paymentWithAccountAndMethodWithGateway4Preview,
       onEvent = {},
       onDismissRequest = {}
     )

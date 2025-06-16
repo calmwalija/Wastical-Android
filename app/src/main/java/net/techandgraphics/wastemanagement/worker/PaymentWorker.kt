@@ -25,11 +25,11 @@ import net.techandgraphics.wastemanagement.toFullName
 ) : CoroutineWorker(context, params) {
   override suspend fun doWork(): Result {
     return try {
-      database.paymentDao.qPaymentByStatus().onEach { paymentEntity ->
-        val request = paymentEntity.toPaymentRequest().asApproved()
+      database.paymentRequestDao.query().onEach { paymentRequest ->
+        val request = paymentRequest.toPaymentRequest().asApproved()
         val newValue = api.pay(request)
         val account = database.accountDao.get(newValue.accountId).toAccountUiModel()
-        database.paymentDao.delete(paymentEntity)
+        database.paymentRequestDao.delete(paymentRequest)
         database.paymentDao.upsert(newValue.toPaymentEntity())
         val notification = NotificationUiModel(
           type = NotificationType.PaymentRecorded,

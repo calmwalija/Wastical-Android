@@ -63,6 +63,8 @@ class ClientInvoiceViewModel @Inject constructor(
         companyContact = companyContacts.first { it.primary },
         paymentMethod = state.value.state.paymentMethods.first { it.id == payment.paymentMethodId },
         onEvent = onEvent,
+        // TODO
+        paymentGateway = paymentGateways.first(),
       )
     }
 

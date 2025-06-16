@@ -15,18 +15,17 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.getUCropFile
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.onTextToClipboard
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
+import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import javax.inject.Inject
 
 @HiltViewModel
@@ -82,7 +81,7 @@ class ClientPaymentViewModel @Inject constructor(
 
       /** Pay by cash creates a dummy File **/
       state.paymentMethods
-        .filter { it.type == PaymentType.Cash }
+//        .filter { it.type == PaymentType.Cash }
         .any { it.isSelected.not() }
         .also { theFile().createNewFile() }
 
@@ -91,12 +90,13 @@ class ClientPaymentViewModel @Inject constructor(
           val plan = state.paymentPlans.first()
           val method = state.paymentMethods.first { it.isSelected }
           val gateway = state.paymentGateways.first { it.id == method.paymentGatewayId }
-          val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
+          val cachedPayment = payment4Preview
+//          val cachedPayment = paymentRequest.toPaymentCacheEntity(plan, gateway)
 
           /** Rename the File **/
           val oldFile = application.getUCropFile(lastPaymentId)
           oldFile.renameTo(application.getUCropFile(cachedPayment.id))
-          database.paymentDao.upsert(cachedPayment)
+//          database.paymentDao.upsert(cachedPayment)
           _channel.send(ClientPaymentChannel.Pay.Failure(mapApiError(it)))
         }
         .onSuccess {

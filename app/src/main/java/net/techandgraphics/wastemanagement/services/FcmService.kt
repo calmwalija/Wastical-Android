@@ -82,9 +82,9 @@ class FcmService : FirebaseMessagingService() {
         .get(payment.accountId)
         .toAccountUiModel()
 
-      val gateway = database
-        .paymentGatewayDao
-        .get(payment.paymentGatewayId)
+      val entity = database
+        .paymentMethodDao
+        .getWithGatewayById(payment.paymentMethodId)
 
       val notification = NotificationUiModel(
         type = NotificationType.PaymentVerification,
@@ -92,7 +92,7 @@ class FcmService : FirebaseMessagingService() {
         body = "${account.toFullName()} has sent a payment request",
         style = NotificationCompat.BigTextStyle().bigText(
           "${account.toFullName()} has sent a payment request of ${payment.calculate()} " +
-            "using ${gateway.name} on ${payment.updatedAt.toZonedDateTime().defaultDateTime()}",
+            "using ${entity.gateway.name} on ${payment.updatedAt.toZonedDateTime().defaultDateTime()}",
         ),
       )
 

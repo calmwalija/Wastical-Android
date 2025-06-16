@@ -95,8 +95,7 @@ private fun ClientInvoiceScreenPreview() {
           .mapIndexed { index, item ->
             payment4Preview.copy(
               id = index.toLong(),
-              numberOfMonths = Random.nextInt(1, 5)
-            )
+             )
           }
       ),
       channel = flow { },

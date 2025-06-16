@@ -71,7 +71,7 @@ fun ClientPaymentScreen(
   var loading by remember { mutableStateOf(false) }
 
   val payByCash = state.state.paymentMethods
-    .filter { it.type == PaymentType.Cash }
+//    .filter { it.type == PaymentType.Cash }
     .any { it.isSelected.not() }
 
   val lifecycleOwner = LocalLifecycleOwner.current

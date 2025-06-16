@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.data.local.database.payment.pay
+package net.techandgraphics.wastemanagement.data.local.database.payment.pay.request
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -9,7 +9,7 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountEn
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 
 @Entity(
-  tableName = "payment",
+  tableName = "payment_request",
   foreignKeys = [
     ForeignKey(
       entity = AccountEntity::class,
@@ -33,15 +33,13 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
     Index("executed_by_id"),
   ],
 )
-data class PaymentEntity(
-  @PrimaryKey val id: Long,
+data class PaymentRequestEntity(
+  @PrimaryKey val id: Long = 0,
+  val months: Int,
   @ColumnInfo("screenshot_text") val screenshotText: String,
-  @ColumnInfo("transaction_id") val transactionId: String,
   @ColumnInfo("payment_method_id") val paymentMethodId: Long,
   @ColumnInfo("account_id") val accountId: Long,
-  @ColumnInfo("payment_status") val status: String,
-  @ColumnInfo("created_at") val createdAt: Long,
-  @ColumnInfo("updated_at") val updatedAt: Long,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("executed_by_id") val executedById: Long,
+  @ColumnInfo("payment_status") val status: String,
 )

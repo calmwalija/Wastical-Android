@@ -41,8 +41,8 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.defaultDateTime
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.imageGatewayUrl
 import net.techandgraphics.wastemanagement.imageScreenshotUrl
 import net.techandgraphics.wastemanagement.toFullName
@@ -50,12 +50,12 @@ import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.imageGatewayPainter
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
-import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun CompanyVerifyPaymentView(
   channel: Flow<CompanyVerifyPaymentChannel>,
-  paymentAccount: PaymentAccountUiModel,
+  entity: PaymentWithAccountAndMethodWithGatewayUiModel,
   imageLoader: ImageLoader?,
   onEvent: (CompanyVerifyPaymentEvent) -> Unit,
 ) {
@@ -65,8 +65,9 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   var paymentMethod by remember { mutableStateOf<PaymentMethodUiModel?>(null) }
 
   val context = LocalContext.current
-  val payment = paymentAccount.payment
-  val account = paymentAccount.account
+
+  val payment = entity.payment
+  val account = entity.account
 
 
   val lifecycleOwner = LocalLifecycleOwner.current
@@ -86,7 +87,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   if (showDialog) {
     Dialog(onDismissRequest = { showDialog = false }) {
       CompanyVerifyPaymentDialog(
-        paymentAccount = paymentAccount,
+        entity = entity,
         onEvent = onEvent
       ) { showDialog = false }
     }
@@ -103,7 +104,8 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
       Box(modifier = Modifier.size(48.dp)) {
 
         val gatewayImagePainter =
-          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
+          imageGatewayPainter(imageGatewayUrl(payment.id), imageLoader!!)
+//          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
 
         val screenshotImagePainter =
           imageGatewayPainter(payment.imageScreenshotUrl(), imageLoader)
@@ -181,7 +183,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   WasteManagementTheme {
     CompanyVerifyPaymentView(
       channel = flow {},
-      paymentAccount = paymentAccount4Preview,
+      entity = paymentWithAccountAndMethodWithGateway4Preview,
       imageLoader = imageLoader(LocalContext.current),
       onEvent = {}
     )

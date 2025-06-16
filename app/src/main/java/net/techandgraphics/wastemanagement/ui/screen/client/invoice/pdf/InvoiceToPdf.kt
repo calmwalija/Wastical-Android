@@ -14,6 +14,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUi
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
@@ -35,7 +36,7 @@ private fun tableData(
   listOf(
     "1",
     "${paymentPlan.period.name} Subscription",
-    payment.numberOfMonths,
+//    payment.numberOfMonths,
     paymentPlan.fee.toAmount(),
     calculateToTextAmount(paymentPlan, payment),
   )
@@ -50,6 +51,7 @@ fun invoiceToPdf(
   payment: PaymentUiModel,
   paymentPlan: PaymentPlanUiModel,
   paymentMethod: PaymentMethodUiModel,
+  paymentGateway: PaymentGatewayUiModel,
   onEvent: (File?) -> Unit,
 ) {
   val pdfDocument = PdfDocument()
@@ -238,7 +240,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = paymentMethod.name,
+      theSentence = paymentGateway.name,
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -248,7 +250,7 @@ fun invoiceToPdf(
     yAxis = yAxis.plus(textSize72.textSize.minus(20))
 
     /***************************************************************/
-    if (paymentMethod.type != PaymentType.Cash) {
+    if (paymentGateway.type != PaymentType.Cash.name) {
       pdfSentence(
         theSentence = "Account # : ${paymentMethod.account}",
         xAxis = xAxis,

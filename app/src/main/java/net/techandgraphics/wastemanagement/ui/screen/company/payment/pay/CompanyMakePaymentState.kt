@@ -3,8 +3,8 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
 import android.net.Uri
 import coil.ImageLoader
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
 
 sealed interface CompanyMakePaymentState {
   object Loading : CompanyMakePaymentState
@@ -12,7 +12,7 @@ sealed interface CompanyMakePaymentState {
   data class Success(
     val account: AccountUiModel,
     val paymentPlan: PaymentPlanUiModel,
-    val paymentMethods: List<PaymentMethodUiModel> = listOf(),
+    val paymentMethods: List<PaymentMethodWithGatewayUiModel> = listOf(),
     val imageLoader: ImageLoader,
 
     val numberOfMonths: Int = 1,

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentMethodWithGatewayUiModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +31,8 @@ class CompanyInfoMethodViewModel @Inject constructor(
 
   private suspend fun onLoad() {
     val company = database.companyDao.query().first().toCompanyUiModel()
-    val methods = database.paymentMethodDao.query().map { it.toPaymentMethodUiModel() }
+    val methods =
+      database.paymentMethodDao.qWithGateway().map { it.toPaymentMethodWithGatewayUiModel() }
     _state.value = CompanyInfoMethodState.Success(company = company, methods = methods)
   }
 

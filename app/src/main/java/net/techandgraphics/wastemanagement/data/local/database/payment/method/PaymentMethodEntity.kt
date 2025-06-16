@@ -29,8 +29,6 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
 )
 data class PaymentMethodEntity(
   @PrimaryKey val id: Long,
-  val name: String,
-  val type: String,
   val account: String,
   val isSelected: Boolean = false,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,

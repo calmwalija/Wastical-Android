@@ -7,7 +7,7 @@ import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 
 @Dao
 interface PaymentPlanDao : BaseDao<PaymentPlanEntity> {
-  @Query("SELECT * FROM payment_plan")
+  @Query("SELECT * FROM payment_plan ORDER BY fee")
   suspend fun query(): List<PaymentPlanEntity>
 
   @Query("SELECT * FROM payment_plan ORDER BY fee")

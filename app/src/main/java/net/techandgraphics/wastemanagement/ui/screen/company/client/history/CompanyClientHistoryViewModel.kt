@@ -57,6 +57,8 @@ class CompanyClientHistoryViewModel @Inject constructor(
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     with(state.value as CompanyClientHistoryState.Success) {
+      val paymentMethod = state.paymentMethods.first { it.id == payment.paymentMethodId }
+      val paymentGateway = state.paymentGateways.first { it.id == paymentMethod.id }
       invoiceToPdf(
         context = application,
         account = state.accounts.first(),
@@ -65,8 +67,9 @@ class CompanyClientHistoryViewModel @Inject constructor(
         paymentPlan = plan,
         company = state.companies.first(),
         companyContact = state.companyContacts.first { it.primary },
-        paymentMethod = state.paymentMethods.first { it.id == payment.paymentMethodId },
+        paymentMethod = paymentMethod,
         onEvent = onEvent,
+        paymentGateway = paymentGateway,
       )
     }
 

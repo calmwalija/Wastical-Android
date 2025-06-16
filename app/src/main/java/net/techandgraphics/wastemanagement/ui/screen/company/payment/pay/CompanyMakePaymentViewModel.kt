@@ -11,15 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentCacheEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.toBitmap
@@ -32,7 +30,6 @@ class CompanyMakePaymentViewModel @Inject constructor(
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
   private val application: Application,
-  private val api: PaymentApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyMakePaymentState>(CompanyMakePaymentState.Loading)
@@ -48,8 +45,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val paymentPlan =
         database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
-      val paymentMethods = database.paymentMethodDao.getByPaymentPlanId(paymentPlan.id)
-        .map { it.toPaymentMethodUiModel() }
+      val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
+        .map { it.toPaymentMethodWithGatewayUiModel() }
       _state.value = CompanyMakePaymentState.Success(
         account = account,
         paymentPlan = paymentPlan,
@@ -60,21 +57,17 @@ class CompanyMakePaymentViewModel @Inject constructor(
 
   private fun onRecordPayment() = viewModelScope.launch {
     with(state.value as CompanyMakePaymentState.Success) {
-      val method = paymentMethods.first { it.isSelected }
-      val gateway = database
-        .paymentGatewayDao
-        .get(method.paymentGatewayId)
-        .toPaymentGatewayUiModel()
+      val method = paymentMethods.first { it.method.isSelected }
       val cachedPayment = PaymentRequest(
         screenshotText = screenshotText,
-        paymentMethodId = method.id,
+        paymentMethodId = method.method.id,
         accountId = account.id,
         months = numberOfMonths,
         companyId = account.companyId,
         executedById = ACCOUNT_ID,
         status = PaymentStatus.Waiting,
-      ).toPaymentCacheEntity(paymentPlan, gateway)
-      database.paymentDao.upsert(cachedPayment)
+      ).toPaymentRequestEntity()
+      database.paymentRequestDao.upsert(cachedPayment)
       application.schedulePaymentWorker()
       _channel.send(CompanyMakePaymentChannel.Pay.Success)
       _state.value = getState().copy(imageUri = null)
@@ -90,8 +83,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
       event.method.toPaymentMethodEntity().copy(isSelected = true)
         .also { database.paymentMethodDao.update(it) }
       val paymentMethods = database.paymentMethodDao
-        .getByPaymentPlanId(event.method.paymentPlanId)
-        .map { it.toPaymentMethodUiModel() }
+        .qWithGatewayByPaymentPlanId(event.method.paymentPlanId)
+        .map { it.toPaymentMethodWithGatewayUiModel() }
       _state.value = getState().copy(paymentMethods = paymentMethods)
     }
 

@@ -47,7 +47,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
       Box(modifier = Modifier.size(48.dp)) {
         Image(
-          painterResource(gatewayDrawableRes[payment.paymentGatewayId.minus(1).toInt()]),
+          painterResource(gatewayDrawableRes[payment.id.minus(1).toInt()]),
           contentDescription = null,
           modifier = Modifier
             .padding(4.dp)
@@ -64,7 +64,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
             .padding(horizontal = 8.dp)
         ) {
           Text(
-            text = payment.paymentGatewayName,
+            text = "payment.paymentGatewayName",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

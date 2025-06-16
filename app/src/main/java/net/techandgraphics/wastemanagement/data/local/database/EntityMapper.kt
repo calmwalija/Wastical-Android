@@ -16,6 +16,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.P
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
@@ -37,12 +38,8 @@ import net.techandgraphics.wastemanagement.data.remote.payment.method.PaymentMet
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.month.covered.PaymentMonthCoveredResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
-import java.time.ZonedDateTime
-import java.util.UUID
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
   id = id,
@@ -67,23 +64,9 @@ fun CompanyContactResponse.toCompanyContactEntity() = CompanyContactEntity(
   updatedAt = updatedAt,
 )
 
-fun List<PaymentMethodResponse>.toPaymentMethodEntity(gateways: List<PaymentGatewayResponse>): MutableList<PaymentMethodEntity> {
-  val paymentMethods: MutableList<PaymentMethodEntity> = mutableListOf()
-  map { method ->
-    gateways.forEach { gateway ->
-      if (method.paymentGatewayId == gateway.id) {
-        paymentMethods.add(method.toPaymentMethodEntity(gateway))
-      }
-    }
-  }
-  return paymentMethods
-}
-
-fun PaymentMethodResponse.toPaymentMethodEntity(gateway: PaymentGatewayResponse) =
+fun PaymentMethodResponse.toPaymentMethodEntity() =
   PaymentMethodEntity(
     id = id,
-    name = gateway.name,
-    type = gateway.type,
     account = account,
     paymentPlanId = paymentPlanId,
     paymentGatewayId = paymentGatewayId,
@@ -107,17 +90,10 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   status = status,
   accountId = accountId,
   screenshotText = screenshotText,
-  months = months,
   transactionId = transactionId,
   paymentMethodId = paymentMethodId,
   createdAt = createdAt,
   updatedAt = updatedAt,
-  paymentPlanId = plan!!.id,
-  paymentPlanFee = plan.fee,
-  paymentPlanPeriod = plan.period,
-  paymentGatewayId = gateway!!.id,
-  paymentGatewayName = gateway.name,
-  paymentGatewayType = gateway.type,
   companyId = companyId,
   executedById = executedById,
 )
@@ -152,26 +128,15 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
   updatedAt = updatedAt,
 )
 
-fun PaymentRequest.toPaymentCacheEntity(plan: PaymentPlanUiModel, gateway: PaymentGatewayUiModel) =
-  PaymentEntity(
-    status = PaymentStatus.Waiting.name,
-    accountId = accountId,
-    screenshotText = screenshotText,
-    months = months,
-    paymentMethodId = paymentMethodId,
-    transactionId = UUID.randomUUID().toString(),
-    createdAt = ZonedDateTime.now().toEpochSecond(),
-    id = System.currentTimeMillis().times(1_000),
-    updatedAt = ZonedDateTime.now().toEpochSecond(),
-    paymentPlanId = plan.id,
-    paymentPlanFee = plan.fee,
-    paymentPlanPeriod = plan.period.name,
-    paymentGatewayId = gateway.id,
-    paymentGatewayName = gateway.name,
-    paymentGatewayType = gateway.type,
-    companyId = companyId,
-    executedById = executedById,
-  )
+fun PaymentRequest.toPaymentRequestEntity() = PaymentRequestEntity(
+  status = PaymentStatus.Waiting.name,
+  accountId = accountId,
+  screenshotText = screenshotText,
+  paymentMethodId = paymentMethodId,
+  companyId = companyId,
+  executedById = executedById,
+  months = months,
+)
 
 fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(
   id = id,
@@ -240,8 +205,6 @@ fun PaymentGatewayResponse.toPaymentGatewayEntity() = PaymentGatewayEntity(
 
 fun PaymentMethodUiModel.toPaymentMethodEntity() = PaymentMethodEntity(
   id = id,
-  name = name,
-  type = type.name,
   account = account,
   paymentPlanId = paymentPlanId,
   paymentGatewayId = paymentGatewayId,
