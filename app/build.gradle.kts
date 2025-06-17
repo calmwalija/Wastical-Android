@@ -82,6 +82,12 @@ android {
       }
     }
   }
+
+  testOptions {
+    unitTests.all {
+      it.jvmArgs("-XX:+EnableDynamicAgentLoading")
+    }
+  }
 }
 
 dependencies {
@@ -154,5 +160,12 @@ dependencies {
 
   androidTestImplementation("com.google.dagger:hilt-android-testing:2.51")
   kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
+  testImplementation(kotlin("test"))
+
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+  testImplementation("org.slf4j:slf4j-simple:2.0.9")
+  testImplementation("io.mockk:mockk:1.13.10")
+  testImplementation("net.bytebuddy:byte-buddy:1.14.13")
+
 
 }
