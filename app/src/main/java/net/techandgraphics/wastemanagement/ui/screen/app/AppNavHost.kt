@@ -149,7 +149,7 @@ fun AppNavHost(
           when (event) {
             CompanyVerifyPaymentEvent.Goto.BackHandler -> navController.navigateUp()
             is CompanyVerifyPaymentEvent.Goto.Profile ->
-              navController.navigate(Route.Company.Client.Profile(event.id)) 
+              navController.navigate(Route.Company.Client.Profile(event.id))
 
             else -> onEvent(event)
           }
