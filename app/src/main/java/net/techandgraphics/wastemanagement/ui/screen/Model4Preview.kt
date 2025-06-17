@@ -161,6 +161,7 @@ internal val payment4CurrentLocationMonth4Preview = Payment4CurrentLocationMonth
   areaName = "Sector 3",
   totalAccounts = 10,
   paidAccounts = 3,
+  streetId = 1,
 )
 
 internal val accountWithStreetAndArea4Preview = AccountInfoUiModel(

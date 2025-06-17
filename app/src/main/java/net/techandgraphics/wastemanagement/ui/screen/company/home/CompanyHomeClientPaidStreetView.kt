@@ -38,7 +38,9 @@ import kotlin.random.Random
 @Composable
 fun CompanyHomeClientPaidStreetView(
   location: Payment4CurrentLocationMonth,
-) {
+  onEvent: (CompanyHomeEvent) -> Unit,
+
+  ) {
 
   var targetValue by remember { mutableFloatStateOf(0f) }
   val animateAsFloat by animateFloatAsState(
@@ -53,7 +55,9 @@ fun CompanyHomeClientPaidStreetView(
       (location.paidAccounts.toFloat() / location.totalAccounts.toFloat()).coerceIn(0f, 1f)
   }
 
-  OutlinedCard(shape = CircleShape, modifier = Modifier.padding(8.dp)) {
+  OutlinedCard(
+    shape = CircleShape, modifier = Modifier.padding(8.dp),
+    onClick = { onEvent(CompanyHomeEvent.Goto.LocationOverview(location.streetId)) }) {
     Box(modifier = Modifier.fillMaxWidth()) {
       Box(
         modifier = Modifier
@@ -120,6 +124,7 @@ private fun CompanyHomeClientPaidStreetViewPreview() {
     Box(modifier = Modifier.padding(16.dp)) {
       CompanyHomeClientPaidStreetView(
         location = companyHomeStateSuccess().payment4CurrentLocationMonth.first(),
+        onEvent = {  },
       )
     }
   }
