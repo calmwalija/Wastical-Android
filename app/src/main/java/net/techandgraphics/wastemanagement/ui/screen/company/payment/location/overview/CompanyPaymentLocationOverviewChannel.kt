@@ -1,0 +1,3 @@
+package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview
+
+sealed interface CompanyPaymentLocationOverviewChannel
