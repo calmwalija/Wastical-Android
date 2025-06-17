@@ -272,6 +272,7 @@ fun AppNavHost(
           when (event) {
             CompanyInfoMethodEvent.Button.BackHandler -> navController.navigateUp()
             CompanyInfoMethodEvent.Button.Plan -> Unit
+            else -> Unit
           }
         }
       }
