@@ -7,4 +7,8 @@ sealed interface CompanyPaymentPerLocationEvent {
   sealed interface Button : CompanyPaymentPerLocationEvent {
     data object BackHandler : CompanyPaymentPerLocationEvent
   }
+
+  sealed interface Goto : CompanyPaymentPerLocationEvent {
+    data class LocationOverview(val id: Long) : Goto
+  }
 }

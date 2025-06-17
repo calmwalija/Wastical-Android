@@ -181,7 +181,7 @@ fun CompanyHomeScreen(
 
 
         state.payment4CurrentLocationMonth.forEach { location ->
-          CompanyHomeClientPaidStreetView(location)
+          CompanyHomeClientPaidStreetView(location, onEvent)
         }
 
 

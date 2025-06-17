@@ -51,6 +51,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyIn
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
@@ -289,6 +292,8 @@ fun AppNavHost(
               Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
               Goto.Company -> navController.navigate(Route.Company.Info.This)
               Goto.PerLocation -> navController.navigate(Route.Company.PerLocation)
+              is Goto.LocationOverview ->
+                navController.navigate(Route.Company.LocationOverview(event.id))
             }
 
             else -> onEvent(event)
@@ -305,6 +310,27 @@ fun AppNavHost(
           when (event) {
             CompanyPaymentPerLocationEvent.Button.BackHandler -> navController.navigateUp()
             CompanyPaymentPerLocationEvent.Load -> Unit
+            is CompanyPaymentPerLocationEvent.Goto.LocationOverview ->
+              navController.navigate(Route.Company.LocationOverview(event.id))
+          }
+        }
+      }
+    }
+
+
+    composable<Route.Company.LocationOverview> {
+      with(hiltViewModel<CompanyPaymentLocationOverviewViewModel>()) {
+        val id = it.toRoute<Route.Company.LocationOverview>().id
+        val state = state.collectAsState().value
+        LaunchedEffect(id) { onEvent(CompanyPaymentLocationOverviewEvent.Load(id)) }
+        CompanyPaymentLocationOverviewScreen(state) { event ->
+          when (event) {
+            CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
+            is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id))
+
+            is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
+            else -> Unit
           }
         }
       }

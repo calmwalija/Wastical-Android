@@ -10,6 +10,9 @@ interface DemographicAreaDao : BaseDao<DemographicAreaEntity> {
   @Query("SELECT * FROM demographic_area")
   suspend fun query(): List<DemographicAreaEntity>
 
+  @Query("SELECT * FROM demographic_area WHERE id=:id")
+  suspend fun get(id: Long): DemographicAreaEntity
+
   @Query("SELECT * FROM demographic_area")
   fun flow(): Flow<List<DemographicAreaEntity>>
 }

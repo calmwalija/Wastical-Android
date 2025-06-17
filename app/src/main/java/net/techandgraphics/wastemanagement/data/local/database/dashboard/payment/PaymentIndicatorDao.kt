@@ -1,7 +1,12 @@
 package net.techandgraphics.wastemanagement.data.local.database.dashboard.payment
 
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 
 @Dao
 interface PaymentIndicatorDao {
@@ -30,6 +35,99 @@ interface PaymentIndicatorDao {
 """,
   )
   suspend fun getExpectedAmountToCollect(): Int
+
+  @Query(
+    """
+    SELECT SUM(pp.fee) AS expectedTotal
+    FROM account_payment_plan app
+    INNER JOIN payment_plan pp ON app.payment_plan_id = pp.id
+    INNER JOIN account acc ON acc.id = app.account_id
+    INNER JOIN company_location cl ON cl.id = acc.company_location_id
+    WHERE cl.demographic_street_id =:id
+""",
+  )
+  suspend fun getExpectedAmountToCollectByStreetId(id: Long): Int
+
+  @RewriteQueriesToDropUnusedColumns
+  @Query(
+    """
+    SELECT
+        ds.id AS streetId,
+        ds.name AS streetName,
+        da.name AS areaName,
+        COUNT(DISTINCT a.id) AS totalAccounts,
+        COUNT(DISTINCT p.account_id) AS paidAccounts
+    FROM company_location cl
+    JOIN account a ON cl.id = a.company_location_id
+    JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+    JOIN demographic_area da ON da.id = cl.demographic_area_id
+    LEFT JOIN (
+        SELECT DISTINCT p.account_id
+        FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
+        WHERE pm.month = :month AND pm.year =:year
+    ) p ON p.account_id = a.id
+    WHERE ds.id = :id
+    GROUP BY ds.id, ds.name, da.name
+    ORDER BY paidAccounts DESC LIMIT 3
+    """,
+  )
+  suspend fun getPayment4CurrentLocationMonthById(
+    id: Long,
+    month: Int,
+    year: Int,
+  ): Payment4CurrentLocationMonth
+
+  @Query(
+    """
+     SELECT
+        COUNT(DISTINCT p.account_id) as totalPaidAccounts,
+        SUM(pp.fee) as totalPaidAmount
+    FROM payment p
+    INNER JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    INNER JOIN payment_method pm ON pm.id = p.payment_method_id
+    INNER JOIN payment_plan pp ON pp.id = pm.payment_plan_id
+    INNER JOIN account acc ON acc.id = p.account_id
+    INNER JOIN company_location cl ON cl.id = acc.company_location_id
+    WHERE pmc.month = :month AND pmc.year = :year AND cl.demographic_street_id=:id
+
+""",
+  )
+  suspend fun getPayment4CurrentMonthByStreetId(
+    id: Long,
+    month: Int,
+    year: Int,
+  ): Payment4CurrentMonth
+
+  @Query(
+    """
+    SELECT
+      account.*,
+      plans.fee as amount,
+      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
+    FROM
+      account AS account
+      INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
+      INNER JOIN  payment_plan plans ON accountplans.payment_plan_id = plans.id
+      LEFT JOIN company_location as location ON account.company_location_id = location.id
+      LEFT JOIN demographic_street as district ON location.demographic_district_id = district.id
+      LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
+      AND month_covered.month = :month
+      AND month_covered.year = :year
+      LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
+      WHERE location.demographic_street_id =:id
+    ORDER BY
+      CASE WHEN :sortOrder = 0 THEN hasPaid END DESC,
+      CASE WHEN :sortOrder = 1 THEN account.username END ASC,
+      CASE WHEN :sortOrder = 2 THEN account.lastname END ASC,
+      CASE WHEN :sortOrder = 3 THEN account.title END ASC
+""",
+  )
+  suspend fun getAccountsWithPaymentStatusByStreetId(
+    id: Long,
+    month: Int,
+    year: Int,
+    sortOrder: Int = 0,
+  ): List<AccountWithPaymentStatusEntity>
 }
 
 data class PaymentPlanAgainstAccounts(
@@ -40,3 +138,12 @@ data class PaymentPlanAgainstAccounts(
   val accountCount: Int,
   val expectedRevenue: Int,
 )
+
+data class AccountWithPaymentStatusEntity(
+  @Embedded
+  val account: AccountEntity,
+  val hasPaid: Boolean,
+  val amount: Int,
+)
+
+enum class AccountSortOrder { Status, Contact, Lastname, Title }

@@ -12,6 +12,9 @@ interface AccountDao : BaseDao<AccountEntity> {
   @Query("SELECT * FROM account")
   suspend fun query(): List<AccountEntity>
 
+  @Query("SELECT * FROM account WHERE company_location_id=:id")
+  suspend fun qByCompanyLocationId(id: Long): List<AccountEntity>
+
   @Query("SELECT COUNT(*) FROM account")
   suspend fun getSize(): Int
 

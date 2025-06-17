@@ -14,6 +14,7 @@ sealed interface CompanyHomeEvent {
     data object Payments : Goto
     data object Create : Goto
     data object PerLocation : Goto
+    data class LocationOverview(val id: Long) : Goto
   }
 
   sealed interface Payment : CompanyHomeEvent {

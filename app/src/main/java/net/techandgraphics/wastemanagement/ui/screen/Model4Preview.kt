@@ -9,6 +9,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
 import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
@@ -25,6 +26,7 @@ import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAcc
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
+import kotlin.random.Random
 
 internal val account4Preview = AccountUiModel(
   id = 1L,
@@ -161,6 +163,7 @@ internal val payment4CurrentLocationMonth4Preview = Payment4CurrentLocationMonth
   areaName = "Sector 3",
   totalAccounts = 10,
   paidAccounts = 3,
+  streetId = 1,
 )
 
 internal val accountWithStreetAndArea4Preview = AccountInfoUiModel(
@@ -204,5 +207,8 @@ internal val paymentWithAccountAndMethodWithGateway4Preview =
     paymentMethod4Preview,
     paymentGateway4Preview,
   )
+
+internal val accountWithPaymentStatus4Preview =
+  AccountWithPaymentStatusUiModel(account4Preview, Random.nextBoolean(), 10_000)
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

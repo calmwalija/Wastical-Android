@@ -36,7 +36,7 @@ fun CompanyPaymentPerLocationView(
   OutlinedCard(
     shape = CircleShape,
     modifier = Modifier.padding(8.dp),
-    onClick = { onEvent }
+    onClick = { onEvent(CompanyPaymentPerLocationEvent.Goto.LocationOverview(location.streetId)) }
   ) {
     Row(
       modifier = Modifier
