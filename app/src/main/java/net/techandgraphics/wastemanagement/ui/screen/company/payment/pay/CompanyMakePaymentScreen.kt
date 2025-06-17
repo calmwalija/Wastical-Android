@@ -53,7 +53,10 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toast
+import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.imageLoader
 import net.techandgraphics.wastemanagement.ui.screen.paymentMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
@@ -92,127 +95,127 @@ fun CompanyMakePaymentScreen(
     isSuccess = false
   }
 
-
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { onEvent(CompanyMakePaymentEvent.GoTo.BackHandler) }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-          }
+  when (state) {
+    CompanyMakePaymentState.Loading -> LoadingIndicatorView()
+    is CompanyMakePaymentState.Success ->
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = { CompanyInfoTopAppBarView(state.company) },
+            navigationIcon = {
+              IconButton(onClick = { onEvent(CompanyMakePaymentEvent.GoTo.BackHandler) }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+              }
+            },
+            modifier = Modifier.shadow(0.dp),
+            colors = TopAppBarDefaults.topAppBarColors()
+          )
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-    bottomBar = {
-      if (state is CompanyMakePaymentState.Success) {
+        bottomBar = {
 
-        val isPaymentMethodCash = state.paymentMethods
-          .filter { it.gateway.type == PaymentType.Cash.name }
-          .any { it.method.isSelected }
+          val isPaymentMethodCash = state.paymentMethods
+            .filter { it.gateway.type == PaymentType.Cash.name }
+            .any { it.method.isSelected }
 
-
-        Surface(shadowElevation = 10.dp, tonalElevation = 1.dp) {
-          Row(
-            modifier = Modifier
-              .padding(vertical = 24.dp, horizontal = 16.dp)
-              .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Column {
-              Text(
-                text = "Total",
-                style = MaterialTheme.typography.titleSmall
-              )
-
-              val animatedSum by animateIntAsState(
-                targetValue = state.numberOfMonths.times(state.paymentPlan.fee),
-                animationSpec = tween(
-                  delayMillis = 1_000,
-                  durationMillis = 1_000,
-                )
-              )
-
-              Text(
-                text = animatedSum.toAmount(),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth(.4f)
-              )
-
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-              enabled = (state.screenshotAttached && loading.not()) || (isPaymentMethodCash && loading.not()),
-              onClick = {
-                onEvent(CompanyMakePaymentEvent.Button.RecordPayment)
-                loading = true
-              },
-              modifier = Modifier.fillMaxWidth(.8f),
+          Surface(shadowElevation = 10.dp, tonalElevation = 1.dp) {
+            Row(
+              modifier = Modifier
+                .padding(vertical = 24.dp, horizontal = 16.dp)
+                .fillMaxWidth(),
+              verticalAlignment = Alignment.CenterVertically
             ) {
-              if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularProgressIndicator(modifier = Modifier.size(16.dp))
+              Column {
                 Text(
-                  text = "Please wait ",
+                  text = "Total",
+                  style = MaterialTheme.typography.titleSmall
+                )
+
+                val animatedSum by animateIntAsState(
+                  targetValue = state.numberOfMonths.times(state.paymentPlan.fee),
+                  animationSpec = tween(
+                    delayMillis = 1_000,
+                    durationMillis = 1_000,
+                  )
+                )
+
+                Text(
+                  text = animatedSum.toAmount(),
+                  style = MaterialTheme.typography.titleLarge,
+                  fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.primary,
+                  modifier = Modifier.fillMaxWidth(.4f)
+                )
+
+              }
+              Spacer(modifier = Modifier.weight(1f))
+              Button(
+                enabled = (state.screenshotAttached && loading.not()) || (isPaymentMethodCash && loading.not()),
+                onClick = {
+                  onEvent(CompanyMakePaymentEvent.Button.RecordPayment)
+                  loading = true
+                },
+                modifier = Modifier.fillMaxWidth(.8f),
+              ) {
+                if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
+                  CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                  Text(
+                    text = "Please wait ",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 8.dp)
+                  )
+                } else Text(
+                  text = "Make Payment",
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
                   fontWeight = FontWeight.Bold,
                   modifier = Modifier.padding(start = 8.dp)
                 )
-              } else Text(
-                text = "Make Payment",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
+              }
+            }
+
+          }
+        },
+        contentWindowInsets = ScaffoldDefaults
+          .contentWindowInsets
+          .exclude(WindowInsets.navigationBars)
+          .exclude(WindowInsets.ime),
+      ) {
+
+        Box(modifier = Modifier.padding(it)) {
+          LazyColumn(
+            state = scrollState,
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+          ) {
+
+
+            item {
+              Text(
+                text = "Record Payment",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(vertical = 16.dp)
               )
             }
+
+            item { CompanyMakePaymentClientView(state.account, onEvent) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item { CompanyMakePaymentPlanView(state, onEvent) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item { CompanyMakePaymentMethodView(state, onEvent) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item {
+              if (state.paymentMethods
+                  .filter { it.gateway.type == PaymentType.Cash.name }
+                  .any { it.method.isSelected.not() }
+              ) CompanyMakePaymentReferenceView(state, onEvent)
+            }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
           }
         }
       }
-    },
-    contentWindowInsets = ScaffoldDefaults
-      .contentWindowInsets
-      .exclude(WindowInsets.navigationBars)
-      .exclude(WindowInsets.ime),
-  ) {
 
-    if (state is CompanyMakePaymentState.Success) {
-      Box(modifier = Modifier.padding(it)) {
-        LazyColumn(
-          state = scrollState,
-          modifier = Modifier
-            .padding(horizontal = 16.dp)
-        ) {
-
-
-          item {
-            Text(
-              text = "Record Payment",
-              style = MaterialTheme.typography.headlineMedium,
-              modifier = Modifier.padding(vertical = 16.dp)
-            )
-          }
-
-          item { CompanyMakePaymentClientView(state.account, onEvent) }
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-          item { CompanyMakePaymentPlanView(state, onEvent) }
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-          item { CompanyMakePaymentMethodView(state, onEvent) }
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-          item {
-            if (state.paymentMethods
-                .filter { it.gateway.type == PaymentType.Cash.name }
-                .any { it.method.isSelected.not() }
-            ) CompanyMakePaymentReferenceView(state, onEvent)
-          }
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-        }
-      }
-    }
   }
 
 }
@@ -237,5 +240,6 @@ fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
     paymentMethodWithGateway4Preview,
     paymentMethodWithGateway4Preview
   ),
-  imageLoader = imageLoader(context)
+  imageLoader = imageLoader(context),
+  company = company4Preview
 )

@@ -12,6 +12,7 @@ import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.toAccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import javax.inject.Inject
 
@@ -22,7 +23,6 @@ class CompanyClientPlanViewModel @Inject constructor(
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyClientPlanState>(CompanyClientPlanState.Loading)
-
   val state = _state.asStateFlow()
 
   private fun onLoad(event: CompanyClientPlanEvent.Load) =
@@ -30,11 +30,13 @@ class CompanyClientPlanViewModel @Inject constructor(
       _state.value = CompanyClientPlanState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+      val company = database.companyDao.query().first().toCompanyUiModel()
       val paymentPlans = database.paymentPlanDao.query()
         .mapIndexed { index, plan ->
           plan.toPaymentPlanUiModel().copy(active = accountPlan.paymentPlanId == plan.id)
         }
       _state.value = CompanyClientPlanState.Success(
+        company = company,
         account = account,
         paymentPlans = paymentPlans,
         plan = paymentPlans.first { it.id == accountPlan.paymentPlanId },

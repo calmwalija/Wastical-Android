@@ -110,11 +110,6 @@ fun CompanyHomeScreen(
                   onEvent(CompanyHomeEvent.Goto.Company)
                 })
 
-
-                DropdownMenuItem(text = {
-                  Text(text = "Profile")
-                }, onClick = { })
-
                 DropdownMenuItem(text = {
                   Text(text = "Sign Out")
                 }, onClick = {})

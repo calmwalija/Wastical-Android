@@ -201,7 +201,6 @@ fun CompanyPaymentLocationOverviewScreen(
                 ) {
                   CircularProgressIndicator(
                     progress = { animateAsFloat },
-                    trackColor = MaterialTheme.colorScheme.surface,
                     color = MaterialTheme.colorScheme.primary.copy(.6f),
                     strokeCap = StrokeCap.Round,
                     strokeWidth = 16.dp,

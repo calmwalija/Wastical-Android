@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.DottedBorderBox
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -140,6 +141,7 @@ private fun CompanyClientPlanViewPreview() {
   WasteManagementTheme {
     CompanyClientPlanView(
       state = CompanyClientPlanState.Success(
+        company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
         paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview)
