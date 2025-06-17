@@ -40,6 +40,10 @@ import net.techandgraphics.wastemanagement.data.remote.payment.pay.month.covered
 import net.techandgraphics.wastemanagement.data.remote.payment.plan.PaymentPlanResponse
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
@@ -301,6 +305,45 @@ fun PaymentPlanUiModel.toPaymentPlanEntity() = PaymentPlanEntity(
   period = period.name,
   status = status.name,
   companyId = companyId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun DemographicDistrictUiModel.toDemographicDistrictEntity() = DemographicDistrictEntity(
+  id = id,
+  name = name,
+  region = region,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun DemographicAreaUiModel.toDemographicAreaEntity() = DemographicAreaEntity(
+  id = id,
+  name = name,
+  type = type,
+  latitude = latitude,
+  longitude = longitude,
+  description = description,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun DemographicStreetUiModel.toDemographicStreetEntity() = DemographicStreetEntity(
+  id = id,
+  name = name,
+  latitude = latitude,
+  longitude = longitude,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
+
+fun CompanyLocationUiModel.toCompanyLocationEntity() = CompanyLocationEntity(
+  id = id,
+  status = status,
+  companyId = companyId,
+  demographicStreetId = demographicStreetId,
+  demographicAreaId = demographicAreaId,
+  demographicDistrictId = demographicDistrictId,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )

@@ -39,7 +39,6 @@ import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAcc
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment.Button
-import net.techandgraphics.wastemanagement.ui.screen.paymentAccount4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 

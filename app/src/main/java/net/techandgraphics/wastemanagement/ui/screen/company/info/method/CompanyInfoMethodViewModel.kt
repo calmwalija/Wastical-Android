@@ -38,7 +38,7 @@ class CompanyInfoMethodViewModel @Inject constructor(
 
   fun onEvent(event: CompanyInfoMethodEvent) {
     when (event) {
-      else -> TODO("Handle actions")
+      else -> Unit
     }
   }
 }

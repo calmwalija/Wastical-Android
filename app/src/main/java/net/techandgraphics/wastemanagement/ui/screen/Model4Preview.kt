@@ -13,8 +13,9 @@ import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUi
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
+import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentAccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
@@ -112,11 +113,6 @@ internal val payment4Preview = PaymentUiModel(
   executedById = account4Preview.id,
 )
 
-internal val paymentAccount4Preview = PaymentAccountUiModel(
-  payment = payment4Preview,
-  account = account4Preview,
-)
-
 internal fun appState(context: Context) = MainActivityState(
   accounts = listOf(account4Preview),
   payments = listOf(payment4Preview, payment4Preview),
@@ -139,6 +135,25 @@ internal val demographicStreet4Preview = DemographicStreetUiModel(
   createdAt = 1L,
   updatedAt = 1L,
   belongTo = true,
+)
+
+internal val demographicDistrict4Preview = DemographicDistrictUiModel(
+  id = 1L,
+  name = "Lilongwe",
+  createdAt = 1L,
+  updatedAt = 1L,
+  region = "Central",
+)
+
+internal val companyLocation4Preview = CompanyLocationUiModel(
+  id = 1,
+  status = Status.Active.name,
+  companyId = 1,
+  demographicStreetId = 1,
+  demographicAreaId = 1,
+  demographicDistrictId = 1,
+  createdAt = 1,
+  updatedAt = 1,
 )
 
 internal val payment4CurrentLocationMonth4Preview = Payment4CurrentLocationMonth(
