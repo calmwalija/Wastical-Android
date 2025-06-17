@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toAccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.toAreaUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
 import java.util.Calendar
@@ -23,13 +24,14 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
     MutableStateFlow<CompanyPaymentLocationOverviewState>(CompanyPaymentLocationOverviewState.Loading)
   val state = _state.asStateFlow()
 
+  private val calendar = Calendar.getInstance()
+  private val month = calendar.get(Calendar.MONTH).plus(1)
+  private val year = calendar.get(Calendar.YEAR)
+
   private fun onLoad(event: CompanyPaymentLocationOverviewEvent.Load) =
     viewModelScope.launch {
-      val calendar = Calendar.getInstance()
-      val month = calendar.get(Calendar.MONTH).plus(1)
-      val year = calendar.get(Calendar.YEAR)
-
       val companyLocation = database.companyLocationDao.getByStreetId(event.id)
+        .toCompanyLocationUiModel()
 
       val demographicStreet = database.demographicStreetDao
         .get(companyLocation.demographicStreetId)
@@ -41,9 +43,11 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
       val demographicArea = database.demographicAreaDao
         .get(companyLocation.demographicAreaId)
         .toAreaUiModel()
-      val accounts = database.accountDao
-        .qByCompanyLocationId(companyLocation.id)
-        .map { it.toAccountUiModel() }
+      val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
+        id = companyLocation.demographicStreetId,
+        month = month,
+        year = year,
+      ).map { it.toAccountWithPaymentStatusUiModel() }
 
       val company = database.companyDao.query().first().toCompanyUiModel()
       val expectedAmountToCollect =
@@ -56,12 +60,31 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
         accounts = accounts,
         payment4CurrentMonth = payment4CurrentMonth,
         expectedAmountToCollect = expectedAmountToCollect,
+        companyLocation = companyLocation,
       )
+    }
+
+  private fun onSortBy(event: CompanyPaymentLocationOverviewEvent.Button.SortBy) =
+    viewModelScope.launch {
+      if (_state.value is CompanyPaymentLocationOverviewState.Success) {
+        val state = (_state.value as CompanyPaymentLocationOverviewState.Success)
+        val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
+          id = state.companyLocation.demographicStreetId,
+          month = month,
+          year = year,
+          sortOrder = event.sort.ordinal,
+        ).map { it.toAccountWithPaymentStatusUiModel() }
+        _state.value = (_state.value as CompanyPaymentLocationOverviewState.Success).copy(
+          accounts = accounts,
+          sortBy = event.sort,
+        )
+      }
     }
 
   fun onEvent(event: CompanyPaymentLocationOverviewEvent) {
     when (event) {
       is CompanyPaymentLocationOverviewEvent.Load -> onLoad(event)
+      is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onSortBy(event)
       else -> Unit
     }
   }

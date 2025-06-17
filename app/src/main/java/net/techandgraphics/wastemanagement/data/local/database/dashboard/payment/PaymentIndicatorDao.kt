@@ -1,8 +1,10 @@
 package net.techandgraphics.wastemanagement.data.local.database.dashboard.payment
 
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 
@@ -69,7 +71,11 @@ interface PaymentIndicatorDao {
     ORDER BY paidAccounts DESC LIMIT 3
     """,
   )
-  suspend fun getPayment4CurrentLocationMonthById(id: Long, month: Int, year: Int): Payment4CurrentLocationMonth
+  suspend fun getPayment4CurrentLocationMonthById(
+    id: Long,
+    month: Int,
+    year: Int,
+  ): Payment4CurrentLocationMonth
 
   @Query(
     """
@@ -91,6 +97,37 @@ interface PaymentIndicatorDao {
     month: Int,
     year: Int,
   ): Payment4CurrentMonth
+
+  @Query(
+    """
+    SELECT
+      account.*,
+      plans.fee as amount,
+      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
+    FROM
+      account AS account
+      INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
+      INNER JOIN  payment_plan plans ON accountplans.payment_plan_id = plans.id
+      LEFT JOIN company_location as location ON account.company_location_id = location.id
+      LEFT JOIN demographic_street as district ON location.demographic_district_id = district.id
+      LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
+      AND month_covered.month = :month
+      AND month_covered.year = :year
+      LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
+      WHERE location.demographic_street_id =:id
+    ORDER BY
+      CASE WHEN :sortOrder = 0 THEN hasPaid END DESC,
+      CASE WHEN :sortOrder = 1 THEN account.username END ASC,
+      CASE WHEN :sortOrder = 2 THEN account.lastname END ASC,
+      CASE WHEN :sortOrder = 3 THEN account.title END ASC
+""",
+  )
+  suspend fun getAccountsWithPaymentStatusByStreetId(
+    id: Long,
+    month: Int,
+    year: Int,
+    sortOrder: Int = 0,
+  ): List<AccountWithPaymentStatusEntity>
 }
 
 data class PaymentPlanAgainstAccounts(
@@ -101,3 +138,12 @@ data class PaymentPlanAgainstAccounts(
   val accountCount: Int,
   val expectedRevenue: Int,
 )
+
+data class AccountWithPaymentStatusEntity(
+  @Embedded
+  val account: AccountEntity,
+  val hasPaid: Boolean,
+  val amount: Int,
+)
+
+enum class AccountSortOrder { Status, Contact, Lastname, Title }

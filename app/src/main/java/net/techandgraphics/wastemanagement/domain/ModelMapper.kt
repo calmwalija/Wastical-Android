@@ -8,6 +8,8 @@ import net.techandgraphics.wastemanagement.data.local.database.account.contact.A
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
+import net.techandgraphics.wastemanagement.data.local.database.company.location.CompanyLocationEntity
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountWithPaymentStatusEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastemanagement.data.local.database.demographic.street.DemographicStreetEntity
@@ -21,12 +23,14 @@ import net.techandgraphics.wastemanagement.data.local.database.search.tag.Search
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
@@ -188,3 +192,21 @@ fun PaymentWithAccountAndMethodWithGatewayEntity.toPaymentWithAccountAndMethodWi
     method = method.toPaymentMethodUiModel(),
     gateway = gateway.toPaymentGatewayUiModel(),
   )
+
+fun AccountWithPaymentStatusEntity.toAccountWithPaymentStatusUiModel() =
+  AccountWithPaymentStatusUiModel(
+    account = account.toAccountUiModel(),
+    hasPaid = hasPaid,
+    amount = amount,
+  )
+
+fun CompanyLocationEntity.toCompanyLocationUiModel() = CompanyLocationUiModel(
+  id = id,
+  status = status,
+  companyId = companyId,
+  demographicStreetId = demographicStreetId,
+  demographicAreaId = demographicAreaId,
+  demographicDistrictId = demographicDistrictId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)

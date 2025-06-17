@@ -326,6 +326,10 @@ fun AppNavHost(
         CompanyPaymentLocationOverviewScreen(state) { event ->
           when (event) {
             CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
+            is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id))
+
+            is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
             else -> Unit
           }
         }

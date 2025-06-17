@@ -21,23 +21,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
+import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
 import net.techandgraphics.wastemanagement.toPhoneFormat
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyPaymentLocationClientView(
-  account: AccountUiModel,
+  entity: AccountWithPaymentStatusUiModel,
   modifier: Modifier = Modifier,
   onEvent: (CompanyPaymentLocationOverviewEvent) -> Unit,
 ) {
+
+  val account = entity.account
+
   Row(
     modifier = modifier
-      .clickable { }
+      .clickable { onEvent(CompanyPaymentLocationOverviewEvent.Goto.Profile(account.id)) }
       .padding(16.dp)
       .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
@@ -58,14 +62,21 @@ fun CompanyPaymentLocationClientView(
         text = account.username.toPhoneFormat(),
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
+      )
+      Text(
+        text = entity.amount.toAmount(),
+        maxLines = 1,
+        overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,
       )
     }
 
-
-    Badge(modifier = Modifier.padding(horizontal = 8.dp)) {
+    Badge(
+      modifier = Modifier.padding(horizontal = 8.dp),
+      containerColor = if (entity.hasPaid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    ) {
       Text(
-        text = "Not Paid",
+        text = if (entity.hasPaid) "Paid" else "Not Paid",
         modifier = Modifier.padding(4.dp)
       )
     }
@@ -106,7 +117,7 @@ fun CompanyPaymentLocationClientView(
 private fun CompanyPaymentLocationClientPreview() {
   WasteManagementTheme {
     CompanyPaymentLocationClientView(
-      account = account4Preview,
+      entity = accountWithPaymentStatus4Preview,
       onEvent = {}
     )
   }

@@ -16,7 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -31,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,16 +48,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountSortOrder
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
-import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocation4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicArea4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicStreet4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-import java.time.LocalDate
-import java.time.format.TextStyle
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,9 +72,6 @@ fun CompanyPaymentLocationOverviewScreen(
     is CompanyPaymentLocationOverviewState.Success -> {
 
       var targetValue by remember { mutableFloatStateOf(0f) }
-      val currentMonth = LocalDate.now().month
-      val monthName = currentMonth.getDisplayName(TextStyle.FULL, Locale.getDefault())
-
       val animateAsFloat by animateFloatAsState(
         targetValue = targetValue,
         animationSpec = tween(durationMillis = 5_000)
@@ -78,6 +79,7 @@ fun CompanyPaymentLocationOverviewScreen(
 
       val progressText = String.format(locale = Locale.getDefault(), "%.1f", animateAsFloat * 100)
 
+      var showSortBy by remember { mutableStateOf(false) }
 
       LaunchedEffect(state.payment4CurrentMonth) {
         targetValue = state.payment4CurrentMonth.totalPaidAccounts
@@ -130,10 +132,10 @@ fun CompanyPaymentLocationOverviewScreen(
               }
 
               FilledIconButton(
-                onClick = { },
+                onClick = { showSortBy = true },
                 shape = RoundedCornerShape(16),
                 colors = IconButtonDefaults.iconButtonColors(
-                  containerColor = MaterialTheme.colorScheme.onSecondary
+                  containerColor = MaterialTheme.colorScheme.primary
                 )
               ) {
                 Icon(
@@ -143,6 +145,34 @@ fun CompanyPaymentLocationOverviewScreen(
                     .size(24.dp)
                     .padding(4.dp)
                 )
+
+                DropdownMenu(showSortBy, onDismissRequest = { showSortBy = false }) {
+                  AccountSortOrder.entries.forEach { sortBy ->
+                    DropdownMenuItem(
+                      text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                          Text(
+                            text = sortBy.name,
+                            modifier = Modifier.padding(end = 16.dp),
+                            color = if (state.sortBy == sortBy) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                          )
+                          if (state.sortBy == sortBy)
+                            Icon(
+                              Icons.Rounded.CheckCircle,
+                              contentDescription = null,
+                              tint = MaterialTheme.colorScheme.primary,
+                              modifier = Modifier.size(18.dp)
+                            )
+                        }
+                      },
+                      enabled = state.sortBy != sortBy,
+                      onClick = {
+                        onEvent(CompanyPaymentLocationOverviewEvent.Button.SortBy(sortBy))
+                        showSortBy = false
+                      })
+                  }
+
+                }
               }
 
             }
@@ -234,15 +264,14 @@ fun CompanyPaymentLocationOverviewScreen(
             }
           }
 
-          items(state.accounts) { account ->
+          items(state.accounts, key = { it.account.id }) { entity ->
             CompanyPaymentLocationClientView(
-              account = account,
+              entity = entity,
               modifier = Modifier.animateItem(),
               onEvent
             )
           }
         }
-
 
       }
     }
@@ -267,8 +296,9 @@ fun companyPaymentLocationOverviewStateSuccess() =
     demographicStreet = demographicStreet4Preview,
     demographicArea = demographicArea4Preview,
     accounts = (1..4)
-      .map { listOf(account4Preview, account4Preview) }
+      .map { listOf(accountWithPaymentStatus4Preview, accountWithPaymentStatus4Preview) }
       .flatten(),
     payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
-    expectedAmountToCollect = 3_000
+    expectedAmountToCollect = 3_000,
+    companyLocation = companyLocation4Preview
   )
