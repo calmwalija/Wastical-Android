@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
@@ -19,17 +17,13 @@ class CompanyInfoMethodViewModel @Inject constructor(
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyInfoMethodState>(CompanyInfoMethodState.Loading)
-  val state = _state
-    .onStart {
-      viewModelScope.launch { launch { onLoad() } }
-    }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = CompanyInfoMethodState.Loading,
-    )
+  val state = _state.asStateFlow()
 
-  private suspend fun onLoad() {
+  init {
+    onEvent(CompanyInfoMethodEvent.Load)
+  }
+
+  private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
     val methods =
       database.paymentMethodDao.qWithGateway().map { it.toPaymentMethodWithGatewayUiModel() }
@@ -38,7 +32,8 @@ class CompanyInfoMethodViewModel @Inject constructor(
 
   fun onEvent(event: CompanyInfoMethodEvent) {
     when (event) {
-      else -> TODO("Handle actions")
+      CompanyInfoMethodEvent.Load -> onLoad()
+      else -> Unit
     }
   }
 }
