@@ -173,7 +173,7 @@ fun CompanyBrowseClientScreen(
             CompanyBrowseClientSearchHistoryView(state, onEvent)
 
           LazyColumn {
-            items(state.accounts) { account ->
+            items(state.accounts, key = { it.accountId }) { account ->
               CompanyBrowseClientView(account, modifier = Modifier.animateItem(), onEvent)
             }
           }

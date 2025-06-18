@@ -26,6 +26,8 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
+import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -37,59 +39,55 @@ fun CompanyClientHistoryScreen(
   onEvent: (CompanyClientHistoryEvent) -> Unit,
 ) {
 
+  when (state) {
+    CompanyClientHistoryState.Loading -> LoadingIndicatorView()
+    is CompanyClientHistoryState.Success ->
 
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-          }
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = { CompanyInfoTopAppBarView(state.company) },
+            navigationIcon = {
+              IconButton(onClick = { }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+              }
+            },
+            modifier = Modifier.shadow(0.dp),
+            colors = TopAppBarDefaults.topAppBarColors()
+          )
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-  ) {
-    Column(modifier = Modifier.padding(it)) {
+      ) {
+        Column(modifier = Modifier.padding(it)) {
 
-      Text(
-        text = "Payment History",
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.padding(16.dp)
-      )
+          Text(
+            text = "Payment History",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(16.dp)
+          )
 
+          AccountInfoView(state.account)
+          Spacer(modifier = Modifier.height(24.dp))
 
-      if (state is CompanyClientHistoryState.Success) {
+          LazyColumn(contentPadding = PaddingValues(16.dp)) {
+            items(state.payments) { payment ->
+              when (payment.status) {
+                PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
+                  payment,
+                  state.plan,
+                  onEvent
+                )
 
-        AccountInfoView(state.account)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        LazyColumn(contentPadding = PaddingValues(16.dp)) {
-          items(state.payments) { payment ->
-            when (payment.status) {
-              PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
-                payment,
-                state.plan,
-                onEvent
-              )
-
-              else -> CompanyClientHistoryView(
-                payment = payment,
-                onEvent = onEvent
-              )
+                else -> CompanyClientHistoryView(
+                  payment = payment,
+                  onEvent = onEvent
+                )
+              }
             }
           }
         }
-
-      } else {
-        LoadingIndicatorView()
       }
-
-    }
   }
+
 }
 
 
@@ -99,6 +97,7 @@ private fun CompanyClientHistoryScreenPreview() {
   WasteManagementTheme {
     CompanyClientHistoryScreen(
       state = CompanyClientHistoryState.Success(
+        company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
         payments = listOf(payment4Preview)

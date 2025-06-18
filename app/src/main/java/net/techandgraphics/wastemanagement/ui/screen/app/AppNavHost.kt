@@ -145,8 +145,15 @@ fun AppNavHost(
     composable<Route.Company.Payment.Verify> {
       with(hiltViewModel<CompanyVerifyPaymentViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(appState) { onEvent(CompanyVerifyPaymentEvent.AppState(appState)) }
-        CompanyVerifyPaymentScreen(state, channel, ::onEvent)
+        CompanyVerifyPaymentScreen(state) { event ->
+          when (event) {
+            CompanyVerifyPaymentEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyVerifyPaymentEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id))
+
+            else -> onEvent(event)
+          }
+        }
       }
     }
 
@@ -194,6 +201,8 @@ fun AppNavHost(
               navController.navigate(Route.Company.Client.Plan(id))
 
             CompanyClientProfileEvent.Option.Revoke -> Unit
+
+            CompanyClientProfileEvent.Button.BackHandler -> navController.navigateUp()
 
             else -> Unit
           }

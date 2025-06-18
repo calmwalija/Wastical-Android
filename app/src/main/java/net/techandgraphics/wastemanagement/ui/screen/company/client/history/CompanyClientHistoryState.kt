@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.history
 
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
@@ -8,6 +9,7 @@ import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainAc
 sealed interface CompanyClientHistoryState {
   object Loading : CompanyClientHistoryState
   data class Success(
+    val company: CompanyUiModel,
     val account: AccountUiModel,
     val plan: PaymentPlanUiModel,
     val payments: List<PaymentUiModel> = listOf(),

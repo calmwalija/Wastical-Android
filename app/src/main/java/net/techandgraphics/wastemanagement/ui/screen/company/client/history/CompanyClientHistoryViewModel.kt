@@ -13,6 +13,7 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import net.techandgraphics.wastemanagement.preview
@@ -40,8 +41,10 @@ class CompanyClientHistoryViewModel @Inject constructor(
       _state.value = CompanyClientHistoryState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+      val company = database.companyDao.query().first().toCompanyUiModel()
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       _state.value = CompanyClientHistoryState.Success(
+        company = company,
         account = account,
         plan = plan,
         state = event.state,

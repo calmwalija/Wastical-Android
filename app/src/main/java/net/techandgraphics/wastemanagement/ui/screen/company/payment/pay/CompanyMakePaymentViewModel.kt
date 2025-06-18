@@ -17,6 +17,7 @@ import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.image2Text
@@ -43,11 +44,13 @@ class CompanyMakePaymentViewModel @Inject constructor(
       _state.value = CompanyMakePaymentState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+      val company = database.companyDao.query().first().toCompanyUiModel()
       val paymentPlan =
         database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
         .map { it.toPaymentMethodWithGatewayUiModel() }
       _state.value = CompanyMakePaymentState.Success(
+        company = company,
         account = account,
         paymentPlan = paymentPlan,
         paymentMethods = paymentMethods,

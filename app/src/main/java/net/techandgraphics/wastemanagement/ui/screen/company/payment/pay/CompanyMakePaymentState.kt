@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
 import android.net.Uri
 import coil.ImageLoader
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
 
@@ -14,7 +15,7 @@ sealed interface CompanyMakePaymentState {
     val paymentPlan: PaymentPlanUiModel,
     val paymentMethods: List<PaymentMethodWithGatewayUiModel> = listOf(),
     val imageLoader: ImageLoader,
-
+    val company: CompanyUiModel,
     val numberOfMonths: Int = 1,
     val showCropView: Boolean = false,
     val screenshotAttached: Boolean = false,

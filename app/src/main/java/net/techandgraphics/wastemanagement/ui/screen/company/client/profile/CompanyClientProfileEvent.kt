@@ -10,4 +10,8 @@ sealed interface CompanyClientProfileEvent {
     data object Location : Option
     data object Revoke : Option
   }
+
+  sealed interface Button : CompanyClientProfileEvent {
+    data object BackHandler : Button
+  }
 }

@@ -5,50 +5,35 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.relations.toEntity
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
+import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.AppState
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Verify
 import javax.inject.Inject
 
 @HiltViewModel
 class CompanyVerifyPaymentViewModel @Inject constructor(
   private val database: AppDatabase,
-  private val api: PaymentApi,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(CompanyVerifyPaymentState())
+  private val _state =
+    MutableStateFlow<CompanyVerifyPaymentState>(CompanyVerifyPaymentState.Loading)
   private val _channel = Channel<CompanyVerifyPaymentChannel>()
   val channel = _channel.receiveAsFlow()
+  val state = _state.asStateFlow()
 
-  val state = _state
-    .onStart {
-      viewModelScope.launch {
-        launch { flowOfPayments() }
-      }
-    }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = CompanyVerifyPaymentState(),
-    )
-
-  private fun getPaymentMethod() = viewModelScope.launch {
+  init {
+    onEvent(CompanyVerifyPaymentEvent.Load)
   }
 
-  private fun onAppState(event: AppState) {
-    _state.update { it.copy(state = event.state) }
+  private fun onLoad() = viewModelScope.launch {
+    flowOfPayments()
   }
 
   private suspend fun flowOfPayments() {
@@ -58,22 +43,14 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
           it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
         }
       }
-      .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
+      .collectLatest { payments ->
+        val company = database.companyDao.query().first().toCompanyUiModel()
+        _state.value = CompanyVerifyPaymentState.Success(
+          company = company,
+          payments = payments,
+        )
+      }
   }
-
-  private fun onPaymentStatus(event: Payment.Button.Status) =
-    viewModelScope.launch {
-      // TODO - This should be done through a worker
-//      val request = event.payment.copy(status = event.status).toPaymentRequest()
-//      runCatching { api.put(event.payment.id, request) }
-//        .onFailure { _channel.send(CompanyVerifyPaymentChannel.Payment.Failure(mapApiError(it))) }
-//        .onSuccess {
-//          it.map { it.toPaymentEntity() }.run {
-//            database.paymentDao.upsert(this)
-//            _channel.send(CompanyVerifyPaymentChannel.Payment.Success(this))
-//          }
-//        }
-    }
 
   private fun onVerifyStatusChange(event: Verify.Button.Status) =
     viewModelScope.launch {
@@ -83,14 +60,20 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
             it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
           }
         }
-        .collectLatest { payments -> _state.update { it.copy(payments = payments) } }
+        .collectLatest { payments ->
+          if (_state.value is CompanyVerifyPaymentState.Success) {
+            _state.value = (_state.value as CompanyVerifyPaymentState.Success).copy(
+              payments = payments,
+            )
+          }
+        }
     }
 
   fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
-      is AppState -> onAppState(event)
-      is Payment.Button.Status -> onPaymentStatus(event)
+      CompanyVerifyPaymentEvent.Load -> onLoad()
       is Verify.Button.Status -> onVerifyStatusChange(event)
+      else -> Unit
     }
   }
 }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
+import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -31,41 +35,39 @@ fun CompanyClientPlanScreen(
   state: CompanyClientPlanState,
   onEvent: (CompanyClientPlanEvent) -> Unit,
 ) {
-
-
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-          }
+  when (state) {
+    CompanyClientPlanState.Loading -> LoadingIndicatorView()
+    is CompanyClientPlanState.Success ->
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = { CompanyInfoTopAppBarView(state.company) },
+            navigationIcon = {
+              IconButton(onClick = { }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+              }
+            },
+            modifier = Modifier.shadow(0.dp),
+            colors = TopAppBarDefaults.topAppBarColors()
+          )
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-  ) {
-    Column(modifier = Modifier.padding(it)) {
-
-      Text(
-        text = "Payment Plan",
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.padding(16.dp)
-      )
-
-      if (state is CompanyClientPlanState.Success) {
-        AccountInfoView(state.account)
-        Spacer(modifier = Modifier.height(16.dp))
-        CompanyClientPlanView(state, onEvent)
-      } else LoadingIndicatorView()
-
-    }
-
+      ) {
+        Column(
+          modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(it)
+        ) {
+          Text(
+            text = "Payment Plan",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(16.dp)
+          )
+          AccountInfoView(state.account)
+          Spacer(modifier = Modifier.height(16.dp))
+          CompanyClientPlanView(state, onEvent)
+        }
+      }
   }
-
-
 }
 
 
@@ -75,6 +77,7 @@ private fun CompanyClientPlanScreenPreview() {
   WasteManagementTheme {
     CompanyClientPlanScreen(
       state = CompanyClientPlanState.Success(
+        company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
         paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview)

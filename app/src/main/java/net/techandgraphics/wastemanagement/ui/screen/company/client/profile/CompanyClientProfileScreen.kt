@@ -33,6 +33,8 @@ import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
+import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
@@ -42,42 +44,40 @@ fun CompanyClientProfileScreen(
   state: CompanyClientProfileState,
   onEvent: (CompanyClientProfileEvent) -> Unit,
 ) {
-
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(
-            onClick = { },
-          ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-          }
+  when (state) {
+    CompanyClientProfileState.Loading -> LoadingIndicatorView()
+    is CompanyClientProfileState.Success ->
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = { CompanyInfoTopAppBarView(state.company) },
+            navigationIcon = {
+              IconButton(
+                onClick = { onEvent(CompanyClientProfileEvent.Button.BackHandler) },
+              ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+              }
+            },
+            modifier = Modifier.shadow(0.dp),
+            colors = TopAppBarDefaults.topAppBarColors()
+          )
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-  ) {
-    Column(
-      modifier = Modifier
-        .padding(16.dp)
-        .padding(it)
-    ) {
-
-      Text(
-        text = "Client Profile",
-        style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
-      )
-
-      when (state) {
-        CompanyClientProfileState.Loading -> LoadingIndicatorView()
-        is CompanyClientProfileState.Success -> CompanyClientProfileSuccess(state, onEvent)
+      ) {
+        Column(
+          modifier = Modifier
+            .padding(16.dp)
+            .padding(it)
+        ) {
+          Text(
+            text = "Client Profile",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
+          )
+          CompanyClientProfileSuccess(state, onEvent)
+        }
       }
-
-    }
   }
+
 }
 
 
@@ -139,7 +139,10 @@ fun CompanyClientProfileScreen(
 private fun CompanyClientProfileScreenPreview() {
   WasteManagementTheme {
     CompanyClientProfileScreen(
-      state = CompanyClientProfileState.Success(account4Preview),
+      state = CompanyClientProfileState.Success(
+        company = company4Preview,
+        account = account4Preview
+      ),
       onEvent = {}
     )
   }
