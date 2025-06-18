@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.verify
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.status.CompanyVerifyStatusWaitingView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -68,62 +70,77 @@ fun CompanyVerifyPaymentScreen(
             modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
           )
 
-          val statuses = remember {
-            PaymentStatus
-              .entries
-              .drop(1)
-              .toList()
-              .takeLast(2)
-              .toTypedArray()
-          }
+          val statuses = remember { listOf(PaymentStatus.Approved, PaymentStatus.Waiting) }
 
-          var selectedChoiceIndex = remember { mutableIntStateOf(0) }
+          if (state.pending.isEmpty()) onEvent(CompanyVerifyPaymentEvent.Button.Status(PaymentStatus.Approved))
 
-          SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-              .padding(16.dp)
-              .fillMaxWidth()
-          ) {
-            statuses.forEachIndexed { index, status ->
+          AnimatedVisibility(state.pending.isNotEmpty()) {
+            SingleChoiceSegmentedButtonRow(
+              modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+            ) {
+              statuses.forEachIndexed { index, status ->
 
-              SegmentedButton(
-                selected = selectedChoiceIndex.intValue == index,
-                onClick = {
-                  selectedChoiceIndex.intValue = index
-                  onEvent(CompanyVerifyPaymentEvent.Verify.Button.Status(status))
-                },
-                icon = {},
-                colors = SegmentedButtonDefaults.colors(
-                  activeContainerColor = MaterialTheme.colorScheme.primary.copy(.4f),
-                  activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                shape = SegmentedButtonDefaults.itemShape(
-                  index = index,
-                  count = statuses.count()
-                )
-              ) {
-                Text(
-                  text = status.name,
-                  modifier = Modifier.padding(8.dp),
-                  maxLines = 1,
-                  overflow = TextOverflow.Ellipsis,
-                )
+                SegmentedButton(
+                  selected = state.ofType == status,
+                  onClick = { onEvent(CompanyVerifyPaymentEvent.Button.Status(status)) },
+                  icon = {},
+                  colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = MaterialTheme.colorScheme.primary.copy(.4f),
+                    activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                  ),
+                  shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = statuses.count()
+                  )
+                ) {
+                  BadgedBox(badge = {
+                    Badge {
+                      Text(
+                        text =
+                          when (status) {
+                            PaymentStatus.Waiting -> state.pending.size
+                            else -> state.payments.size
+                          }.toString(),
+                        style = MaterialTheme.typography.bodySmall
+                      )
+                    }
+                  }) {
+                    Text(
+                      text = status.name,
+                      modifier = Modifier.padding(8.dp),
+                      maxLines = 1,
+                      overflow = TextOverflow.Ellipsis,
+                    )
+                  }
+
+                }
               }
             }
           }
 
 
           Spacer(modifier = Modifier.height(8.dp))
-
           LazyColumn {
-            items(state.payments) { entity ->
-              CompanyVerifyPaymentView(
-                entity = entity,
-                onEvent = onEvent
-              )
+            when (state.ofType) {
+              PaymentStatus.Approved ->
+                items(state.payments, key = { it.payment.id }) { entity ->
+                  CompanyVerifyPaymentView(
+                    entity = entity,
+                    onEvent = onEvent
+                  )
+                }
+
+              else ->
+                items(state.pending, key = { it.payment.id }) { entity ->
+                  CompanyVerifyStatusWaitingView(
+                    entity = entity,
+                    onEvent = onEvent
+                  )
+                }
             }
           }
-
         }
       }
     }

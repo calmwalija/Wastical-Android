@@ -18,6 +18,6 @@ sealed interface CompanyPaymentLocationOverviewState {
     val accounts: List<AccountWithPaymentStatusUiModel> = listOf(),
     val expectedAmountToCollect: Int,
     val companyLocation: CompanyLocationUiModel,
-    val sortBy: AccountSortOrder = AccountSortOrder.Status,
+    val sortBy: AccountSortOrder = AccountSortOrder.Paid,
   ) : CompanyPaymentLocationOverviewState
 }

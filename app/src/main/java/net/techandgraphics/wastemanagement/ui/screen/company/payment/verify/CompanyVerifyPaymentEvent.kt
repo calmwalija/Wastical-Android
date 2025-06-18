@@ -5,7 +5,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 
 sealed interface CompanyVerifyPaymentEvent {
 
-  data object Load : CompanyVerifyPaymentEvent
+  data class Load(val ofType: String) : CompanyVerifyPaymentEvent
 
   sealed interface Payment : CompanyVerifyPaymentEvent {
     sealed interface Button : Payment {
@@ -22,5 +22,9 @@ sealed interface CompanyVerifyPaymentEvent {
   sealed interface Goto : CompanyVerifyPaymentEvent {
     data object BackHandler : Goto
     data class Profile(val id: Long) : Goto
+  }
+
+  sealed interface Button : CompanyVerifyPaymentEvent {
+    data class Status(val status: PaymentStatus) : Button
   }
 }

@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.relations.toEntity
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Verify
 import javax.inject.Inject
@@ -28,12 +30,20 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
 
-  init {
-    onEvent(CompanyVerifyPaymentEvent.Load)
-  }
 
-  private fun onLoad() = viewModelScope.launch {
-    flowOfPayments()
+  private fun onLoad(ofType: String) = viewModelScope.launch {
+    database.paymentRequestDao.qFlowWithAccount()
+      .map { entity -> entity.map { it.toPaymentRequestWithAccountUiModel() } }
+      .collectLatest { pending ->
+        val company = database.companyDao.query().first().toCompanyUiModel()
+        _state.value = CompanyVerifyPaymentState.Success(
+          company = company,
+          pending = pending,
+          ofType = PaymentStatus.valueOf(ofType)
+        )
+        flowOfPayments()
+      }
+
   }
 
   private suspend fun flowOfPayments() {
@@ -44,11 +54,9 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         }
       }
       .collectLatest { payments ->
-        val company = database.companyDao.query().first().toCompanyUiModel()
-        _state.value = CompanyVerifyPaymentState.Success(
-          company = company,
-          payments = payments,
-        )
+        if (_state.value is CompanyVerifyPaymentState.Success)
+          _state.value =
+            (_state.value as CompanyVerifyPaymentState.Success).copy(payments = payments)
       }
   }
 
@@ -69,11 +77,22 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         }
     }
 
+  private fun onButtonStatus(event: CompanyVerifyPaymentEvent.Button.Status) {
+    if (_state.value is CompanyVerifyPaymentState.Success) {
+      _state.value = (_state.value as CompanyVerifyPaymentState.Success).copy(
+        ofType = event.status,
+      )
+    }
+  }
+
   fun onEvent(event: CompanyVerifyPaymentEvent) {
     when (event) {
-      CompanyVerifyPaymentEvent.Load -> onLoad()
+      is CompanyVerifyPaymentEvent.Load -> onLoad(event.ofType)
       is Verify.Button.Status -> onVerifyStatusChange(event)
+      is CompanyVerifyPaymentEvent.Button.Status -> onButtonStatus(event)
       else -> Unit
     }
   }
+
+
 }

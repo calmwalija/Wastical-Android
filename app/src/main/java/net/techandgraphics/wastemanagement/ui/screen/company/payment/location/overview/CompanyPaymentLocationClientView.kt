@@ -27,6 +27,7 @@ import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
 import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
+import net.techandgraphics.wastemanagement.ui.theme.Green
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,16 +65,17 @@ fun CompanyPaymentLocationClientView(
         overflow = TextOverflow.MiddleEllipsis,
       )
       Text(
-        text = entity.amount.toAmount(),
+        text = (if (entity.hasPaid) "+" else "-").plus(entity.amount.toAmount()),
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,
+        color = if (entity.hasPaid) Green else MaterialTheme.colorScheme.error
       )
     }
 
     Badge(
       modifier = Modifier.padding(horizontal = 8.dp),
-      containerColor = if (entity.hasPaid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+      containerColor = if (entity.hasPaid) Green else MaterialTheme.colorScheme.error,
     ) {
       Text(
         text = if (entity.hasPaid) "Paid" else "Not Paid",
