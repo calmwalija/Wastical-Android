@@ -26,6 +26,11 @@ val profileItems = listOf(
     event = CompanyClientProfileEvent.Option.History,
   ),
   ProfileItem(
+    title = "Pending Payments",
+    drawableRes = R.drawable.ic_upload_ready,
+    event = CompanyClientProfileEvent.Option.Pending,
+  ),
+  ProfileItem(
     title = "Change Location",
     drawableRes = R.drawable.ic_house,
     event = CompanyClientProfileEvent.Option.Location,

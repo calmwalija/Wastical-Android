@@ -6,6 +6,7 @@ import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 
 sealed interface CompanyHomeState {
   data object Loading : CompanyHomeState
@@ -17,6 +18,7 @@ sealed interface CompanyHomeState {
     val companyContact: CompanyContactUiModel,
     val account: AccountUiModel,
     val accountsSize: Int,
+    val pending: List<PaymentRequestUiModel> = listOf(),
     val expectedAmountToCollect: Int,
     val paymentPlanAgainstAccounts: List<PaymentPlanAgainstAccounts>,
   ) : CompanyHomeState

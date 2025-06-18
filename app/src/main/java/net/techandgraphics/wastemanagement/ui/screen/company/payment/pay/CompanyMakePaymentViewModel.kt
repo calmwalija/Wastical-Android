@@ -16,6 +16,7 @@ import net.techandgraphics.wastemanagement.data.local.database.toPaymentRequestE
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodWithGatewayUiModel
@@ -48,6 +49,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
       val paymentPlan =
         database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
+        .filter { it.gateway.type == PaymentType.Cash.name }
         .map { it.toPaymentMethodWithGatewayUiModel() }
       _state.value = CompanyMakePaymentState.Success(
         company = company,
@@ -71,7 +73,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         status = PaymentStatus.Waiting,
       ).toPaymentRequestEntity()
       database.paymentRequestDao.upsert(cachedPayment)
-      application.schedulePaymentWorker()
+//      application.schedulePaymentWorker()
       _channel.send(CompanyMakePaymentChannel.Pay.Success)
       _state.value = getState().copy(imageUri = null)
     }
@@ -87,6 +89,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         .also { database.paymentMethodDao.update(it) }
       val paymentMethods = database.paymentMethodDao
         .qWithGatewayByPaymentPlanId(event.method.paymentPlanId)
+        .filter { it.gateway.type == PaymentType.Cash.name }
         .map { it.toPaymentMethodWithGatewayUiModel() }
       _state.value = getState().copy(paymentMethods = paymentMethods)
     }
