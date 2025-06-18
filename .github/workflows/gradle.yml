@@ -58,6 +58,9 @@ jobs:
           name: jacoco-html-report
           path: app/build/reports/jacoco/jacocoTestReport/html
 
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
       - name: Parse JaCoCo coverage and write summary
         run: |
           XML_FILE=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
