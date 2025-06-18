@@ -2,12 +2,12 @@ package net.techandgraphics.wastemanagement.ui.screen.client.invoice.pdf
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.scale
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.calculateToTextAmount
+import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
@@ -16,29 +16,32 @@ import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUi
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMonthCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.bold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.light
+import net.techandgraphics.wastemanagement.ui.theme.Orange
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Month
 
 private fun tableData(
-  payment: PaymentUiModel,
+  paymentMonthCovered: List<PaymentMonthCoveredUiModel> = listOf(),
   paymentPlan: PaymentPlanUiModel,
 ) = Month.entries.take(1).mapIndexed { index, month ->
   listOf(
-    "1",
+    index.plus(1).toString(),
     "${paymentPlan.period.name} Subscription",
-//    payment.numberOfMonths,
+    paymentMonthCovered.size,
     paymentPlan.fee.toAmount(),
-    calculateToTextAmount(paymentPlan, payment),
+    paymentPlan.calculate(paymentMonthCovered.size).toAmount()
   )
 }
 
@@ -52,11 +55,12 @@ fun invoiceToPdf(
   paymentPlan: PaymentPlanUiModel,
   paymentMethod: PaymentMethodUiModel,
   paymentGateway: PaymentGatewayUiModel,
+  paymentMonthCovered: List<PaymentMonthCoveredUiModel> = listOf(),
   onEvent: (File?) -> Unit,
 ) {
   val pdfDocument = PdfDocument()
 
-  val tableData = tableData(payment, paymentPlan)
+  val tableData = tableData(paymentMonthCovered, paymentPlan)
   val targetDpi = 300f
   val widthInches = 5.27f
   val heightInches = 6.1f
@@ -88,7 +92,7 @@ fun invoiceToPdf(
       yAxis = 240f,
       paint = textSize520.also {
         it.typeface = extraBold(context)
-        it.color = Color.LTGRAY
+        it.color = Orange.toArgb()
       },
     )
     /***************************************************************/
@@ -99,7 +103,7 @@ fun invoiceToPdf(
       xAxis = xAxis,
       paint = textSize72.also {
         it.typeface = bold(context)
-        it.color = Color.GRAY
+        it.color = Orange.toArgb()
       },
     ).run { yAxis = this.yAxis }
 
@@ -127,7 +131,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Phone : ${companyContact.contact}",
+      theSentence = "Phone : ${companyContact.contact.toPhoneFormat()}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -156,7 +160,7 @@ fun invoiceToPdf(
       xAxis = xAxis,
       paint = textSize42.also {
         it.typeface = bold(context)
-        it.color = Color.GRAY
+        it.color = Orange.toArgb()
       },
     ).run { yAxis = this.yAxis.plus(10) }
     /***************************************************************/
@@ -177,7 +181,7 @@ fun invoiceToPdf(
       xAxis = xAxis.times(8),
       paint = textSize42.also {
         it.typeface = bold(context)
-        it.color = Color.GRAY
+        it.color = Orange.toArgb()
       },
     ).run { yAxis = this.yAxis.plus(10) }
     /***************************************************************/
@@ -199,7 +203,7 @@ fun invoiceToPdf(
       xAxis = xAxis,
       paint = textSize42.also {
         it.typeface = bold(context)
-        it.color = Color.GRAY
+        it.color = Orange.toArgb()
       },
     ).run { yAxis = this.yAxis.plus(10) }
     /***************************************************************/
@@ -217,7 +221,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfSentence(
-      theSentence = "Phone : ${accountContact.contact}",
+      theSentence = "Phone : ${accountContact.contact.toPhoneFormat()}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -233,7 +237,7 @@ fun invoiceToPdf(
       xAxis = xAxis,
       paint = textSize42.also {
         it.typeface = bold(context)
-        it.color = Color.GRAY
+        it.color = Orange.toArgb()
       },
     ).run { yAxis = this.yAxis.plus(10) }
     /***************************************************************/
@@ -327,7 +331,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = calculateToTextAmount(paymentPlan, payment),
+      theSentence = paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -354,7 +358,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = calculateToTextAmount(paymentPlan, payment),
+      theSentence = paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = extraBold(context) },

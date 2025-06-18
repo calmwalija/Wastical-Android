@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.data.remote.payment
 
+import net.techandgraphics.wastemanagement.data.remote.ServerResponse
 import net.techandgraphics.wastemanagement.data.remote.payment.pay.PaymentResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -29,7 +30,7 @@ interface PaymentApi {
   suspend fun fetchLatest(@QueryMap params: Map<String, Any>): List<PaymentResponse>
 
   @POST("payment")
-  suspend fun pay(@Body request: PaymentRequest): PaymentResponse
+  suspend fun pay(@Body request: PaymentRequest): ServerResponse
 
   @Multipart
   @POST("payment/multipart")

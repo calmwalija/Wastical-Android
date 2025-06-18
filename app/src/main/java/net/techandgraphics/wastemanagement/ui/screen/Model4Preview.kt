@@ -19,10 +19,14 @@ import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicS
 import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMonthCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
@@ -210,5 +214,40 @@ internal val paymentWithAccountAndMethodWithGateway4Preview =
 
 internal val accountWithPaymentStatus4Preview =
   AccountWithPaymentStatusUiModel(account4Preview, Random.nextBoolean(), 10_000)
+
+
+internal val paymentRequest4Preview = PaymentRequestUiModel(
+  id = 1,
+  months = 1,
+  screenshotText = "",
+  paymentMethodId = 1,
+  accountId = 1,
+  companyId = 1,
+  executedById = 1,
+  status = PaymentStatus.Waiting.name,
+  createdAt = 1
+)
+
+internal val paymentRequestWithAccount4Preview = PaymentRequestWithAccountUiModel(
+  account = account4Preview,
+  payment = paymentRequest4Preview,
+  fee = 1
+)
+
+internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
+  id = 1,
+  month = 6,
+  year = 2025,
+  paymentId = 1,
+  accountId = 1,
+  createdAt = 1,
+  updatedAt = 1
+)
+
+internal val paymentWithMonthsCovered4Preview = PaymentWithMonthsCoveredUiModel(
+  payment = payment4Preview,
+  covered = listOf(paymentMonthCoveredUiModel)
+)
+
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)
