@@ -100,7 +100,7 @@ class ClientPaymentViewModel @Inject constructor(
           _channel.send(ClientPaymentChannel.Pay.Failure(mapApiError(it)))
         }
         .onSuccess {
-          database.paymentDao.upsert(it.toPaymentEntity())
+//          database.paymentDao.upsert(it.toPaymentEntity())
           _channel.send(ClientPaymentChannel.Pay.Success)
           theFile().delete()
         }

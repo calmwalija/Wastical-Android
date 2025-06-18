@@ -28,7 +28,6 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
-import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -70,7 +69,7 @@ fun CompanyClientHistoryScreen(
 
           LazyColumn(contentPadding = PaddingValues(16.dp)) {
             items(state.payments) { payment ->
-              when (payment.status) {
+              when (payment.payment.status) {
                 PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
                   payment,
                   state.plan,
@@ -78,7 +77,7 @@ fun CompanyClientHistoryScreen(
                 )
 
                 else -> CompanyClientHistoryView(
-                  payment = payment,
+                  entity = payment,
                   onEvent = onEvent
                 )
               }
@@ -100,7 +99,6 @@ private fun CompanyClientHistoryScreenPreview() {
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
-        payments = listOf(payment4Preview)
       ),
       onEvent = {}
     )

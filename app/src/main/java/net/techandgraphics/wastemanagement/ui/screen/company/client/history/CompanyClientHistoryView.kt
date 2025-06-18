@@ -26,17 +26,19 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.defaultDateTime
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastemanagement.gatewayDrawableRes
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @Composable fun CompanyClientHistoryView(
-  payment: PaymentUiModel,
+  entity: PaymentWithMonthsCoveredUiModel,
   onEvent: (CompanyClientHistoryEvent) -> Unit,
 ) {
+
+  val payment = entity.payment
 
   Card(
     modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
@@ -108,7 +110,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable fun CompanyClientHistoryViewPreview() {
   WasteManagementTheme {
     CompanyClientHistoryView(
-      payment = payment4Preview,
+      entity = paymentWithMonthsCovered4Preview,
       onEvent = {}
     )
   }
