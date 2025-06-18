@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package net.techandgraphics.wastemanagement.sms
 
 import android.content.BroadcastReceiver

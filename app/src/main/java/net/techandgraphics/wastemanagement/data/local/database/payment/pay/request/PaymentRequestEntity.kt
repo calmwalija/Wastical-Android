@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
+import java.time.ZonedDateTime
 
 @Entity(
   tableName = "payment_request",
@@ -34,7 +35,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
   ],
 )
 data class PaymentRequestEntity(
-  @PrimaryKey val id: Long = 0,
+  @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val months: Int,
   @ColumnInfo("screenshot_text") val screenshotText: String,
   @ColumnInfo("payment_method_id") val paymentMethodId: Long,
@@ -42,4 +43,5 @@ data class PaymentRequestEntity(
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("executed_by_id") val executedById: Long,
   @ColumnInfo("payment_status") val status: String,
+  @ColumnInfo("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
 )

@@ -21,6 +21,9 @@ fun calculateToTextAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String
 
 fun PaymentUiModel.calculate() = 10_000.times(3).toAmount() // TODO
 
+fun PaymentPlanUiModel.calculate(size: Int) = fee.times(size)
+
+
 fun calculate(plan: PaymentPlanUiModel, pay: PaymentUiModel) = plan.fee.times(pay.id) // TODO
 
 fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
