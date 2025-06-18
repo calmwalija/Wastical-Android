@@ -18,13 +18,13 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
   @Query(
     """
     SELECT acc.*,
-    request.*, 
+    request.*,
     plans.fee AS fee
     FROM payment_request AS request
     JOIN account AS acc ON acc.id = request.account_id
     JOIN payment_method AS method ON method.id = request.payment_method_id
     JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
-  """
+  """,
   )
   fun qFlowWithAccount(): Flow<List<PaymentRequestWithAccountEntity>>
 
@@ -32,14 +32,14 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
   @Query(
     """
     SELECT acc.*,
-    request.*, 
+    request.*,
     plans.fee AS fee
     FROM payment_request AS request
     JOIN account AS acc ON acc.id = request.account_id
     JOIN payment_method AS method ON method.id = request.payment_method_id
     JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
     WHERE acc.id = :id
-  """
+  """,
   )
   fun getWithAccountByAccountId(id: Long): Flow<List<PaymentRequestWithAccountEntity>>
 }

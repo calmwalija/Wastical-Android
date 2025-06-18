@@ -3,7 +3,6 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.history
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
 
 sealed interface CompanyClientHistoryState {

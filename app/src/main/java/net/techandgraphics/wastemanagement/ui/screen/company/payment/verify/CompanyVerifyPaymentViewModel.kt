@@ -30,7 +30,6 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
 
-
   private fun onLoad(ofType: String) = viewModelScope.launch {
     database.paymentRequestDao.qFlowWithAccount()
       .map { entity -> entity.map { it.toPaymentRequestWithAccountUiModel() } }
@@ -39,11 +38,10 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         _state.value = CompanyVerifyPaymentState.Success(
           company = company,
           pending = pending,
-          ofType = PaymentStatus.valueOf(ofType)
+          ofType = PaymentStatus.valueOf(ofType),
         )
         flowOfPayments()
       }
-
   }
 
   private suspend fun flowOfPayments() {
@@ -54,9 +52,10 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         }
       }
       .collectLatest { payments ->
-        if (_state.value is CompanyVerifyPaymentState.Success)
+        if (_state.value is CompanyVerifyPaymentState.Success) {
           _state.value =
             (_state.value as CompanyVerifyPaymentState.Success).copy(payments = payments)
+        }
       }
   }
 
@@ -93,6 +92,4 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
       else -> Unit
     }
   }
-
-
 }

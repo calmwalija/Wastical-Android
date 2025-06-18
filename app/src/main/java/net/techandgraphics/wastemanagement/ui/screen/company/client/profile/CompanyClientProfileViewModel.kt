@@ -36,7 +36,7 @@ class CompanyClientProfileViewModel @Inject constructor(
           _state.value = CompanyClientProfileState.Success(
             company = company,
             account = account,
-            pending = pending
+            pending = pending,
           )
           getPayments(account)
         }

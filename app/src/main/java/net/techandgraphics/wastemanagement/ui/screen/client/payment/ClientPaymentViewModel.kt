@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi

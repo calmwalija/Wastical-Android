@@ -20,7 +20,6 @@ import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastemanagement.preview
 import net.techandgraphics.wastemanagement.share
@@ -66,7 +65,6 @@ class CompanyClientHistoryViewModel @Inject constructor(
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
       with(_state.value as CompanyClientHistoryState.Success) {
-
         val accountContact = database.accountContactDao.getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
           .first()
@@ -99,7 +97,7 @@ class CompanyClientHistoryViewModel @Inject constructor(
           paymentMethod = paymentMethod,
           onEvent = onEvent,
           paymentGateway = paymentGateway,
-          paymentMonthCovered = paymentMonthCovered
+          paymentMonthCovered = paymentMonthCovered,
         )
       }
     }

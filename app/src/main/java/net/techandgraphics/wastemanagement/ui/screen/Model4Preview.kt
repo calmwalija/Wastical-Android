@@ -215,7 +215,6 @@ internal val paymentWithAccountAndMethodWithGateway4Preview =
 internal val accountWithPaymentStatus4Preview =
   AccountWithPaymentStatusUiModel(account4Preview, Random.nextBoolean(), 10_000)
 
-
 internal val paymentRequest4Preview = PaymentRequestUiModel(
   id = 1,
   months = 1,
@@ -225,13 +224,13 @@ internal val paymentRequest4Preview = PaymentRequestUiModel(
   companyId = 1,
   executedById = 1,
   status = PaymentStatus.Waiting.name,
-  createdAt = 1
+  createdAt = 1,
 )
 
 internal val paymentRequestWithAccount4Preview = PaymentRequestWithAccountUiModel(
   account = account4Preview,
   payment = paymentRequest4Preview,
-  fee = 1
+  fee = 1,
 )
 
 internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
@@ -241,13 +240,12 @@ internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
   paymentId = 1,
   accountId = 1,
   createdAt = 1,
-  updatedAt = 1
+  updatedAt = 1,
 )
 
 internal val paymentWithMonthsCovered4Preview = PaymentWithMonthsCoveredUiModel(
   payment = payment4Preview,
-  covered = listOf(paymentMonthCoveredUiModel)
+  covered = listOf(paymentMonthCoveredUiModel),
 )
-
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

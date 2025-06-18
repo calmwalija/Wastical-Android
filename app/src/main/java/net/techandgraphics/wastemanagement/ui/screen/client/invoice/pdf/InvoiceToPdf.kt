@@ -41,7 +41,7 @@ private fun tableData(
     "${paymentPlan.period.name} Subscription",
     paymentMonthCovered.size,
     paymentPlan.fee.toAmount(),
-    paymentPlan.calculate(paymentMonthCovered.size).toAmount()
+    paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
   )
 }
 

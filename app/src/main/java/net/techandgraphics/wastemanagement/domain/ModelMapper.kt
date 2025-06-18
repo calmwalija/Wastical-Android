@@ -219,7 +219,6 @@ fun CompanyLocationEntity.toCompanyLocationUiModel() = CompanyLocationUiModel(
   updatedAt = updatedAt,
 )
 
-
 fun PaymentRequestEntity.toPaymentRequestUiModel() = PaymentRequestUiModel(
   id = id,
   months = months,
@@ -229,16 +228,15 @@ fun PaymentRequestEntity.toPaymentRequestUiModel() = PaymentRequestUiModel(
   companyId = companyId,
   executedById = executedById,
   status = status,
-  createdAt = createdAt
+  createdAt = createdAt,
 )
 
 fun PaymentRequestWithAccountEntity.toPaymentRequestWithAccountUiModel() =
   PaymentRequestWithAccountUiModel(
     payment = payment.toPaymentRequestUiModel(),
     account = account.toAccountUiModel(),
-    fee = fee
+    fee = fee,
   )
-
 
 fun PaymentMonthCoveredEntity.toPaymentMonthCoveredUiModel() =
   PaymentMonthCoveredUiModel(
@@ -248,12 +246,11 @@ fun PaymentMonthCoveredEntity.toPaymentMonthCoveredUiModel() =
     paymentId = paymentId,
     accountId = accountId,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
   )
-
 
 fun PaymentWithMonthsCoveredEntity.toPaymentWithMonthsCoveredUiModel() =
   PaymentWithMonthsCoveredUiModel(
     payment = payment.toPaymentUiModel(),
-    covered = covered.map { it.toPaymentMonthCoveredUiModel() }
+    covered = covered.map { it.toPaymentMonthCoveredUiModel() },
   )

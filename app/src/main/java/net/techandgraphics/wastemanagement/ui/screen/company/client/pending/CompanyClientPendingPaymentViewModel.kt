@@ -22,7 +22,6 @@ import javax.inject.Inject
     MutableStateFlow<CompanyClientPendingPaymentState>(CompanyClientPendingPaymentState.Loading)
   val state = _state.asStateFlow()
 
-
   private fun onLoad(event: CompanyClientPendingPaymentEvent.Load) =
     viewModelScope.launch {
       database.paymentRequestDao.getWithAccountByAccountId(event.id)
@@ -33,11 +32,10 @@ import javax.inject.Inject
           _state.value = CompanyClientPendingPaymentState.Success(
             company = company,
             pending = pending,
-            account = account
+            account = account,
           )
         }
     }
-
 
   fun onEvent(event: CompanyClientPendingPaymentEvent) {
     when (event) {
@@ -45,5 +43,4 @@ import javax.inject.Inject
       else -> TODO("Handle actions")
     }
   }
-
 }
