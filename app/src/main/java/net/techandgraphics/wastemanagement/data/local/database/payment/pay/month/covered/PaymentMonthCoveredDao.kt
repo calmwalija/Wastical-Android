@@ -9,4 +9,7 @@ import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 
   @Query("SELECT * FROM payment_month_covered")
   fun flowOfPaymentMonthCovered(): Flow<List<PaymentMonthCoveredEntity>>
+
+  @Query("SELECT * FROM payment_month_covered WHERE payment_id=:id")
+  suspend fun getByPaymentId(id: Long): List<PaymentMonthCoveredEntity>
 }

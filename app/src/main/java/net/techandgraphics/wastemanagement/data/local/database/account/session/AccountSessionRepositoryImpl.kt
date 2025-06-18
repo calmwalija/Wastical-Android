@@ -67,6 +67,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
                   ?.also { paymentDayDao.insert(it) }
 
                 paymentMethods?.map { it.toPaymentMethodEntity() }
+                  ?.map { it.copy(isSelected = (it.account == "In Person")) }
                   ?.also { paymentMethodDao.insert(it) }
 
                 payments?.map { it.toPaymentEntity() }?.also { paymentDao.insert(it) }

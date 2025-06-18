@@ -16,9 +16,13 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.stree
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentMethodWithGatewayEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithAccountAndMethodWithGatewayEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithMonthsCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
@@ -33,10 +37,14 @@ import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicS
 import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMonthCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
 fun PaymentPlanEntity.toPaymentPlanUiModel() = PaymentPlanUiModel(
@@ -210,3 +218,39 @@ fun CompanyLocationEntity.toCompanyLocationUiModel() = CompanyLocationUiModel(
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
+
+fun PaymentRequestEntity.toPaymentRequestUiModel() = PaymentRequestUiModel(
+  id = id,
+  months = months,
+  screenshotText = screenshotText,
+  paymentMethodId = paymentMethodId,
+  accountId = accountId,
+  companyId = companyId,
+  executedById = executedById,
+  status = status,
+  createdAt = createdAt,
+)
+
+fun PaymentRequestWithAccountEntity.toPaymentRequestWithAccountUiModel() =
+  PaymentRequestWithAccountUiModel(
+    payment = payment.toPaymentRequestUiModel(),
+    account = account.toAccountUiModel(),
+    fee = fee,
+  )
+
+fun PaymentMonthCoveredEntity.toPaymentMonthCoveredUiModel() =
+  PaymentMonthCoveredUiModel(
+    id = id,
+    month = month,
+    year = year,
+    paymentId = paymentId,
+    accountId = accountId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
+
+fun PaymentWithMonthsCoveredEntity.toPaymentWithMonthsCoveredUiModel() =
+  PaymentWithMonthsCoveredUiModel(
+    payment = payment.toPaymentUiModel(),
+    covered = covered.map { it.toPaymentMonthCoveredUiModel() },
+  )

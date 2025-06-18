@@ -57,6 +57,7 @@ import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyLocation4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicArea4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicStreet4Preview
+import net.techandgraphics.wastemanagement.ui.theme.Green
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.util.Locale
 
@@ -225,7 +226,7 @@ fun CompanyPaymentLocationOverviewScreen(
                       overflow = TextOverflow.Ellipsis,
                       style = MaterialTheme.typography.bodyMedium,
                       fontWeight = FontWeight.Bold,
-                      color = MaterialTheme.colorScheme.primary
+                      color = Green
                     )
                   }
 
@@ -255,7 +256,7 @@ fun CompanyPaymentLocationOverviewScreen(
                       overflow = TextOverflow.Ellipsis,
                       style = MaterialTheme.typography.bodyMedium,
                       fontWeight = FontWeight.Bold,
-                      color = MaterialTheme.colorScheme.primary
+                      color = MaterialTheme.colorScheme.error
                     )
                   }
                 }

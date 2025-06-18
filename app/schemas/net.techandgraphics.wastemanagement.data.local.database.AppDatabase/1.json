@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f7751ef8bd0c7b44a0518a762981fe94",
+    "identityHash": "b4317396770f974a430d33184848185c",
     "entities": [
       {
         "tableName": "account",
@@ -1490,7 +1490,7 @@
       },
       {
         "tableName": "payment_request",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1539,10 +1539,16 @@
             "columnName": "payment_status",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
             "id"
           ]
@@ -1616,7 +1622,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f7751ef8bd0c7b44a0518a762981fe94')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b4317396770f974a430d33184848185c')"
     ]
   }
 }

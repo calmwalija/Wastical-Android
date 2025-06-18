@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.ui.Route
 import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneNavGraphBuilder
@@ -30,6 +31,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.create.Compa
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.plan.CompanyClientPlanViewModel
@@ -145,6 +149,9 @@ fun AppNavHost(
     composable<Route.Company.Payment.Verify> {
       with(hiltViewModel<CompanyVerifyPaymentViewModel>()) {
         val state = state.collectAsState().value
+        val ofType = it.toRoute<Route.Company.Payment.Verify>().ofType
+        LaunchedEffect(ofType) { onEvent(CompanyVerifyPaymentEvent.Load(ofType)) }
+
         CompanyVerifyPaymentScreen(state) { event ->
           when (event) {
             CompanyVerifyPaymentEvent.Goto.BackHandler -> navController.navigateUp()
@@ -199,6 +206,9 @@ fun AppNavHost(
 
             CompanyClientProfileEvent.Option.Plan ->
               navController.navigate(Route.Company.Client.Plan(id))
+
+            CompanyClientProfileEvent.Option.Pending ->
+              navController.navigate(Route.Company.Payment.Pending(id))
 
             CompanyClientProfileEvent.Option.Revoke -> Unit
 
@@ -298,9 +308,14 @@ fun AppNavHost(
             is Goto -> when (event) {
               Goto.Create -> navController.navigate(Route.Company.Client.Create)
               Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
-              Goto.Payments -> navController.navigate(Route.Company.Payment.Verify)
+              Goto.Payments ->
+                navController.navigate(Route.Company.Payment.Verify(PaymentStatus.Approved.name))
+
               Goto.Company -> navController.navigate(Route.Company.Info.This)
               Goto.PerLocation -> navController.navigate(Route.Company.PerLocation)
+              Goto.VerifyPayment ->
+                navController.navigate(Route.Company.Payment.Verify(PaymentStatus.Waiting.name))
+
               is Goto.LocationOverview ->
                 navController.navigate(Route.Company.LocationOverview(event.id))
             }
@@ -340,6 +355,22 @@ fun AppNavHost(
 
             is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
             else -> Unit
+          }
+        }
+      }
+    }
+
+
+    composable<Route.Company.Payment.Pending> {
+      with(hiltViewModel<CompanyClientPendingPaymentViewModel>()) {
+        val state = state.collectAsState().value
+        val id = it.toRoute<Route.Company.Payment.Pending>().id
+        LaunchedEffect(id) { onEvent(CompanyClientPendingPaymentEvent.Load(id)) }
+        CompanyClientPendingPaymentScreen(state) { event ->
+          when (event) {
+            CompanyClientPendingPaymentEvent.Goto.BackHandler -> navController.navigateUp()
+
+            else -> onEvent(event)
           }
         }
       }

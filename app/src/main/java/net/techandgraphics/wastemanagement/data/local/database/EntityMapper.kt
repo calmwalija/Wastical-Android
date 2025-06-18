@@ -18,6 +18,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.pay.Payme
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
@@ -47,6 +48,9 @@ import net.techandgraphics.wastemanagement.domain.model.payment.CompanyLocationU
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
+import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
@@ -346,4 +350,36 @@ fun CompanyLocationUiModel.toCompanyLocationEntity() = CompanyLocationEntity(
   demographicDistrictId = demographicDistrictId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+)
+
+fun PaymentRequestUiModel.toPaymentRequestEntity() = PaymentRequestEntity(
+  id = id,
+  months = months,
+  screenshotText = screenshotText,
+  paymentMethodId = paymentMethodId,
+  accountId = accountId,
+  companyId = companyId,
+  executedById = executedById,
+  status = status,
+  createdAt = createdAt,
+)
+
+fun PaymentRequestWithAccountUiModel.toPaymentRequestWithAccountEntity() =
+  PaymentRequestWithAccountEntity(
+    payment = payment.toPaymentRequestEntity(),
+    account = account.toAccountEntity(),
+    fee = fee,
+  )
+
+fun PaymentUiModel.toPaymentEntity() = PaymentEntity(
+  id = id,
+  status = status.name,
+  accountId = accountId,
+  screenshotText = screenshotText,
+  transactionId = transactionId,
+  paymentMethodId = paymentMethodId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+  companyId = companyId,
+  executedById = executedById,
 )

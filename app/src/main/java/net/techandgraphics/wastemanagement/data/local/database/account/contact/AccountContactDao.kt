@@ -12,4 +12,7 @@ interface AccountContactDao : BaseDao<AccountContactEntity> {
 
   @Query("SELECT * FROM account_contact")
   fun flow(): Flow<List<AccountContactEntity>>
+
+  @Query("SELECT * FROM account_contact WHERE account_id=:id")
+  suspend fun getByAccountId(id: Long): List<AccountContactEntity>
 }

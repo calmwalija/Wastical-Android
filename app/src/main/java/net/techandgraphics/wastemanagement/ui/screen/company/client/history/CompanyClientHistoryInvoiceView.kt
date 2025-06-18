@@ -25,23 +25,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.calculateToTextAmount
+import net.techandgraphics.wastemanagement.calculate
 import net.techandgraphics.wastemanagement.defaultDate
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
-import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryEvent.Button.Invoice
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryEvent.Button.Invoice.Event
-import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyClientHistoryInvoiceView(
-  payment: PaymentUiModel,
+  entity: PaymentWithMonthsCoveredUiModel,
   plan: PaymentPlanUiModel,
   onEvent: (CompanyClientHistoryEvent) -> Unit,
 ) {
+
+  val payment = entity.payment
+  val covered = entity.covered
 
   Card(
     modifier = Modifier
@@ -73,7 +77,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           style = MaterialTheme.typography.bodySmall
         )
         Text(
-          text = calculateToTextAmount(plan, payment),
+          text = plan.calculate(covered.size).toAmount(),
           style = MaterialTheme.typography.bodyMedium,
           maxLines = 1,
           overflow = TextOverflow.MiddleEllipsis,
@@ -101,7 +105,7 @@ private fun CompanyClientHistoryInvoiceViewPreview() {
   WasteManagementTheme {
     Box(modifier = Modifier.padding(16.dp)) {
       CompanyClientHistoryInvoiceView(
-        payment = payment4Preview,
+        entity = paymentWithMonthsCovered4Preview,
         plan = paymentPlan4Preview,
         onEvent = {}
       )

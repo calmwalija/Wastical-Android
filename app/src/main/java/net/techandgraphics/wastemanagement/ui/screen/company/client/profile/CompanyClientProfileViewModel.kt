@@ -12,6 +12,7 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import javax.inject.Inject
 
@@ -29,11 +30,16 @@ class CompanyClientProfileViewModel @Inject constructor(
       _state.value = CompanyClientProfileState.Loading
       val company = database.companyDao.query().first().toCompanyUiModel()
       val account = database.accountDao.get(event.id).toAccountUiModel()
-      _state.value = CompanyClientProfileState.Success(
-        company = company,
-        account = account,
-      )
-      getPayments(account)
+      database.paymentRequestDao.qByAccountId(account.id)
+        .map { entity -> entity.map { it.toPaymentRequestUiModel() } }
+        .collectLatest { pending ->
+          _state.value = CompanyClientProfileState.Success(
+            company = company,
+            account = account,
+            pending = pending,
+          )
+          getPayments(account)
+        }
     }
 
   private suspend fun getPayments(account: AccountUiModel) {

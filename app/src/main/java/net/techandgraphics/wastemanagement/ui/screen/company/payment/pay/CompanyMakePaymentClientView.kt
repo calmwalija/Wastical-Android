@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.client.home.LetterView
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -26,15 +27,17 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable
 fun CompanyMakePaymentClientView(
   account: AccountUiModel,
-  onEvent: (CompanyMakePaymentEvent) -> Unit
+  onEvent: (CompanyMakePaymentEvent) -> Unit,
 ) {
 
   Column {
     Text(
-      text = "Pay For Account",
+      text = "For Account",
       modifier = Modifier.padding(8.dp)
     )
-    Card(colors = CardDefaults.elevatedCardColors()) {
+    Card(
+      colors = CardDefaults.elevatedCardColors(),
+      onClick = { onEvent(CompanyMakePaymentEvent.GoTo.BackHandler) }) {
 
       Row(
         modifier = Modifier
@@ -55,7 +58,7 @@ fun CompanyMakePaymentClientView(
             overflow = TextOverflow.MiddleEllipsis,
           )
           Text(
-            text = account.username,
+            text = account.username.toPhoneFormat(),
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,
             style = MaterialTheme.typography.bodyMedium,

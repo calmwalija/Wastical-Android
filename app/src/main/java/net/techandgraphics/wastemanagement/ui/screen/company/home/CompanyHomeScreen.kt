@@ -12,7 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -34,10 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.toFullName
@@ -79,11 +80,19 @@ fun CompanyHomeScreen(
             }
           },
           actions = {
-            IconButton(onClick = { }) {
-              BadgedBox(badge = { Badge() }) {
-                Icon(Icons.Outlined.Notifications, null)
+            if (state.pending.isNotEmpty())
+              IconButton(onClick = { onEvent(CompanyHomeEvent.Goto.VerifyPayment) }) {
+                BadgedBox(badge = {
+                  Badge {
+                    Text(
+                      text = state.pending.size.toString(),
+                      style = MaterialTheme.typography.labelSmall
+                    )
+                  }
+                }) {
+                  Icon(painterResource(R.drawable.ic_upload_ready), null)
+                }
               }
-            }
 
             IconButton(onClick = { showMenuItems = true }) {
               Icon(Icons.Default.MoreVert, null)

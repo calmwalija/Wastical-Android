@@ -15,6 +15,7 @@ import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentRequestUiModel
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -49,6 +50,7 @@ class CompanyHomeViewModel @Inject constructor(
       database.streetIndicatorDao.getPayment4CurrentLocationMonth(month, year)
     val payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(month, year)
     val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
+    val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
     val company = database.companyDao.query().first().toCompanyUiModel()
     val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
     val accountsSize = database.accountDao.getSize()
@@ -56,6 +58,7 @@ class CompanyHomeViewModel @Inject constructor(
     val paymentPlanAgainstAccounts = database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
     _state.value = CompanyHomeState.Success(
       payment4CurrentMonth = payment4CurrentMonth,
+      pending = pending,
       accountsSize = accountsSize,
       payment4CurrentLocationMonth = payment4CurrentLocationMonth,
       company = company,

@@ -90,7 +90,7 @@ fun CompanyMakePaymentScreen(
 
 
   if (isSuccess) {
-    context.toast("Your request is submitted. You'll be notified when it's complete.")
+    context.toast("Your payment request is submitted.")
     onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
     isSuccess = false
   }

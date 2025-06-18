@@ -9,6 +9,7 @@ import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.data.local.database.query.PaymentWithAccountAndMethodWithGatewayQuery
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithAccountEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithMonthsCoveredEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.Approved
 
@@ -38,6 +39,10 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
 
   @Query("SELECT * FROM payment WHERE account_id=:id")
   fun flowOfByAccountId(id: Long): Flow<List<PaymentEntity>>
+
+  @Transaction
+  @Query("SELECT * FROM payment WHERE account_id=:id")
+  fun flowOfWithMonthCoveredByAccountId(id: Long): Flow<List<PaymentWithMonthsCoveredEntity>>
 
   @Query(
     """
@@ -105,6 +110,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
         INNER JOIN payment_gateway AS gateway ON gateway.id = method.payment_gateway_id
         INNER JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
         WHERE payment.payment_status = :status
+        ORDER BY payment.created_at DESC
     """,
   )
   fun qPaymentWithAccountAndMethodWithGateway(status: String = Approved.name): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
@@ -131,5 +137,8 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
     ORDER BY paidAccounts DESC
     """,
   )
-  suspend fun qPayment4CurrentLocationMonth(month: Int, year: Int): List<Payment4CurrentLocationMonth>
+  suspend fun qPayment4CurrentLocationMonth(
+    month: Int,
+    year: Int,
+  ): List<Payment4CurrentLocationMonth>
 }

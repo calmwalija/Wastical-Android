@@ -12,10 +12,15 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.toAccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
-import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastemanagement.preview
 import net.techandgraphics.wastemanagement.share
 import net.techandgraphics.wastemanagement.ui.screen.client.invoice.pdf.invoiceToPdf
@@ -47,33 +52,54 @@ class CompanyClientHistoryViewModel @Inject constructor(
         company = company,
         account = account,
         plan = plan,
-        state = event.state,
       )
       launch { getPayments(account) }
     }
 
   private fun getPayments(account: AccountUiModel) = viewModelScope.launch {
-    database.paymentDao.flowOfByAccountId(account.id)
-      .map { flowOf -> flowOf.map { it.toPaymentUiModel() } }
+    database.paymentDao.flowOfWithMonthCoveredByAccountId(account.id)
+      .map { flowOf -> flowOf.map { it.toPaymentWithMonthsCoveredUiModel() } }
       .collectLatest { payments -> _state.value = getState().copy(payments = payments) }
   }
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
-    with(state.value as CompanyClientHistoryState.Success) {
-      val paymentMethod = state.paymentMethods.first { it.id == payment.paymentMethodId }
-      val paymentGateway = state.paymentGateways.first { it.id == paymentMethod.id }
-      invoiceToPdf(
-        context = application,
-        account = state.accounts.first(),
-        accountContact = state.accountContacts.first { it.primary },
-        payment = payment,
-        paymentPlan = plan,
-        company = state.companies.first(),
-        companyContact = state.companyContacts.first { it.primary },
-        paymentMethod = paymentMethod,
-        onEvent = onEvent,
-        paymentGateway = paymentGateway,
-      )
+    viewModelScope.launch {
+      with(_state.value as CompanyClientHistoryState.Success) {
+        val accountContact = database.accountContactDao.getByAccountId(account.id)
+          .map { it.toAccountContactUiModel() }
+          .first()
+
+        val paymentMethod = database.paymentMethodDao.get(payment.paymentMethodId)
+          .toPaymentMethodUiModel()
+
+        val paymentGateway = database.paymentGatewayDao.get(paymentMethod.paymentGatewayId)
+          .toPaymentGatewayUiModel()
+
+        val paymentPlan =
+          database.paymentPlanDao.get(paymentMethod.paymentPlanId).toPaymentPlanUiModel()
+
+        val companyContact = database.companyContactDao.query()
+          .map { it.toCompanyContactUiModel() }
+          .first { it.primary }
+
+        val paymentMonthCovered = database.paymentMonthCoveredDao
+          .getByPaymentId(payment.id)
+          .map { it.toPaymentMonthCoveredUiModel() }
+
+        invoiceToPdf(
+          context = application,
+          account = account,
+          accountContact = accountContact,
+          payment = payment,
+          paymentPlan = paymentPlan,
+          company = company,
+          companyContact = companyContact,
+          paymentMethod = paymentMethod,
+          onEvent = onEvent,
+          paymentGateway = paymentGateway,
+          paymentMonthCovered = paymentMonthCovered,
+        )
+      }
     }
 
   private fun onEventInvoice(event: Button.Invoice.Event) {

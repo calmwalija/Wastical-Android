@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
@@ -100,7 +99,7 @@ class ClientPaymentViewModel @Inject constructor(
           _channel.send(ClientPaymentChannel.Pay.Failure(mapApiError(it)))
         }
         .onSuccess {
-          database.paymentDao.upsert(it.toPaymentEntity())
+//          database.paymentDao.upsert(it.toPaymentEntity())
           _channel.send(ClientPaymentChannel.Pay.Success)
           theFile().delete()
         }

@@ -115,11 +115,13 @@ interface PaymentIndicatorDao {
       AND month_covered.year = :year
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
       WHERE location.demographic_street_id =:id
+      GROUP BY account.id
     ORDER BY
       CASE WHEN :sortOrder = 0 THEN hasPaid END DESC,
-      CASE WHEN :sortOrder = 1 THEN account.username END ASC,
-      CASE WHEN :sortOrder = 2 THEN account.lastname END ASC,
-      CASE WHEN :sortOrder = 3 THEN account.title END ASC
+      CASE WHEN :sortOrder = 1 THEN hasPaid END ASC,
+      CASE WHEN :sortOrder = 2 THEN account.title END ASC,
+      CASE WHEN :sortOrder = 3 THEN account.lastname END ASC,
+      CASE WHEN :sortOrder = 4 THEN account.username END ASC
 """,
   )
   suspend fun getAccountsWithPaymentStatusByStreetId(
@@ -146,4 +148,4 @@ data class AccountWithPaymentStatusEntity(
   val amount: Int,
 )
 
-enum class AccountSortOrder { Status, Contact, Lastname, Title }
+enum class AccountSortOrder { Paid, Unpaid, Title, Lastname, Contact }

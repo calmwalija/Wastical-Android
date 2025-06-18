@@ -98,11 +98,16 @@ fun CompanyClientProfileScreen(
       Column(modifier = Modifier.clickable {
         when (item.event) {
           CompanyClientProfileEvent.Option.History -> {
-            if (index == 2) {
-              if (state.payments.isEmpty()) {
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                context.toast("No payment history available")
-              } else onEvent(item.event)
+            if (state.payments.isEmpty()) {
+              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+              context.toast("No payment history available")
+            } else onEvent(item.event)
+          }
+
+          CompanyClientProfileEvent.Option.Pending -> {
+            if (state.pending.isEmpty()) {
+              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+              context.toast("No pending payments available")
             } else onEvent(item.event)
           }
 
@@ -113,7 +118,15 @@ fun CompanyClientProfileScreen(
       }) {
         Row(modifier = Modifier.padding(32.dp)) {
           BadgedBox(badge = {
-            if (index == 2) Badge { Text(text = state.payments.size.toString()) }
+            when (item.event) {
+              CompanyClientProfileEvent.Option.History ->
+                Badge { Text(text = state.payments.size.toString()) }
+
+              CompanyClientProfileEvent.Option.Pending ->
+                Badge { Text(text = state.pending.size.toString()) }
+
+              else -> Unit
+            }
           }) {
             Icon(painterResource(item.drawableRes), null)
           }

@@ -9,6 +9,7 @@ plugins {
   id("com.diffplug.spotless")
   id("dagger.hilt.android.plugin")
   alias(libs.plugins.google.gms.google.services)
+  id("jacoco")
 }
 
 android {
@@ -89,6 +90,52 @@ android {
     }
   }
 }
+
+
+jacoco {
+  toolVersion = "0.8.11"
+}
+
+tasks.withType<Test> {
+  useJUnitPlatform()
+  finalizedBy("jacocoTestReport")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+  dependsOn("testDebugUnitTest")
+
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+  }
+
+  val fileFilter = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "**/*Test*.*",
+    "android/**/*.*"
+  )
+
+  val javaClasses = layout.buildDirectory.dir("intermediates/javac/debug/classes")
+
+  classDirectories.setFrom(
+    javaClasses.map {
+      fileTree(it) {
+        exclude(fileFilter)
+      }
+    }
+  )
+
+  sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+
+  executionData.setFrom(
+    layout.buildDirectory.file("jacoco/testDebugUnitTest.exec")
+  )
+}
+
+
 
 dependencies {
 

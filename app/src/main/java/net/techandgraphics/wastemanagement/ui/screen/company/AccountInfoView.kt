@@ -27,6 +27,7 @@ import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
+import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.toZonedDateTime
 
 
@@ -45,7 +46,7 @@ fun AccountInfoView(account: AccountUiModel) {
         .padding(horizontal = 8.dp)
     ) {
       Text(
-        text = account.username,
+        text = account.username.toPhoneFormat(),
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,

@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.history
+package net.techandgraphics.wastemanagement.ui.screen.company.client.pending
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,32 +22,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
-import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyClientHistoryScreen(
-  state: CompanyClientHistoryState,
-  onEvent: (CompanyClientHistoryEvent) -> Unit,
+fun CompanyClientPendingPaymentScreen(
+  state: CompanyClientPendingPaymentState,
+  onEvent: (CompanyClientPendingPaymentEvent) -> Unit,
 ) {
-
   when (state) {
-    CompanyClientHistoryState.Loading -> LoadingIndicatorView()
-    is CompanyClientHistoryState.Success ->
+    CompanyClientPendingPaymentState.Loading -> LoadingIndicatorView()
+    is CompanyClientPendingPaymentState.Success ->
 
       Scaffold(
         topBar = {
           TopAppBar(
             title = { CompanyInfoTopAppBarView(state.company) },
             navigationIcon = {
-              IconButton(onClick = { }) {
+              IconButton(onClick = { CompanyClientPendingPaymentEvent.Goto.BackHandler }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
               }
             },
@@ -59,7 +57,7 @@ fun CompanyClientHistoryScreen(
         Column(modifier = Modifier.padding(it)) {
 
           Text(
-            text = "Payment History",
+            text = "Pending Payments",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(16.dp)
           )
@@ -68,19 +66,8 @@ fun CompanyClientHistoryScreen(
           Spacer(modifier = Modifier.height(24.dp))
 
           LazyColumn(contentPadding = PaddingValues(16.dp)) {
-            items(state.payments) { payment ->
-              when (payment.payment.status) {
-                PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
-                  payment,
-                  state.plan,
-                  onEvent
-                )
-
-                else -> CompanyClientHistoryView(
-                  entity = payment,
-                  onEvent = onEvent
-                )
-              }
+            items(state.pending, key = { it.payment.id }) { payment ->
+              CompanyClientPendingPaymentView(payment, onEvent)
             }
           }
         }
@@ -92,13 +79,13 @@ fun CompanyClientHistoryScreen(
 
 @Preview
 @Composable
-private fun CompanyClientHistoryScreenPreview() {
+private fun CompanyClientPendingPaymentScreenPreview() {
   WasteManagementTheme {
-    CompanyClientHistoryScreen(
-      state = CompanyClientHistoryState.Success(
+    CompanyClientPendingPaymentScreen(
+      state = CompanyClientPendingPaymentState.Success(
         company = company4Preview,
         account = account4Preview,
-        plan = paymentPlan4Preview,
+        pending = listOf(paymentRequestWithAccount4Preview)
       ),
       onEvent = {}
     )

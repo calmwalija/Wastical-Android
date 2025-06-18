@@ -48,3 +48,34 @@ jobs:
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
           arguments: build
+
+      - name: Run tests and generate coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport
+
+      - name: Upload JaCoCo HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-report
+          path: app/build/reports/jacoco/jacocoTestReport/html
+
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      - name: Parse JaCoCo coverage and write summary
+        run: |
+          XML_FILE=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+
+          # Extract line coverage % using xmllint and xpath
+          LINE_COVERAGE=$(xmllint --xpath "string(/report/counter[@type='LINE']/@covered)" $XML_FILE)
+          LINE_MISSED=$(xmllint --xpath "string(/report/counter[@type='LINE']/@missed)" $XML_FILE)
+
+          TOTAL=$((LINE_COVERAGE + LINE_MISSED))
+          if [ "$TOTAL" -eq 0 ]; then
+            PERCENT=0
+          else
+            PERCENT=$((100 * LINE_COVERAGE / TOTAL))
+          fi
+
+          echo "### Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Lines covered: $LINE_COVERAGE / $TOTAL ($PERCENT%)" >> $GITHUB_STEP_SUMMARY
+        shell: bash
