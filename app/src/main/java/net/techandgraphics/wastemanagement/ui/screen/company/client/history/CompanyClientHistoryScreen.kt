@@ -1,25 +1,18 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.history
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
@@ -45,45 +38,43 @@ fun CompanyClientHistoryScreen(
 
       Scaffold(
         topBar = {
-          TopAppBar(
-            title = { CompanyInfoTopAppBarView(state.company) },
-            navigationIcon = {
-              IconButton(onClick = { }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-              }
-            },
-            modifier = Modifier.shadow(0.dp),
-            colors = TopAppBarDefaults.topAppBarColors()
-          )
+          CompanyInfoTopAppBarView(state.company) {
+
+          }
         },
+        contentWindowInsets = WindowInsets.safeGestures
       ) {
-        Column(modifier = Modifier.padding(it)) {
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp)
+        ) {
+          item {
+            Text(
+              text = "Payment History",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
+          }
 
-          Text(
-            text = "Payment History",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-          )
+          item { AccountInfoView(state.account, state.demographic) }
 
-          AccountInfoView(state.account)
-          Spacer(modifier = Modifier.height(24.dp))
+          item { Spacer(modifier = Modifier.height(16.dp)) }
 
-          LazyColumn(contentPadding = PaddingValues(16.dp)) {
-            items(state.payments) { payment ->
-              when (payment.payment.status) {
-                PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
-                  payment,
-                  state.plan,
-                  onEvent
-                )
+          items(state.payments) { payment ->
+            when (payment.payment.status) {
+              PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
+                payment,
+                state.plan,
+                onEvent
+              )
 
-                else -> CompanyClientHistoryView(
-                  entity = payment,
-                  onEvent = onEvent
-                )
-              }
+              else -> CompanyClientHistoryView(
+                entity = payment,
+                onEvent = onEvent
+              )
             }
           }
+
         }
       }
   }

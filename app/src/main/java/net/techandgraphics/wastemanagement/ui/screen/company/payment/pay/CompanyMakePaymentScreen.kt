@@ -3,34 +3,24 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.pay
 import android.content.Context
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,35 +89,25 @@ fun CompanyMakePaymentScreen(
     is CompanyMakePaymentState.Success ->
       Scaffold(
         topBar = {
-          TopAppBar(
-            title = { CompanyInfoTopAppBarView(state.company) },
-            navigationIcon = {
-              IconButton(onClick = { onEvent(CompanyMakePaymentEvent.GoTo.BackHandler) }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-              }
-            },
-            modifier = Modifier.shadow(0.dp),
-            colors = TopAppBarDefaults.topAppBarColors()
-          )
+          CompanyInfoTopAppBarView(state.company) {
+            onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
+          }
         },
         bottomBar = {
+          BottomAppBar {
 
-          val isPaymentMethodCash = state.paymentMethods
-            .filter { it.gateway.type == PaymentType.Cash.name }
-            .any { it.method.isSelected }
+            val isPaymentMethodCash = state.paymentMethods
+              .filter { it.gateway.type == PaymentType.Cash.name }
+              .any { it.method.isSelected }
 
-          Surface(shadowElevation = 10.dp, tonalElevation = 1.dp) {
             Row(
               modifier = Modifier
-                .padding(vertical = 24.dp, horizontal = 16.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically
             ) {
               Column {
-                Text(
-                  text = "Total",
-                  style = MaterialTheme.typography.titleSmall
-                )
+                Text(text = "Total")
 
                 val animatedSum by animateIntAsState(
                   targetValue = state.numberOfMonths.times(state.paymentPlan.fee),
@@ -140,7 +119,7 @@ fun CompanyMakePaymentScreen(
 
                 Text(
                   text = animatedSum.toAmount(),
-                  style = MaterialTheme.typography.titleLarge,
+                  style = MaterialTheme.typography.titleMedium,
                   fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.fillMaxWidth(.4f)
@@ -176,48 +155,42 @@ fun CompanyMakePaymentScreen(
             }
 
           }
+
         },
-        contentWindowInsets = ScaffoldDefaults
-          .contentWindowInsets
-          .exclude(WindowInsets.navigationBars)
-          .exclude(WindowInsets.ime),
+        contentWindowInsets = WindowInsets.safeContent
       ) {
 
-        Box(modifier = Modifier.padding(it)) {
-          LazyColumn(
-            state = scrollState,
-            modifier = Modifier
-              .padding(horizontal = 16.dp)
-          ) {
+        LazyColumn(
+          state = scrollState,
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp)
+        ) {
 
 
-            item {
-              Text(
-                text = "Record Payment",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(vertical = 16.dp)
-              )
-            }
-
-            item { CompanyMakePaymentClientView(state.account, onEvent) }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-            item { CompanyMakePaymentPlanView(state, onEvent) }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-            item { CompanyMakePaymentMethodView(state, onEvent) }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-            item {
-              if (state.paymentMethods
-                  .filter { it.gateway.type == PaymentType.Cash.name }
-                  .any { it.method.isSelected.not() }
-              ) CompanyMakePaymentReferenceView(state, onEvent)
-            }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
+          item {
+            Text(
+              text = "Record Payment",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
           }
+
+          item { CompanyMakePaymentClientView(state.account, onEvent) }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+          item { CompanyMakePaymentPlanView(state, onEvent) }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+          item { CompanyMakePaymentMethodView(state, onEvent) }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+          item {
+            if (state.paymentMethods
+                .filter { it.gateway.type == PaymentType.Cash.name }
+                .any { it.method.isSelected.not() }
+            ) CompanyMakePaymentReferenceView(state, onEvent)
+          }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
         }
       }
-
   }
-
 }
 
 

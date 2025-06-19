@@ -43,7 +43,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
   Card(
-    modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
+    modifier = Modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
     onClick = { onEvent(CompanyVerifyPaymentEvent.Goto.Profile(account.id)) }

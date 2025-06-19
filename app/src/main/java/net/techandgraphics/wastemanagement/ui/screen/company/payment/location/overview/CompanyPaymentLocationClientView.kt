@@ -43,7 +43,7 @@ fun CompanyPaymentLocationClientView(
   Row(
     modifier = modifier
       .clickable { onEvent(CompanyPaymentLocationOverviewEvent.Goto.Profile(account.id)) }
-      .padding(16.dp)
+      .padding(vertical = 16.dp, horizontal = 8.dp)
       .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
   ) {

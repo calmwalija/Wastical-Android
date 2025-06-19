@@ -4,29 +4,24 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,75 +45,63 @@ fun CompanyInfoMethodScreen(
     CompanyInfoMethodState.Loading -> LoadingIndicatorView()
     is CompanyInfoMethodState.Success -> Scaffold(
       topBar = {
-        TopAppBar(
-          title = { CompanyInfoTopAppBarView(state.company) },
-          navigationIcon = {
-            IconButton(onClick = { onEvent(CompanyInfoMethodEvent.Button.BackHandler) }) {
-              Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-            }
-          },
-          modifier = Modifier.shadow(0.dp),
-          colors = TopAppBarDefaults.topAppBarColors()
-        )
+        CompanyInfoTopAppBarView(state.company) {
+          onEvent(CompanyInfoMethodEvent.Button.BackHandler)
+        }
       },
+      contentWindowInsets = WindowInsets.safeGestures
     ) {
-      Column(
-        modifier = Modifier
-          .padding(top = 16.dp)
-          .padding(horizontal = 16.dp)
-          .padding(it)
+      LazyColumn(
+        contentPadding = it,
+        modifier = Modifier.padding(vertical = 32.dp)
       ) {
-        Text(
-          text = "Payment Method",
-          style = MaterialTheme.typography.headlineMedium,
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp),
-        )
-        LazyColumn(
-          modifier = Modifier.padding(vertical = 16.dp),
-        ) {
-          items(state.methods) { ofType ->
-            OutlinedCard(
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-              colors = CardDefaults.elevatedCardColors()
+        item {
+          Text(
+            text = "Payment Method",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 32.dp)
+          )
+        }
+        items(state.methods) { ofType ->
+          OutlinedCard(
+            modifier = Modifier.padding(vertical = 8.dp),
+            colors = CardDefaults.elevatedCardColors()
+          ) {
+            Row(
+              modifier = Modifier
+                .clickable { }
+                .fillMaxWidth()
+                .padding(16.dp),
+              verticalAlignment = Alignment.CenterVertically
             ) {
-              Row(
+
+              Image(
+                painterResource(gatewayDrawableRes[ofType.gateway.id.minus(1).toInt()]),
+                contentDescription = null,
                 modifier = Modifier
-                  .clickable { }
-                  .fillMaxWidth()
-                  .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                  .clip(CircleShape)
+                  .size(32.dp),
+                contentScale = ContentScale.Crop,
+              )
+
+              Column(
+                modifier = Modifier
+                  .padding(horizontal = 8.dp)
+                  .weight(1f)
               ) {
 
-                Image(
-                  painterResource(gatewayDrawableRes[ofType.gateway.id.minus(1).toInt()]),
-                  contentDescription = null,
-                  modifier = Modifier
-                    .clip(CircleShape)
-                    .size(32.dp),
-                  contentScale = ContentScale.Crop,
+                Text(
+                  text = ofType.method.account,
+                  style = MaterialTheme.typography.bodySmall,
+                  maxLines = 1,
+                  overflow = TextOverflow.MiddleEllipsis
                 )
 
-                Column(
-                  modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .weight(1f)
-                ) {
+                Text(
+                  text = ofType.gateway.name,
+                  style = MaterialTheme.typography.titleMedium
+                )
 
-                  Text(
-                    text = ofType.method.account,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.MiddleEllipsis
-                  )
-
-                  Text(
-                    text = ofType.gateway.name,
-                    style = MaterialTheme.typography.titleMedium
-                  )
-
-                }
               }
             }
           }

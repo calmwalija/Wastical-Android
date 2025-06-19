@@ -35,9 +35,4 @@ val profileItems = listOf(
     drawableRes = R.drawable.ic_house,
     event = CompanyClientProfileEvent.Option.Location,
   ),
-  ProfileItem(
-    title = "Revoke & Archive Account",
-    drawableRes = R.drawable.ic_revoke,
-    event = CompanyClientProfileEvent.Option.Revoke,
-  ),
 )

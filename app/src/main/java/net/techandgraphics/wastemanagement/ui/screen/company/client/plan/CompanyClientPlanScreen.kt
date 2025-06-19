@@ -1,26 +1,37 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.layout.safeGestures
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.ui.DottedBorderBox
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
@@ -41,31 +52,117 @@ fun CompanyClientPlanScreen(
     is CompanyClientPlanState.Success ->
       Scaffold(
         topBar = {
-          TopAppBar(
-            title = { CompanyInfoTopAppBarView(state.company) },
-            navigationIcon = {
-              IconButton(onClick = { }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-              }
-            },
-            modifier = Modifier.shadow(0.dp),
-            colors = TopAppBarDefaults.topAppBarColors()
-          )
+          CompanyInfoTopAppBarView(state.company) {
+            onEvent
+          }
         },
+        bottomBar = {
+          BottomAppBar {
+            DottedBorderBox(
+              modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary.copy(.06f))
+                .clickable { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
+              Row {
+                Text(
+                  text = "Change Payment Plan",
+                  modifier = Modifier
+                    .fillMaxWidth(.8f)
+                    .padding(4.dp),
+                  textAlign = TextAlign.Center,
+                  style = MaterialTheme.typography.bodyMedium
+                )
+              }
+            }
+          }
+        },
+        contentWindowInsets = WindowInsets.safeGestures
+
       ) {
-        Column(
-          modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(it)
+
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp)
         ) {
-          Text(
-            text = "Payment Plan",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-          )
-          AccountInfoView(state.account)
-          Spacer(modifier = Modifier.height(16.dp))
-          CompanyClientPlanView(state, onEvent)
+          item {
+            Text(
+              text = "Payment Plan",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
+          }
+
+          item { AccountInfoView(state.account, state.demographic) }
+
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+          itemsIndexed(state.paymentPlans) { index, paymentPlan ->
+            OutlinedCard(
+              modifier = Modifier.padding(vertical = 4.dp),
+              colors = if (paymentPlan.active) CardDefaults.outlinedCardColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(.1f)
+              ) else {
+                CardDefaults.elevatedCardColors()
+              }
+            ) {
+              Row(
+                modifier = Modifier
+                  .clickable { onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan)) }
+                  .fillMaxWidth()
+                  .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+
+                RadioButton(selected = paymentPlan.active, onClick = {
+                  onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan))
+                })
+
+                Column(
+                  modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .weight(1f)
+                ) {
+
+                  Text(
+                    text = "Payment Plan ${index.plus(1)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.MiddleEllipsis
+                  )
+
+                  Text(
+                    text = paymentPlan.name,
+                    style = MaterialTheme.typography.titleMedium
+                  )
+
+                }
+
+                Box(
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .background(MaterialTheme.colorScheme.secondary.copy(.1f))
+                    .fillMaxHeight(.05f)
+                    .width(1.dp)
+                )
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text(
+                    text = paymentPlan.fee.toAmount(),
+                    color = MaterialTheme.colorScheme.primary
+                  )
+
+                  Text(
+                    text = paymentPlan.period.name,
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
+
+
+              }
+
+            }
+          }
+
         }
       }
   }
