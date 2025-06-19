@@ -22,48 +22,63 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
-import net.techandgraphics.wastemanagement.toPhoneFormat
-import net.techandgraphics.wastemanagement.toZonedDateTime
+import net.techandgraphics.wastemanagement.ui.screen.account4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
+import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
 @Composable
-fun AccountInfoView(account: AccountUiModel) {
+fun AccountInfoView(
+  account: AccountUiModel,
+  demographic: CompanyLocationWithDemographicUiModel? = null,
+) {
 
   Row(
     verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier.padding(horizontal = 16.dp)
+    modifier = Modifier.padding(8.dp)
   ) {
-    ProfileLetterView(account)
 
     Column(
       modifier = Modifier
         .weight(1f)
-        .padding(horizontal = 8.dp)
     ) {
-      Text(
-        text = account.username.toPhoneFormat(),
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodyMedium,
-      )
-      Text(
-        text = account.toFullName(),
-        style = MaterialTheme.typography.titleMedium,
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-      )
-      Text(
-        text = account.createdAt.toZonedDateTime().defaultDateTime(),
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodyMedium,
-      )
 
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        ProfileLetterView(account)
+        Column(
+          modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .weight(1f)
+        ) {
+          Text(
+            text = account.username,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+          )
+          Text(
+            text = account.toFullName(),
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+            style = MaterialTheme.typography.titleMedium,
+            )
+          demographic?.let {
+            Column {
+              Text(
+                text = it.demographicStreet.name,
+                maxLines = 1,
+                overflow = TextOverflow.MiddleEllipsis,
+                color = MaterialTheme.colorScheme.primary,
+               )
+            }
+          }
+        }
+      }
     }
 
     IconButton(onClick = {}) {
@@ -89,29 +104,41 @@ fun AccountInfoView(account: AccountUiModel) {
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(78.dp)
+        .size(64.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.2f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(84.dp)
+        .size(70.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(72.dp)
+        .size(54.dp)
         .background(
           brush = brush
         )
     )
     Text(
       text = account.toInitials(),
-      style = MaterialTheme.typography.headlineSmall,
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,
     )
   }
 
+}
+
+
+@Preview(showBackground = true)
+@Composable fun AccountInfoViewPreview() {
+  WasteManagementTheme {
+    Box(modifier = Modifier.padding(32.dp)) {
+      AccountInfoView(
+        account = account4Preview,
+        demographic = companyLocationWithDemographic4Preview
+      )
+    }
+  }
 }

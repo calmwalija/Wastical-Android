@@ -38,6 +38,9 @@ class CompanyClientLocationViewModelTest : BaseUnitTest() {
     coEvery { mockDatabase.companyLocationDao.get(account4Preview.companyLocationId) } returns
       companyLocation4Preview.toCompanyLocationEntity()
 
+    coEvery { mockDatabase.companyLocationDao.getWithDemographic(account4Preview.companyLocationId) } returns
+      companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity()
+
     val viewModel = CompanyClientLocationViewModel(mockDatabase)
     viewModel.state.test {
       assertTrue { awaitItem() is CompanyClientLocationState.Loading }

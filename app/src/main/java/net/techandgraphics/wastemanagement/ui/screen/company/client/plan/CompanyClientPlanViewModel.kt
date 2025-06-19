@@ -12,6 +12,7 @@ import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.toAccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import javax.inject.Inject
@@ -35,10 +36,14 @@ class CompanyClientPlanViewModel @Inject constructor(
         .mapIndexed { index, plan ->
           plan.toPaymentPlanUiModel().copy(active = accountPlan.paymentPlanId == plan.id)
         }
+      val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
+        .toCompanyLocationWithDemographicUiModel()
+
       _state.value = CompanyClientPlanState.Success(
         company = company,
         account = account,
         paymentPlans = paymentPlans,
+        demographic = demographic,
         plan = paymentPlans.first { it.id == accountPlan.paymentPlanId },
       )
     }

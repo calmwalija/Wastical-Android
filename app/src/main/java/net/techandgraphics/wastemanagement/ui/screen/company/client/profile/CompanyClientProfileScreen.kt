@@ -35,6 +35,7 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
 
@@ -91,7 +92,7 @@ fun CompanyClientProfileScreen(
   val context = LocalContext.current
   val hapticFeedback = LocalHapticFeedback.current
 
-  AccountInfoView(account)
+  AccountInfoView(account, state.demographic)
 
   LazyColumn {
     itemsIndexed(profileItems) { index, item ->
@@ -152,7 +153,8 @@ private fun CompanyClientProfileScreenPreview() {
     CompanyClientProfileScreen(
       state = CompanyClientProfileState.Success(
         company = company4Preview,
-        account = account4Preview
+        account = account4Preview,
+        demographic = companyLocationWithDemographic4Preview
       ),
       onEvent = {}
     )

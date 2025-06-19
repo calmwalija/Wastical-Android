@@ -27,6 +27,7 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -85,7 +86,8 @@ private fun CompanyClientPendingPaymentScreenPreview() {
       state = CompanyClientPendingPaymentState.Success(
         company = company4Preview,
         account = account4Preview,
-        pending = listOf(paymentRequestWithAccount4Preview)
+        pending = listOf(paymentRequestWithAccount4Preview),
+        demographic = companyLocationWithDemographic4Preview
       ),
       onEvent = {}
     )

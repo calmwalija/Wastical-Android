@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentRequestWithAccountUiModel
 import javax.inject.Inject
@@ -29,10 +30,13 @@ import javax.inject.Inject
         .collectLatest { pending ->
           val company = database.companyDao.query().first().toCompanyUiModel()
           val account = database.accountDao.get(event.id).toAccountUiModel()
+          val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
+            .toCompanyLocationWithDemographicUiModel()
           _state.value = CompanyClientPendingPaymentState.Success(
             company = company,
             pending = pending,
             account = account,
+            demographic = demographic,
           )
         }
     }

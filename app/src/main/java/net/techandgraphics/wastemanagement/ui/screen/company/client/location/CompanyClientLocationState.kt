@@ -11,6 +11,7 @@ sealed interface CompanyClientLocationState {
   data class Success(
     val company: CompanyUiModel,
     val account: AccountUiModel,
+    val demographic: CompanyLocationWithDemographicUiModel,
     val accountDemographicArea: DemographicAreaUiModel,
     val accountDemographicStreet: DemographicStreetUiModel,
     val demographics: List<CompanyLocationWithDemographicUiModel> = listOf(),

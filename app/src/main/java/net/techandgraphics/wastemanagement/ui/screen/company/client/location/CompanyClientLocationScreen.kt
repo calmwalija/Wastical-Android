@@ -182,7 +182,7 @@ fun CompanyClientLocationScreen(
 }
 
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CompanyClientLocationScreenPreview() {
   WasteManagementTheme {
@@ -192,7 +192,8 @@ private fun CompanyClientLocationScreenPreview() {
         account = account4Preview,
         accountDemographicArea = demographicArea4Preview,
         accountDemographicStreet = demographicStreet4Preview,
-        demographics = (1..5).map { companyLocationWithDemographic4Preview }
+        demographics = (1..5).map { companyLocationWithDemographic4Preview },
+        demographic = companyLocationWithDemographic4Preview
       ),
       onEvent = {}
     )

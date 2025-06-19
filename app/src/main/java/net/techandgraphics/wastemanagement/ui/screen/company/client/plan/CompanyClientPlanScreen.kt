@@ -26,6 +26,7 @@ import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -80,7 +81,8 @@ private fun CompanyClientPlanScreenPreview() {
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
-        paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview)
+        paymentPlans = listOf(paymentPlan4Preview, paymentPlan4Preview),
+        demographic = companyLocationWithDemographic4Preview
       ),
       onEvent = {}
     )

@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 
 sealed interface CompanyClientPlanState {
 
@@ -12,6 +13,7 @@ sealed interface CompanyClientPlanState {
     val company: CompanyUiModel,
     val account: AccountUiModel,
     val plan: PaymentPlanUiModel,
+    val demographic: CompanyLocationWithDemographicUiModel,
     val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   ) : CompanyClientPlanState
 }
