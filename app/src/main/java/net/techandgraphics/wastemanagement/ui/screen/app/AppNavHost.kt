@@ -31,6 +31,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.client.create.Compa
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.history.CompanyClientHistoryViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.client.location.CompanyClientLocationEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.client.location.CompanyClientLocationScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.client.location.CompanyClientLocationViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.client.pending.CompanyClientPendingPaymentViewModel
@@ -199,7 +202,8 @@ fun AppNavHost(
             CompanyClientProfileEvent.Option.History ->
               navController.navigate(Route.Company.Client.History(id))
 
-            CompanyClientProfileEvent.Option.Location -> Unit
+            CompanyClientProfileEvent.Option.Location ->
+              navController.navigate(Route.Company.ClientLocation(id))
 
             CompanyClientProfileEvent.Option.Payment ->
               navController.navigate(Route.Company.Client.Payment(id))
@@ -369,6 +373,22 @@ fun AppNavHost(
         CompanyClientPendingPaymentScreen(state) { event ->
           when (event) {
             CompanyClientPendingPaymentEvent.Goto.BackHandler -> navController.navigateUp()
+
+            else -> onEvent(event)
+          }
+        }
+      }
+    }
+
+
+    composable<Route.Company.ClientLocation> {
+      with(hiltViewModel<CompanyClientLocationViewModel>()) {
+        val state = state.collectAsState().value
+        val id = it.toRoute<Route.Company.ClientLocation>().id
+        LaunchedEffect(id) { onEvent(CompanyClientLocationEvent.Load(id)) }
+        CompanyClientLocationScreen(state) { event ->
+          when (event) {
+            CompanyClientLocationEvent.Goto.BackHandler -> navController.navigateUp()
 
             else -> onEvent(event)
           }

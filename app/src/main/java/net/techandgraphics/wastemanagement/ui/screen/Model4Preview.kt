@@ -23,6 +23,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMonthCove
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -246,6 +247,12 @@ internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
 internal val paymentWithMonthsCovered4Preview = PaymentWithMonthsCoveredUiModel(
   payment = payment4Preview,
   covered = listOf(paymentMonthCoveredUiModel),
+)
+
+internal val companyLocationWithDemographic4Preview = CompanyLocationWithDemographicUiModel(
+  location = companyLocation4Preview,
+  demographicArea = demographicArea4Preview,
+  demographicStreet = demographicStreet4Preview,
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

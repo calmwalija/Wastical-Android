@@ -18,6 +18,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.pay.Payme
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.CompanyLocationWithDemographicEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
@@ -50,6 +51,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiM
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
 
@@ -383,3 +385,10 @@ fun PaymentUiModel.toPaymentEntity() = PaymentEntity(
   companyId = companyId,
   executedById = executedById,
 )
+
+fun CompanyLocationWithDemographicUiModel.toCompanyLocationWithDemographicEntity() =
+  CompanyLocationWithDemographicEntity(
+    location = location.toCompanyLocationEntity(),
+    demographicArea = demographicArea.toDemographicAreaEntity(),
+    demographicStreet = demographicStreet.toDemographicStreetEntity(),
+  )

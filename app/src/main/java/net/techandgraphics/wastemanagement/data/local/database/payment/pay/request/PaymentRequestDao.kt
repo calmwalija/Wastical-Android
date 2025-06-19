@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.data.local.database.payment.pay.requ
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RoomWarnings
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastemanagement.data.local.database.BaseDao
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentRequestWithAccountEntity
@@ -14,6 +15,7 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
   @Query("SELECT * FROM payment_request WHERE account_id=:id")
   fun qByAccountId(id: Long): Flow<List<PaymentRequestEntity>>
 
+  @Transaction
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(
     """
@@ -28,6 +30,7 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
   )
   fun qFlowWithAccount(): Flow<List<PaymentRequestWithAccountEntity>>
 
+  @Transaction
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(
     """
