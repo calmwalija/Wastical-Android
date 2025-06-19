@@ -8,10 +8,12 @@ import kotlinx.coroutines.test.runTest
 import net.techandgraphics.BaseUnitTest
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.toCompanyLocationWithDemographicEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentRequest4Preview
 import org.junit.Test
@@ -37,6 +39,8 @@ class CompanyClientProfileViewModelTest : BaseUnitTest() {
       flowOf(listOf(paymentRequest4Preview.toPaymentRequestEntity()))
     every { mockDatabase.paymentDao.flowOfByAccountId(1) } returns
       flowOf(listOf(payment4Preview.toPaymentEntity()))
+    coEvery { mockDatabase.companyLocationDao.getWithDemographic(account4Preview.companyLocationId) } returns
+      companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity()
     viewModel.state.test {
       assert(awaitItem() is CompanyClientProfileState.Loading)
       viewModel.onEvent(CompanyClientProfileEvent.Load(1))
