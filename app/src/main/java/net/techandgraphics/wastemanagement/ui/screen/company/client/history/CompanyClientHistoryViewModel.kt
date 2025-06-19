@@ -15,6 +15,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountContactUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
+import net.techandgraphics.wastemanagement.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentMethodUiModel
@@ -48,10 +49,13 @@ class CompanyClientHistoryViewModel @Inject constructor(
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val company = database.companyDao.query().first().toCompanyUiModel()
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
+      val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
+        .toCompanyLocationWithDemographicUiModel()
       _state.value = CompanyClientHistoryState.Success(
         company = company,
         account = account,
         plan = plan,
+        demographic = demographic,
       )
       launch { getPayments(account) }
     }

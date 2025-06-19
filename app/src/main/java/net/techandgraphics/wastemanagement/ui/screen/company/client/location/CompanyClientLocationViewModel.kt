@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyLocationUiModel
@@ -38,11 +39,17 @@ class CompanyClientLocationViewModel @Inject constructor(
       val accountDemographicArea =
         database.demographicAreaDao.get(accountLocation.demographicAreaId)
           .toAreaUiModel()
+      val demographic = CompanyLocationWithDemographicUiModel(
+        accountLocation,
+        accountDemographicArea,
+        accountDemographicStreet,
+      )
 
       _state.value = CompanyClientLocationState.Success(
         company = company,
         account = account,
         demographics = demographics,
+        demographic = demographic,
         accountDemographicStreet = accountDemographicStreet,
         accountDemographicArea = accountDemographicArea,
       )

@@ -24,4 +24,8 @@ interface CompanyLocationDao : BaseDao<CompanyLocationEntity> {
   @Transaction
   @Query("SELECT * FROM company_location")
   suspend fun qWithDemographic(): List<CompanyLocationWithDemographicEntity>
+
+  @Transaction
+  @Query("SELECT * FROM company_location WHERE id=:id ")
+  suspend fun getWithDemographic(id: Long): CompanyLocationWithDemographicEntity
 }
