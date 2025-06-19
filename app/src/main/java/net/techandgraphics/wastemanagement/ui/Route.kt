@@ -40,6 +40,8 @@ sealed interface Route {
 
     @Serializable data class LocationOverview(val id: Long) : Company
 
+    @Serializable data class ClientLocation(val id: Long) : Company
+
     @Serializable
     sealed interface Client : Company {
       @Serializable data object Browse : Client

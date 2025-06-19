@@ -19,6 +19,7 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.pay.Payme
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.plan.PaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.relations.CompanyLocationWithDemographicEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentMethodWithGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.relations.PaymentWithAccountAndMethodWithGatewayEntity
@@ -41,6 +42,7 @@ import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMonthCove
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -253,4 +255,11 @@ fun PaymentWithMonthsCoveredEntity.toPaymentWithMonthsCoveredUiModel() =
   PaymentWithMonthsCoveredUiModel(
     payment = payment.toPaymentUiModel(),
     covered = covered.map { it.toPaymentMonthCoveredUiModel() },
+  )
+
+fun CompanyLocationWithDemographicEntity.toCompanyLocationWithDemographicUiModel() =
+  CompanyLocationWithDemographicUiModel(
+    location = location.toCompanyLocationUiModel(),
+    demographicArea = demographicArea.toAreaUiModel(),
+    demographicStreet = demographicStreet.toStreetUiModel(),
   )

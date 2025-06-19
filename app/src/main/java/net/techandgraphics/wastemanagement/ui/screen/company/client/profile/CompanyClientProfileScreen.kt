@@ -111,9 +111,7 @@ fun CompanyClientProfileScreen(
             } else onEvent(item.event)
           }
 
-          CompanyClientProfileEvent.Option.Payment -> onEvent(item.event)
-          CompanyClientProfileEvent.Option.Plan -> onEvent(item.event)
-          else -> Unit
+          else -> onEvent(item.event)
         }
       }) {
         Row(modifier = Modifier.padding(32.dp)) {
