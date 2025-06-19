@@ -3,26 +3,23 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.profile
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -47,99 +44,92 @@ fun CompanyClientProfileScreen(
 ) {
   when (state) {
     CompanyClientProfileState.Loading -> LoadingIndicatorView()
-    is CompanyClientProfileState.Success ->
+    is CompanyClientProfileState.Success -> {
+
+      val context = LocalContext.current
+      val hapticFeedback = LocalHapticFeedback.current
+
       Scaffold(
         topBar = {
-          TopAppBar(
-            title = { CompanyInfoTopAppBarView(state.company) },
-            navigationIcon = {
-              IconButton(
-                onClick = { onEvent(CompanyClientProfileEvent.Button.BackHandler) },
-              ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-              }
-            },
-            modifier = Modifier.shadow(0.dp),
-            colors = TopAppBarDefaults.topAppBarColors()
-          )
+          CompanyInfoTopAppBarView(state.company) {
+            onEvent(CompanyClientProfileEvent.Button.BackHandler)
+          }
         },
+        contentWindowInsets = WindowInsets.safeContent
       ) {
-        Column(
-          modifier = Modifier
-            .padding(16.dp)
-            .padding(it)
+
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp)
         ) {
-          Text(
-            text = "Client Profile",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(start = 8.dp, bottom = 16.dp)
-          )
-          CompanyClientProfileSuccess(state, onEvent)
-        }
-      }
-  }
 
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable private fun CompanyClientProfileSuccess(
-  state: CompanyClientProfileState.Success,
-  onEvent: (CompanyClientProfileEvent) -> Unit,
-) {
-
-  val account = state.account
-  val context = LocalContext.current
-  val hapticFeedback = LocalHapticFeedback.current
-
-  AccountInfoView(account, state.demographic)
-
-  LazyColumn {
-    itemsIndexed(profileItems) { index, item ->
-      Column(modifier = Modifier.clickable {
-        when (item.event) {
-          CompanyClientProfileEvent.Option.History -> {
-            if (state.payments.isEmpty()) {
-              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-              context.toast("No payment history available")
-            } else onEvent(item.event)
+          item {
+            Text(
+              text = "Client Info",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
           }
 
-          CompanyClientProfileEvent.Option.Pending -> {
-            if (state.pending.isEmpty()) {
-              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-              context.toast("No pending payments available")
-            } else onEvent(item.event)
-          }
 
-          else -> onEvent(item.event)
-        }
-      }) {
-        Row(modifier = Modifier.padding(32.dp)) {
-          BadgedBox(badge = {
-            when (item.event) {
-              CompanyClientProfileEvent.Option.History ->
-                Badge { Text(text = state.payments.size.toString()) }
+          item { AccountInfoView(state.account, state.demographic) }
 
-              CompanyClientProfileEvent.Option.Pending ->
-                Badge { Text(text = state.pending.size.toString()) }
+          itemsIndexed(profileItems) { index, item ->
+            Column(modifier = Modifier.clickable {
+              when (item.event) {
+                CompanyClientProfileEvent.Option.History -> {
+                  if (state.payments.isEmpty()) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    context.toast("No payment history available")
+                  } else onEvent(item.event)
+                }
 
-              else -> Unit
+                CompanyClientProfileEvent.Option.Pending -> {
+                  if (state.pending.isEmpty()) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    context.toast("No pending payments available")
+                  } else onEvent(item.event)
+                }
+
+                else -> onEvent(item.event)
+              }
+            }) {
+              Row(
+                modifier = Modifier.padding(
+                  vertical = 32.dp,
+                  horizontal = 8.dp
+                )
+              ) {
+                BadgedBox(badge = {
+                  when (item.event) {
+                    CompanyClientProfileEvent.Option.History ->
+                      Badge { Text(text = state.payments.size.toString()) }
+
+                    CompanyClientProfileEvent.Option.Pending ->
+                      Badge { Text(text = state.pending.size.toString()) }
+
+                    else -> Unit
+                  }
+                }) {
+                  Icon(
+                    painterResource(item.drawableRes),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                  )
+                }
+                Text(
+                  text = item.title,
+                  modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f)
+                )
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+              }
+
+              HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
             }
-          }) {
-            Icon(painterResource(item.drawableRes), null)
           }
-          Text(
-            text = item.title,
-            modifier = Modifier
-              .padding(start = 16.dp)
-              .weight(1f)
-          )
-          Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
         }
-
-        if (index.plus(1) < profileItems.size)
-          HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
       }
     }
   }

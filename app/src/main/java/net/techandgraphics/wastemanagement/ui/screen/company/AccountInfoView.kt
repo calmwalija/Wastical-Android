@@ -36,18 +36,12 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @Composable
 fun AccountInfoView(
   account: AccountUiModel,
-  demographic: CompanyLocationWithDemographicUiModel? = null,
+  demographic: CompanyLocationWithDemographicUiModel,
 ) {
 
-  Row(
-    verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier.padding(8.dp)
-  ) {
+  Row(verticalAlignment = Alignment.CenterVertically) {
 
-    Column(
-      modifier = Modifier
-        .weight(1f)
-    ) {
+    Column(modifier = Modifier.weight(1f)) {
 
       Row(verticalAlignment = Alignment.CenterVertically) {
         ProfileLetterView(account)
@@ -66,16 +60,14 @@ fun AccountInfoView(
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,
             style = MaterialTheme.typography.titleMedium,
+          )
+          Column {
+            Text(
+              text = demographic.demographicStreet.name,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis,
+              color = MaterialTheme.colorScheme.primary,
             )
-          demographic?.let {
-            Column {
-              Text(
-                text = it.demographicStreet.name,
-                maxLines = 1,
-                overflow = TextOverflow.MiddleEllipsis,
-                color = MaterialTheme.colorScheme.primary,
-               )
-            }
           }
         }
       }
