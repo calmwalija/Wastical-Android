@@ -9,9 +9,11 @@ import kotlinx.coroutines.test.runTest
 import net.techandgraphics.BaseUnitTest
 import net.techandgraphics.wastemanagement.data.local.database.toAccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.toCompanyEntity
+import net.techandgraphics.wastemanagement.data.local.database.toCompanyLocationWithDemographicEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentRequestWithAccountEntity
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentRequestWithAccount4Preview
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -36,6 +38,9 @@ class CompanyClientPendingPaymentViewModelTest : BaseUnitTest() {
     )
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.accountDao.get(1) } returns account4Preview.toAccountEntity()
+
+    coEvery { mockDatabase.companyLocationDao.getWithDemographic(account4Preview.companyLocationId) } returns
+      companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity()
 
     val viewModel = CompanyClientPendingPaymentViewModel(mockDatabase)
 
