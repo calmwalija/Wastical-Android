@@ -15,16 +15,22 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.method.Pa
       entity = AccountEntity::class,
       parentColumns = ["id"],
       childColumns = ["account_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
     ForeignKey(
       entity = AccountEntity::class,
       parentColumns = ["id"],
       childColumns = ["executed_by_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
     ForeignKey(
       entity = PaymentMethodEntity::class,
       parentColumns = ["id"],
       childColumns = ["payment_method_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
   ],
   indices = [

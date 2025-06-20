@@ -15,11 +15,15 @@ import net.techandgraphics.wastemanagement.data.local.database.payment.plan.Paym
       entity = PaymentPlanEntity::class,
       parentColumns = ["id"],
       childColumns = ["payment_plan_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
     ForeignKey(
       entity = PaymentGatewayEntity::class,
       parentColumns = ["id"],
       childColumns = ["payment_gateway_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
   ],
   indices = [

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b4317396770f974a430d33184848185c",
+    "identityHash": "0c24b06c205d3463a798aea3dc2eae3b",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `company_location_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `company_location_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -134,8 +134,8 @@
         "foreignKeys": [
           {
             "table": "company",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_id"
             ],
@@ -145,8 +145,8 @@
           },
           {
             "table": "company_location",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_location_id"
             ],
@@ -158,7 +158,7 @@
       },
       {
         "tableName": "account_contact",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `email` TEXT, `contact` TEXT NOT NULL, `primary` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `email` TEXT, `contact` TEXT NOT NULL, `primary` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -229,8 +229,8 @@
         "foreignKeys": [
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "account_id"
             ],
@@ -316,7 +316,7 @@
       },
       {
         "tableName": "company_contact",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `email` TEXT, `contact` TEXT NOT NULL, `primary` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `email` TEXT, `contact` TEXT NOT NULL, `primary` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -381,8 +381,8 @@
         "foreignKeys": [
           {
             "table": "company",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_id"
             ],
@@ -394,7 +394,7 @@
       },
       {
         "tableName": "payment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -495,8 +495,8 @@
         "foreignKeys": [
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "account_id"
             ],
@@ -506,8 +506,8 @@
           },
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "executed_by_id"
             ],
@@ -517,8 +517,8 @@
           },
           {
             "table": "payment_method",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_method_id"
             ],
@@ -530,7 +530,7 @@
       },
       {
         "tableName": "payment_plan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `fee` INTEGER NOT NULL, `name` TEXT NOT NULL, `period` TEXT NOT NULL, `status` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `fee` INTEGER NOT NULL, `name` TEXT NOT NULL, `period` TEXT NOT NULL, `status` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -601,8 +601,8 @@
         "foreignKeys": [
           {
             "table": "company",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_id"
             ],
@@ -614,7 +614,7 @@
       },
       {
         "tableName": "payment_method",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `account` TEXT NOT NULL, `isSelected` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `payment_gateway_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_gateway_id`) REFERENCES `payment_gateway`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `account` TEXT NOT NULL, `isSelected` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `payment_gateway_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_gateway_id`) REFERENCES `payment_gateway`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -688,8 +688,8 @@
         "foreignKeys": [
           {
             "table": "payment_plan",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_plan_id"
             ],
@@ -699,8 +699,8 @@
           },
           {
             "table": "payment_gateway",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_gateway_id"
             ],
@@ -960,7 +960,7 @@
       },
       {
         "tableName": "payment_collection_day",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `day` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `day` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1013,8 +1013,8 @@
         "foreignKeys": [
           {
             "table": "company",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "company_id"
             ],
@@ -1026,7 +1026,7 @@
       },
       {
         "tableName": "account_payment_plan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `account_uuid` TEXT NOT NULL, `account_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `account_uuid` TEXT NOT NULL, `account_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1094,8 +1094,8 @@
         "foreignKeys": [
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "account_id"
             ],
@@ -1105,8 +1105,8 @@
           },
           {
             "table": "payment_plan",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_plan_id"
             ],
@@ -1200,7 +1200,7 @@
       },
       {
         "tableName": "payment_month_covered",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, `payment_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, `payment_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1274,8 +1274,8 @@
         "foreignKeys": [
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "account_id"
             ],
@@ -1285,8 +1285,8 @@
           },
           {
             "table": "payment",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_id"
             ],
@@ -1490,7 +1490,7 @@
       },
       {
         "tableName": "payment_request",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1585,8 +1585,8 @@
         "foreignKeys": [
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "account_id"
             ],
@@ -1596,8 +1596,8 @@
           },
           {
             "table": "account",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "executed_by_id"
             ],
@@ -1607,10 +1607,187 @@
           },
           {
             "table": "payment_method",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "payment_method_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "account_request",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `contact` TEXT NOT NULL, `altContact` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstname",
+            "columnName": "firstname",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastname",
+            "columnName": "lastname",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contact",
+            "columnName": "contact",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "altContact",
+            "columnName": "altContact",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "httpOperation",
+            "columnName": "http_operation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "company_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountId",
+            "columnName": "account_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyLocationId",
+            "columnName": "company_location_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentPlanId",
+            "columnName": "payment_plan_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_account_request_company_id",
+            "unique": false,
+            "columnNames": [
+              "company_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_request_company_id` ON `${TABLE_NAME}` (`company_id`)"
+          },
+          {
+            "name": "index_account_request_company_location_id",
+            "unique": false,
+            "columnNames": [
+              "company_location_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_request_company_location_id` ON `${TABLE_NAME}` (`company_location_id`)"
+          },
+          {
+            "name": "index_account_request_payment_plan_id",
+            "unique": false,
+            "columnNames": [
+              "payment_plan_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_request_payment_plan_id` ON `${TABLE_NAME}` (`payment_plan_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "company",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "company_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "payment_plan",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "payment_plan_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "company_location",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "company_location_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "account",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "account_id"
             ],
             "referencedColumns": [
               "id"
@@ -1622,7 +1799,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b4317396770f974a430d33184848185c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0c24b06c205d3463a798aea3dc2eae3b')"
     ]
   }
 }

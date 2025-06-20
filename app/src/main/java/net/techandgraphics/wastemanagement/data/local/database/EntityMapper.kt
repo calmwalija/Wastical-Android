@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.data.local.database
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
@@ -391,4 +392,41 @@ fun CompanyLocationWithDemographicUiModel.toCompanyLocationWithDemographicEntity
     location = location.toCompanyLocationEntity(),
     demographicArea = demographicArea.toDemographicAreaEntity(),
     demographicStreet = demographicStreet.toDemographicStreetEntity(),
+  )
+
+fun AccountRequestEntity.toAccountEntity() =
+  AccountEntity(
+    id = id,
+    uuid = uuid,
+    title = title.name,
+    firstname = firstname,
+    lastname = lastname,
+    username = contact,
+    email = email,
+    companyLocationId = companyLocationId,
+    companyId = companyId,
+    updatedAt = createdAt,
+    createdAt = createdAt,
+  )
+
+fun AccountEntity.toAccountContactEntity() =
+  AccountContactEntity(
+    uuid = uuid,
+    email = email,
+    contact = username,
+    primary = true,
+    accountId = id,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    id = id,
+  )
+
+fun AccountEntity.toAccountPaymentPlanEntity(planId: Long) =
+  AccountPaymentPlanEntity(
+    id = id,
+    accountUuid = uuid,
+    accountId = id,
+    paymentPlanId = planId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
   )

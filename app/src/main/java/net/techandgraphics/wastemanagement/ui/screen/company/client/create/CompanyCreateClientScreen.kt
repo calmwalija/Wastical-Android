@@ -1,54 +1,57 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.create
 
-import androidx.compose.animation.AnimatedVisibility
+import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -61,218 +64,391 @@ import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toast
-import net.techandgraphics.wastemanagement.ui.InputField
-import net.techandgraphics.wastemanagement.ui.screen.appState
-import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create.Button
-import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Create.Input
+import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company.client.create.CompanyCreateClientEvent.Input
+import net.techandgraphics.wastemanagement.ui.screen.company4Preview
+import net.techandgraphics.wastemanagement.ui.screen.companyLocationWithDemographic4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
+import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTransformation
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyCreateClientScreen(
-  state: CreateAccountState,
+  state: CompanyCreateClientState,
   channel: Flow<CompanyCreateClientChannel>,
   onEvent: (CompanyCreateClientEvent) -> Unit,
 ) {
 
-  val context = LocalContext.current
-  var showTitle by remember { mutableStateOf(false) }
-  var showStreet by remember { mutableStateOf(false) }
-  var showPlan by remember { mutableStateOf(false) }
-  var addAltContact by remember { mutableStateOf(false) }
+  when (state) {
+    CompanyCreateClientState.Loading -> LoadingIndicatorView()
+    is CompanyCreateClientState.Success -> {
 
-  var isProcessing by remember { mutableStateOf(false) }
-  val hapticFeedback = LocalHapticFeedback.current
+      val context = LocalContext.current
+      var addAltContact by remember { mutableStateOf(false) }
+      var isProcessing by remember { mutableStateOf(false) }
+      val hapticFeedback = LocalHapticFeedback.current
 
+      val lifecycleOwner = LocalLifecycleOwner.current
+      LaunchedEffect(key1 = channel) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          channel.collectLatest { event ->
+            when (event) {
+              is CompanyCreateClientChannel.Error -> {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                context.toast(event.error.message)
+              }
 
-  val lifecycleOwner = LocalLifecycleOwner.current
-  LaunchedEffect(key1 = channel) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-      channel.collectLatest { event ->
-        when (event) {
-          is CompanyCreateClientChannel.Error -> context.toast(event.error.message)
-          CompanyCreateClientChannel.Success -> context.toast("Account Created")
+              is CompanyCreateClientChannel.Success ->
+                onEvent(CompanyCreateClientEvent.Goto.Profile(event.id))
+            }
+          }
         }
       }
-    }
-  }
 
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+
+      Scaffold(
+        topBar = {
+          CompanyInfoTopAppBarView(state.company) {
+            onEvent(CompanyCreateClientEvent.Goto.BackHandler)
           }
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-    bottomBar = {
-      BottomAppBar(containerColor = Color.Transparent) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-          ElevatedButton(
-            shape = RoundedCornerShape(8),
-            modifier = Modifier.fillMaxWidth(.9f),
-            onClick = { onEvent(Button.Submit) }) {
-            Box {
-              if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {
-                Text(text = "Create Account", modifier = Modifier.padding(8.dp))
+        contentWindowInsets = WindowInsets.safeGestures
+      ) {
+
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp)
+        ) {
+
+          item {
+            Text(
+              text = "Create Account",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
+          }
+
+
+          item {
+            Text(
+              text = "Personal Information",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(bottom = 16.dp)
+            )
+          }
+
+          item {
+            var showTitle by remember { mutableStateOf(false) }
+            OutlinedCard(
+              onClick = { showTitle = true },
+              shape = RoundedCornerShape(8),
+              border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+              modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 16.dp)
+              ) {
+
+                Icon(
+                  painterResource(R.drawable.ic_title),
+                  contentDescription = null,
+                  modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .size(28.dp),
+                  tint = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                  text = "Title",
+                  modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Icon(
+                  Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                  contentDescription = null,
+                  modifier = Modifier.size(20.dp)
+                )
+                Text(
+                  text = state.title.title,
+                  modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxWidth(),
+                )
+
+                DropdownMenu(showTitle, onDismissRequest = { showTitle = false }) {
+                  AccountTitle.entries.forEach {
+                    DropdownMenuItem(text = { Text(text = it.title) }, onClick = {
+                      showTitle = false
+                      onEvent(Input.Info(it.name, Input.Type.Title))
+                    })
+                  }
+                }
+              }
+            }
+          }
+
+          item {
+            OutlinedTextField(
+              value = state.firstname,
+              onValueChange = { onEvent(Input.Info(it, Input.Type.FirstName)) },
+              modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+              label = { Text(text = "input firstname") },
+              keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+              leadingIcon = {
+                Icon(
+                  painterResource(R.drawable.ic_supervisor_account),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+              }
+            )
+          }
+
+          item {
+            OutlinedTextField(
+              value = state.lastname,
+              onValueChange = { onEvent(Input.Info(it, Input.Type.Lastname)) },
+              modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+              label = { Text(text = "input lastname") },
+              keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+              leadingIcon = {
+                Icon(
+                  painterResource(R.drawable.ic_account),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+              }
+            )
+          }
+
+
+          item {
+            OutlinedTextField(
+              value = state.contact,
+              onValueChange = { onEvent(Input.Info(it, Input.Type.Contact)) },
+              modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+              label = { Text(text = "input contact number") },
+              visualTransformation = CountryCodeMaskTransformation("XXX-XXX-XXX"),
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+              trailingIcon = {
+                if (addAltContact.not())
+                  IconButton(onClick = { addAltContact = true }) {
+                    Icon(Icons.Default.Add, null)
+                  }
+              },
+              leadingIcon = {
+                Icon(
+                  painterResource(R.drawable.ic_tag),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+              }
+            )
+          }
+
+          if (addAltContact)
+            item {
+              OutlinedTextField(
+                value = state.altContact,
+                onValueChange = { onEvent(Input.Info(it, Input.Type.AltContact)) },
+                modifier = Modifier
+                  .padding(vertical = 8.dp)
+                  .fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                visualTransformation = CountryCodeMaskTransformation("XXX-XXX-XXX"),
+                label = { Text(text = "input alt contact number") },
+                trailingIcon = {
+                  IconButton(onClick = { addAltContact = false }) {
+                    Icon(Icons.Default.Close, null)
+                  }
+                },
+                leadingIcon = {
+                  Icon(
+                    painterResource(R.drawable.ic_alt_phone),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                  )
+                }
+              )
+            }
+
+
+
+          item {
+            Text(
+              text = "Location Information",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
+            )
+          }
+
+          item {
+            var showLocations by remember { mutableStateOf(false) }
+            OutlinedCard(
+              onClick = { showLocations = true },
+              shape = RoundedCornerShape(8),
+              border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
+            ) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 16.dp)
+              ) {
+
+                Icon(
+                  painterResource(R.drawable.ic_house),
+                  contentDescription = null,
+                  modifier = Modifier.padding(horizontal = 8.dp),
+                  tint = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                  text = "Location",
+                  modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Icon(
+                  Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                  contentDescription = null,
+                  modifier = Modifier.size(20.dp)
+                )
+                Text(
+                  text = if (state.companyLocationId == -1L)
+                    state.demographics.first().demographicStreet.name else {
+                    state.demographics.first { it.location.id == state.companyLocationId }.demographicStreet.name
+                  },
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                  maxLines = 1,
+                  overflow = TextOverflow.MiddleEllipsis
+                )
+                DropdownMenu(showLocations, onDismissRequest = { showLocations = false }) {
+                  state.demographics.forEach {
+                    DropdownMenuItem(text = { Text(text = it.demographicStreet.name) }, onClick = {
+                      showLocations = false
+                      onEvent(Input.Info(it.location.id, Input.Type.Location))
+                    })
+                  }
+                }
+              }
+            }
+          }
+
+
+          item {
+            Text(
+              text = "Payment Plan Information",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
+            )
+          }
+
+          itemsIndexed(state.paymentPlans) { index, paymentPlan ->
+            OutlinedCard(
+              modifier = Modifier.padding(vertical = 4.dp),
+              colors = CardDefaults.elevatedCardColors()
+            ) {
+              Row(
+                modifier = Modifier
+                  .clickable { onEvent(Input.Info(paymentPlan.id, Input.Type.Plan)) }
+                  .fillMaxWidth()
+                  .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+
+                RadioButton(
+                  selected = paymentPlan.id == state.planId,
+                  onClick = { onEvent(Input.Info(paymentPlan.id, Input.Type.Plan)) }
+                )
+
+                Column(
+                  modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .weight(1f)
+                ) {
+
+                  Text(
+                    text = "Payment Plan ${index.plus(1)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.MiddleEllipsis
+                  )
+
+                  Text(
+                    text = paymentPlan.name,
+                    style = MaterialTheme.typography.titleMedium
+                  )
+
+                }
+
+                Box(
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .background(MaterialTheme.colorScheme.secondary.copy(.1f))
+                    .fillMaxHeight(.05f)
+                    .width(1.dp)
+                )
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text(
+                    text = paymentPlan.fee.toAmount(),
+                    color = MaterialTheme.colorScheme.primary
+                  )
+
+                  Text(
+                    text = paymentPlan.period.name,
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
+
+              }
+            }
+          }
+
+          item {
+            Row(
+              modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(),
+              horizontalArrangement = Arrangement.Center
+            ) {
+              ElevatedButton(
+                enabled = state.lastname.trim().isNotEmpty(),
+                shape = RoundedCornerShape(8),
+                modifier = Modifier.fillMaxWidth(.9f),
+                onClick = { onEvent(CompanyCreateClientEvent.Button.Submit) }) {
+                Box {
+                  if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {
+                    Text(text = "Create Account", modifier = Modifier.padding(8.dp))
+                  }
+                }
               }
             }
           }
         }
       }
-    },
-    contentWindowInsets = ScaffoldDefaults
-      .contentWindowInsets
-      .exclude(WindowInsets.navigationBars)
-      .exclude(WindowInsets.ime),
-  ) {
-
-    LazyColumn(
-      modifier = Modifier
-        .padding(it)
-        .padding(horizontal = 16.dp)
-    ) {
-      item {
-        Text(
-          text = "Create Account",
-          fontWeight = FontWeight.Bold,
-          style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(vertical = 24.dp)
-        )
-      }
-
-      item {
-        ElevatedCard(modifier = Modifier.padding(8.dp)) {
-          Column(modifier = Modifier.padding(24.dp)) {
-            InputField(
-              imageVector = Icons.Outlined.AccountCircle,
-              value = state.account.firstname,
-              prompt = "type firstname",
-              onValueChange = { onEvent(Input.Info(it, Input.Type.FirstName)) },
-              keyboardType = KeyboardType.Text,
-              leadingView = {
-                Column(modifier = Modifier.padding(end = 8.dp)) {
-                  Text(text = state.account.title.title)
-                  DropdownMenu(showTitle, onDismissRequest = { showTitle = false }) {
-                    AccountTitle.entries.forEach { title ->
-                      DropdownMenuItem(text = { Text(text = title.title) }, onClick = {
-                        onEvent(Input.Info(title.name, Input.Type.Title))
-                        showTitle = false
-                      })
-                    }
-                  }
-                }
-              },
-              onClickAction = { showTitle = true }
-            )
-
-            InputField(
-              painterResource = R.drawable.ic_account,
-              value = state.account.lastname,
-              prompt = "type lastname",
-              onValueChange = { onEvent(Input.Info(it, Input.Type.Lastname)) },
-              keyboardType = KeyboardType.Text,
-            )
-
-            InputField(
-              painterResource = R.drawable.ic_tag,
-              value = state.account.contact,
-              prompt = "type contact number",
-              onValueChange = { onEvent(Input.Info(it, Input.Type.Contact)) },
-              keyboardType = KeyboardType.Phone,
-              maskTransformation = "XXX-XXX-XXX",
-              trailingView = {
-                IconButton(
-                  onClick = { addAltContact = true },
-                  enabled = addAltContact.not()
-                ) {
-                  Icon(Icons.Default.Add, null)
-                }
-              })
-
-
-            AnimatedVisibility(addAltContact) {
-              InputField(
-                painterResource = R.drawable.ic_alt_phone,
-                value = state.account.altContact,
-                prompt = "type alt contact number",
-                onValueChange = { onEvent(Input.Info(it, Input.Type.AltContact)) },
-                keyboardType = KeyboardType.Phone,
-                maskTransformation = "XXX-XXX-XXX",
-                trailingView = {
-                  IconButton(onClick = { addAltContact = false }) {
-                    Icon(Icons.Default.Close, null)
-                  }
-                })
-            }
-
-            InputField(
-              painterResource = R.drawable.ic_payment,
-              value = state.account.paymentPlan?.fee?.toAmount() ?: "",
-              prompt = "",
-              onValueChange = { onEvent(Input.Info(it, Input.Type.Plan)) },
-              leadingView = {
-                Column(modifier = Modifier.padding(end = 4.dp)) {
-                  state.account.paymentPlan?.let { Text(text = it.period.name.plus(" @")) }
-                  DropdownMenu(showPlan, onDismissRequest = { showPlan = false }) {
-                    state.appState.paymentPlans.forEach { plan ->
-                      DropdownMenuItem(
-                        text = { Text(text = plan.fee.toAmount()) },
-                        onClick = {
-                          onEvent(Input.Info(plan, Input.Type.Plan))
-                          showPlan = false
-                        })
-                    }
-                  }
-                }
-
-
-              },
-              readOnly = true,
-              onClickAction = { showPlan = true })
-
-
-            InputField(
-              painterResource = R.drawable.ic_house,
-              value = state.account.street?.name ?: "",
-              prompt = "",
-              onValueChange = { onEvent(Input.Info(it, Input.Type.Street)) },
-              leadingView = {
-                DropdownMenu(showStreet, onDismissRequest = { showStreet = false }) {
-                  state.account.companyStreets.forEach { street ->
-                    DropdownMenuItem(text = { Text(text = street.name) }, onClick = {
-                      onEvent(Input.Info(street, Input.Type.Street))
-                      showStreet = false
-                    })
-                  }
-                }
-              },
-              readOnly = true,
-              onClickAction = { showStreet = true })
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-          }
-        }
-      }
-
     }
   }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CompanyCreateClientScreenPreview() {
   WasteManagementTheme {
     CompanyCreateClientScreen(
-      state = CreateAccountState(
-        appState = appState(LocalContext.current)
-      ), channel = flow { }, onEvent = {})
+      state = CompanyCreateClientState.Success(
+        demographics = (1..4).map { companyLocationWithDemographic4Preview },
+        paymentPlans = (1..4).map { paymentPlan4Preview },
+        company = company4Preview
+      ),
+      channel = flow { },
+      onEvent = {})
   }
 }

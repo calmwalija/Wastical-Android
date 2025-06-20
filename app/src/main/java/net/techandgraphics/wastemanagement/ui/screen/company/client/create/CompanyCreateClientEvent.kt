@@ -1,19 +1,20 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.create
 
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
-
 sealed interface CompanyCreateClientEvent {
 
-  data class AppState(val state: MainActivityState) : CompanyCreateClientEvent
+  data object Load : CompanyCreateClientEvent
 
-  sealed interface Create : CompanyCreateClientEvent {
-    sealed interface Input : Create {
-      data class Info(val value: Any, val type: Type) : Input
-      enum class Type { FirstName, Lastname, Contact, AltContact, Title, Street, Plan }
-    }
+  sealed interface Input : CompanyCreateClientEvent {
+    data class Info(val value: Any, val type: Type) : Input
+    enum class Type { FirstName, Lastname, Contact, AltContact, Title, Location, Plan }
+  }
 
-    sealed interface Button : Create {
-      data object Submit : Button
-    }
+  sealed interface Button : CompanyCreateClientEvent {
+    data object Submit : Button
+  }
+
+  sealed interface Goto : CompanyCreateClientEvent {
+    data object BackHandler : Goto
+    data class Profile(val id: Long) : Goto
   }
 }

@@ -14,6 +14,8 @@ import net.techandgraphics.wastemanagement.data.local.database.account.AccountEn
       entity = AccountEntity::class,
       parentColumns = ["id"],
       childColumns = ["account_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
   ],
   indices = [Index("account_id")],
