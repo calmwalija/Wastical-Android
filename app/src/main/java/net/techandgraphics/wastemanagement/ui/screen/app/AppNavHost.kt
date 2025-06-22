@@ -144,8 +144,17 @@ fun AppNavHost(
     composable<Route.Company.Client.Create> {
       with(hiltViewModel<CompanyCreateClientViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(appState) { onEvent(CompanyCreateClientEvent.AppState(appState)) }
-        CompanyCreateClientScreen(state, channel, ::onEvent)
+        CompanyCreateClientScreen(state, channel) { event ->
+          when (event) {
+            CompanyCreateClientEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyCreateClientEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id)) {
+                popUpTo(Route.Company.Client.Create) { inclusive = true }
+              }
+
+            else -> onEvent(event)
+          }
+        }
       }
     }
 

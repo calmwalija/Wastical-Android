@@ -14,6 +14,8 @@ import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEn
       entity = CompanyEntity::class,
       parentColumns = ["id"],
       childColumns = ["company_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
     ),
   ],
   indices = [Index("company_id")],

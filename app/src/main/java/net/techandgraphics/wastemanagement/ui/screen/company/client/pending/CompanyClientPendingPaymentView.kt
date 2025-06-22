@@ -39,7 +39,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   val account = entity.account
 
   Card(
-    modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
+    modifier = Modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
     onClick = { onEvent(CompanyClientPendingPaymentEvent.Goto.BackHandler) }

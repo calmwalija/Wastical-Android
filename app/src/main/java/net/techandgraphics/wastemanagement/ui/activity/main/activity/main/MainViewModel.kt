@@ -6,11 +6,9 @@ import androidx.room.withTransaction
 import coil.ImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
@@ -43,30 +41,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(MainActivityState())
-
-  val state = _state.onStart {
-    viewModelScope.launch {
-      launch { getImageLoader() }
-      launch { getAccount() }
-      launch { getPayments() }
-      launch { getInvoices() }
-      launch { getAccountContact() }
-      launch { getPaymentPlans() }
-      launch { getCompanies() }
-      launch { getCompanyContact() }
-      launch { getPaymentMethods() }
-      launch { getPaymentGateways() }
-      launch { getStreets() }
-      launch { getAreas() }
-      launch { getDistricts() }
-      launch { getTrashCollectionSchedules() }
-      launch { syncFcmToken() }
-    }
-  }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5_000L),
-    initialValue = MainActivityState(),
-  )
+  val state = _state.asStateFlow()
 
   init {
     viewModelScope.launch {

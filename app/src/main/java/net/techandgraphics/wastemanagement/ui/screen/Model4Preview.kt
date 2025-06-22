@@ -4,6 +4,7 @@ import android.content.Context
 import net.techandgraphics.wastemanagement.data.PaymentPeriod
 import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
+import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.di.ImageCacheModule
@@ -253,6 +254,20 @@ internal val companyLocationWithDemographic4Preview = CompanyLocationWithDemogra
   location = companyLocation4Preview,
   demographicArea = demographicArea4Preview,
   demographicStreet = demographicStreet4Preview,
+)
+
+internal val accountRequest4Preview = AccountRequestEntity(
+  title = account4Preview.title,
+  firstname = account4Preview.firstname,
+  lastname = account4Preview.lastname,
+  contact = "999002233",
+  altContact = "889900332",
+  email = account4Preview.email,
+  companyId = 1L,
+  accountId = 1L,
+  companyLocationId = 1L,
+  paymentPlanId = 1L,
+  createdAt = 1,
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)
