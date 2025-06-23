@@ -8,5 +8,7 @@ sealed interface CompanyPaymentPerLocationState {
   data class Success(
     val payment4CurrentLocationMonth: List<Payment4CurrentLocationMonth> = listOf(),
     val company: CompanyUiModel,
+    val query: String = "",
+    val filters: Set<Long> = setOf(),
   ) : CompanyPaymentPerLocationState
 }

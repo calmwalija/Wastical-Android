@@ -24,6 +24,7 @@ import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.image2Text
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
+import net.techandgraphics.wastemanagement.worker.schedulePaymentWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -72,7 +73,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         status = PaymentStatus.Waiting,
       ).toPaymentRequestEntity()
       database.paymentRequestDao.upsert(cachedPayment)
-//      application.schedulePaymentWorker()
+      application.schedulePaymentWorker()
       _channel.send(CompanyMakePaymentChannel.Pay.Success)
       _state.value = getState().copy(imageUri = null)
     }

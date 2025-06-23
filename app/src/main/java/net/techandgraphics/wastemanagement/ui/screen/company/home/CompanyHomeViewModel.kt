@@ -16,7 +16,7 @@ import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentRequestUiModel
-import java.util.Calendar
+import net.techandgraphics.wastemanagement.getToday
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,10 +42,7 @@ class CompanyHomeViewModel @Inject constructor(
     )
 
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
-    val calendar = Calendar.getInstance()
-    val month = calendar.get(Calendar.MONTH).plus(1)
-    val year = calendar.get(Calendar.YEAR)
-
+    val (day, month, year) = getToday()
     val payment4CurrentLocationMonth =
       database.streetIndicatorDao.getPayment4CurrentLocationMonth(month, year)
     val payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(month, year)
