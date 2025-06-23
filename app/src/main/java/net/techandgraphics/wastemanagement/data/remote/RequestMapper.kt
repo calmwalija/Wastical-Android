@@ -1,7 +1,9 @@
 package net.techandgraphics.wastemanagement.data.remote
 
+import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
+import net.techandgraphics.wastemanagement.data.remote.account.AccountRequest
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmTokenRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
@@ -42,9 +44,14 @@ fun PaymentPlanUiModel.toAccountPaymentPlanRequest(account: AccountUiModel) =
     paymentPlanId = id,
   )
 
-// fun PaymentRequest.toPaymentRequest() =
-//  PaymentRequest(
-//    accountId = account.id,
-//    accountUuid = account.uuid,
-//    paymentPlanId = id,
-//  )
+fun AccountRequestEntity.toAccountRequest() = AccountRequest(
+  uuid = uuid,
+  title = title,
+  firstname = firstname,
+  lastname = lastname,
+  contacts = listOf(contact),
+  email = email,
+  companyId = companyId,
+  companyLocationId = companyLocationId,
+  paymentPlanId = paymentPlanId,
+)

@@ -12,7 +12,7 @@ import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyLocationUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
-import java.util.Calendar
+import net.techandgraphics.wastemanagement.getToday
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,9 +24,9 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
     MutableStateFlow<CompanyPaymentLocationOverviewState>(CompanyPaymentLocationOverviewState.Loading)
   val state = _state.asStateFlow()
 
-  private val calendar = Calendar.getInstance()
-  private val month = calendar.get(Calendar.MONTH).plus(1)
-  private val year = calendar.get(Calendar.YEAR)
+  private val today = getToday()
+  private val month = today.month
+  private val year = today.year
 
   private fun onLoad(event: CompanyPaymentLocationOverviewEvent.Load) =
     viewModelScope.launch {

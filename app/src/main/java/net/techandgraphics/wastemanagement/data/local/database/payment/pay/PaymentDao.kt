@@ -133,12 +133,15 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
         FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
         WHERE pm.month = :month AND pm.year =:year
     ) p ON p.account_id = a.id
+        WHERE (ds.name LIKE '%' || :query || '%'
+        OR da.name LIKE '%' || :query || '%')
     GROUP BY ds.id, ds.name, da.name
     ORDER BY paidAccounts DESC
     """,
   )
-  suspend fun qPayment4CurrentLocationMonth(
+  fun qPayment4CurrentLocationMonth(
     month: Int,
     year: Int,
-  ): List<Payment4CurrentLocationMonth>
+    query: String = "",
+  ): Flow<List<Payment4CurrentLocationMonth>>
 }

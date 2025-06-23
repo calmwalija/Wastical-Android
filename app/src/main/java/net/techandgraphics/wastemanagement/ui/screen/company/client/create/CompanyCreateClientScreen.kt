@@ -101,7 +101,8 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
               }
 
               is CompanyCreateClientChannel.Success ->
-                onEvent(CompanyCreateClientEvent.Goto.Profile(event.id))
+                onEvent(CompanyCreateClientEvent.Goto.BackHandler)
+//                onEvent(CompanyCreateClientEvent.Goto.Profile(event.id))
             }
           }
         }

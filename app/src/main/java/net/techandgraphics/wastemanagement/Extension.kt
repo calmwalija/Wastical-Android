@@ -15,6 +15,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import java.io.File
 import java.text.DecimalFormat
+import java.util.Calendar
 
 fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
@@ -57,3 +58,15 @@ val gatewayDrawableRes = listOf(
   R.drawable.im_tnm_mpamba,
   R.drawable.im_placeholder,
 )
+
+data class Today(val day: Int, val month: Int, val year: Int)
+
+fun getToday(): Today {
+  with(Calendar.getInstance()) {
+    return Today(
+      get(Calendar.DAY_OF_MONTH),
+      get(Calendar.MONTH).plus(1),
+      get(Calendar.YEAR),
+    )
+  }
+}

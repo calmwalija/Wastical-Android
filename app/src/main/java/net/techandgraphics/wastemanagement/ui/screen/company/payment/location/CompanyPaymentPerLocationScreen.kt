@@ -1,6 +1,8 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,9 +47,15 @@ fun CompanyPaymentPerLocationScreen(
             Text(
               text = "Payment per Location",
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 32.dp)
+              modifier = Modifier.padding(bottom = 24.dp)
             )
           }
+
+          item {
+            CompanyPaymentPerLocationSearchView(state, onEvent)
+          }
+          item { Spacer(modifier = Modifier.height(8.dp)) }
+
           items(state.payment4CurrentLocationMonth) {
             CompanyPaymentPerLocationView(it, onEvent)
           }

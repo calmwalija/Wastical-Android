@@ -349,6 +349,8 @@ fun AppNavHost(
             CompanyPaymentPerLocationEvent.Load -> Unit
             is CompanyPaymentPerLocationEvent.Goto.LocationOverview ->
               navController.navigate(Route.Company.LocationOverview(event.id))
+
+            else -> onEvent(event)
           }
         }
       }
