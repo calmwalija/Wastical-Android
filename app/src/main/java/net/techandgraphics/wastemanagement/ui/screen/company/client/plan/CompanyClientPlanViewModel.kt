@@ -3,8 +3,10 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
@@ -25,6 +27,9 @@ class CompanyClientPlanViewModel @Inject constructor(
 
   private val _state = MutableStateFlow<CompanyClientPlanState>(CompanyClientPlanState.Loading)
   val state = _state.asStateFlow()
+
+  private val _channel = Channel<CompanyClientPlanChannel>()
+  val channel = _channel.receiveAsFlow()
 
   private fun onLoad(event: CompanyClientPlanEvent.Load) =
     viewModelScope.launch {
@@ -63,11 +68,15 @@ class CompanyClientPlanViewModel @Inject constructor(
 
   private fun onSubmit() = viewModelScope.launch {
     if (_state.value is CompanyClientPlanState.Success) {
+      _channel.send(CompanyClientPlanChannel.Processing)
       val state = (_state.value as CompanyClientPlanState.Success)
       val request = state.plan.toAccountPaymentPlanRequest(state.account)
       runCatching { accountApi.plan(state.plan.id, request) }
-        .onFailure { mapApiError(it).also(::println) }
-        .onSuccess { database.accountPaymentPlanDao.update(it.toAccountPaymentPlanEntity()) }
+        .onFailure { _channel.send(CompanyClientPlanChannel.Error(mapApiError(it))) }
+        .onSuccess {
+          database.accountPaymentPlanDao.update(it.toAccountPaymentPlanEntity())
+          _channel.send(CompanyClientPlanChannel.Success)
+        }
     }
   }
 

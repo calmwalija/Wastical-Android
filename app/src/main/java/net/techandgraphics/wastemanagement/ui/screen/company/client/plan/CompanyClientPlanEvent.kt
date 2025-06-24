@@ -8,5 +8,6 @@ sealed interface CompanyClientPlanEvent {
   sealed interface Button : CompanyClientPlanEvent {
     data object Submit : Button
     data class ChangePlan(val plan: PaymentPlanUiModel) : Button
+    data object BackHandler : CompanyClientPlanEvent
   }
 }
