@@ -102,7 +102,6 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
 
               is CompanyCreateClientChannel.Success ->
                 onEvent(CompanyCreateClientEvent.Goto.BackHandler)
-//                onEvent(CompanyCreateClientEvent.Goto.Profile(event.id))
             }
           }
         }
@@ -423,7 +422,7 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
               ElevatedButton(
                 enabled = state.lastname.trim().isNotEmpty(),
                 shape = RoundedCornerShape(8),
-                modifier = Modifier.fillMaxWidth(.9f),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { onEvent(CompanyCreateClientEvent.Button.Submit) }) {
                 Box {
                   if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {

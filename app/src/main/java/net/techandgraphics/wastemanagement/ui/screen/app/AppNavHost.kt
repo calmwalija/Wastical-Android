@@ -264,7 +264,12 @@ fun AppNavHost(
         val id = it.toRoute<Route.Company.Client.Plan>().id
         val state = state.collectAsState().value
         LaunchedEffect(id) { onEvent(CompanyClientPlanEvent.Load(id)) }
-        CompanyClientPlanScreen(state, ::onEvent)
+        CompanyClientPlanScreen(state, channel) { event ->
+          when (event) {
+            CompanyClientPlanEvent.Button.BackHandler -> navController.navigateUp()
+            else -> onEvent(event)
+          }
+        }
       }
     }
 

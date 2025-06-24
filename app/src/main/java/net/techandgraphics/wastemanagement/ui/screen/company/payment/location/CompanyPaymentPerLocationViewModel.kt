@@ -77,7 +77,7 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
       CompanyPaymentPerLocationEvent.Load -> onLoad()
       is CompanyPaymentPerLocationEvent.Input.Search -> onSearch(event)
       is CompanyPaymentPerLocationEvent.Button.Clear -> clearSearchQuery()
-      else -> TODO("Handle actions")
+      else -> Unit
     }
   }
 }
