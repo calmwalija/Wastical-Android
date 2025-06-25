@@ -11,8 +11,10 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import java.io.File
+import java.security.MessageDigest
 
 @Suppress("DEPRECATION")
 fun Uri.toBitmap(context: Context): Bitmap? = if (Build.VERSION.SDK_INT < 28) {
@@ -69,4 +71,46 @@ fun File.share(context: Context) {
     }
   }
   context.startActivity(chooser)
+}
+
+fun Context.workingDir(): File = filesDir
+
+private const val TYPE = "application/json"
+
+fun Context.write(jsonData: String, fileName: String): File {
+  openFileOutput(fileName, Context.MODE_PRIVATE).use { outputStream ->
+    outputStream.write(jsonData.toByteArray())
+  }
+  return File(workingDir(), fileName)
+}
+
+fun Context.share(file: File) {
+  val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+  ShareCompat.IntentBuilder(this)
+    .setType(TYPE)
+    .setSubject("Shared files")
+    .addStream(uri)
+    .setChooserTitle("Share JSON File")
+    .startChooser()
+}
+
+fun Long.hash(text: String, algorithm: String = "SHA-512"): String {
+  val theKey = toString()
+    .substring(5, toString().length.minus(3))
+    .toInt()
+    .times(toString().sumOf { it.digitToInt() })
+    .toString()
+  val bytes =
+    MessageDigest.getInstance(algorithm).digest(theKey.plus(text).plus(theKey).toByteArray())
+  return bytes.joinToString("") { "%02x".format(it) }
+}
+
+fun Context.getFile(uri: Uri): File {
+  val tempFile = File(workingDir(), "wastemanagement.json")
+  contentResolver.openInputStream(uri)?.use { input ->
+    tempFile.outputStream().use { output ->
+      input.copyTo(output)
+    }
+  }
+  return tempFile
 }

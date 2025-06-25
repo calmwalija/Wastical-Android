@@ -321,7 +321,7 @@ fun AppNavHost(
     composable<Route.Company.Home> {
       with(hiltViewModel<CompanyHomeViewModel>()) {
         val state = state.collectAsState().value
-        CompanyHomeScreen(state) { event ->
+        CompanyHomeScreen(state, channel) { event ->
           when (event) {
             is Goto -> when (event) {
               Goto.Create -> navController.navigate(Route.Company.Client.Create)
