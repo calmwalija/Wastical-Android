@@ -3,6 +3,7 @@ package net.techandgraphics.wastemanagement.data.local.database
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
@@ -24,6 +25,7 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
 import net.techandgraphics.wastemanagement.data.remote.account.contact.AccountContactResponse
+import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.wastemanagement.data.remote.account.token.AccountFcmTokenResponse
 import net.techandgraphics.wastemanagement.data.remote.company.CompanyContactResponse
@@ -429,4 +431,11 @@ fun AccountEntity.toAccountPaymentPlanEntity(planId: Long) =
     paymentPlanId = planId,
     createdAt = createdAt,
     updatedAt = updatedAt,
+  )
+
+fun AccountPaymentPlanRequest.toAccountPaymentPlanRequestEntity() =
+  AccountPaymentPlanRequestEntity(
+    accountUuid = accountUuid,
+    accountId = accountId,
+    paymentPlanId = paymentPlanId,
   )

@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeGestures
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -204,15 +202,14 @@ fun CompanyClientPlanScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
                 Box {
-                  if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {
-                    Text(text = "Change Payment Plan", modifier = Modifier.padding(8.dp))
-                  }
+                  Text(
+                    text = "Change Payment Plan",
+                    modifier = Modifier.padding(8.dp)
+                  )
                 }
               }
             }
           }
-
-
         }
       }
     }
