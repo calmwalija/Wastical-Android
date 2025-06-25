@@ -43,6 +43,7 @@ class CompanyCreateClientViewModelTest : BaseUnitTest() {
     coEvery { mockDatabase.paymentPlanDao.query() } returns listOf(paymentPlan4Preview.toPaymentPlanEntity())
     coEvery { mockDatabase.companyLocationDao.qWithDemographic() } returns
       listOf(companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity())
+    coEvery { mockDatabase.accountContactDao.getByContact("99900324") } returns listOf()
 
     viewModel.state.test {
       assertTrue { awaitItem() is CompanyCreateClientState.Loading }

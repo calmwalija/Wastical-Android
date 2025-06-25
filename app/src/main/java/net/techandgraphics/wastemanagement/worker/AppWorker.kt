@@ -3,7 +3,12 @@ package net.techandgraphics.wastemanagement.worker
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -23,19 +28,19 @@ import net.techandgraphics.wastemanagement.notification.NotificationBuilder
 import net.techandgraphics.wastemanagement.notification.NotificationType
 import net.techandgraphics.wastemanagement.notification.NotificationUiModel
 import net.techandgraphics.wastemanagement.toFullName
+import java.util.concurrent.TimeUnit
 
-@HiltWorker class PaymentWorker @AssistedInject constructor(
+@HiltWorker class AppWorker @AssistedInject constructor(
   @Assisted val context: Context,
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
-  private val api: PaymentApi,
+  private val paymentApi: PaymentApi,
   private val accountApi: AccountApi,
 ) : CoroutineWorker(context, params) {
   override suspend fun doWork(): Result {
     return try {
-      database.accountRequestDao.query()
-        .forEach { accountRequestEntity ->
-
+      database.withTransaction {
+        database.accountRequestDao.query().forEach { accountRequestEntity ->
           val account = accountRequestEntity.toAccountRequest()
           val newAccount = accountApi.create(account)
           database.withTransaction {
@@ -55,11 +60,9 @@ import net.techandgraphics.wastemanagement.toFullName
             database.accountDao.delete(oldAccount)
           }
         }
-
-      database.withTransaction {
         database.paymentRequestDao.query().onEach { paymentRequest ->
           val request = paymentRequest.toPaymentRequest().asApproved()
-          val newValue = api.pay(request)
+          val newValue = paymentApi.pay(request)
           newValue.payments?.onEach { payment ->
             database.paymentDao.upsert(payment.toPaymentEntity())
             val account = database.accountDao.get(payment.accountId).toAccountUiModel()
@@ -75,13 +78,20 @@ import net.techandgraphics.wastemanagement.toFullName
             val builder = NotificationBuilder(context)
             builder.show(notification)
           }
-          Result.success()
         }
       }
-      Result.retry()
+      Result.success()
     } catch (e: Exception) {
       e.printStackTrace()
       Result.retry()
     }
   }
+}
+
+fun Context.scheduleAppWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<AppWorker>()
+    .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+    .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .build()
+  WorkManager.Companion.getInstance(this).enqueue(workRequest)
 }

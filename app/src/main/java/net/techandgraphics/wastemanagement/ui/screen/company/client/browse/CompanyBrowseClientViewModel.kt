@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -18,15 +20,18 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toSearchTagEntity
 import net.techandgraphics.wastemanagement.domain.model.search.SearchTagUiModel
+import net.techandgraphics.wastemanagement.domain.toAccountRequestUiModel
 import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toSearchTagUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
+import net.techandgraphics.wastemanagement.worker.scheduleAppWorker
 import javax.inject.Inject
 
 @HiltViewModel
 class CompanyBrowseClientViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyBrowseClientState>(CompanyBrowseClientState.Loading)
@@ -63,13 +68,16 @@ class CompanyBrowseClientViewModel @Inject constructor(
     combine(
       database.accountDao.qAccountData(),
       database.searchTagDao.query(),
-    ) { accounts, tags ->
+      database.accountRequestDao.flowOf()
+        .map { dataOf -> dataOf.map { it.toAccountRequestUiModel() } },
+    ) { accounts, tags, accountRequests ->
       _state.value = CompanyBrowseClientState.Success(
         accounts = accounts,
         company = company,
         searchHistoryTags = tags.map { it.toSearchTagUiModel() },
         demographicAreas = demographicAreas,
         demographicStreets = demographicStreets,
+        accountRequests = accountRequests,
       )
     }
       .launchIn(viewModelScope)
@@ -138,6 +146,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
       CompanyBrowseClientListEvent.Button.HistoryTag -> onHistoryTag()
       is CompanyBrowseClientListEvent.Button.Tag -> onButtonTag(event)
       is CompanyBrowseClientListEvent.Button.FilterBy -> onFilterBy(event)
+      CompanyBrowseClientListEvent.Button.ScheduleUpload -> application.scheduleAppWorker()
 
       else -> Unit
     }

@@ -2,13 +2,16 @@ package net.techandgraphics.wastemanagement.data.local.database
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import androidx.room.Upsert
 
 interface BaseDao<Table : Any> {
-  @Insert suspend fun insert(table: List<Table>)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(table: List<Table>)
 
-  @Insert suspend fun insert(table: Table)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(table: Table)
 
   @Update suspend fun update(table: Table)
 

@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -118,6 +120,19 @@ fun CompanyBrowseClientScreen(
               }
             },
             actions = {
+
+              if (state.accountRequests.isNotEmpty()) {
+                BadgedBox(badge = {
+                  Badge {
+                    Text(text = state.accountRequests.size.toString())
+                  }
+                }) {
+                  IconButton(onClick = { onEvent(CompanyBrowseClientListEvent.Button.ScheduleUpload) }) {
+                    Icon(painterResource(R.drawable.ic_upload_ready), null)
+                  }
+                }
+              }
+
               IconButton(onClick = {}) {
                 Icon(Icons.Default.MoreVert, null)
               }

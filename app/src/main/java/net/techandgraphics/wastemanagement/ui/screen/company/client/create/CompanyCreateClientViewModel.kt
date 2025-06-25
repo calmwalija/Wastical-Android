@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -32,6 +34,7 @@ class CompanyCreateClientViewModel @Inject constructor(
   private val _channel = Channel<CompanyCreateClientChannel>()
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
+  private var contactAvailableJob: Job? = null
 
   private fun onSubmit() = viewModelScope.launch {
     if (_state.value is CompanyCreateClientState.Success) {
@@ -42,7 +45,15 @@ class CompanyCreateClientViewModel @Inject constructor(
         title = theState.title,
         firstname = theState.firstname.trim(),
         lastname = theState.lastname.trim(),
-        contact = theState.contact.ifEmpty { UUID.randomUUID().toString() },
+        contact = theState.contact.ifEmpty {
+          System.currentTimeMillis().toString().drop(6)
+            .plus("-")
+            .plus(
+              UUID.randomUUID().toString()
+                .plus("-")
+                .plus(System.currentTimeMillis().toString().take(5)),
+            )
+        },
         altContact = theState.altContact,
         paymentPlanId = theState.planId,
         companyId = theState.company.id,
@@ -92,6 +103,19 @@ class CompanyCreateClientViewModel @Inject constructor(
     }
   }
 
+  private fun checkIfContactAvailable(contact: String) {
+    contactAvailableJob?.cancel()
+    contactAvailableJob = viewModelScope.launch {
+      delay(1_000)
+      val ifContactAvailable = database.accountContactDao.getByContact(contact)
+      if (ifContactAvailable.isNotEmpty()) {
+        _channel.send(CompanyCreateClientChannel.Input.Unique.Conflict)
+      } else {
+        _channel.send(CompanyCreateClientChannel.Input.Unique.Ok)
+      }
+    }
+  }
+
   private fun onInputAccountInfo(event: CompanyCreateClientEvent.Input.Info) {
     if (_state.value is CompanyCreateClientState.Success) {
       val state = (_state.value as CompanyCreateClientState.Success)
@@ -102,8 +126,10 @@ class CompanyCreateClientViewModel @Inject constructor(
         CompanyCreateClientEvent.Input.Type.Lastname ->
           _state.value = state.copy(lastname = "${event.value}")
 
-        CompanyCreateClientEvent.Input.Type.Contact ->
+        CompanyCreateClientEvent.Input.Type.Contact -> {
           _state.value = state.copy(contact = "${event.value}")
+          checkIfContactAvailable(event.value.toString())
+        }
 
         CompanyCreateClientEvent.Input.Type.AltContact ->
           _state.value = state.copy(altContact = "${event.value}")

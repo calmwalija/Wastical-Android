@@ -5,13 +5,13 @@ import android.util.Log
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import net.techandgraphics.wastemanagement.notification.NotificationBuilder
-import net.techandgraphics.wastemanagement.worker.AppWorkerFactory
+import net.techandgraphics.wastemanagement.worker.WorkerFactory
 import javax.inject.Inject
 
 @HiltAndroidApp class AppKlass : Application(), Configuration.Provider {
 
   @Inject
-  lateinit var workerFactory: AppWorkerFactory
+  lateinit var workerFactory: WorkerFactory
 
   override val workManagerConfiguration: Configuration
     get() = Configuration.Builder()

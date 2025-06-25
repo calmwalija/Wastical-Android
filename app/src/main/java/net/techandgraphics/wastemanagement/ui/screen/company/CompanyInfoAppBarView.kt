@@ -29,6 +29,7 @@ import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 @Composable
 fun CompanyInfoTopAppBarView(
   company: CompanyUiModel,
+  navActions: @Composable () -> Unit = {},
   onBackHandler: () -> Unit,
 ) {
   TopAppBar(
@@ -63,6 +64,7 @@ fun CompanyInfoTopAppBarView(
         )
       }
     },
+    actions = { navActions() },
     colors = TopAppBarDefaults.topAppBarColors(
       containerColor = MaterialTheme.colorScheme.surfaceContainer
     )
