@@ -1,5 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -18,6 +20,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,20 +30,28 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.getTimeOfDay
+import net.techandgraphics.wastemanagement.share
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
@@ -50,38 +61,63 @@ import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable
-fun CompanyHomeScreen(
+@OptIn(
+  ExperimentalMaterial3Api::class,
+  ExperimentalLayoutApi::class
+) @Composable fun CompanyHomeScreen(
   state: CompanyHomeState,
+  channel: Flow<CompanyHomeChannel>,
   onEvent: (CompanyHomeEvent) -> Unit,
 ) {
 
   var showMenuItems by remember { mutableStateOf(false) }
+  val context = LocalContext.current
 
   when (state) {
     CompanyHomeState.Loading -> LoadingIndicatorView()
-    is CompanyHomeState.Success -> Scaffold(
-      topBar = {
-        TopAppBar(
-          title = {
-            Column(
-              modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-            ) {
-              Text(
-                text = state.company.name,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                style = MaterialTheme.typography.bodyLarge,
-                overflow = TextOverflow.Ellipsis,
-              )
+    is CompanyHomeState.Success -> {
+
+
+      val jsonPicker = rememberLauncherForActivityResult(contract = GetContent()) { uri ->
+        uri?.let {
+          onEvent(CompanyHomeEvent.Button.Import(it))
+        }
+      }
+
+
+      val lifecycleOwner = LocalLifecycleOwner.current
+      LaunchedEffect(key1 = channel) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          channel.collect { event ->
+            when (event) {
+              is CompanyHomeChannel.Export -> context.share(event.file)
+              else -> Unit
             }
-          },
-          actions = {
-            if (state.pending.isNotEmpty())
-              IconButton(onClick = { onEvent(CompanyHomeEvent.Goto.VerifyPayment) }) {
+          }
+        }
+      }
+
+
+      Scaffold(
+        topBar = {
+          TopAppBar(
+            title = {
+              Column(
+                modifier = Modifier
+                  .padding(horizontal = 16.dp)
+                  .fillMaxWidth()
+              ) {
+                Text(
+                  text = state.company.name,
+                  fontWeight = FontWeight.Bold,
+                  maxLines = 1,
+                  style = MaterialTheme.typography.bodyLarge,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              }
+            },
+            actions = {
+              if (state.pending.isNotEmpty()) IconButton(onClick = { onEvent(CompanyHomeEvent.Goto.VerifyPayment) }) {
                 BadgedBox(badge = {
                   Badge {
                     Text(
@@ -94,101 +130,113 @@ fun CompanyHomeScreen(
                 }
               }
 
-            IconButton(onClick = { showMenuItems = true }) {
-              Icon(Icons.Default.MoreVert, null)
-              DropdownMenu(showMenuItems, onDismissRequest = { showMenuItems = false }) {
+              IconButton(onClick = { showMenuItems = true }) {
+                Icon(Icons.Default.MoreVert, null)
+                DropdownMenu(showMenuItems, onDismissRequest = { showMenuItems = false }) {
 
-                DropdownMenuItem(text = {
-                  Text(text = "Payments")
-                }, onClick = {
-                  showMenuItems = false
-                  onEvent(CompanyHomeEvent.Goto.Payments)
-                })
+                  DropdownMenuItem(text = {
+                    Text(text = "Payments")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Goto.Payments)
+                  })
 
-                DropdownMenuItem(text = {
-                  Text(text = "Clients")
-                }, onClick = {
-                  showMenuItems = false
-                  onEvent(CompanyHomeEvent.Goto.Clients)
-                })
+                  DropdownMenuItem(text = {
+                    Text(text = "Clients")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Goto.Clients)
+                  })
 
-                DropdownMenuItem(text = {
-                  Text(text = "Company")
-                }, onClick = {
-                  showMenuItems = false
-                  onEvent(CompanyHomeEvent.Goto.Company)
-                })
+                  DropdownMenuItem(text = {
+                    Text(text = "Company")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Goto.Company)
+                  })
 
-                DropdownMenuItem(text = {
-                  Text(text = "Sign Out")
-                }, onClick = {})
+                  HorizontalDivider()
 
+
+                  DropdownMenuItem(text = {
+                    Text(text = "Export")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Button.Export)
+                  })
+
+
+                  DropdownMenuItem(text = {
+                    Text(text = "Import")
+                  }, onClick = {
+                    showMenuItems = false
+                    jsonPicker.launch("application/json")
+                  })
+
+                }
               }
-            }
 
-          },
-          colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-          ),
-        )
-      },
-      contentWindowInsets = WindowInsets.safeGestures
-    ) {
-      LazyColumn(contentPadding = it) {
-        item {
-          Column {
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+              containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+          )
+        }, contentWindowInsets = WindowInsets.safeGestures
+      ) {
+        LazyColumn(contentPadding = it) {
+          item {
+            Column {
 
-            Spacer(modifier = Modifier.height(16.dp))
+              Spacer(modifier = Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              LetterView(state.account)
-              Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                LetterView(state.account)
+                Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                  Text(
+                    text = "Good ${getTimeOfDay()}",
+                    style = MaterialTheme.typography.bodySmall,
+                  )
+                  Text(
+                    text = state.account.toFullName(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.secondary
+                  )
+                }
+              }
+
+              Spacer(modifier = Modifier.height(16.dp))
+
+              CompanyHomeClientPaidView(state)
+
+              Spacer(modifier = Modifier.height(16.dp))
+
+              Row(
+                modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
+              ) {
+
                 Text(
-                  text = "Good ${getTimeOfDay()}",
-                  style = MaterialTheme.typography.bodySmall,
+                  text = "Payments per Location", modifier = Modifier.weight(1f)
                 )
-                Text(
-                  text = state.account.toFullName(),
-                  style = MaterialTheme.typography.bodyMedium,
-                  fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.secondary
-                )
+
+                TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
+                  Text(text = "See all")
+                  Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                }
               }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            CompanyHomeClientPaidView(state)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-              modifier = Modifier.padding(8.dp),
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-
-              Text(
-                text = "Payments per Location",
-                modifier = Modifier.weight(1f)
-              )
-
-              TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
-                Text(text = "See all")
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+              state.payment4CurrentLocationMonth.forEach { location ->
+                CompanyHomeClientPaidStreetView(location, onEvent)
               }
+
             }
-
-
-            state.payment4CurrentLocationMonth.forEach { location ->
-              CompanyHomeClientPaidStreetView(location, onEvent)
-            }
-
           }
+
         }
 
+
       }
-
-
     }
   }
 
@@ -196,14 +244,12 @@ fun CompanyHomeScreen(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-private fun CompanyHomeScreenPreview() {
+@Preview(showBackground = true) @Composable private fun CompanyHomeScreenPreview() {
   WasteManagementTheme {
     CompanyHomeScreen(
       state = companyHomeStateSuccess(),
-      onEvent = {}
-    )
+      channel = flowOf()
+    ) {}
   }
 }
 

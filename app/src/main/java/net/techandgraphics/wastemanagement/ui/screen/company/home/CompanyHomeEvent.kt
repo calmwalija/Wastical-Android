@@ -1,10 +1,16 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
+import android.net.Uri
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.remote.ApiResult
 
 sealed interface CompanyHomeEvent {
   data object Tap : CompanyHomeEvent
+
+  sealed interface Button : CompanyHomeEvent {
+    data object Export : Button
+    data class Import(val uri: Uri) : Button
+  }
 
   data object Load : CompanyHomeEvent
 

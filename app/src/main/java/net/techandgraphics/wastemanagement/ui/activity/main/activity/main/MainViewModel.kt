@@ -1,19 +1,23 @@
 package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
-import coil.ImageLoader
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastemanagement.data.local.database.toAccountFcmTokenEntity
+import net.techandgraphics.wastemanagement.data.remote.ServerResponse
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
@@ -30,28 +34,65 @@ import net.techandgraphics.wastemanagement.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
 import net.techandgraphics.wastemanagement.domain.toStreetUiModel
 import net.techandgraphics.wastemanagement.domain.toTrashCollectionScheduleUiModel
+import net.techandgraphics.wastemanagement.getFile
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
   private val accountSession: AccountSessionRepository,
   private val database: AppDatabase,
-  private val imageLoader: ImageLoader,
   private val api: AccountApi,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(MainActivityState())
   val state = _state.asStateFlow()
+  private val _channel = Channel<MainActivityChannel>()
+  val channel = _channel.receiveAsFlow()
 
   init {
     viewModelScope.launch {
-      if (database.accountDao.query().isEmpty()) {
-        accountSession.fetchSession()
-      }
+      _channel.send(
+        if (database.accountDao.query().isEmpty()) {
+          MainActivityChannel.Empty
+        } else {
+          MainActivityChannel.Load
+        },
+      )
     }
   }
 
-  private fun getImageLoader() = _state.update { it.copy(imageLoader = imageLoader) }
+  private fun onImport(event: MainActivityEvent.Import) = viewModelScope.launch {
+    runCatching {
+      val jsonString = application.getFile(event.uri).bufferedReader().use { it.readText() }
+      Gson().fromJson(jsonString, ServerResponse::class.java)
+    }.onSuccess { metadata ->
+
+      if (metadata.accounts == null) {
+        _channel.send(MainActivityChannel.Import.Data(MainActivityChannel.Import.Status.Invalid))
+        return@launch
+      }
+
+      var current = 0
+      runCatching {
+        database.withTransaction {
+          accountSession.purseData(metadata) { total, done ->
+            current += done
+            _channel.send(MainActivityChannel.Import.Progress(total, current))
+          }
+        }
+      }
+        .onSuccess { _channel.send(MainActivityChannel.Load) }
+        .onFailure { _channel.send(MainActivityChannel.Import.Data(MainActivityChannel.Import.Status.Error)) }
+    }
+      .onFailure { _channel.send(MainActivityChannel.Import.Data(MainActivityChannel.Import.Status.Error)) }
+  }
+
+  fun onEvent(event: MainActivityEvent) {
+    when (event) {
+      is MainActivityEvent.Import -> onImport(event)
+    }
+  }
 
   private suspend fun getAccount() {
     database.accountDao.flow()
