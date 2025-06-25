@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.scale
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.calculate
+import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentType
 import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
@@ -35,13 +36,13 @@ import java.time.Month
 private fun tableData(
   paymentMonthCovered: List<PaymentMonthCoveredUiModel> = listOf(),
   paymentPlan: PaymentPlanUiModel,
-) = Month.entries.take(1).mapIndexed { index, month ->
+) = paymentMonthCovered.mapIndexed { index, month ->
   listOf(
     index.plus(1).toString(),
-    "${paymentPlan.period.name} Subscription",
-    paymentMonthCovered.size,
+    Month.of(month.month).name.capitalize(),
+    1,
     paymentPlan.fee.toAmount(),
-    paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
+    paymentPlan.calculate(1).toAmount(),
   )
 }
 
@@ -327,7 +328,7 @@ fun invoiceToPdf(
     )
     /***************************************************************/
 
-    holdXAxis = holdXAxis.plus(310)
+    holdXAxis = holdXAxis.plus(300)
 
     /***************************************************************/
     pdfBgSentence(
@@ -354,7 +355,7 @@ fun invoiceToPdf(
     )
     /***************************************************************/
 
-    holdXAxis = holdXAxis.plus(310)
+    holdXAxis = holdXAxis.plus(300)
 
     /***************************************************************/
     pdfBgSentence(
