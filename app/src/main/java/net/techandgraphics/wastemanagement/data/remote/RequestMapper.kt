@@ -1,5 +1,7 @@
 package net.techandgraphics.wastemanagement.data.remote
 
+import net.techandgraphics.wastemanagement.data.local.database.account.plan.AccountPaymentPlanEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
@@ -55,3 +57,17 @@ fun AccountRequestEntity.toAccountRequest() = AccountRequest(
   companyLocationId = companyLocationId,
   paymentPlanId = paymentPlanId,
 )
+
+fun AccountPaymentPlanRequestEntity.toAccountPaymentPlanRequest() =
+  AccountPaymentPlanRequest(
+    accountUuid = accountUuid,
+    accountId = accountId,
+    paymentPlanId = paymentPlanId,
+  )
+
+fun AccountPaymentPlanEntity.toAccountPaymentPlanRequest() =
+  AccountPaymentPlanRequest(
+    accountUuid = accountUuid,
+    accountId = accountId,
+    paymentPlanId = paymentPlanId,
+  )

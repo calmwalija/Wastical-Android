@@ -1,12 +1,14 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.pending
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -15,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +29,7 @@ import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequest
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
+import net.techandgraphics.wastemanagement.toast
 import net.techandgraphics.wastemanagement.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
@@ -37,6 +41,7 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
   val payment = entity.payment
   val account = entity.account
+  val context = LocalContext.current
 
   Card(
     modifier = Modifier.padding(vertical = 4.dp),
@@ -46,17 +51,21 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   ) {
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
-
-      Box(modifier = Modifier.size(48.dp)) {
-        Icon(
-          painterResource(R.drawable.ic_upload_ready),
-          contentDescription = null,
-          modifier = Modifier
-            .padding(4.dp)
-            .fillMaxSize(),
-          tint = MaterialTheme.colorScheme.secondary
-        )
-      }
+      Icon(
+        imageVector = Icons.Outlined.Delete,
+        contentDescription = "Delete",
+        tint = MaterialTheme.colorScheme.error,
+        modifier = Modifier
+          .padding(4.dp)
+          .size(42.dp)
+          .clip(CircleShape)
+          .background(MaterialTheme.colorScheme.error.copy(.1f))
+          .combinedClickable(
+            onClick = { context.toast("Long press to delete") },
+            onLongClick = { onEvent(CompanyClientPendingPaymentEvent.Button.Delete(entity.payment)) }
+          )
+          .padding(12.dp)
+      )
 
       Row(verticalAlignment = Alignment.CenterVertically) {
         Column(

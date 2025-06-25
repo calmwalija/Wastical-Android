@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.client.plan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,8 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
-import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanEntity
-import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
+import net.techandgraphics.wastemanagement.data.local.database.toAccountPaymentPlanRequestEntity
 import net.techandgraphics.wastemanagement.data.remote.mapApiError
 import net.techandgraphics.wastemanagement.data.remote.toAccountPaymentPlanRequest
 import net.techandgraphics.wastemanagement.domain.toAccountUiModel
@@ -22,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyClientPlanViewModel @Inject constructor(
   private val database: AppDatabase,
-  private val accountApi: AccountApi,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyClientPlanState>(CompanyClientPlanState.Loading)
@@ -70,13 +69,22 @@ class CompanyClientPlanViewModel @Inject constructor(
     if (_state.value is CompanyClientPlanState.Success) {
       _channel.send(CompanyClientPlanChannel.Processing)
       val state = (_state.value as CompanyClientPlanState.Success)
-      val request = state.plan.toAccountPaymentPlanRequest(state.account)
-      runCatching { accountApi.plan(state.plan.id, request) }
-        .onFailure { _channel.send(CompanyClientPlanChannel.Error(mapApiError(it))) }
-        .onSuccess {
-          database.accountPaymentPlanDao.update(it.toAccountPaymentPlanEntity())
-          _channel.send(CompanyClientPlanChannel.Success)
+
+      val oldAccountPlan = database.accountPaymentPlanDao.getByAccountId(state.account.id)
+      val newAccountPlan = oldAccountPlan.copy(paymentPlanId = state.plan.id)
+      val newAccountPlanRequest = newAccountPlan
+        .toAccountPaymentPlanRequest()
+        .toAccountPaymentPlanRequestEntity()
+
+      runCatching {
+        database.withTransaction {
+          database.accountPaymentPlanDao.update(newAccountPlan)
+          database.accountPaymentPlanRequestDao.deleteByAccountId(newAccountPlan.accountId)
+          database.accountPaymentPlanRequestDao.insert(newAccountPlanRequest)
         }
+      }
+        .onFailure { _channel.send(CompanyClientPlanChannel.Error(mapApiError(it))) }
+        .onSuccess { _channel.send(CompanyClientPlanChannel.Success) }
     }
   }
 
