@@ -5,6 +5,7 @@ import net.techandgraphics.wastemanagement.data.Status
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.data.local.database.account.contact.AccountContactEntity
+import net.techandgraphics.wastemanagement.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.CompanyEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.bin.collection.CompanyBinCollectionEntity
 import net.techandgraphics.wastemanagement.data.local.database.company.contact.CompanyContactEntity
@@ -27,6 +28,7 @@ import net.techandgraphics.wastemanagement.data.local.database.relations.Payment
 import net.techandgraphics.wastemanagement.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
@@ -263,3 +265,21 @@ fun CompanyLocationWithDemographicEntity.toCompanyLocationWithDemographicUiModel
     demographicArea = demographicArea.toAreaUiModel(),
     demographicStreet = demographicStreet.toStreetUiModel(),
   )
+
+fun AccountRequestEntity.toAccountRequestUiModel() = AccountRequestUiModel(
+  uuid = uuid,
+  title = title,
+  firstname = firstname,
+  lastname = lastname,
+  contact = contact,
+  altContact = altContact,
+  email = email,
+  role = role,
+  httpOperation = httpOperation,
+  companyId = companyId,
+  accountId = accountId,
+  companyLocationId = companyLocationId,
+  paymentPlanId = paymentPlanId,
+  createdAt = createdAt,
+  id = id,
+)

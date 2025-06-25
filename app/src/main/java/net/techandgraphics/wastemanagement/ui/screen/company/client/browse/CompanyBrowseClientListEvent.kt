@@ -10,6 +10,7 @@ sealed interface CompanyBrowseClientListEvent {
     data object HistoryTag : Button
     data class Tag(val tag: SearchTagUiModel) : Button
     data object Clear : Button
+    data object ScheduleUpload : Button
   }
 
   sealed interface Goto : CompanyBrowseClientListEvent {

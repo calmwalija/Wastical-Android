@@ -88,6 +88,7 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
       val context = LocalContext.current
       var addAltContact by remember { mutableStateOf(false) }
       var isProcessing by remember { mutableStateOf(false) }
+      var isUnique by remember { mutableStateOf(true) }
       val hapticFeedback = LocalHapticFeedback.current
 
       val lifecycleOwner = LocalLifecycleOwner.current
@@ -102,6 +103,9 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
 
               is CompanyCreateClientChannel.Success ->
                 onEvent(CompanyCreateClientEvent.Goto.BackHandler)
+
+              CompanyCreateClientChannel.Input.Unique.Conflict -> isUnique = false
+              CompanyCreateClientChannel.Input.Unique.Ok -> isUnique = true
             }
           }
         }
@@ -420,7 +424,7 @@ import net.techandgraphics.wastemanagement.ui.transformation.CountryCodeMaskTran
               horizontalArrangement = Arrangement.Center
             ) {
               ElevatedButton(
-                enabled = state.lastname.trim().isNotEmpty(),
+                enabled = state.lastname.trim().isNotEmpty() && isUnique,
                 shape = RoundedCornerShape(8),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onEvent(CompanyCreateClientEvent.Button.Submit) }) {

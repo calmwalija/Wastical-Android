@@ -1,5 +1,6 @@
 package net.techandgraphics
 
+import android.app.Application
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,9 @@ abstract class BaseUnitTest {
   @MockK
   lateinit var mockDatabase: AppDatabase
 
+  @MockK
+  lateinit var mockApplication: Application
+
   @OptIn(ExperimentalCoroutinesApi::class)
   @get:Rule
   var mainCoroutineRule = MainCoroutineRule()
@@ -26,6 +30,7 @@ abstract class BaseUnitTest {
   fun baseSetup() {
     populateStaticTestData()
     mockDatabase = mockk()
+    mockApplication = mockk<Application>(relaxed = true)
   }
 
   protected open fun populateStaticTestData() = Unit

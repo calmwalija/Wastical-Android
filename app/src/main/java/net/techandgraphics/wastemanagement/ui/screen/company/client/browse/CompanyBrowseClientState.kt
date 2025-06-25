@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.client.browse
 
 import net.techandgraphics.wastemanagement.domain.model.account.AccountInfoUiModel
+import net.techandgraphics.wastemanagement.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicStreetUiModel
@@ -17,6 +18,7 @@ sealed interface CompanyBrowseClientState {
     val demographicStreets: List<DemographicStreetUiModel> = listOf(),
     val filters: Set<Long> = setOf(),
     val searchHistoryTags: List<SearchTagUiModel> = listOf(),
+    val accountRequests: List<AccountRequestUiModel> = listOf(),
 
   ) : CompanyBrowseClientState
 }

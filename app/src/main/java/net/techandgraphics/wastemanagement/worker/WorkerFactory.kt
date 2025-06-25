@@ -8,14 +8,20 @@ import net.techandgraphics.wastemanagement.data.remote.account.AccountApi
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentApi
 import javax.inject.Inject
 
-class AppWorkerFactory @Inject constructor(
-  private val database: AppDatabase,
-  private val api: PaymentApi,
+class WorkerFactory @Inject constructor(
+  private val appDatabase: AppDatabase,
+  private val paymentApi: PaymentApi,
   private val accountApi: AccountApi,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
     workerClassName: String,
     workerParameters: WorkerParameters,
-  ) = PaymentWorker(appContext, workerParameters, database, api, accountApi)
+  ) = AppWorker(
+    context = appContext,
+    params = workerParameters,
+    database = appDatabase,
+    paymentApi = paymentApi,
+    accountApi = accountApi,
+  )
 }
