@@ -1,6 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
-import android.net.Uri
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.remote.ApiResult
 
@@ -9,7 +9,7 @@ sealed interface CompanyHomeEvent {
 
   sealed interface Button : CompanyHomeEvent {
     data object Export : Button
-    data class Import(val uri: Uri) : Button
+    data class WorkingMonth(val param: MonthYear) : Button
   }
 
   data object Load : CompanyHomeEvent

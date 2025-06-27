@@ -1,17 +1,16 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
@@ -24,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,9 +49,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastemanagement.getTimeOfDay
+import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.share
+import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
@@ -60,6 +65,7 @@ import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
+import java.time.Month
 
 @OptIn(
   ExperimentalMaterial3Api::class,
@@ -78,13 +84,6 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
     is CompanyHomeState.Success -> {
 
 
-      val jsonPicker = rememberLauncherForActivityResult(contract = GetContent()) { uri ->
-        uri?.let {
-          onEvent(CompanyHomeEvent.Button.Import(it))
-        }
-      }
-
-
       val lifecycleOwner = LocalLifecycleOwner.current
       LaunchedEffect(key1 = channel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -96,7 +95,6 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
           }
         }
       }
-
 
       Scaffold(
         topBar = {
@@ -157,20 +155,11 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 
                   HorizontalDivider()
 
-
                   DropdownMenuItem(text = {
                     Text(text = "Export")
                   }, onClick = {
                     showMenuItems = false
                     onEvent(CompanyHomeEvent.Button.Export)
-                  })
-
-
-                  DropdownMenuItem(text = {
-                    Text(text = "Import")
-                  }, onClick = {
-                    showMenuItems = false
-                    jsonPicker.launch("application/json")
                   })
 
                 }
@@ -181,61 +170,88 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
               containerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
           )
-        }, contentWindowInsets = WindowInsets.safeGestures
+        },
       ) {
-        LazyColumn(contentPadding = it) {
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
+        ) {
+
           item {
-            Column {
-
-              Spacer(modifier = Modifier.height(16.dp))
-
-              Row(verticalAlignment = Alignment.CenterVertically) {
-                LetterView(state.account)
-                Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                  Text(
-                    text = "Good ${getTimeOfDay()}",
-                    style = MaterialTheme.typography.bodySmall,
-                  )
-                  Text(
-                    text = state.account.toFullName(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
-                  )
-                }
-              }
-
-              Spacer(modifier = Modifier.height(16.dp))
-
-              CompanyHomeClientPaidView(state)
-
-              Spacer(modifier = Modifier.height(16.dp))
-
-              Row(
-                modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
-              ) {
-
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              LetterView(state.account)
+              Column(modifier = Modifier.padding(horizontal = 8.dp)) {
                 Text(
-                  text = "Payments per Location", modifier = Modifier.weight(1f)
+                  text = "Good ${getTimeOfDay()}",
+                  style = MaterialTheme.typography.bodySmall,
                 )
-
-                TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
-                  Text(text = "See all")
-                  Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-                }
+                Text(
+                  text = state.account.toFullName(),
+                  style = MaterialTheme.typography.bodyMedium,
+                  fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.secondary
+                )
               }
-
-
-              state.payment4CurrentLocationMonth.forEach { location ->
-                CompanyHomeClientPaidStreetView(location, onEvent)
-              }
-
             }
           }
 
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+          item { CompanyHomeClientPaidView(state) }
+
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+          item {
+            LazyRow {
+              items(state.allMonthsPayments) { item ->
+                val theBorderColor =
+                  if (item.monthYear == state.monthYear) MaterialTheme.colorScheme.primary else {
+                    MaterialTheme.colorScheme.secondaryContainer
+                  }
+                OutlinedCard(
+                  border = BorderStroke(1.dp, theBorderColor),
+                  modifier = Modifier.padding(8.dp),
+                  onClick = { onEvent(CompanyHomeEvent.Button.WorkingMonth(item.monthYear)) }) {
+                  Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                  ) {
+
+                    Text(text = Month.of(item.monthYear.month).name.capitalize())
+                    Text(
+                      text = "${item.payment4CurrentMonth.totalPaidAccounts}",
+                      style = MaterialTheme.typography.titleLarge,
+                      color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                      text = item.payment4CurrentMonth.totalPaidAmount.toAmount(),
+                      style = MaterialTheme.typography.bodyLarge,
+                      color = MaterialTheme.colorScheme.secondary
+                    )
+                  }
+                }
+              }
+            }
+          }
+
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+
+          item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text(
+                text = "Payments per Location",
+                modifier = Modifier.weight(1f)
+              )
+              TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
+                Text(text = "See all")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+              }
+            }
+          }
+
+          items(state.payment4CurrentLocationMonth) { CompanyHomeClientPaidStreetView(it, onEvent) }
         }
-
-
       }
     }
   }
@@ -253,13 +269,23 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
   }
 }
 
-fun companyHomeStateSuccess() = CompanyHomeState.Success(
-  payment4CurrentLocationMonth = listOf(payment4CurrentLocationMonth4Preview),
-  account = account4Preview,
-  company = company4Preview,
-  companyContact = companyContact4Preview,
-  accountsSize = 200,
-  payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
-  expectedAmountToCollect = 2444_000,
-  paymentPlanAgainstAccounts = listOf()
-)
+fun companyHomeStateSuccess(): CompanyHomeState.Success {
+  val (_, month, year) = getToday()
+  return CompanyHomeState.Success(
+    payment4CurrentLocationMonth = listOf(payment4CurrentLocationMonth4Preview),
+    account = account4Preview,
+    company = company4Preview,
+    companyContact = companyContact4Preview,
+    accountsSize = 200,
+    payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
+    expectedAmountToCollect = 2444_000,
+    paymentPlanAgainstAccounts = listOf(),
+    monthYear = MonthYear(month, year),
+    allMonthsPayments = (1..month.plus(1)).map {
+      MonthYearPayment4Month(
+        MonthYear(it, year),
+        payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
+      )
+    }
+  )
+}
