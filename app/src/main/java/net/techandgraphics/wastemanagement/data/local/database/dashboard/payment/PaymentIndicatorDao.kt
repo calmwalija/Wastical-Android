@@ -130,6 +130,9 @@ interface PaymentIndicatorDao {
     year: Int,
     sortOrder: Int = 0,
   ): List<AccountWithPaymentStatusEntity>
+
+  @Query("SELECT month, year FROM payment_month_covered GROUP BY month, year")
+  suspend fun getAllMonthsPayments(): List<MonthYear>
 }
 
 data class PaymentPlanAgainstAccounts(
@@ -146,6 +149,13 @@ data class AccountWithPaymentStatusEntity(
   val account: AccountEntity,
   val hasPaid: Boolean,
   val amount: Int,
+)
+
+data class MonthYear(val month: Int, val year: Int)
+
+data class MonthYearPayment4Month(
+  val monthYear: MonthYear,
+  val payment4CurrentMonth: Payment4CurrentMonth,
 )
 
 enum class AccountSortOrder { Paid, Unpaid, Title, Lastname, Contact }

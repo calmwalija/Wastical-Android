@@ -31,10 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-import java.time.LocalDate
-import java.time.format.TextStyle
+import java.time.Month
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,19 +42,20 @@ import java.util.Locale
 fun CompanyHomeClientPaidView(state: CompanyHomeState.Success) {
 
   var targetValue by remember { mutableFloatStateOf(0f) }
-  val currentMonth = LocalDate.now().month
-  val monthName = currentMonth.getDisplayName(TextStyle.FULL, Locale.getDefault())
+  val monthName = Month.of(state.monthYear.month).name.capitalize()
 
   val animateAsFloat by animateFloatAsState(
     targetValue = targetValue,
-    animationSpec = tween(durationMillis = 5_000)
+    animationSpec = tween(durationMillis = 7_000)
   )
 
-  LaunchedEffect(state.accountsSize) {
+  LaunchedEffect(state.payment4CurrentMonth.totalPaidAccounts) {
     targetValue = state.payment4CurrentMonth.totalPaidAccounts
       .toFloat()
       .div(state.accountsSize)
   }
+
+  val progressText = String.format(locale = Locale.getDefault(), "%.2f", animateAsFloat * 100)
 
   Card(
     modifier = Modifier
@@ -94,17 +95,18 @@ fun CompanyHomeClientPaidView(state: CompanyHomeState.Success) {
           modifier = Modifier.padding(16.dp)
         ) {
           Text(
-            text = "${state.payment4CurrentMonth.totalPaidAccounts} of ${state.accountsSize}",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
+            text = "${progressText}%",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
           )
 
           Text(
-            text = state.payment4CurrentMonth.totalPaidAmount.toAmount(),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.secondary
+            text = "${state.payment4CurrentMonth.totalPaidAccounts} of ${state.accountsSize}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.secondary,
           )
         }
       }
