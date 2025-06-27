@@ -16,7 +16,6 @@ import net.techandgraphics.wastemanagement.data.local.database.demographic.stree
 import net.techandgraphics.wastemanagement.data.local.database.payment.collection.PaymentCollectionDayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.method.PaymentMethodEntity
-import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.month.covered.PaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.remote.account.AccountResponse
@@ -87,19 +86,6 @@ fun PaymentPlanResponse.PaymentPlanResponse() =
     updatedAt = updatedAt,
   )
 
-fun PaymentEntity.toPaymentResponse() =
-  PaymentResponse(
-    id = id,
-    status = status,
-    accountId = accountId,
-    screenshotText = screenshotText,
-    transactionId = transactionId,
-    paymentMethodId = paymentMethodId,
-    createdAt = createdAt,
-    updatedAt = updatedAt,
-    companyId = companyId,
-    executedById = executedById,
-  )
 
 fun AccountEntity.toAccountResponse() =
   AccountResponse(
@@ -258,7 +244,8 @@ fun PaymentRequestEntity.toPaymentResponse() =
     createdAt = createdAt,
     companyId = companyId,
     executedById = executedById,
-    updatedAt = createdAt
+    updatedAt = createdAt,
+    months = months
   )
 
 

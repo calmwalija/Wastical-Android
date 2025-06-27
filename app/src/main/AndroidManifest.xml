@@ -26,13 +26,34 @@
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data android:scheme="content" />
+        <data android:scheme="file" />
+
+        <data android:mimeType="application/octet-stream" />
+        <data android:mimeType="*/*" />
+
+        <data android:host="*" />
+        <data android:pathPattern=".*\\.wmapp" />
+        <data android:pathPattern=".*\\..*\\.wmapp" />
+        <data android:pathPattern=".*\\..*\\..*\\.wmapp" />
+        <data android:pathPattern=".*\\..*\\..*\\..*\\.wmapp" />
+
+      </intent-filter>
     </activity>
 
 
     <activity
       android:name="com.yalantis.ucrop.UCropActivity"
       android:screenOrientation="portrait"
-      android:theme="@style/Theme.UCrop"/>
+      android:theme="@style/Theme.UCrop" />
 
     <provider
       android:name="androidx.core.content.FileProvider"
@@ -74,7 +95,6 @@
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
-
 
 
   </application>

@@ -32,4 +32,7 @@ data class MainActivityState(
   val streets: List<DemographicStreetUiModel> = listOf(),
   val areas: List<DemographicAreaUiModel> = listOf(),
   val districts: List<DemographicDistrictUiModel> = listOf(),
+  val screenState: ScreenState = ScreenState.Idle,
 )
+
+enum class ScreenState { Load, Empty, Idle }

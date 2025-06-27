@@ -62,7 +62,10 @@ class CompanyClientHistoryViewModel @Inject constructor(
 
   private fun getPayments(account: AccountUiModel) = viewModelScope.launch {
     database.paymentDao.flowOfWithMonthCoveredByAccountId(account.id)
-      .map { flowOf -> flowOf.map { it.toPaymentWithMonthsCoveredUiModel() } }
+      .map { flowOf ->
+        flowOf.map { it.toPaymentWithMonthsCoveredUiModel() }
+          .sortedBy { it.payment.createdAt }
+      }
       .collectLatest { payments -> _state.value = getState().copy(payments = payments) }
   }
 

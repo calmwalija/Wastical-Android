@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PaymentResponse(
   val id: Long,
+  val months: Int,
   @SerializedName("screenshot_text") val screenshotText: String,
   @SerializedName("transaction_id") val transactionId: String,
   @SerializedName("payment_method_id") val paymentMethodId: Long,

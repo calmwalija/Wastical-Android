@@ -27,6 +27,9 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
   @Query("SELECT id FROM payment ORDER BY id DESC LIMIT 1")
   fun getLastId(): Flow<Long?>
 
+  @Query("SELECT * FROM payment WHERE account_id=:id AND created_at=:at")
+  fun getByCreatedAt(id: Long, at: Long): PaymentEntity?
+
   @Query("SELECT * FROM payment WHERE payment_status=:status")
   suspend fun qPaymentByStatus(status: String = PaymentStatus.Waiting.name): List<PaymentEntity>
 
