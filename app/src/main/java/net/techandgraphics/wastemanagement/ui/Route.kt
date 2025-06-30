@@ -32,6 +32,8 @@ sealed interface Route {
       @Serializable data class Verify(val ofType: String) : Payment
 
       @Serializable data class Pending(val id: Long) : Payment
+
+      @Serializable data object Timeline : Payment
     }
 
     @Serializable data object Home : Company

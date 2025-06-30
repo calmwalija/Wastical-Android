@@ -64,6 +64,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.ov
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.pay.CompanyMakePaymentViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.timeline.PaymentTimelineEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.timeline.PaymentTimelineScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.timeline.PaymentTimelineViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.verify.CompanyVerifyPaymentViewModel
@@ -336,6 +339,8 @@ fun AppNavHost(
 
               is Goto.LocationOverview ->
                 navController.navigate(Route.Company.LocationOverview(event.id))
+
+              Goto.Timeline -> navController.navigate(Route.Company.Payment.Timeline)
             }
 
             else -> onEvent(event)
@@ -411,6 +416,22 @@ fun AppNavHost(
         }
       }
     }
+
+
+    composable<Route.Company.Payment.Timeline> {
+      with(hiltViewModel<PaymentTimelineViewModel>()) {
+        val state = state.collectAsState().value
+        PaymentTimelineScreen(state) { event ->
+          when (event) {
+            PaymentTimelineEvent.Goto.BackHandler -> navController.navigateUp()
+            PaymentTimelineEvent.Load -> Unit
+            is PaymentTimelineEvent.Goto.Profile ->
+              navController.navigate(Route.Company.Client.Profile(event.id))
+          }
+        }
+      }
+    }
+
 
   }
 }

@@ -203,6 +203,8 @@ fun PaymentWithAccountAndMethodWithGatewayEntity.toPaymentWithAccountAndMethodWi
     account = account.toAccountUiModel(),
     method = method.toPaymentMethodUiModel(),
     gateway = gateway.toPaymentGatewayUiModel(),
+    plan = plan.toPaymentPlanUiModel(),
+    coveredSize = coveredSize,
   )
 
 fun AccountWithPaymentStatusEntity.toAccountWithPaymentStatusUiModel() =
@@ -257,6 +259,7 @@ fun PaymentWithMonthsCoveredEntity.toPaymentWithMonthsCoveredUiModel() =
   PaymentWithMonthsCoveredUiModel(
     payment = payment.toPaymentUiModel(),
     covered = covered.map { it.toPaymentMonthCoveredUiModel() },
+    account = account.toAccountUiModel(),
   )
 
 fun CompanyLocationWithDemographicEntity.toCompanyLocationWithDemographicUiModel() =

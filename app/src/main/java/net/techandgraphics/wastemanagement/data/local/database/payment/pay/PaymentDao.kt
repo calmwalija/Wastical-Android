@@ -105,7 +105,9 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
         plans.status AS planStatus,
         plans.company_id AS planCompanyId,
         plans.created_at AS planCreatedAt,
-        plans.created_at AS planUpdatedAt
+        plans.created_at AS planUpdatedAt,
+
+        (SELECT COUNT(*) FROM payment_month_covered covered WHERE covered.payment_id = payment.id ) as coveredSize
 
         FROM payment AS payment
         INNER JOIN account AS account ON account.id = payment.account_id

@@ -59,4 +59,6 @@ data class PaymentWithAccountAndMethodWithGatewayQuery(
   val planCompanyId: Long,
   val planCreatedAt: Long,
   val planUpdatedAt: Long,
+
+  val coveredSize: Int,
 )
