@@ -29,7 +29,7 @@ import net.techandgraphics.wastemanagement.domain.model.relations.PaymentMethodW
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithMonthsCoveredUiModel
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.activity.MainActivityState
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import kotlin.random.Random

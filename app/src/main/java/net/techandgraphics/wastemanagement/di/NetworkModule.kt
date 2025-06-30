@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import net.techandgraphics.wastemanagement.AppUrl
+import net.techandgraphics.wastemanagement.appUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,7 +19,7 @@ object NetworkModule {
   private const val AUTHORIZATION = "Authorization"
   private const val COOKIE = "Cookie"
 
-  inline fun <reified T> api(baseUrl: String = AppUrl.API_URL): T =
+  inline fun <reified T> api(baseUrl: String = appUrl().apiDomain): T =
     Retrofit.Builder().baseUrl(baseUrl)
       .client(authOkHttpClient())
       .addConverterFactory(GsonConverterFactory.create())

@@ -1,7 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.home
 
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.activity.MainActivityState
 
 sealed interface ClientHomeEvent {
 

@@ -28,7 +28,7 @@ import net.techandgraphics.wastemanagement.notification.NotificationType
 import net.techandgraphics.wastemanagement.notification.NotificationUiModel
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toZonedDateTime
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivity
+import net.techandgraphics.wastemanagement.ui.activity.MainActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
