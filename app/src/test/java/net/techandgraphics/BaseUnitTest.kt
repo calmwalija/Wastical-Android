@@ -8,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import net.techandgraphics.wastemanagement.data.local.Preferences
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import org.junit.Before
 import org.junit.Rule
@@ -22,6 +23,9 @@ abstract class BaseUnitTest {
   @MockK
   lateinit var mockApplication: Application
 
+  @MockK
+  lateinit var preferences: Preferences
+
   @OptIn(ExperimentalCoroutinesApi::class)
   @get:Rule
   var mainCoroutineRule = MainCoroutineRule()
@@ -29,6 +33,7 @@ abstract class BaseUnitTest {
   @Before
   fun baseSetup() {
     populateStaticTestData()
+    preferences = mockk()
     mockDatabase = mockk()
     mockApplication = mockk<Application>(relaxed = true)
   }
