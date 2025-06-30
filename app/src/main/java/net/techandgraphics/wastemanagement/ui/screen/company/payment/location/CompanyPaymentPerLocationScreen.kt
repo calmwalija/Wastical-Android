@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
@@ -84,4 +86,5 @@ private fun CompanyPaymentPerLocationScreenPreview() {
 fun companyPaymentPerLocationStateSuccess() = CompanyPaymentPerLocationState.Success(
   payment4CurrentLocationMonth = listOf(payment4CurrentLocationMonth4Preview),
   company = company4Preview,
+  monthYear = MonthYear(getToday().month, getToday().year)
 )

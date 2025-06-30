@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.data.local.Preferences
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.getToday
 import javax.inject.Inject
@@ -17,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyPaymentPerLocationViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val preferences: Preferences,
 ) : ViewModel() {
 
   private val _state =
@@ -30,13 +34,19 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
 
   private fun onLoad() = viewModelScope.launch {
     val (_, month, year) = getToday()
-    database.paymentDao.qPayment4CurrentLocationMonth(month, year)
-      .collectLatest { payment4CurrentLocationMonth ->
-        val company = database.companyDao.query().first().toCompanyUiModel()
-        _state.value = CompanyPaymentPerLocationState.Success(
-          payment4CurrentLocationMonth = payment4CurrentLocationMonth,
-          company = company,
-        )
+    val default = Gson().toJson(MonthYear(month, year))
+    preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default)
+      .collectLatest { jsonString ->
+        val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
+        database.paymentDao.qPayment4CurrentLocationMonth(monthYear.month, monthYear.year)
+          .collectLatest { payment4CurrentLocationMonth ->
+            val company = database.companyDao.query().first().toCompanyUiModel()
+            _state.value = CompanyPaymentPerLocationState.Success(
+              payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+              company = company,
+              monthYear = monthYear,
+            )
+          }
       }
   }
 
@@ -52,12 +62,12 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
 
   private suspend fun onQueryChange() {
     if (_state.value is CompanyPaymentPerLocationState.Success) {
-      val (_, month, year) = getToday()
+      val state = (_state.value as CompanyPaymentPerLocationState.Success)
       val currentState = (_state.value as CompanyPaymentPerLocationState.Success)
 
       database.paymentDao.qPayment4CurrentLocationMonth(
-        month,
-        year,
+        state.monthYear.month,
+        state.monthYear.year,
         query = currentState.query.trim(),
       )
         .collectLatest { payment4CurrentLocationMonth ->

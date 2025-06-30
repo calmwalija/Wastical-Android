@@ -2,6 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.o
 
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountSortOrder
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.demographic.DemographicAreaUiModel
@@ -19,5 +20,6 @@ sealed interface CompanyPaymentLocationOverviewState {
     val expectedAmountToCollect: Int,
     val companyLocation: CompanyLocationUiModel,
     val sortBy: AccountSortOrder = AccountSortOrder.Paid,
+    val monthYear: MonthYear,
   ) : CompanyPaymentLocationOverviewState
 }

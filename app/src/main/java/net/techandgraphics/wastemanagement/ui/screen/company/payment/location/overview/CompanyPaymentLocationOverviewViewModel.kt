@@ -2,11 +2,15 @@ package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.o
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastemanagement.data.local.Preferences
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.domain.toAccountWithPaymentStatusUiModel
 import net.techandgraphics.wastemanagement.domain.toAreaUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyLocationUiModel
@@ -18,50 +22,59 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyPaymentLocationOverviewViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val preferences: Preferences,
 ) : ViewModel() {
 
   private val _state =
     MutableStateFlow<CompanyPaymentLocationOverviewState>(CompanyPaymentLocationOverviewState.Loading)
   val state = _state.asStateFlow()
 
-  private val today = getToday()
-  private val month = today.month
-  private val year = today.year
-
   private fun onLoad(event: CompanyPaymentLocationOverviewEvent.Load) =
     viewModelScope.launch {
-      val companyLocation = database.companyLocationDao.getByStreetId(event.id)
-        .toCompanyLocationUiModel()
+      val (_, cMonth, cYear) = getToday()
+      val default = Gson().toJson(MonthYear(cMonth, cYear))
+      preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default)
+        .collectLatest { jsonString ->
+          val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
 
-      val demographicStreet = database.demographicStreetDao
-        .get(companyLocation.demographicStreetId)
-        .toStreetUiModel()
+          val companyLocation = database.companyLocationDao.getByStreetId(event.id)
+            .toCompanyLocationUiModel()
 
-      val payment4CurrentMonth = database.paymentIndicatorDao
-        .getPayment4CurrentMonthByStreetId(companyLocation.demographicStreetId, month, year)
+          val demographicStreet = database.demographicStreetDao
+            .get(companyLocation.demographicStreetId)
+            .toStreetUiModel()
 
-      val demographicArea = database.demographicAreaDao
-        .get(companyLocation.demographicAreaId)
-        .toAreaUiModel()
-      val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
-        id = companyLocation.demographicStreetId,
-        month = month,
-        year = year,
-      ).map { it.toAccountWithPaymentStatusUiModel() }
+          val payment4CurrentMonth = database.paymentIndicatorDao
+            .getPayment4CurrentMonthByStreetId(
+              companyLocation.demographicStreetId,
+              monthYear.month,
+              monthYear.year,
+            )
 
-      val company = database.companyDao.query().first().toCompanyUiModel()
-      val expectedAmountToCollect =
-        database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
+          val demographicArea = database.demographicAreaDao
+            .get(companyLocation.demographicAreaId)
+            .toAreaUiModel()
+          val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
+            id = companyLocation.demographicStreetId,
+            month = monthYear.month,
+            year = monthYear.year,
+          ).map { it.toAccountWithPaymentStatusUiModel() }
 
-      _state.value = CompanyPaymentLocationOverviewState.Success(
-        company = company,
-        demographicStreet = demographicStreet,
-        demographicArea = demographicArea,
-        accounts = accounts,
-        payment4CurrentMonth = payment4CurrentMonth,
-        expectedAmountToCollect = expectedAmountToCollect,
-        companyLocation = companyLocation,
-      )
+          val company = database.companyDao.query().first().toCompanyUiModel()
+          val expectedAmountToCollect =
+            database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
+
+          _state.value = CompanyPaymentLocationOverviewState.Success(
+            company = company,
+            demographicStreet = demographicStreet,
+            demographicArea = demographicArea,
+            accounts = accounts,
+            payment4CurrentMonth = payment4CurrentMonth,
+            expectedAmountToCollect = expectedAmountToCollect,
+            companyLocation = companyLocation,
+            monthYear = monthYear,
+          )
+        }
     }
 
   private fun onSortBy(event: CompanyPaymentLocationOverviewEvent.Button.SortBy) =
@@ -70,8 +83,8 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
         val state = (_state.value as CompanyPaymentLocationOverviewState.Success)
         val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
           id = state.companyLocation.demographicStreetId,
-          month = month,
-          year = year,
+          month = state.monthYear.month,
+          year = state.monthYear.year,
           sortOrder = event.sort.ordinal,
         ).map { it.toAccountWithPaymentStatusUiModel() }
         _state.value = (_state.value as CompanyPaymentLocationOverviewState.Success).copy(

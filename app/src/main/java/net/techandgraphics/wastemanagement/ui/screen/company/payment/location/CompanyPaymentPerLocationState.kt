@@ -1,5 +1,6 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
 
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 
@@ -10,5 +11,6 @@ sealed interface CompanyPaymentPerLocationState {
     val company: CompanyUiModel,
     val query: String = "",
     val filters: Set<Long> = setOf(),
+    val monthYear: MonthYear,
   ) : CompanyPaymentPerLocationState
 }

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPaymentStatusUiModel
-import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
 import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
@@ -62,13 +61,6 @@ fun CompanyPaymentLocationClientView(
         text = account.username,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
-      )
-      Text(
-        text = (if (entity.hasPaid) "+" else "-").plus(entity.amount.toAmount()),
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodyMedium,
-        color = if (entity.hasPaid) Green else MaterialTheme.colorScheme.error
       )
     }
 

@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountSortOrder
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
@@ -275,5 +277,6 @@ fun companyPaymentLocationOverviewStateSuccess() =
     accounts = (1..4).map { accountWithPaymentStatus4Preview },
     payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
     expectedAmountToCollect = 3_000,
-    companyLocation = companyLocation4Preview
+    companyLocation = companyLocation4Preview,
+    monthYear = MonthYear(getToday().month, getToday().year)
   )
