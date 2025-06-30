@@ -64,6 +64,7 @@ import net.techandgraphics.wastemanagement.ui.screen.client.home.LetterView
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4CurrentLocationMonth4Preview
+import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.time.Month
 
@@ -258,6 +259,24 @@ import java.time.Month
           }
 
           items(state.payment4CurrentLocationMonth) { CompanyHomeClientPaidStreetView(it, onEvent) }
+
+          item { Spacer(modifier = Modifier.height(32.dp)) }
+
+          item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text(
+                text = "Payments timeline",
+                modifier = Modifier.weight(1f)
+              )
+              TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.Timeline) }) {
+                Text(text = "See all")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+              }
+            }
+          }
+
+          items(state.timeline) { CompanyHomePaymentTimelineItem(it, onEvent) }
+
         }
       }
     }
@@ -293,6 +312,7 @@ fun companyHomeStateSuccess(): CompanyHomeState.Success {
         MonthYear(it, year),
         payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
       )
-    }
+    },
+    timeline = (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
   )
 }

@@ -13,6 +13,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import java.io.File
 import java.text.DecimalFormat
 import java.util.Calendar
@@ -69,4 +70,12 @@ fun getToday(): Today {
       get(Calendar.YEAR),
     )
   }
+}
+
+fun groupPaymentsByDate(
+  payments: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
+): Map<String, List<PaymentWithAccountAndMethodWithGatewayUiModel>> {
+  return payments
+    .sortedByDescending { it.payment.createdAt }
+    .groupBy { it.payment.createdAt.toZonedDateTime().defaultDate() }
 }

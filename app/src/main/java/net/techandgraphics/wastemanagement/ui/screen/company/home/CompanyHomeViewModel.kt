@@ -10,6 +10,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.Preferences
@@ -17,6 +19,7 @@ import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYearPayment4Month
+import net.techandgraphics.wastemanagement.data.local.database.relations.toEntity
 import net.techandgraphics.wastemanagement.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.wastemanagement.data.remote.toAccountPaymentPlanResponse
 import net.techandgraphics.wastemanagement.data.remote.toPaymentResponse
@@ -24,6 +27,7 @@ import net.techandgraphics.wastemanagement.domain.toAccountUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentRequestUiModel
+import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.hash
 import net.techandgraphics.wastemanagement.write
@@ -85,47 +89,53 @@ class CompanyHomeViewModel @Inject constructor(
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
     val (_, month, year) = getToday()
     val default = Gson().toJson(MonthYear(month, year))
-    preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default)
-      .collectLatest { jsonString ->
-        val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
-        val payment4CurrentLocationMonth =
-          database.streetIndicatorDao.getPayment4CurrentLocationMonth(
-            month = monthYear.month,
-            year = monthYear.year,
-          )
-        val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
-        val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
-        val company = database.companyDao.query().first().toCompanyUiModel()
-        val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
-        val accountsSize = database.accountDao.getSize()
-        val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
-        val paymentPlanAgainstAccounts =
-          database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
-        val allMonthsPayments = database.paymentIndicatorDao
-          .getAllMonthsPayments()
-          .map {
-            MonthYearPayment4Month(
-              monthYear = it,
-              payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
-                it.month,
-                it.year,
-              ),
-            )
-          }
-        _state.value = CompanyHomeState.Success(
-          payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
-          pending = pending,
-          accountsSize = accountsSize,
-          payment4CurrentLocationMonth = payment4CurrentLocationMonth,
-          company = company,
-          account = account,
-          companyContact = companyContact,
-          expectedAmountToCollect = expectedAmountToCollect,
-          paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
-          allMonthsPayments = allMonthsPayments,
-          monthYear = monthYear,
-        )
+    combine(
+      database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 3),
+      preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
+    ) { timeline, jsonString ->
+      val theTimeline = timeline.map {
+        it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
       }
+      val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
+      val payment4CurrentLocationMonth =
+        database.streetIndicatorDao.getPayment4CurrentLocationMonth(
+          month = monthYear.month,
+          year = monthYear.year,
+        )
+      val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
+      val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
+      val company = database.companyDao.query().first().toCompanyUiModel()
+      val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
+      val accountsSize = database.accountDao.getSize()
+      val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
+      val paymentPlanAgainstAccounts =
+        database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
+      val allMonthsPayments = database.paymentIndicatorDao
+        .getAllMonthsPayments()
+        .map {
+          MonthYearPayment4Month(
+            monthYear = it,
+            payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
+              it.month,
+              it.year,
+            ),
+          )
+        }
+      _state.value = CompanyHomeState.Success(
+        payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
+        pending = pending,
+        accountsSize = accountsSize,
+        payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+        company = company,
+        account = account,
+        companyContact = companyContact,
+        expectedAmountToCollect = expectedAmountToCollect,
+        paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
+        allMonthsPayments = allMonthsPayments,
+        monthYear = monthYear,
+        timeline = theTimeline,
+      )
+    }.launchIn(this)
   }
 
   private fun onButtonWorkingMonth(event: CompanyHomeEvent.Button.WorkingMonth) =
