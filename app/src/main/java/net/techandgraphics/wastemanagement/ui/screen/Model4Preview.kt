@@ -170,6 +170,10 @@ internal val payment4CurrentLocationMonth4Preview = Payment4CurrentLocationMonth
   totalAccounts = 10,
   paidAccounts = 3,
   streetId = 1,
+  districtName = "Lilongwe",
+  districtRegion = "Central",
+  latitude = -1f,
+  longitude = -1f,
 )
 
 internal val accountWithStreetAndArea4Preview = AccountInfoUiModel(

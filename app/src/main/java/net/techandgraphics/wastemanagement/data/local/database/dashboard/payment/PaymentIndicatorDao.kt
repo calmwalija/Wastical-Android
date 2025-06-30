@@ -3,10 +3,8 @@ package net.techandgraphics.wastemanagement.data.local.database.dashboard.paymen
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Query
-import androidx.room.RewriteQueriesToDropUnusedColumns
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountEntity
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
-import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 
 @Dao
 interface PaymentIndicatorDao {
@@ -47,35 +45,6 @@ interface PaymentIndicatorDao {
 """,
   )
   suspend fun getExpectedAmountToCollectByStreetId(id: Long): Int
-
-  @RewriteQueriesToDropUnusedColumns
-  @Query(
-    """
-    SELECT
-        ds.id AS streetId,
-        ds.name AS streetName,
-        da.name AS areaName,
-        COUNT(DISTINCT a.id) AS totalAccounts,
-        COUNT(DISTINCT p.account_id) AS paidAccounts
-    FROM company_location cl
-    JOIN account a ON cl.id = a.company_location_id
-    JOIN demographic_street ds ON ds.id = cl.demographic_street_id
-    JOIN demographic_area da ON da.id = cl.demographic_area_id
-    LEFT JOIN (
-        SELECT DISTINCT p.account_id
-        FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
-        WHERE pm.month = :month AND pm.year =:year
-    ) p ON p.account_id = a.id
-    WHERE ds.id = :id
-    GROUP BY ds.id, ds.name, da.name
-    ORDER BY paidAccounts DESC LIMIT 3
-    """,
-  )
-  suspend fun getPayment4CurrentLocationMonthById(
-    id: Long,
-    month: Int,
-    year: Int,
-  ): Payment4CurrentLocationMonth
 
   @Query(
     """

@@ -25,7 +25,6 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountWithPayme
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.toInitials
-import net.techandgraphics.wastemanagement.toPhoneFormat
 import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
 import net.techandgraphics.wastemanagement.ui.theme.Green
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -60,7 +59,7 @@ fun CompanyPaymentLocationClientView(
         overflow = TextOverflow.MiddleEllipsis,
       )
       Text(
-        text = account.username.toPhoneFormat(),
+        text = account.username,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
       )

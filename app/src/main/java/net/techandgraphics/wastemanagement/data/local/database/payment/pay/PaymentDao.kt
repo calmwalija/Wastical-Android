@@ -28,7 +28,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
   fun getLastId(): Flow<Long?>
 
   @Query("SELECT * FROM payment WHERE account_id=:id AND created_at=:at")
-  fun getByCreatedAt(id: Long, at: Long): PaymentEntity?
+  suspend fun getByCreatedAt(id: Long, at: Long): PaymentEntity?
 
   @Query("SELECT * FROM payment WHERE payment_status=:status")
   suspend fun qPaymentByStatus(status: String = PaymentStatus.Waiting.name): List<PaymentEntity>
@@ -122,23 +122,29 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
   @Query(
     """
     SELECT
-        ds.id AS streetId,
-        ds.name AS streetName,
-        da.name AS areaName,
+        street.id AS streetId,
+        street.name AS streetName,
+        area.name AS areaName,
+        street.name AS streetName,
+        district.name AS districtName,
+        district.region AS districtRegion,
+        street.latitude AS latitude,
+        street.longitude AS longitude,
         COUNT(DISTINCT a.id) AS totalAccounts,
         COUNT(DISTINCT p.account_id) AS paidAccounts
     FROM company_location cl
     JOIN account a ON cl.id = a.company_location_id
-    JOIN demographic_street ds ON ds.id = cl.demographic_street_id
-    JOIN demographic_area da ON da.id = cl.demographic_area_id
+    JOIN demographic_street street ON street.id = cl.demographic_street_id
+    JOIN demographic_area area ON area.id = cl.demographic_area_id
+    JOIN demographic_district district ON district.id = cl.demographic_district_id
     LEFT JOIN (
         SELECT DISTINCT p.account_id
         FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
         WHERE pm.month = :month AND pm.year =:year
     ) p ON p.account_id = a.id
-        WHERE (ds.name LIKE '%' || :query || '%'
-        OR da.name LIKE '%' || :query || '%')
-    GROUP BY ds.id, ds.name, da.name
+        WHERE (street.name LIKE '%' || :query || '%'
+        OR area.name LIKE '%' || :query || '%')
+    GROUP BY street.id, street.name, area.name
     ORDER BY paidAccounts DESC
     """,
   )

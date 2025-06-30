@@ -1,10 +1,8 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,18 +35,24 @@ fun CompanyPaymentPerLocationScreen(
             onEvent(CompanyPaymentPerLocationEvent.Button.BackHandler)
           }
         },
-        contentWindowInsets = WindowInsets.safeGestures
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
         ) {
           item {
             Text(
-              text = "Payment per Location",
+              text = "Payment as per Location",
               style = MaterialTheme.typography.headlineSmall,
+            )
+
+            Text(
+              text = "# of displayed locations is ${state.payment4CurrentLocationMonth.size}",
+              color = MaterialTheme.colorScheme.primary,
+              style = MaterialTheme.typography.bodyMedium,
               modifier = Modifier.padding(bottom = 24.dp)
             )
+
           }
 
           item {
