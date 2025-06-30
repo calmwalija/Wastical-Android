@@ -91,11 +91,10 @@ fun CompanyPaymentLocationOverviewScreen(
             onEvent(CompanyPaymentLocationOverviewEvent.Button.BackHandler)
           }
         },
-        contentWindowInsets = WindowInsets.safeGestures
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
         ) {
 
           item {

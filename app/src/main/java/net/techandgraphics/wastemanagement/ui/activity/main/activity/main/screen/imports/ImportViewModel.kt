@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentEntity
+import net.techandgraphics.wastemanagement.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastemanagement.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.wastemanagement.data.remote.toPaymentRequest
 import net.techandgraphics.wastemanagement.domain.toPaymentUiModel
@@ -30,23 +31,47 @@ class ImportViewModel @Inject constructor(
   private val _channel = Channel<ImportChannel>()
   val channel = _channel.receiveAsFlow()
 
+  private suspend fun payments(data: CompanyMetaData) {
+    data.payments
+      .map { it.toPaymentEntity() }
+      .forEach { payment ->
+        val shouldInsertPayment =
+          database.paymentDao.getByCreatedAt(payment.accountId, payment.createdAt) == null
+        println("❌❌❌❌ shouldInsertPayment $shouldInsertPayment")
+        if (shouldInsertPayment) database.paymentDao.insert(payment)
+        database.paymentRequestDao.delete(
+          payment
+            .toPaymentUiModel()
+            .toPaymentRequest()
+            .toPaymentRequestEntity(),
+        )
+      }
+    monthCovered(data)
+  }
+
+  private suspend fun monthCovered(data: CompanyMetaData) {
+    data.monthCovered.forEach { monthCover ->
+      val shouldInsertMonthCovered =
+        database.paymentMonthCoveredDao.getByCreatedAt(
+          monthCover.accountId,
+          monthCover.month,
+          monthCover.createdAt,
+        ) == null
+
+      println("❌❌❌❌❌❌ shouldInsertMonthCovered $shouldInsertMonthCovered")
+
+      if (shouldInsertMonthCovered) {
+        database.paymentMonthCoveredDao.insert(monthCover.toPaymentMonthCoveredEntity())
+      }
+    }
+  }
+
   private fun onImport(event: ImportEvent.Import) = viewModelScope.launch {
     runCatching {
       database.withTransaction {
-        Gson().fromJson(event.jsonString, CompanyMetaData::class.java)
-          .payments
-          .map { it.toPaymentEntity() }
-          .forEach { payment ->
-            val shouldInsertPayment =
-              database.paymentDao.getByCreatedAt(payment.accountId, payment.createdAt) == null
-            if (shouldInsertPayment) database.paymentDao.insert(payment)
-            database.paymentRequestDao.delete(
-              payment
-                .toPaymentUiModel()
-                .toPaymentRequest()
-                .toPaymentRequestEntity(),
-            )
-          }
+        Gson().fromJson(event.jsonString, CompanyMetaData::class.java).also {
+          payments(it)
+        }
       }
     }.onSuccess {
       _channel.send(ImportChannel.Success)

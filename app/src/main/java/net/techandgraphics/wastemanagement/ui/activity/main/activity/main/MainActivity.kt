@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -50,7 +51,10 @@ class MainActivity : ComponentActivity() {
               val iViewModel = hiltViewModel<ImportViewModel>()
               val jsonString = it.readText()
               LaunchedEffect(jsonString) { iViewModel.onEvent(ImportEvent.Import(jsonString)) }
-              ImportScreen(iViewModel.channel) { fileBackup = null }
+              ImportScreen(iViewModel.channel) {
+                finish()
+                startActivity(Intent(this, MainActivity::class.java))
+              }
               return@let
             }
 
