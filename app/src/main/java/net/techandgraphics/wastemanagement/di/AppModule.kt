@@ -24,7 +24,7 @@ object AppModule {
       .fallbackToDestructiveMigration()
       .setQueryCallback(
         queryCallback = { query, args ->
-          println("query $query == args $args")
+//          println("query $query == args $args")
         },
         Executors.newSingleThreadExecutor(),
       )

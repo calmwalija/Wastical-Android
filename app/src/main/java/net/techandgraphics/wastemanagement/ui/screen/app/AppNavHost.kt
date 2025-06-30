@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.ui.Route
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.activity.MainActivityState
 import net.techandgraphics.wastemanagement.ui.screen.auth.phone.PhoneNavGraphBuilder
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastemanagement.ui.screen.client.home.ClientHomeViewModel

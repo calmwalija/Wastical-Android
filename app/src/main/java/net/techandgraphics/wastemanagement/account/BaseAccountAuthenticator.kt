@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.os.bundleOf
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivity
+import net.techandgraphics.wastemanagement.ui.activity.MainActivity
 
 open class BaseAccountAuthenticator(private val context: Context) :
   AbstractAccountAuthenticator(context) {

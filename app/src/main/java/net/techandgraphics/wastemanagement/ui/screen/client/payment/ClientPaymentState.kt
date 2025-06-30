@@ -1,7 +1,7 @@
 package net.techandgraphics.wastemanagement.ui.screen.client.payment
 
 import android.net.Uri
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.activity.MainActivityState
 
 data class ClientPaymentState(
   val numberOfMonths: Int = 1,

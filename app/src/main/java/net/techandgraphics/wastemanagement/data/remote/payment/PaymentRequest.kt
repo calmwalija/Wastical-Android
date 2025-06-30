@@ -1,6 +1,7 @@
 package net.techandgraphics.wastemanagement.data.remote.payment
 
 import com.google.gson.annotations.SerializedName
+import java.time.ZonedDateTime
 
 data class PaymentRequest(
   val months: Int,
@@ -10,4 +11,5 @@ data class PaymentRequest(
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("executed_by_id") val executedById: Long,
   @SerializedName("payment_status") val status: PaymentStatus = PaymentStatus.Failed,
+  @SerializedName("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
 )

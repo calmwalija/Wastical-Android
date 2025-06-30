@@ -1,11 +1,17 @@
 package net.techandgraphics.wastemanagement
 
 object AppUrl {
-  private val API_DOMAIN = appUrl().apiDomain
-  val API_URL = "https://$API_DOMAIN:8080/"
-  val FILE_URL = "${API_URL}file/"
+  const val DEV_API_URL = "http://${BuildConfig.DEV_API_DOMAIN}:8080/"
+  const val PROD_API_URL = "https://${BuildConfig.PROD_API_DOMAIN}/"
+  const val FILE_URL = "${DEV_API_URL}file/"
 }
 
-private fun appUrl(): EnvConfig {
-  return EnvConfig(apiDomain = BuildConfig.API_DOMAIN)
+fun appUrl(): EnvConfig {
+  return EnvConfig(
+    apiDomain = if (BuildConfig.DEBUG) {
+      AppUrl.DEV_API_URL
+    } else {
+      AppUrl.PROD_API_URL
+    },
+  )
 }

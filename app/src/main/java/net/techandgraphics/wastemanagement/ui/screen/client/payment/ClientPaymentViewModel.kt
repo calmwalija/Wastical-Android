@@ -25,6 +25,7 @@ import net.techandgraphics.wastemanagement.onTextToClipboard
 import net.techandgraphics.wastemanagement.toBitmap
 import net.techandgraphics.wastemanagement.toSoftwareBitmap
 import net.techandgraphics.wastemanagement.ui.screen.payment4Preview
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -76,6 +77,7 @@ class ClientPaymentViewModel @Inject constructor(
         months = numberOfMonths,
         companyId = state.accounts.first().companyId,
         executedById = database.accountDao.query().first().id,
+        createdAt = ZonedDateTime.now().toEpochSecond(),
       )
 
       /** Pay by cash creates a dummy File **/

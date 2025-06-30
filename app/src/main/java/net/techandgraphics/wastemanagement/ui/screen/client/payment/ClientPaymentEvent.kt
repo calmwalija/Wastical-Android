@@ -2,7 +2,7 @@ package net.techandgraphics.wastemanagement.ui.screen.client.payment
 
 import android.net.Uri
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentMethodUiModel
-import net.techandgraphics.wastemanagement.ui.activity.main.activity.main.MainActivityState
+import net.techandgraphics.wastemanagement.ui.activity.MainActivityState
 
 sealed interface ClientPaymentEvent {
 

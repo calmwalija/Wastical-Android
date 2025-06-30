@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.activity.main.activity.main
+package net.techandgraphics.wastemanagement.ui.activity
 
 import coil.ImageLoader
 import net.techandgraphics.wastemanagement.domain.model.account.AccountContactUiModel

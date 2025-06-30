@@ -27,8 +27,8 @@ android {
 
     val localProperties = Properties()
     localProperties.load(project.rootProject.file("local.properties").inputStream())
-    buildConfigField("String", "API_DOMAIN", """${localProperties["API_DOMAIN"]}""")
-
+    buildConfigField("String", "DEV_API_DOMAIN", """${localProperties["DEV_API_DOMAIN"]}""")
+    buildConfigField("String", "PROD_API_DOMAIN", """${localProperties["PROD_API_DOMAIN"]}""")
   }
 
   buildTypes {
