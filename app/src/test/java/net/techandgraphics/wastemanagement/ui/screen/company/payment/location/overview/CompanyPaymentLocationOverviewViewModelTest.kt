@@ -23,7 +23,7 @@ class CompanyPaymentLocationOverviewViewModelTest : BaseUnitTest() {
 
   @Test
   fun `initial state should be Loading`() = runTest {
-    val viewModel = CompanyPaymentLocationOverviewViewModel(mockDatabase)
+    val viewModel = CompanyPaymentLocationOverviewViewModel(mockDatabase, preferences)
     viewModel.state.test {
       val initialState = awaitItem()
       assertTrue(initialState is CompanyPaymentLocationOverviewState.Loading)
@@ -34,7 +34,7 @@ class CompanyPaymentLocationOverviewViewModelTest : BaseUnitTest() {
   @Test
   fun `onSortBy when not in Success state should do nothing`() = runTest {
     val sortOrder = AccountSortOrder.Lastname
-    val viewModel = CompanyPaymentLocationOverviewViewModel(mockDatabase)
+    val viewModel = CompanyPaymentLocationOverviewViewModel(mockDatabase, preferences)
     viewModel.onEvent(CompanyPaymentLocationOverviewEvent.Button.SortBy(sortOrder))
     viewModel.state.test {
       val state = awaitItem()
