@@ -13,6 +13,7 @@ data class PaymentWithAccountAndMethodWithGatewayEntity(
   val method: PaymentMethodEntity,
   val gateway: PaymentGatewayEntity,
   val plan: PaymentPlanEntity,
+  val coveredSize: Int,
 )
 
 fun PaymentWithAccountAndMethodWithGatewayQuery.toEntity(): PaymentWithAccountAndMethodWithGatewayEntity {
@@ -73,5 +74,6 @@ fun PaymentWithAccountAndMethodWithGatewayQuery.toEntity(): PaymentWithAccountAn
       createdAt = planCreatedAt,
       updatedAt = planUpdatedAt,
     ),
+    coveredSize = coveredSize,
   )
 }

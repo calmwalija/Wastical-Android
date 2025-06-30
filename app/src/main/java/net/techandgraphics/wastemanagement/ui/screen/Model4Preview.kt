@@ -216,6 +216,8 @@ internal val paymentWithAccountAndMethodWithGateway4Preview =
     account4Preview,
     paymentMethod4Preview,
     paymentGateway4Preview,
+    paymentPlan4Preview,
+    coveredSize = 3,
   )
 
 internal val accountWithPaymentStatus4Preview =
@@ -252,6 +254,7 @@ internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
 internal val paymentWithMonthsCovered4Preview = PaymentWithMonthsCoveredUiModel(
   payment = payment4Preview,
   covered = listOf(paymentMonthCoveredUiModel),
+  account = account4Preview,
 )
 
 internal val companyLocationWithDemographic4Preview = CompanyLocationWithDemographicUiModel(

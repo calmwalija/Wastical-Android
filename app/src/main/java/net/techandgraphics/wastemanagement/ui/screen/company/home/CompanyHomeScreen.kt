@@ -140,6 +140,13 @@ import java.time.Month
                   })
 
                   DropdownMenuItem(text = {
+                    Text(text = "Timeline")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Goto.Timeline)
+                  })
+
+                  DropdownMenuItem(text = {
                     Text(text = "Clients")
                   }, onClick = {
                     showMenuItems = false

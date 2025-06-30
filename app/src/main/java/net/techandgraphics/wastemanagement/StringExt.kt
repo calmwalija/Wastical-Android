@@ -41,3 +41,5 @@ fun AccountUiModel.toInitials(): String {
 fun String.toInitials() = firstOrNull()?.uppercase().plus(lastOrNull()?.lowercase())
 
 fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1-$2-$3")
+
+fun AccountUiModel.toInvoice(payment: PaymentUiModel) = "${id.times(5983)}-${payment.createdAt}"
