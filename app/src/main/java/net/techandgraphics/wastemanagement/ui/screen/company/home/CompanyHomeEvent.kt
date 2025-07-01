@@ -22,6 +22,7 @@ sealed interface CompanyHomeEvent {
     data object Create : Goto
     data object PerLocation : Goto
     data class LocationOverview(val id: Long) : Goto
+    data class Profile(val id: Long) : Goto
     data object VerifyPayment : Goto
   }
 

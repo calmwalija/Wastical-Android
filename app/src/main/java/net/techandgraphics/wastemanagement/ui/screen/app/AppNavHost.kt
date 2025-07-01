@@ -341,6 +341,7 @@ fun AppNavHost(
                 navController.navigate(Route.Company.LocationOverview(event.id))
 
               Goto.Timeline -> navController.navigate(Route.Company.Payment.Timeline)
+              is Goto.Profile -> navController.navigate(Route.Company.Client.Profile(event.id))
             }
 
             else -> onEvent(event)

@@ -10,11 +10,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
 import net.techandgraphics.wastemanagement.data.local.database.relations.toEntity
-import net.techandgraphics.wastemanagement.defaultDate
-import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.domain.toCompanyUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.wastemanagement.toZonedDateTime
+import net.techandgraphics.wastemanagement.groupPaymentsByDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,14 +39,6 @@ class PaymentTimelineViewModel @Inject constructor(
         val company = database.companyDao.query().first().toCompanyUiModel()
         _state.value = PaymentTimelineState.Success(payments = payments, company = company)
       }
-  }
-
-  private fun groupPaymentsByDate(
-    payments: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
-  ): Map<String, List<PaymentWithAccountAndMethodWithGatewayUiModel>> {
-    return payments
-      .sortedByDescending { it.payment.createdAt }
-      .groupBy { it.payment.createdAt.toZonedDateTime().defaultDate() }
   }
 
   fun onEvent(event: PaymentTimelineEvent) {

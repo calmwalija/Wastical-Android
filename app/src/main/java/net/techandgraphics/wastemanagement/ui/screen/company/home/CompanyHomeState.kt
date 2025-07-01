@@ -9,6 +9,7 @@ import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentRequestUiModel
+import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 
 sealed interface CompanyHomeState {
   data object Loading : CompanyHomeState
@@ -25,5 +26,6 @@ sealed interface CompanyHomeState {
     val expectedAmountToCollect: Int,
     val paymentPlanAgainstAccounts: List<PaymentPlanAgainstAccounts>,
     val allMonthsPayments: List<MonthYearPayment4Month> = listOf(),
+    val timeline: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
   ) : CompanyHomeState
 }
