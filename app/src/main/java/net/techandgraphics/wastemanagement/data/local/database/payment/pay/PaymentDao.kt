@@ -232,4 +232,26 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
     year: Int,
     query: String = "",
   ): Flow<List<Payment4CurrentLocationMonth>>
+
+  @Query(
+    """
+    SELECT
+      SUM(pp.fee) as fee
+    FROM
+      payment p
+    JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    JOIN account_payment_plan app ON p.account_id = app.account_id
+    JOIN payment_plan pp ON  app.payment_plan_id = pp.id
+    WHERE
+      pmc.month = :month
+      AND pmc.year = :year
+      AND p.created_at BETWEEN :startEpoch AND :endEpoch
+  """,
+  )
+  fun getPaymentInRange(
+    month: Int,
+    year: Int,
+    startEpoch: Long,
+    endEpoch: Long,
+  ): Int
 }

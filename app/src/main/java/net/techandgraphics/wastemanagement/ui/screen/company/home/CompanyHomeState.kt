@@ -21,6 +21,7 @@ sealed interface CompanyHomeState {
     val companyContact: CompanyContactUiModel,
     val account: AccountUiModel,
     val accountsSize: Int,
+    val currentMonthCollected: Int = -1,
     val monthYear: MonthYear,
     val pending: List<PaymentRequestUiModel> = listOf(),
     val expectedAmountToCollect: Int,

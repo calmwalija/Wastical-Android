@@ -57,3 +57,6 @@ fun Long.timeAgo(): String {
     else -> defaultDateTime()
   }
 }
+
+fun Today.toZonedDateTime(): ZonedDateTime =
+  ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.systemDefault())

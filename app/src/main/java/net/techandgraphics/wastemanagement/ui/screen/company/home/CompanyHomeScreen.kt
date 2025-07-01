@@ -1,21 +1,23 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.home
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,14 +51,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import net.techandgraphics.wastemanagement.R
-import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastemanagement.getTimeOfDay
 import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.share
-import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.account4Preview
@@ -65,8 +65,36 @@ import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyContact4Preview
 import net.techandgraphics.wastemanagement.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
+import net.techandgraphics.wastemanagement.ui.theme.Green
+import net.techandgraphics.wastemanagement.ui.theme.Orange
+import net.techandgraphics.wastemanagement.ui.theme.Purple
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-import java.time.Month
+
+
+private val quickOption = listOf(
+
+  CompanyHomeItemModel(
+    title = "Locations",
+    drawableRes = R.drawable.ic_location_searching,
+    containerColor = Purple,
+    event = CompanyHomeEvent.Goto.PerLocation
+  ),
+
+  CompanyHomeItemModel(
+    title = " Clients ",
+    drawableRes = R.drawable.ic_supervisor_account,
+    containerColor = Green,
+    event = CompanyHomeEvent.Goto.Clients
+  ),
+
+  CompanyHomeItemModel(
+    title = "Payments",
+    drawableRes = R.drawable.ic_method,
+    containerColor = Orange,
+    event = CompanyHomeEvent.Goto.Payments
+  ),
+)
+
 
 @OptIn(
   ExperimentalMaterial3Api::class,
@@ -148,13 +176,6 @@ import java.time.Month
                   })
 
                   DropdownMenuItem(text = {
-                    Text(text = "Clients")
-                  }, onClick = {
-                    showMenuItems = false
-                    onEvent(CompanyHomeEvent.Goto.Clients)
-                  })
-
-                  DropdownMenuItem(text = {
                     Text(text = "Company")
                   }, onClick = {
                     showMenuItems = false
@@ -184,7 +205,6 @@ import java.time.Month
           contentPadding = it,
           modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
         ) {
-
           item {
             Row(verticalAlignment = Alignment.CenterVertically) {
               LetterView(state.account)
@@ -203,38 +223,43 @@ import java.time.Month
             }
           }
 
-          item { Spacer(modifier = Modifier.height(16.dp)) }
 
-          item { CompanyHomeClientPaidView(state) }
-
-          item { Spacer(modifier = Modifier.height(16.dp)) }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            LazyRow {
-              items(state.allMonthsPayments) { item ->
-                val theBorderColor =
-                  if (item.monthYear == state.monthYear) MaterialTheme.colorScheme.primary else {
-                    MaterialTheme.colorScheme.secondaryContainer
-                  }
+            FlowRow(
+              maxItemsInEachRow = 3,
+              modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              (quickOption).forEach {
                 OutlinedCard(
-                  border = BorderStroke(1.dp, theBorderColor),
-                  modifier = Modifier.padding(8.dp),
-                  onClick = { onEvent(CompanyHomeEvent.Button.WorkingMonth(item.monthYear)) }) {
+                  onClick = { onEvent(it.event) },
+                  colors = CardDefaults.outlinedCardColors(),
+                  modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(.3f)
+                ) {
                   Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                   ) {
-
-                    Text(text = Month.of(item.monthYear.month).name.capitalize())
-                    Text(
-                      text = "${item.payment4CurrentMonth.totalPaidAccounts}",
-                      style = MaterialTheme.typography.titleLarge,
-                      color = MaterialTheme.colorScheme.primary,
+                    Icon(
+                      painterResource(it.drawableRes),
+                      contentDescription = null,
+                      modifier = Modifier.padding(8.dp),
+                      tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                      text = item.payment4CurrentMonth.totalPaidAmount.toAmount(),
-                      style = MaterialTheme.typography.bodyLarge,
-                      color = MaterialTheme.colorScheme.secondary
+                      text = it.title,
+                      style = MaterialTheme.typography.labelMedium,
+                      maxLines = 1,
+                      overflow = TextOverflow.Ellipsis,
+                      modifier = Modifier.padding(horizontal = 4.dp)
                     )
                   }
                 }
@@ -242,28 +267,18 @@ import java.time.Month
             }
           }
 
-          item { Spacer(modifier = Modifier.height(16.dp)) }
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item { CompanyHomePaymentMonthlyView(state, onEvent) }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
 
 
           item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Text(
-                text = "Payments per Location",
-                modifier = Modifier.weight(1f)
-              )
-              TextButton(onClick = { onEvent(CompanyHomeEvent.Goto.PerLocation) }) {
-                Text(text = "See all")
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-              }
-            }
-          }
-
-          items(state.payment4CurrentLocationMonth) { CompanyHomeClientPaidStreetView(it, onEvent) }
-
-          item { Spacer(modifier = Modifier.height(32.dp)) }
-
-          item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier.padding(start = 16.dp)
+            ) {
               Text(
                 text = "Payments timeline",
                 modifier = Modifier.weight(1f)
