@@ -102,6 +102,10 @@ class CompanyHomeViewModel @Inject constructor(
           month = monthYear.month,
           year = monthYear.year,
         )
+
+      val upfrontPayments =
+        database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
+
       val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
       val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
       val company = database.companyDao.query().first().toCompanyUiModel()
@@ -134,6 +138,7 @@ class CompanyHomeViewModel @Inject constructor(
         allMonthsPayments = allMonthsPayments,
         monthYear = monthYear,
         timeline = theTimeline,
+        upfrontPayments = upfrontPayments,
       )
     }.launchIn(this)
   }

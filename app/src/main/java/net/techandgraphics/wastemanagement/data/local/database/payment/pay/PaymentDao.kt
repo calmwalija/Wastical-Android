@@ -232,4 +232,36 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
     year: Int,
     query: String = "",
   ): Flow<List<Payment4CurrentLocationMonth>>
+
+  @Query(
+    """
+    SELECT
+      pp.fee, app.account_id as accountId
+    FROM
+      payment_month_covered pmc
+      JOIN account_payment_plan app ON app.account_id = pmc.account_id
+      JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    WHERE
+      pmc.payment_id IN (
+        SELECT
+          payment_id
+        FROM
+          payment_month_covered
+        WHERE
+          payment_id > 2
+        GROUP BY
+          payment_id
+        HAVING
+          COUNT(*) > 1
+      )
+      AND pmc.month = :month
+      AND pmc.year = :year
+    ORDER BY
+      payment_id,
+      pmc.id
+  """,
+  )
+  fun qUpfrontPayments(month: Int, year: Int): List<UpfrontPayment>
+
+  data class UpfrontPayment(val fee: Int, val accountId: Long)
 }

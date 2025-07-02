@@ -37,6 +37,7 @@ import net.techandgraphics.wastemanagement.defaultDateTime
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.toAmount
 import net.techandgraphics.wastemanagement.toFullName
+import net.techandgraphics.wastemanagement.toTimeAgo
 import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
@@ -102,7 +103,7 @@ fun CompanyHomePaymentTimelineItem(
         style = MaterialTheme.typography.bodyLarge
       )
       Text(
-        text = payment.createdAt.toZonedDateTime().defaultDateTime(),
+        text = payment.createdAt.toZonedDateTime().toTimeAgo(),
         style = MaterialTheme.typography.bodySmall,
       )
     }

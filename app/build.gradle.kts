@@ -213,5 +213,6 @@ dependencies {
   testImplementation("io.mockk:mockk:1.13.10")
   testImplementation("net.bytebuddy:byte-buddy:1.14.13")
 
+  implementation("com.ibm.icu:icu4j:74.2")
 
 }
