@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview
+package net.techandgraphics.wastemanagement.ui.screen.company.location.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

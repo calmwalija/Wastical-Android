@@ -6,6 +6,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import net.techandgraphics.BaseUnitTest
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountSortOrder
+import net.techandgraphics.wastemanagement.ui.screen.company.location.overview.CompanyPaymentLocationOverviewEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.location.overview.CompanyPaymentLocationOverviewState
+import net.techandgraphics.wastemanagement.ui.screen.company.location.overview.CompanyPaymentLocationOverviewViewModel
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

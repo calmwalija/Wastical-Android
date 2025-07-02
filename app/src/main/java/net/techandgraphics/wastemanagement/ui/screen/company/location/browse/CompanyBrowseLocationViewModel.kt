@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
+package net.techandgraphics.wastemanagement.ui.screen.company.location.browse
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,18 +18,18 @@ import net.techandgraphics.wastemanagement.getToday
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyPaymentPerLocationViewModel @Inject constructor(
+class CompanyBrowseLocationViewModel @Inject constructor(
   private val database: AppDatabase,
   private val preferences: Preferences,
 ) : ViewModel() {
 
   private val _state =
-    MutableStateFlow<CompanyPaymentPerLocationState>(CompanyPaymentPerLocationState.Loading)
+    MutableStateFlow<CompanyBrowseLocationState>(CompanyBrowseLocationState.Loading)
   val state = _state.asStateFlow()
   private var searchJob: Job? = null
 
   init {
-    onEvent(CompanyPaymentPerLocationEvent.Load)
+    onEvent(CompanyBrowseLocationEvent.Load)
   }
 
   private fun onLoad() = viewModelScope.launch {
@@ -41,7 +41,7 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
         database.paymentDao.qPayment4CurrentLocationMonth(monthYear.month, monthYear.year)
           .collectLatest { payment4CurrentLocationMonth ->
             val company = database.companyDao.query().first().toCompanyUiModel()
-            _state.value = CompanyPaymentPerLocationState.Success(
+            _state.value = CompanyBrowseLocationState.Success(
               payment4CurrentLocationMonth = payment4CurrentLocationMonth,
               company = company,
               monthYear = monthYear,
@@ -50,9 +50,9 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
       }
   }
 
-  private fun onSearch(event: CompanyPaymentPerLocationEvent.Input.Search) {
+  private fun onSearch(event: CompanyBrowseLocationEvent.Input.Search) {
     _state.value =
-      (_state.value as CompanyPaymentPerLocationState.Success).copy(query = event.query)
+      (_state.value as CompanyBrowseLocationState.Success).copy(query = event.query)
     searchJob?.cancel()
     searchJob = viewModelScope.launch {
       delay(1_000)
@@ -61,9 +61,9 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
   }
 
   private suspend fun onQueryChange() {
-    if (_state.value is CompanyPaymentPerLocationState.Success) {
-      val state = (_state.value as CompanyPaymentPerLocationState.Success)
-      val currentState = (_state.value as CompanyPaymentPerLocationState.Success)
+    if (_state.value is CompanyBrowseLocationState.Success) {
+      val state = (_state.value as CompanyBrowseLocationState.Success)
+      val currentState = (_state.value as CompanyBrowseLocationState.Success)
 
       database.paymentDao.qPayment4CurrentLocationMonth(
         state.monthYear.month,
@@ -71,7 +71,7 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
         query = currentState.query.trim(),
       )
         .collectLatest { payment4CurrentLocationMonth ->
-          _state.value = (_state.value as CompanyPaymentPerLocationState.Success).copy(
+          _state.value = (_state.value as CompanyBrowseLocationState.Success).copy(
             payment4CurrentLocationMonth = payment4CurrentLocationMonth,
           )
         }
@@ -79,14 +79,14 @@ class CompanyPaymentPerLocationViewModel @Inject constructor(
   }
 
   private fun clearSearchQuery() {
-    onSearch(CompanyPaymentPerLocationEvent.Input.Search(""))
+    onSearch(CompanyBrowseLocationEvent.Input.Search(""))
   }
 
-  fun onEvent(event: CompanyPaymentPerLocationEvent) {
+  fun onEvent(event: CompanyBrowseLocationEvent) {
     when (event) {
-      CompanyPaymentPerLocationEvent.Load -> onLoad()
-      is CompanyPaymentPerLocationEvent.Input.Search -> onSearch(event)
-      is CompanyPaymentPerLocationEvent.Button.Clear -> clearSearchQuery()
+      CompanyBrowseLocationEvent.Load -> onLoad()
+      is CompanyBrowseLocationEvent.Input.Search -> onSearch(event)
+      is CompanyBrowseLocationEvent.Button.Clear -> clearSearchQuery()
       else -> Unit
     }
   }

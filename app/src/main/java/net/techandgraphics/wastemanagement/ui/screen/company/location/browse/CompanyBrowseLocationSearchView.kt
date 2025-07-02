@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.location
+package net.techandgraphics.wastemanagement.ui.screen.company.location.browse
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
@@ -36,8 +36,8 @@ import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CompanyPaymentPerLocationSearchView(
-  state: CompanyPaymentPerLocationState.Success,
-  onEvent: (CompanyPaymentPerLocationEvent) -> Unit,
+  state: CompanyBrowseLocationState.Success,
+  onEvent: (CompanyBrowseLocationEvent) -> Unit,
 ) {
   Row(verticalAlignment = Alignment.CenterVertically) {
     Card(
@@ -48,7 +48,7 @@ fun CompanyPaymentPerLocationSearchView(
     ) {
       BasicTextField(
         value = state.query,
-        onValueChange = { onEvent(CompanyPaymentPerLocationEvent.Input.Search(it)) },
+        onValueChange = { onEvent(CompanyBrowseLocationEvent.Input.Search(it)) },
         maxLines = 1,
         modifier = Modifier.fillMaxWidth(),
         textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
@@ -86,7 +86,7 @@ fun CompanyPaymentPerLocationSearchView(
               innerTextField()
               if (state.query.isEmpty())
                 Text(
-                  text = "Input search keyword",
+                  text = "Input location keyword",
                   color = LocalContentColor.current.copy(alpha = 0.5f),
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
@@ -95,7 +95,7 @@ fun CompanyPaymentPerLocationSearchView(
             }
             AnimatedVisibility(visible = state.query.isNotEmpty()) {
               IconButton(
-                onClick = { onEvent(CompanyPaymentPerLocationEvent.Button.Clear) },
+                onClick = { onEvent(CompanyBrowseLocationEvent.Button.Clear) },
                 modifier = Modifier.size(24.dp)
               ) {
                 Icon(
@@ -113,6 +113,7 @@ fun CompanyPaymentPerLocationSearchView(
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
       )
     }
+    Spacer(modifier = Modifier.width(8.dp))
   }
 }
 
@@ -121,7 +122,7 @@ fun CompanyPaymentPerLocationSearchView(
 fun CompanyPaymentPerLocationSearchPreview() {
   WasteManagementTheme {
     CompanyPaymentPerLocationSearchView(
-      state = companyPaymentPerLocationStateSuccess(),
+      state = companyBrowseLocationStateSuccess(),
       onEvent = {}
     )
   }
