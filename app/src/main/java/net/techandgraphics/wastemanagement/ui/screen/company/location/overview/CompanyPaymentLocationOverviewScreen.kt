@@ -1,14 +1,22 @@
 package net.techandgraphics.wastemanagement.ui.screen.company.location.overview
 
+
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,13 +24,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,28 +45,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
+import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.AccountSortOrder
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.toAmount
+import net.techandgraphics.wastemanagement.toKwacha
+import net.techandgraphics.wastemanagement.toWords
 import net.techandgraphics.wastemanagement.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastemanagement.ui.screen.accountWithPaymentStatus4Preview
 import net.techandgraphics.wastemanagement.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastemanagement.ui.screen.company.home.AnimatedNumberCounter
 import net.techandgraphics.wastemanagement.ui.screen.company4Preview
 import net.techandgraphics.wastemanagement.ui.screen.companyLocation4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicArea4Preview
 import net.techandgraphics.wastemanagement.ui.screen.demographicStreet4Preview
-import net.techandgraphics.wastemanagement.ui.theme.Green
+import net.techandgraphics.wastemanagement.ui.theme.Muted
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
-import java.util.Locale
+import java.time.Month
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,21 +83,7 @@ fun CompanyPaymentLocationOverviewScreen(
     CompanyPaymentLocationOverviewState.Loading -> LoadingIndicatorView()
     is CompanyPaymentLocationOverviewState.Success -> {
 
-      var targetValue by remember { mutableFloatStateOf(0f) }
-      val animateAsFloat by animateFloatAsState(
-        targetValue = targetValue,
-        animationSpec = tween(durationMillis = 5_000)
-      )
-
-      val progressText = String.format(locale = Locale.getDefault(), "%.1f", animateAsFloat * 100)
-
       var showSortBy by remember { mutableStateOf(false) }
-
-      LaunchedEffect(state.payment4CurrentMonth) {
-        targetValue = state.payment4CurrentMonth.totalPaidAccounts
-          .toFloat()
-          .div(state.accounts.size)
-      }
 
       Scaffold(
         topBar = {
@@ -94,25 +94,27 @@ fun CompanyPaymentLocationOverviewScreen(
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
         ) {
 
           item {
             Row(
-              modifier = Modifier.fillMaxWidth(),
+              modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically
             ) {
               Column(modifier = Modifier.weight(1f)) {
                 Text(
-                  text = state.demographicArea.name,
-                  style = MaterialTheme.typography.headlineSmall,
-                )
-                Text(
                   text = state.demographicStreet.name,
+                  style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                  text = "${state.payment4CurrentMonth.totalPaidAccounts} of ${state.accounts.size}",
-                  color = MaterialTheme.colorScheme.primary,
+                  text = state.demographicArea.name,
+                  style = MaterialTheme.typography.bodyMedium,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  color = Muted
                 )
               }
 
@@ -120,7 +122,7 @@ fun CompanyPaymentLocationOverviewScreen(
                 onClick = { showSortBy = true },
                 shape = RoundedCornerShape(16),
                 colors = IconButtonDefaults.iconButtonColors(
-                  containerColor = MaterialTheme.colorScheme.primary
+                  containerColor = CardDefaults.elevatedCardColors().containerColor
                 )
               ) {
                 Icon(
@@ -130,7 +132,6 @@ fun CompanyPaymentLocationOverviewScreen(
                     .size(24.dp)
                     .padding(4.dp)
                 )
-
                 DropdownMenu(showSortBy, onDismissRequest = { showSortBy = false }) {
                   AccountSortOrder.entries.forEach { sortBy ->
                     DropdownMenuItem(
@@ -159,87 +160,14 @@ fun CompanyPaymentLocationOverviewScreen(
 
                 }
               }
-
             }
           }
 
-          item {
-            Column(
-              modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-              horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+          item { Spacer(modifier = Modifier.height(16.dp)) }
 
+          item { CompanyLocationOverviewItem(state = state) }
 
-              Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-
-                Box(
-                  modifier = Modifier
-                    .padding(end = 24.dp)
-                    .size(160.dp),
-                  contentAlignment = Alignment.Center
-                ) {
-                  CircularProgressIndicator(
-                    progress = { animateAsFloat },
-                    color = MaterialTheme.colorScheme.primary.copy(.6f),
-                    strokeCap = StrokeCap.Round,
-                    strokeWidth = 16.dp,
-                    modifier = Modifier.fillMaxSize()
-                  )
-                  Text(
-                    text = "${progressText}%",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge,
-                  )
-                }
-
-                Column {
-                  Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = "Collected")
-                    Text(
-                      text = state.payment4CurrentMonth.totalPaidAmount.toAmount(),
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      style = MaterialTheme.typography.bodyMedium,
-                      fontWeight = FontWeight.Bold,
-                      color = Green
-                    )
-                  }
-
-                  Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = "Expected")
-                    Text(
-                      text = state.expectedAmountToCollect.toAmount(),
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      style = MaterialTheme.typography.bodyMedium,
-                      fontWeight = FontWeight.Bold,
-                      color = MaterialTheme.colorScheme.primary
-                    )
-                  }
-
-                  Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = "Outstanding")
-                    Text(
-                      text = state.expectedAmountToCollect
-                        .minus(state.payment4CurrentMonth.totalPaidAmount)
-                        .toAmount(),
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      style = MaterialTheme.typography.bodyMedium,
-                      fontWeight = FontWeight.Bold,
-                      color = MaterialTheme.colorScheme.error
-                    )
-                  }
-                }
-              }
-            }
-          }
+          item { Spacer(modifier = Modifier.height(16.dp)) }
 
           items(state.accounts, key = { it.account.id }) { entity ->
             CompanyPaymentLocationClientView(
@@ -250,6 +178,156 @@ fun CompanyPaymentLocationOverviewScreen(
           }
         }
 
+      }
+    }
+  }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CompanyLocationOverviewItem(
+  state: CompanyPaymentLocationOverviewState.Success,
+) {
+
+  var targetValue by remember { mutableFloatStateOf(0f) }
+  val monthName = Month.of(state.monthYear.month).name.capitalize()
+  var showMenuItems by remember { mutableStateOf(false) }
+
+  val animateAsFloat by animateFloatAsState(
+    targetValue = targetValue,
+    animationSpec = tween(durationMillis = 7_000)
+  )
+
+  LaunchedEffect(state.payment4CurrentMonth.totalPaidAccounts) {
+    showMenuItems = false
+    targetValue = state.payment4CurrentMonth.totalPaidAccounts
+      .toFloat()
+      .div(state.accounts.size)
+      .coerceIn(0f, 1f)
+  }
+
+  Card(
+    modifier = Modifier
+      .padding(8.dp)
+      .fillMaxWidth(),
+    colors = CardDefaults.elevatedCardColors()
+  ) {
+    Column(modifier = Modifier.padding(20.dp)) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = monthName,
+            style = MaterialTheme.typography.titleSmall,
+          )
+          AnimatedNumberCounter(
+            theNumber = state.payment4CurrentMonth.totalPaidAmount,
+            theStyle = MaterialTheme.typography.headlineMedium,
+            theColor = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          AnimatedContent(
+            state.payment4CurrentMonth.totalPaidAmount.toWords().toKwacha().capitalize(),
+            transitionSpec = {
+              (slideInVertically { height -> height } + fadeIn())
+                .togetherWith(slideOutVertically { height -> -height } + fadeOut())
+            }
+          ) {
+            Text(
+              text = it,
+              style = MaterialTheme.typography.labelMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis
+            )
+          }
+        }
+      }
+
+
+      LinearProgressIndicator(
+        progress = { animateAsFloat },
+        modifier = Modifier
+          .padding(vertical = 8.dp)
+          .fillMaxWidth()
+          .height(8.dp)
+      )
+
+      Spacer(modifier = Modifier.height(4.dp))
+
+      Text(
+        text = "${(animateAsFloat * 100).toInt()}% of expected",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.align(Alignment.End)
+      )
+
+      Spacer(modifier = Modifier.height(32.dp))
+
+      FlowRow(
+        maxItemsInEachRow = 3,
+        horizontalArrangement = Arrangement.Absolute.Center
+      ) {
+        Column(
+          modifier = Modifier
+            .weight(1f),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          Text(
+            text = "Expected",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          Text(
+            text = state.expectedAmountToCollect.toAmount(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+          )
+        }
+        Column(
+          modifier = Modifier
+            .weight(1f),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          Text(
+            text = "Outstanding",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          Text(
+            text = state.expectedAmountToCollect
+              .minus(state.payment4CurrentMonth.totalPaidAmount)
+              .toAmount(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
+
+        Column(
+          modifier = Modifier
+            .weight(1f),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          Text(
+            text = "Clients",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+
+          Text(
+            text = state.accounts.size.toString(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
       }
     }
   }
@@ -272,7 +350,7 @@ fun companyPaymentLocationOverviewStateSuccess() =
     company = company4Preview,
     demographicStreet = demographicStreet4Preview,
     demographicArea = demographicArea4Preview,
-    accounts = (1..4).map { accountWithPaymentStatus4Preview },
+    accounts = listOf(accountWithPaymentStatus4Preview),
     payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
     expectedAmountToCollect = 3_000,
     companyLocation = companyLocation4Preview,
