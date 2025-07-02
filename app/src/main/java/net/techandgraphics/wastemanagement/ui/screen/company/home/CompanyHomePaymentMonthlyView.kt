@@ -12,12 +12,12 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -31,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,21 +43,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastemanagement.R
 import net.techandgraphics.wastemanagement.capitalize
 import net.techandgraphics.wastemanagement.toAmount
-import net.techandgraphics.wastemanagement.ui.theme.Green
+import net.techandgraphics.wastemanagement.toKwacha
+import net.techandgraphics.wastemanagement.toWords
 import net.techandgraphics.wastemanagement.ui.theme.WasteManagementTheme
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CompanyHomePaymentMonthlyView(
   state: CompanyHomeState.Success,
@@ -68,6 +68,7 @@ fun CompanyHomePaymentMonthlyView(
   var targetValue by remember { mutableFloatStateOf(0f) }
   val monthName = Month.of(state.monthYear.month).name.capitalize().plus(" ${state.monthYear.year}")
   var showMenuItems by remember { mutableStateOf(false) }
+  val upfrontPayment = state.upfrontPayments.sumOf { it.fee }
 
   val animateAsFloat by animateFloatAsState(
     targetValue = targetValue,
@@ -101,6 +102,21 @@ fun CompanyHomePaymentMonthlyView(
             theStyle = MaterialTheme.typography.headlineMedium,
             theColor = MaterialTheme.colorScheme.onSurfaceVariant
           )
+          AnimatedContent(
+            state.payment4CurrentMonth.totalPaidAmount.toWords().toKwacha().capitalize(),
+            transitionSpec = {
+              (slideInVertically { height -> height } + fadeIn())
+                .togetherWith(slideOutVertically { height -> -height } + fadeOut())
+            }
+          ) {
+            Text(
+              text = it,
+              style = MaterialTheme.typography.labelMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis
+            )
+          }
         }
 
         IconButton(onClick = { showMenuItems = true }) {
@@ -159,33 +175,31 @@ fun CompanyHomePaymentMonthlyView(
         modifier = Modifier.align(Alignment.End)
       )
 
-      Spacer(modifier = Modifier.height(20.dp))
+      Spacer(modifier = Modifier.height(32.dp))
 
-      Column {
+      FlowRow(
+        maxItemsInEachRow = 3,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+      ) {
         CompanyHomePaymentMonthlyItem(
-          label = "This Month",
-          value = state.currentMonthCollected,
+          modifier = Modifier.weight(1f),
+          label = "Collected",
+          value = state.payment4CurrentMonth.totalPaidAmount.minus(upfrontPayment),
           drawableRes = R.drawable.ic_check_circle
         )
-        Spacer(modifier = Modifier.height(12.dp))
         CompanyHomePaymentMonthlyItem(
+          modifier = Modifier.weight(1f),
           label = "Upfront",
-          value = state.payment4CurrentMonth.totalPaidAmount,
+          value = upfrontPayment,
           drawableRes = R.drawable.ic_history
         )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         CompanyHomePaymentMonthlyItem(
-          label = "Clients Paid",
+          modifier = Modifier.weight(1f),
+          label = "Clients",
           value = state.payment4CurrentMonth.totalPaidAccounts.toLong(),
-          drawableRes = R.drawable.ic_account
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        CompanyHomePaymentMonthlyItem(
-          label = "Expected",
-          value = state.expectedAmountToCollect,
-          drawableRes = R.drawable.ic_payment
+          drawableRes = R.drawable.ic_supervisor_account
         )
       }
     }
@@ -195,43 +209,36 @@ fun CompanyHomePaymentMonthlyView(
 
 
 @Composable private fun CompanyHomePaymentMonthlyItem(
+  modifier: Modifier = Modifier,
   drawableRes: Int = R.drawable.ic_method,
   label: String,
   value: Any,
 ) {
-  OutlinedCard {
-    Row(
-      modifier = Modifier
-        .padding(12.dp)
-        .fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically
+  Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = modifier
+  ) {
+    Column(
+      verticalArrangement = Arrangement.Center,
+      modifier = Modifier.fillMaxWidth(),
+      horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Icon(
-        painterResource(drawableRes),
-        contentDescription = null,
-        modifier = Modifier
-          .padding(end = 8.dp)
-          .size(24.dp),
-      )
-      Column(
-        verticalArrangement = Arrangement.Center
-      ) {
 
-        if (value is Int) {
-          AnimatedNumberCounter(value)
-        } else
-          Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary.copy(.9f)
-          )
+      Text(
+        text = label,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+
+      if (value is Int) {
+        AnimatedNumberCounter(value)
+      } else
         Text(
-          text = label,
-          style = MaterialTheme.typography.labelMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          text = value.toString(),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Medium,
+          color = MaterialTheme.colorScheme.primary.copy(.9f)
         )
-      }
     }
   }
 }

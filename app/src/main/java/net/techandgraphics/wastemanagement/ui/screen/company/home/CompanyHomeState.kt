@@ -5,6 +5,7 @@ import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.PaymentPlanAgainstAccounts
 import net.techandgraphics.wastemanagement.data.local.database.dashboard.street.Payment4CurrentLocationMonth
+import net.techandgraphics.wastemanagement.data.local.database.payment.pay.PaymentDao
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastemanagement.domain.model.company.CompanyUiModel
@@ -21,7 +22,7 @@ sealed interface CompanyHomeState {
     val companyContact: CompanyContactUiModel,
     val account: AccountUiModel,
     val accountsSize: Int,
-    val currentMonthCollected: Int = -1,
+    val upfrontPayments: List<PaymentDao.UpfrontPayment> = listOf(),
     val monthYear: MonthYear,
     val pending: List<PaymentRequestUiModel> = listOf(),
     val expectedAmountToCollect: Int,

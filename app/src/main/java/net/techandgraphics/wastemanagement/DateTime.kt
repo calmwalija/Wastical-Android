@@ -1,11 +1,13 @@
 package net.techandgraphics.wastemanagement
 
+import net.techandgraphics.wastemanagement.data.local.database.dashboard.payment.MonthYear
 import java.text.DateFormat.SHORT
 import java.text.DateFormat.getDateInstance
 import java.text.DateFormat.getDateTimeInstance
 import java.text.DateFormat.getTimeInstance
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -60,3 +62,42 @@ fun Long.timeAgo(): String {
 
 fun Today.toZonedDateTime(): ZonedDateTime =
   ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.systemDefault())
+
+fun MonthYear.toZonedDateTime(): ZonedDateTime =
+  ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.systemDefault())
+
+fun MonthYear.toDateTime(): ZonedDateTime = YearMonth.of(year, month)
+  .atDay(1)
+  .atStartOfDay(ZoneId.systemDefault())
+
+data class RangeZonedDateTime(val start: ZonedDateTime, val end: ZonedDateTime)
+
+fun ZonedDateTime.getRangeZonedDateTime(): RangeZonedDateTime {
+  return if (this.dayOfMonth < 20) {
+    val previousMonth20th =
+      this
+        .minusMonths(1)
+        .withDayOfMonth(20)
+        .truncatedTo(ChronoUnit.DAYS)
+
+    val currentMonth20th =
+      this
+        .withDayOfMonth(20)
+        .truncatedTo(ChronoUnit.DAYS)
+
+    RangeZonedDateTime(previousMonth20th, currentMonth20th)
+  } else {
+    val currentMonth20th =
+      this
+        .withDayOfMonth(20)
+        .truncatedTo(ChronoUnit.DAYS)
+
+    val nextMonth20th =
+      this
+        .plusMonths(1)
+        .withDayOfMonth(20)
+        .truncatedTo(ChronoUnit.DAYS)
+
+    RangeZonedDateTime(currentMonth20th, nextMonth20th)
+  }
+}

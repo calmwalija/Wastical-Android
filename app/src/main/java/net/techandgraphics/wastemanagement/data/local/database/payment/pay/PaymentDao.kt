@@ -236,22 +236,32 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
   @Query(
     """
     SELECT
-      SUM(pp.fee) as fee
+      pp.fee, app.account_id as accountId
     FROM
-      payment p
-    JOIN payment_month_covered pmc ON p.id = pmc.payment_id
-    JOIN account_payment_plan app ON p.account_id = app.account_id
-    JOIN payment_plan pp ON  app.payment_plan_id = pp.id
+      payment_month_covered pmc
+      JOIN account_payment_plan app ON app.account_id = pmc.account_id
+      JOIN payment_plan pp ON pp.id = app.payment_plan_id
     WHERE
-      pmc.month = :month
+      pmc.payment_id IN (
+        SELECT
+          payment_id
+        FROM
+          payment_month_covered
+        WHERE
+          payment_id > 2
+        GROUP BY
+          payment_id
+        HAVING
+          COUNT(*) > 1
+      )
+      AND pmc.month = :month
       AND pmc.year = :year
-      AND p.created_at BETWEEN :startEpoch AND :endEpoch
+    ORDER BY
+      payment_id,
+      pmc.id
   """,
   )
-  fun getPaymentInRange(
-    month: Int,
-    year: Int,
-    startEpoch: Long,
-    endEpoch: Long,
-  ): Int
+  fun qUpfrontPayments(month: Int, year: Int): List<UpfrontPayment>
+
+  data class UpfrontPayment(val fee: Int, val accountId: Long)
 }

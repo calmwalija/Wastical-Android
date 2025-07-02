@@ -30,7 +30,6 @@ import net.techandgraphics.wastemanagement.domain.toPaymentRequestUiModel
 import net.techandgraphics.wastemanagement.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastemanagement.getToday
 import net.techandgraphics.wastemanagement.hash
-import net.techandgraphics.wastemanagement.toZonedDateTime
 import net.techandgraphics.wastemanagement.write
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -104,18 +103,8 @@ class CompanyHomeViewModel @Inject constructor(
           year = monthYear.year,
         )
 
-      // TODO - This is not working ❌
-      val startEpoch =
-        getToday().copy(year = monthYear.year, day = 20, month = monthYear.month.minus(1))
-          .toZonedDateTime().toEpochSecond()
-
-      val endEpoch =
-        getToday().copy(year = monthYear.year, day = 20, month = monthYear.month.plus(1))
-          .toZonedDateTime().toEpochSecond()
-
-      val currentMonthCollected =
-        database.paymentDao.getPaymentInRange(month, year, startEpoch, endEpoch)
-      // TODO - End
+      val upfrontPayments =
+        database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
 
       val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
       val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
@@ -149,7 +138,7 @@ class CompanyHomeViewModel @Inject constructor(
         allMonthsPayments = allMonthsPayments,
         monthYear = monthYear,
         timeline = theTimeline,
-        currentMonthCollected = currentMonthCollected,
+        upfrontPayments = upfrontPayments,
       )
     }.launchIn(this)
   }
