@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.browse
+package net.techandgraphics.wastemanagement.ui.screen.company.location.browse
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box

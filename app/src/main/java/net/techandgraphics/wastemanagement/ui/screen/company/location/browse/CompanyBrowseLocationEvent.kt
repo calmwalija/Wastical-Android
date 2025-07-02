@@ -1,4 +1,4 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.payment.location.browse
+package net.techandgraphics.wastemanagement.ui.screen.company.location.browse
 
 sealed interface CompanyBrowseLocationEvent {
 
