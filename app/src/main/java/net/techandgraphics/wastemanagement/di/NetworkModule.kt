@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import net.techandgraphics.wastemanagement.appUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -43,6 +44,7 @@ object NetworkModule {
         redactHeader(COOKIE)
       },
     )
+    .protocols(listOf(Protocol.HTTP_1_1))
     .retryOnConnectionFailure(false)
     .build()
 }

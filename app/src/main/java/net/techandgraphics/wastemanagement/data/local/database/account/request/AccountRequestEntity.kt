@@ -48,6 +48,7 @@ import java.util.UUID
     ),
   ],
   indices = [
+    Index("account_id"),
     Index("company_id"),
     Index("company_location_id"),
     Index("payment_plan_id"),

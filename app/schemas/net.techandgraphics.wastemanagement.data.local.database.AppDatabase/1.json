@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "05bb9b5789c3965d16d795fd3ffcabce",
+    "identityHash": "94bc46b7f42bce46ba25b88d95437756",
     "entities": [
       {
         "tableName": "account",
@@ -1721,6 +1721,15 @@
         },
         "indices": [
           {
+            "name": "index_account_request_account_id",
+            "unique": false,
+            "columnNames": [
+              "account_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_account_request_account_id` ON `${TABLE_NAME}` (`account_id`)"
+          },
+          {
             "name": "index_account_request_company_id",
             "unique": false,
             "columnNames": [
@@ -1885,7 +1894,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '05bb9b5789c3965d16d795fd3ffcabce')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94bc46b7f42bce46ba25b88d95437756')"
     ]
   }
 }

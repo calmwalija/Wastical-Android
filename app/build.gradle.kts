@@ -33,7 +33,7 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -164,7 +164,7 @@ dependencies {
 
   implementation(libs.kotlinx.serialization.json)
 
-  implementation(libs.jjwt)
+//  implementation(libs.jjwt)
 
   implementation(libs.coil.compose)
 
@@ -189,7 +189,6 @@ dependencies {
   implementation(libs.okhttp)
 
 
-  implementation("com.google.mlkit:text-recognition:16.0.1")
   implementation("com.google.accompanist:accompanist-drawablepainter:0.37.2")
   implementation("com.github.yalantis:ucrop:2.2.10")
 
@@ -199,9 +198,6 @@ dependencies {
 
   implementation(libs.firebase.analytics.ktx)
 
-  implementation("com.google.android.gms:play-services-auth:21.3.0")
-
-  implementation("io.github.ehsannarmani:compose-charts:0.1.7")
   testImplementation(libs.androidx.room.testing)
 
   androidTestImplementation("com.google.dagger:hilt-android-testing:2.51")
@@ -213,6 +209,6 @@ dependencies {
   testImplementation("io.mockk:mockk:1.13.10")
   testImplementation("net.bytebuddy:byte-buddy:1.14.13")
 
-  implementation("com.ibm.icu:icu4j:74.2")
+  implementation("com.auth0:java-jwt:4.4.0")
 
 }

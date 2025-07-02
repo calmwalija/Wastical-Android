@@ -1,11 +1,9 @@
 package net.techandgraphics.wastemanagement
 
-import com.ibm.icu.text.RuleBasedNumberFormat
 import net.techandgraphics.wastemanagement.data.local.database.account.AccountTitle
 import net.techandgraphics.wastemanagement.domain.model.account.AccountUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastemanagement.domain.model.payment.PaymentUiModel
-import java.util.Locale
 
 fun AccountUiModel.toFullName() =
   "${if (this.title == AccountTitle.Na) "" else this.title} ${this.firstname} ${this.lastname}"
@@ -47,7 +45,7 @@ fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1
 fun AccountUiModel.toInvoice(payment: PaymentUiModel) = "${id.times(5983)}-${payment.createdAt}"
 
 fun Number.toWords(): String {
-  return RuleBasedNumberFormat(Locale.ENGLISH, RuleBasedNumberFormat.SPELLOUT).format(this)
+  return this.toEnglishWords()
 }
 
 fun String.toKwacha() = this.plus(" Kwacha")
