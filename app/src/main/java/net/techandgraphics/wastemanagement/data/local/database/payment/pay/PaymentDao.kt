@@ -224,7 +224,7 @@ import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus.App
         WHERE (street.name LIKE '%' || :query || '%'
         OR area.name LIKE '%' || :query || '%')
     GROUP BY street.id, street.name, area.name
-    ORDER BY paidAccounts DESC
+    ORDER BY streetName ASC
     """,
   )
   fun qPayment4CurrentLocationMonth(

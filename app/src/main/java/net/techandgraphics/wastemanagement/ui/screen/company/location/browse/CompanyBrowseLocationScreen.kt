@@ -49,20 +49,18 @@ fun CompanyBrowseLocationScreen(
         ) {
           item {
             Row(
-              modifier = Modifier.padding(end = 16.dp),
+              modifier = Modifier.padding(start = 16.dp),
               verticalAlignment = Alignment.CenterVertically
             ) {
               Column(modifier = Modifier.weight(1f)) {
                 Text(
                   text = "Browse Location",
                   style = MaterialTheme.typography.headlineMedium,
-                  modifier = Modifier.padding(top = 16.dp, start = 16.dp)
                 )
                 Text(
                   text = "Which location are you looking for ?",
                   style = MaterialTheme.typography.bodyMedium,
                   maxLines = 1,
-                  modifier = Modifier.padding(start = 16.dp),
                   overflow = TextOverflow.Ellipsis,
                   color = Muted
                 )
