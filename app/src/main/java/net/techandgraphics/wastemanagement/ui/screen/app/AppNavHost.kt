@@ -55,9 +55,9 @@ import net.techandgraphics.wastemanagement.ui.screen.company.info.method.Company
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.info.plan.CompanyInfoPlanViewModel
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationEvent
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationScreen
-import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.CompanyPaymentPerLocationViewModel
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.browse.CompanyBrowseLocationEvent
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.browse.CompanyBrowseLocationScreen
+import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.browse.CompanyBrowseLocationViewModel
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewEvent
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewScreen
 import net.techandgraphics.wastemanagement.ui.screen.company.payment.location.overview.CompanyPaymentLocationOverviewViewModel
@@ -352,13 +352,13 @@ fun AppNavHost(
 
 
     composable<Route.Company.PerLocation> {
-      with(hiltViewModel<CompanyPaymentPerLocationViewModel>()) {
+      with(hiltViewModel<CompanyBrowseLocationViewModel>()) {
         val state = state.collectAsState().value
-        CompanyPaymentPerLocationScreen(state) { event ->
+        CompanyBrowseLocationScreen(state) { event ->
           when (event) {
-            CompanyPaymentPerLocationEvent.Button.BackHandler -> navController.navigateUp()
-            CompanyPaymentPerLocationEvent.Load -> Unit
-            is CompanyPaymentPerLocationEvent.Goto.LocationOverview ->
+            CompanyBrowseLocationEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyBrowseLocationEvent.Load -> Unit
+            is CompanyBrowseLocationEvent.Goto.LocationOverview ->
               navController.navigate(Route.Company.LocationOverview(event.id))
 
             else -> onEvent(event)
