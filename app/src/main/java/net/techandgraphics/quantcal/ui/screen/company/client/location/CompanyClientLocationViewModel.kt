@@ -44,6 +44,7 @@ class CompanyClientLocationViewModel @Inject constructor(
         accountDemographicArea,
         accountDemographicStreet,
       )
+      val companyLocation = database.companyLocationDao.get(account.companyLocationId).toCompanyLocationUiModel()
 
       _state.value = CompanyClientLocationState.Success(
         company = company,
@@ -52,6 +53,7 @@ class CompanyClientLocationViewModel @Inject constructor(
         demographic = demographic,
         accountDemographicStreet = accountDemographicStreet,
         accountDemographicArea = accountDemographicArea,
+        companyLocation = companyLocation,
       )
     }
 

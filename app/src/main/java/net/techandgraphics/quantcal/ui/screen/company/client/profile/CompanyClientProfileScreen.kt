@@ -1,19 +1,21 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.profile
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -55,12 +57,11 @@ fun CompanyClientProfileScreen(
             onEvent(CompanyClientProfileEvent.Button.BackHandler)
           }
         },
-        contentWindowInsets = WindowInsets.safeContent
       ) {
 
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
         ) {
 
           item {
@@ -71,35 +72,38 @@ fun CompanyClientProfileScreen(
             )
           }
 
-
           item { AccountInfoView(state.account, state.demographic) }
 
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+
           itemsIndexed(profileItems) { index, item ->
-            Column(modifier = Modifier.clickable {
-              when (item.event) {
-                CompanyClientProfileEvent.Option.History -> {
-                  if (state.payments.isEmpty()) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    context.toast("No payment history available")
-                  } else onEvent(item.event)
-                }
+            if (item.event is CompanyClientProfileEvent.Option.Pending && state.pending.isEmpty()) return@itemsIndexed
+            Card(
+              modifier = Modifier.padding(4.dp),
+              shape = CircleShape,
+              colors = CardDefaults.elevatedCardColors(),
+              onClick = {
+                when (item.event) {
+                  CompanyClientProfileEvent.Option.History -> {
+                    if (state.payments.isEmpty()) {
+                      hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                      context.toast("No payment history available")
+                    } else onEvent(item.event)
+                  }
 
-                CompanyClientProfileEvent.Option.Pending -> {
-                  if (state.pending.isEmpty()) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    context.toast("No pending payments available")
-                  } else onEvent(item.event)
-                }
+                  CompanyClientProfileEvent.Option.Pending -> {
+                    if (state.pending.isEmpty()) {
+                      hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                      context.toast("No pending payments available")
+                    } else onEvent(item.event)
+                  }
 
-                else -> onEvent(item.event)
-              }
-            }) {
-              Row(
-                modifier = Modifier.padding(
-                  vertical = 32.dp,
-                  horizontal = 8.dp
-                )
-              ) {
+                  else -> onEvent(item.event)
+                }
+              }) {
+              Row(modifier = Modifier.padding(20.dp)) {
                 BadgedBox(badge = {
                   when (item.event) {
                     CompanyClientProfileEvent.Option.History ->
@@ -124,9 +128,9 @@ fun CompanyClientProfileScreen(
                     .weight(1f)
                 )
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                Spacer(modifier = Modifier.width(8.dp))
               }
 
-              HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
             }
           }
         }
@@ -136,7 +140,7 @@ fun CompanyClientProfileScreen(
 }
 
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CompanyClientProfileScreenPreview() {
   QuantcalTheme {
