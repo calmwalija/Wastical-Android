@@ -8,9 +8,6 @@ import android.widget.Toast
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat.getSystemService
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastemanagement.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastemanagement.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -31,10 +28,7 @@ fun Context.copyTextToClipboard(text: String) {
 }
 
 fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
-  TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    .process(InputImage.fromBitmap(this, 0))
-    .addOnSuccessListener { onResult(Result.success(it.text)) }
-    .addOnFailureListener { onResult(Result.failure(it)) }
+  onResult(Result.success(""))
 }
 
 fun Context.onTextToClipboard(text: String) = copyTextToClipboard(text)
