@@ -1,3 +1,0 @@
-package net.techandgraphics.wastemanagement.ui.screen.company.client.pending
-
-sealed interface CompanyClientPendingPaymentChannel

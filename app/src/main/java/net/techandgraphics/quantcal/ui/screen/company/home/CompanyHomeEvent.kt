@@ -1,0 +1,33 @@
+package net.techandgraphics.quantcal.ui.screen.company.home
+
+import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.quantcal.data.remote.ApiResult
+
+sealed interface CompanyHomeEvent {
+  data object Tap : CompanyHomeEvent
+
+  sealed interface Button : CompanyHomeEvent {
+    data object Export : Button
+    data class WorkingMonth(val param: MonthYear) : Button
+  }
+
+  data object Load : CompanyHomeEvent
+
+  sealed interface Goto : CompanyHomeEvent {
+    data object Company : Goto
+    data object Clients : Goto
+    data object Payments : Goto
+    data object Timeline : Goto
+    data object Create : Goto
+    data object PerLocation : Goto
+    data class LocationOverview(val id: Long) : Goto
+    data class Profile(val id: Long) : Goto
+    data object VerifyPayment : Goto
+  }
+
+  sealed interface Payment : CompanyHomeEvent {
+    data class Success(val payments: List<PaymentEntity>) : Payment
+    data class Failure(val error: ApiResult.Error) : Payment
+  }
+}

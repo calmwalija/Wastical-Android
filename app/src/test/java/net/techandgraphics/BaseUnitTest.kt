@@ -8,8 +8,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import net.techandgraphics.wastemanagement.data.local.Preferences
-import net.techandgraphics.wastemanagement.data.local.database.AppDatabase
+import net.techandgraphics.quantcal.data.local.Preferences
+import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TestWatcher
