@@ -13,17 +13,17 @@ plugins {
 }
 
 android {
-  namespace = "net.techandgraphics.wastemanagement"
+  namespace = "net.techandgraphics.quantcal"
   compileSdk = 35
 
   defaultConfig {
-    applicationId = "net.techandgraphics.wastemanagement"
+    applicationId = "net.techandgraphics.quantcal"
     minSdk = 27
     targetSdk = 35
     versionCode = 1
     versionName = "1.0"
 
-    testInstrumentationRunner = "net.techandgraphics.wastemanagement.HiltTestRunner"
+    testInstrumentationRunner = "net.techandgraphics.quantcal.HiltTestRunner"
 
     val localProperties = Properties()
     localProperties.load(project.rootProject.file("local.properties").inputStream())

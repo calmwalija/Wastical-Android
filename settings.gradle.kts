@@ -20,5 +20,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Waste Management"
+rootProject.name = "Quantcal"
 include(":app")
+ 
