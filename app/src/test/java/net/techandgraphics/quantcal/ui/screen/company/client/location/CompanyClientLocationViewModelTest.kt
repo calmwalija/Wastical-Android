@@ -29,6 +29,9 @@ class CompanyClientLocationViewModelTest : BaseUnitTest() {
     coEvery { mockDatabase.demographicAreaDao.get(1) } returns
       demographicArea4Preview.toDemographicAreaEntity()
 
+    coEvery { mockDatabase.companyLocationDao.get(1) } returns
+      companyLocation4Preview.toCompanyLocationEntity()
+
     coEvery { mockDatabase.demographicStreetDao.get(1) } returns
       demographicStreet4Preview.toDemographicStreetEntity()
 
