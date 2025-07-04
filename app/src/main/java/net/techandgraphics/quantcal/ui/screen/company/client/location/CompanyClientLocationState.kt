@@ -4,13 +4,16 @@ import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicStreetUiModel
+import net.techandgraphics.quantcal.domain.model.payment.CompanyLocationUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
 
 sealed interface CompanyClientLocationState {
   data object Loading : CompanyClientLocationState
   data class Success(
+    val query: String = "",
     val company: CompanyUiModel,
     val account: AccountUiModel,
+    val companyLocation: CompanyLocationUiModel,
     val demographic: CompanyLocationWithDemographicUiModel,
     val accountDemographicArea: DemographicAreaUiModel,
     val accountDemographicStreet: DemographicStreetUiModel,

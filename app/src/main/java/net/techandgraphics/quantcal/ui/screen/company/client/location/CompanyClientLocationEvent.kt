@@ -6,4 +6,12 @@ sealed interface CompanyClientLocationEvent {
   sealed interface Goto : CompanyClientLocationEvent {
     data object BackHandler : Goto
   }
+
+  sealed interface Button : CompanyClientLocationEvent {
+    data object Clear : Button
+  }
+
+  sealed interface Input : CompanyClientLocationEvent {
+    class Search(val query: String) : Input
+  }
 }
