@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
+import net.techandgraphics.quantcal.data.remote.mapApiError
+import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.toAccountContactUiModel
@@ -34,6 +36,7 @@ import javax.inject.Inject
 class CompanyClientHistoryViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
+  private val api: PaymentApi,
 ) : ViewModel() {
 
   private val _state =
@@ -118,10 +121,19 @@ class CompanyClientHistoryViewModel @Inject constructor(
     }
   }
 
+  private fun onEventButtonDelete(event: Button.Delete) =
+    viewModelScope.launch {
+      runCatching { api.delete(event.id) }
+        .onSuccess { database.paymentDao.delete(database.paymentDao.get(it)) }
+        .onFailure { println(mapApiError(it)) }
+    }
+
   fun onEvent(event: CompanyClientHistoryEvent) {
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)
+      is Button.Delete -> onEventButtonDelete(event)
+      else -> Unit
     }
   }
 }

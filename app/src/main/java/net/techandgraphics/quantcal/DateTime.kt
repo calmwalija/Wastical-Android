@@ -1,6 +1,7 @@
 package net.techandgraphics.quantcal
 
 import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.quantcal.domain.model.payment.PaymentMonthCoveredUiModel
 import java.text.DateFormat.SHORT
 import java.text.DateFormat.getDateInstance
 import java.text.DateFormat.getDateTimeInstance
@@ -62,6 +63,9 @@ fun Long.timeAgo(): String {
 
 fun Today.toZonedDateTime(): ZonedDateTime =
   ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.systemDefault())
+
+fun PaymentMonthCoveredUiModel.toZonedDateTime(): ZonedDateTime =
+  ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.systemDefault())
 
 fun MonthYear.toZonedDateTime(): ZonedDateTime =
   ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.systemDefault())

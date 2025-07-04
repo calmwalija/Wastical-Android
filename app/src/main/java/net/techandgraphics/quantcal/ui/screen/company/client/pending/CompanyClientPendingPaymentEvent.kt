@@ -7,9 +7,11 @@ sealed interface CompanyClientPendingPaymentEvent {
 
   sealed interface Button : CompanyClientPendingPaymentEvent {
     data class Delete(val payment: PaymentRequestUiModel) : Button
+    data class Phone(val contact: String) : Button
   }
 
   sealed interface Goto : CompanyClientPendingPaymentEvent {
     data object BackHandler : Goto
+    data class Location(val id: Long) : Goto
   }
 }

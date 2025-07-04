@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.account4Preview
+import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoView
 import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
@@ -54,7 +55,7 @@ fun CompanyClientProfileScreen(
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent(CompanyClientProfileEvent.Button.BackHandler)
+            onEvent(CompanyClientProfileEvent.Goto.BackHandler)
           }
         },
       ) {
@@ -72,8 +73,18 @@ fun CompanyClientProfileScreen(
             )
           }
 
-          item { AccountInfoView(state.account, state.demographic) }
 
+          item {
+            AccountInfoView(state.account, state.demographic) { event ->
+              when (event) {
+                is AccountInfoEvent.Location ->
+                  onEvent(CompanyClientProfileEvent.Goto.Location(event.id))
+
+                is AccountInfoEvent.Phone ->
+                  onEvent(CompanyClientProfileEvent.Button.Phone(event.contact))
+              }
+            }
+          }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 

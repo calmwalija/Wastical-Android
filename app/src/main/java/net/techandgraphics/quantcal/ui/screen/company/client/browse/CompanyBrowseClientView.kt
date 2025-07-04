@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.quantcal.toFullName
 import net.techandgraphics.quantcal.toInitials
-import net.techandgraphics.quantcal.toPhoneFormat
 import net.techandgraphics.quantcal.ui.screen.accountWithStreetAndArea4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
@@ -50,19 +49,20 @@ fun CompanyBrowseClientView(
         .weight(1f)
     ) {
       Text(
+        text = account.username,
+        maxLines = 1,
+        overflow = TextOverflow.MiddleEllipsis,
+        style = MaterialTheme.typography.bodyMedium,
+      )
+      Text(
         text = toFullName(account.title, account.firstname, account.lastname),
         style = MaterialTheme.typography.titleMedium,
         maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
+        overflow = TextOverflow.StartEllipsis,
+        color = MaterialTheme.colorScheme.primary
       )
       Text(
-        text = account.username.toPhoneFormat(),
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-        style = MaterialTheme.typography.bodySmall,
-      )
-      Text(
-        text = "${account.areaName} - ${account.streetName}",
+        text = "${account.areaName}, ${account.streetName}",
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
         style = MaterialTheme.typography.bodyMedium,

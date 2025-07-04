@@ -1,15 +1,15 @@
 package net.techandgraphics.quantcal.ui.screen.company
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,10 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.toFullName
 import net.techandgraphics.quantcal.toInitials
+import net.techandgraphics.quantcal.toLocation
 import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
@@ -37,12 +39,11 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 fun AccountInfoView(
   account: AccountUiModel,
   demographic: CompanyLocationWithDemographicUiModel,
+  onEvent: (AccountInfoEvent) -> Unit,
 ) {
 
   Row(verticalAlignment = Alignment.CenterVertically) {
-
     Column(modifier = Modifier.weight(1f)) {
-
       Row(verticalAlignment = Alignment.CenterVertically) {
         ProfileLetterView(account)
         Column(
@@ -51,34 +52,39 @@ fun AccountInfoView(
             .weight(1f)
         ) {
           Text(
-            text = account.username,
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis,
-          )
-          Text(
             text = account.toFullName(),
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,
-            style = MaterialTheme.typography.titleMedium,
           )
-          Column {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+              Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null,
+              modifier = Modifier.size(16.dp)
+            )
             Text(
-              text = demographic.demographicStreet.name,
+              text = demographic.toLocation(),
               maxLines = 1,
-              overflow = TextOverflow.MiddleEllipsis,
+              overflow = TextOverflow.StartEllipsis,
               color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier
+                .clip(CircleShape)
+                .clickable { onEvent(AccountInfoEvent.Location(demographic.demographicStreet.id)) }
+                .padding(vertical = 4.dp, horizontal = 8.dp),
+              style = MaterialTheme.typography.bodyMedium
             )
           }
         }
       }
     }
 
-    IconButton(onClick = {}) {
-      Icon(Icons.Default.Phone, null)
-    }
-
-    Spacer(modifier = Modifier.width(8.dp))
-
+    if (account.username.isDigitsOnly())
+      Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+        IconButton(
+          enabled = account.username.isDigitsOnly(),
+          onClick = { onEvent(AccountInfoEvent.Phone(account.username)) }) {
+          Icon(Icons.Default.Phone, null)
+        }
+      }
   }
 }
 
@@ -129,7 +135,8 @@ fun AccountInfoView(
     Box(modifier = Modifier.padding(32.dp)) {
       AccountInfoView(
         account = account4Preview,
-        demographic = companyLocationWithDemographic4Preview
+        demographic = companyLocationWithDemographic4Preview,
+        onEvent = {}
       )
     }
   }

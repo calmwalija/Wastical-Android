@@ -4,6 +4,10 @@ import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
+import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
+import java.time.Month
+import java.time.format.TextStyle
+import java.util.Locale
 
 fun AccountUiModel.toFullName() =
   "${if (this.title == AccountTitle.Na) "" else this.title} ${this.firstname} ${this.lastname}"
@@ -44,8 +48,14 @@ fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1
 
 fun AccountUiModel.toInvoice(payment: PaymentUiModel) = "${id.times(5983)}-${payment.createdAt}"
 
-fun Number.toWords(): String {
-  return this.toEnglishWords()
-}
+fun Number.toWords() = toEnglishWords()
 
 fun String.toKwacha() = this.plus(" Kwacha")
+
+fun Int.toMonthName() = Month.of(this)
+  .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()).capitalize()
+
+fun CompanyLocationWithDemographicUiModel.toLocation() =
+  demographicArea.name
+    .plus(", ")
+    .plus(demographicStreet.name)
