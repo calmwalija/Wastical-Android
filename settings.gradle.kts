@@ -20,6 +20,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Quantcal"
+rootProject.name = "Quantcal-Android"
 include(":app")
  
