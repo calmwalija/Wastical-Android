@@ -3,12 +3,14 @@ package net.techandgraphics.quantcal.ui.screen.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
+import net.techandgraphics.quantcal.openDialer
 import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.activity.MainActivityState
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneNavGraphBuilder
@@ -207,6 +209,7 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientProfileViewModel>()) {
         val id = it.toRoute<Route.Company.Client.Profile>().id
         val state = state.collectAsState().value
+        val context = LocalContext.current
         LaunchedEffect(id) { onEvent(CompanyClientProfileEvent.Load(id)) }
         CompanyClientProfileScreen(state) { event ->
           when (event) {
@@ -228,7 +231,18 @@ fun AppNavHost(
 
             CompanyClientProfileEvent.Option.Revoke -> Unit
 
-            CompanyClientProfileEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyClientProfileEvent.Goto.BackHandler -> navController.navigateUp()
+
+            is CompanyClientProfileEvent.Goto.Location -> {
+              navController.navigate(Route.Company.LocationOverview(event.id)) {
+                popUpTo(navController.graph.startDestinationId) {
+                  inclusive = false
+                }
+                launchSingleTop = true
+              }
+            }
+
+            is CompanyClientProfileEvent.Button.Phone -> context.openDialer(event.contact)
 
             else -> Unit
           }
@@ -255,8 +269,24 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientHistoryViewModel>()) {
         val id = it.toRoute<Route.Company.Client.History>().id
         val state = state.collectAsState().value
+        val context = LocalContext.current
         LaunchedEffect(id) { onEvent(CompanyClientHistoryEvent.Load(id, appState)) }
-        CompanyClientHistoryScreen(state, ::onEvent)
+        CompanyClientHistoryScreen(state) { event ->
+          when (event) {
+            is CompanyClientHistoryEvent.Button.Phone -> context.openDialer(event.contact)
+            CompanyClientHistoryEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyClientHistoryEvent.Goto.Location -> {
+              navController.navigate(Route.Company.LocationOverview(event.id)) {
+                popUpTo(navController.graph.startDestinationId) {
+                  inclusive = false
+                }
+                launchSingleTop = true
+              }
+            }
+
+            else -> onEvent(event)
+          }
+        }
       }
     }
 
@@ -266,10 +296,23 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientPlanViewModel>()) {
         val id = it.toRoute<Route.Company.Client.Plan>().id
         val state = state.collectAsState().value
+        val context = LocalContext.current
         LaunchedEffect(id) { onEvent(CompanyClientPlanEvent.Load(id)) }
         CompanyClientPlanScreen(state, channel) { event ->
           when (event) {
-            CompanyClientPlanEvent.Button.BackHandler -> navController.navigateUp()
+            CompanyClientPlanEvent.Goto.BackHandler -> navController.navigateUp()
+
+            is CompanyClientPlanEvent.Goto.Location -> {
+              navController.navigate(Route.Company.LocationOverview(event.id)) {
+                popUpTo(navController.graph.startDestinationId) {
+                  inclusive = false
+                }
+                launchSingleTop = true
+              }
+            }
+
+            is CompanyClientPlanEvent.Button.Phone -> context.openDialer(event.contact)
+
             else -> onEvent(event)
           }
         }
@@ -333,7 +376,7 @@ fun AppNavHost(
                 navController.navigate(Route.Company.Payment.Verify(PaymentStatus.Approved.name))
 
               Goto.Company -> navController.navigate(Route.Company.Info.This)
-              Goto.PerLocation -> navController.navigate(Route.Company.PerLocation)
+              Goto.PerLocation -> navController.navigate(Route.Company.BrowseLocation)
               Goto.VerifyPayment ->
                 navController.navigate(Route.Company.Payment.Verify(PaymentStatus.Waiting.name))
 
@@ -351,7 +394,7 @@ fun AppNavHost(
     }
 
 
-    composable<Route.Company.PerLocation> {
+    composable<Route.Company.BrowseLocation> {
       with(hiltViewModel<CompanyBrowseLocationViewModel>()) {
         val state = state.collectAsState().value
         CompanyBrowseLocationScreen(state) { event ->
@@ -391,10 +434,21 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientPendingPaymentViewModel>()) {
         val state = state.collectAsState().value
         val id = it.toRoute<Route.Company.Payment.Pending>().id
+        val context = LocalContext.current
         LaunchedEffect(id) { onEvent(CompanyClientPendingPaymentEvent.Load(id)) }
         CompanyClientPendingPaymentScreen(state) { event ->
           when (event) {
             CompanyClientPendingPaymentEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyClientPendingPaymentEvent.Goto.Location -> {
+              navController.navigate(Route.Company.LocationOverview(event.id)) {
+                popUpTo(navController.graph.startDestinationId) {
+                  inclusive = false
+                }
+                launchSingleTop = true
+              }
+            }
+
+            is CompanyClientPendingPaymentEvent.Button.Phone -> context.openDialer(event.contact)
 
             else -> onEvent(event)
           }
@@ -407,10 +461,16 @@ fun AppNavHost(
       with(hiltViewModel<CompanyClientLocationViewModel>()) {
         val state = state.collectAsState().value
         val id = it.toRoute<Route.Company.ClientLocation>().id
+        val context = LocalContext.current
         LaunchedEffect(id) { onEvent(CompanyClientLocationEvent.Load(id)) }
         CompanyClientLocationScreen(state) { event ->
           when (event) {
             CompanyClientLocationEvent.Goto.BackHandler -> navController.navigateUp()
+
+            is CompanyClientLocationEvent.Goto.Location ->
+              navController.navigate(Route.Company.LocationOverview(event.id))
+
+            is CompanyClientLocationEvent.Button.Phone -> context.openDialer(event.contact)
 
             else -> onEvent(event)
           }

@@ -12,7 +12,12 @@ sealed interface CompanyClientProfileEvent {
     data object Revoke : Option
   }
 
+  sealed interface Goto : CompanyClientProfileEvent {
+    data object BackHandler : Goto
+    data class Location(val id: Long) : Goto
+  }
+
   sealed interface Button : CompanyClientProfileEvent {
-    data object BackHandler : Button
+    data class Phone(val contact: String) : Button
   }
 }

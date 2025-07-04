@@ -6,16 +6,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +45,7 @@ import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
+import net.techandgraphics.quantcal.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.quantcal.ui.screen.imageLoader
 import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGateway4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
@@ -107,7 +107,10 @@ fun CompanyMakePaymentScreen(
               verticalAlignment = Alignment.CenterVertically
             ) {
               Column {
-                Text(text = "Total")
+                Text(
+                  text = "Total",
+                  style = MaterialTheme.typography.labelMedium
+                )
 
                 val animatedSum by animateIntAsState(
                   targetValue = state.numberOfMonths.times(state.paymentPlan.fee),
@@ -133,23 +136,17 @@ fun CompanyMakePaymentScreen(
                   onEvent(CompanyMakePaymentEvent.Button.RecordPayment)
                   loading = true
                 },
-                modifier = Modifier.fillMaxWidth(.8f),
+                colors = ButtonDefaults.buttonColors(
+                  containerColor = MaterialTheme.colorScheme.primary.copy(.3f)
+                ),
+                modifier = Modifier.fillMaxWidth(.6f),
               ) {
                 if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
                   CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                  Text(
-                    text = "Please wait ",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp)
-                  )
                 } else Text(
-                  text = "Make Payment",
+                  text = "Pay",
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(start = 8.dp)
                 )
               }
             }
@@ -157,13 +154,12 @@ fun CompanyMakePaymentScreen(
           }
 
         },
-        contentWindowInsets = WindowInsets.safeContent
       ) {
 
         LazyColumn(
           state = scrollState,
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
         ) {
 
 
@@ -175,7 +171,7 @@ fun CompanyMakePaymentScreen(
             )
           }
 
-          item { CompanyMakePaymentClientView(state.account, onEvent) }
+          item { CompanyMakePaymentClientView(state.demographic, state.account, onEvent) }
           item { Spacer(modifier = Modifier.height(24.dp)) }
           item { CompanyMakePaymentPlanView(state, onEvent) }
           item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -214,5 +210,6 @@ fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
     paymentMethodWithGateway4Preview
   ),
   imageLoader = imageLoader(context),
-  company = company4Preview
+  company = company4Preview,
+  demographic = companyLocationWithDemographic4Preview
 )

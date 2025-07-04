@@ -5,6 +5,7 @@ import coil.ImageLoader
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
+import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayUiModel
 
 sealed interface CompanyMakePaymentState {
@@ -22,5 +23,6 @@ sealed interface CompanyMakePaymentState {
     val imageUri: Uri? = null,
     val lastPaymentId: Long = 1L,
     val screenshotText: String = "",
+    val demographic: CompanyLocationWithDemographicUiModel,
   ) : CompanyMakePaymentState
 }

@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -49,6 +47,7 @@ import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.account4Preview
+import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoView
 import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
@@ -85,7 +84,7 @@ fun CompanyClientPlanScreen(
               CompanyClientPlanChannel.Success -> {
                 isProcessing = false
                 context.toast("Payment Plan Changed")
-                onEvent(CompanyClientPlanEvent.Button.BackHandler)
+                onEvent(CompanyClientPlanEvent.Goto.BackHandler)
               }
 
               CompanyClientPlanChannel.Processing -> isProcessing = true
@@ -99,15 +98,14 @@ fun CompanyClientPlanScreen(
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent
+            onEvent(CompanyClientPlanEvent.Goto.BackHandler)
           }
         },
-        contentWindowInsets = WindowInsets.safeGestures
       ) {
 
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
         ) {
           item {
             Text(
@@ -117,8 +115,18 @@ fun CompanyClientPlanScreen(
             )
           }
 
-          item { AccountInfoView(state.account, state.demographic) }
 
+          item {
+            AccountInfoView(state.account, state.demographic) { event ->
+              when (event) {
+                is AccountInfoEvent.Location ->
+                  onEvent(CompanyClientPlanEvent.Goto.Location(event.id))
+
+                is AccountInfoEvent.Phone ->
+                  onEvent(CompanyClientPlanEvent.Button.Phone(event.contact))
+              }
+            }
+          }
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
           itemsIndexed(state.paymentPlans) { index, paymentPlan ->

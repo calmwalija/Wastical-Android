@@ -12,5 +12,13 @@ sealed interface CompanyClientHistoryEvent {
       data class Event(val payment: PaymentUiModel, val op: Op) : Invoice
       enum class Op { Preview, Share }
     }
+
+    data class Delete(val id: Long) : Button
+    data class Phone(val contact: String) : Button
+  }
+
+  sealed interface Goto : CompanyClientHistoryEvent {
+    data object BackHandler : Goto
+    data class Location(val id: Long) : Goto
   }
 }

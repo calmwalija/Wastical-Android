@@ -5,10 +5,12 @@ sealed interface CompanyClientLocationEvent {
 
   sealed interface Goto : CompanyClientLocationEvent {
     data object BackHandler : Goto
+    data class Location(val id: Long) : Goto
   }
 
   sealed interface Button : CompanyClientLocationEvent {
     data object Clear : Button
+    data class Phone(val contact: String) : Button
   }
 
   sealed interface Input : CompanyClientLocationEvent {

@@ -83,9 +83,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           overflow = TextOverflow.MiddleEllipsis,
           modifier = Modifier.padding(end = 8.dp)
         )
-
       }
-
       IconButton(onClick = { onEvent(Event(payment, Invoice.Op.Share)) }) {
         Icon(
           Icons.Default.Share,
@@ -95,7 +93,6 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
       }
     }
   }
-
 }
 
 

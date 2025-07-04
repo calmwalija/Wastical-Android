@@ -15,6 +15,9 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
 
 @Dao interface PaymentDao : BaseDao<PaymentEntity> {
 
+  @Query("SELECT * FROM payment WHERE id=:id")
+  suspend fun get(id: Long): PaymentEntity
+
   @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 4")
   fun flowOfPayment(status: String = Approved.name): Flow<List<PaymentEntity>>
 

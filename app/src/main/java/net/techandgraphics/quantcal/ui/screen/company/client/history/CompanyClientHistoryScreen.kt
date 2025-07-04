@@ -1,10 +1,8 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.history
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.account4Preview
+import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoView
 import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
@@ -39,14 +38,13 @@ fun CompanyClientHistoryScreen(
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-
+            onEvent(CompanyClientHistoryEvent.Goto.BackHandler)
           }
         },
-        contentWindowInsets = WindowInsets.safeGestures
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp)
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
         ) {
           item {
             Text(
@@ -56,7 +54,17 @@ fun CompanyClientHistoryScreen(
             )
           }
 
-          item { AccountInfoView(state.account, state.demographic) }
+          item {
+            AccountInfoView(state.account, state.demographic) { event ->
+              when (event) {
+                is AccountInfoEvent.Location ->
+                  onEvent(CompanyClientHistoryEvent.Goto.Location(event.id))
+
+                is AccountInfoEvent.Phone ->
+                  onEvent(CompanyClientHistoryEvent.Button.Phone(event.contact))
+              }
+            }
+          }
 
           item { Spacer(modifier = Modifier.height(16.dp)) }
 

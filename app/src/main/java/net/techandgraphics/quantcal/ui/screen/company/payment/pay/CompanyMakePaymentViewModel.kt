@@ -18,6 +18,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.data.remote.payment.PaymentType
 import net.techandgraphics.quantcal.domain.toAccountUiModel
+import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
@@ -51,12 +52,15 @@ class CompanyMakePaymentViewModel @Inject constructor(
       val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
         .filter { it.gateway.type == PaymentType.Cash.name }
         .map { it.toPaymentMethodWithGatewayUiModel() }
+      val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
+        .toCompanyLocationWithDemographicUiModel()
       _state.value = CompanyMakePaymentState.Success(
         company = company,
         account = account,
         paymentPlan = paymentPlan,
         paymentMethods = paymentMethods,
         imageLoader = imageLoader,
+        demographic = demographic,
       )
     }
 

@@ -3,11 +3,13 @@ package net.techandgraphics.quantcal
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toUri
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -72,4 +74,15 @@ fun groupPaymentsByDate(
   return payments
     .sortedByDescending { it.payment.createdAt }
     .groupBy { it.payment.createdAt.toZonedDateTime().defaultDate() }
+}
+
+fun Context.openDialer(contact: String) {
+  val intent = Intent(Intent.ACTION_DIAL).apply {
+    data = "tel:${contact.toPhoneFormat()}".toUri()
+  }
+  if (intent.resolveActivity(packageManager) != null) {
+    startActivity(intent)
+  } else {
+    toast("No app found to handle making phone calls.")
+  }
 }
