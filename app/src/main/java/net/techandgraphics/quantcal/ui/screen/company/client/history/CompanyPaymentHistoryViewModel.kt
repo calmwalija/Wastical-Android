@@ -27,34 +27,34 @@ import net.techandgraphics.quantcal.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.preview
 import net.techandgraphics.quantcal.share
 import net.techandgraphics.quantcal.ui.screen.client.invoice.pdf.invoiceToPdf
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Button
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Load
+import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Button
+import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Load
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyClientHistoryViewModel @Inject constructor(
+class CompanyPaymentHistoryViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
   private val api: PaymentApi,
 ) : ViewModel() {
 
   private val _state =
-    MutableStateFlow<CompanyClientHistoryState>(CompanyClientHistoryState.Loading)
+    MutableStateFlow<CompanyPaymentHistoryState>(CompanyPaymentHistoryState.Loading)
   val state = _state.asStateFlow()
 
-  private fun getState() = (_state.value as CompanyClientHistoryState.Success)
+  private fun getState() = (_state.value as CompanyPaymentHistoryState.Success)
 
   private fun onLoad(event: Load) =
     viewModelScope.launch {
-      _state.value = CompanyClientHistoryState.Loading
+      _state.value = CompanyPaymentHistoryState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val company = database.companyDao.query().first().toCompanyUiModel()
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
-      _state.value = CompanyClientHistoryState.Success(
+      _state.value = CompanyPaymentHistoryState.Success(
         company = company,
         account = account,
         plan = plan,
@@ -74,7 +74,7 @@ class CompanyClientHistoryViewModel @Inject constructor(
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
-      with(_state.value as CompanyClientHistoryState.Success) {
+      with(_state.value as CompanyPaymentHistoryState.Success) {
         val accountContact = database.accountContactDao.getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
           .first()
@@ -128,7 +128,7 @@ class CompanyClientHistoryViewModel @Inject constructor(
         .onFailure { println(mapApiError(it)) }
     }
 
-  fun onEvent(event: CompanyClientHistoryEvent) {
+  fun onEvent(event: CompanyPaymentHistoryEvent) {
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)

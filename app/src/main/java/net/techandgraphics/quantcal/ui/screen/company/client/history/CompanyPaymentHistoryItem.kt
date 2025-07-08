@@ -47,10 +47,10 @@ import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 import java.time.Month
 
-@Composable fun CompanyClientHistoryItem(
+@Composable fun CompanyPaymentHistoryItem(
   entity: PaymentWithMonthsCoveredUiModel,
   plan: PaymentPlanUiModel,
-  onEvent: (CompanyClientHistoryEvent) -> Unit,
+  onEvent: (CompanyPaymentHistoryEvent) -> Unit,
 ) {
 
   val payment = entity.payment
@@ -142,7 +142,7 @@ import java.time.Month
             )
           }
 
-          IconButton(onClick = { onEvent(CompanyClientHistoryEvent.Button.Delete(payment.id)) }) {
+          IconButton(onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
             Icon(
               imageVector = Icons.Outlined.Delete,
               contentDescription = null
@@ -153,15 +153,14 @@ import java.time.Month
       }
     }
   }
-
 }
 
 
-@Preview(showBackground = false)
-@Composable fun CompanyClientHistoryItemPreview() {
+@Preview(showBackground = true)
+@Composable fun CompanyPaymentHistoryItemPreview() {
   QuantcalTheme {
     Box(modifier = Modifier.padding(16.dp)) {
-      CompanyClientHistoryItem(
+      CompanyPaymentHistoryItem(
         entity = paymentWithMonthsCovered4Preview,
         plan = paymentPlan4Preview,
         onEvent = {}

@@ -21,6 +21,11 @@ val profileItems = listOf(
     event = CompanyClientProfileEvent.Option.Plan,
   ),
   ProfileItem(
+    title = "Payment Invoice",
+    drawableRes = R.drawable.ic_invoice,
+    event = CompanyClientProfileEvent.Option.Invoice,
+  ),
+  ProfileItem(
     title = "Payment History",
     drawableRes = R.drawable.ic_history,
     event = CompanyClientProfileEvent.Option.History,

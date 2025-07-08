@@ -30,9 +30,12 @@ import net.techandgraphics.quantcal.ui.screen.company.client.browse.CompanyBrows
 import net.techandgraphics.quantcal.ui.screen.company.client.create.CompanyCreateClientEvent
 import net.techandgraphics.quantcal.ui.screen.company.client.create.CompanyCreateClientScreen
 import net.techandgraphics.quantcal.ui.screen.company.client.create.CompanyCreateClientViewModel
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryScreen
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryViewModel
+import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyPaymentHistoryEvent
+import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyPaymentHistoryScreen
+import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyPaymentHistoryViewModel
+import net.techandgraphics.quantcal.ui.screen.company.client.invoice.CompanyPaymentInvoiceEvent
+import net.techandgraphics.quantcal.ui.screen.company.client.invoice.CompanyPaymentInvoiceScreen
+import net.techandgraphics.quantcal.ui.screen.company.client.invoice.CompanyPaymentInvoiceViewModel
 import net.techandgraphics.quantcal.ui.screen.company.client.location.CompanyClientLocationEvent
 import net.techandgraphics.quantcal.ui.screen.company.client.location.CompanyClientLocationScreen
 import net.techandgraphics.quantcal.ui.screen.company.client.location.CompanyClientLocationViewModel
@@ -229,6 +232,9 @@ fun AppNavHost(
             CompanyClientProfileEvent.Option.Pending ->
               navController.navigate(Route.Company.Payment.Pending(id))
 
+            CompanyClientProfileEvent.Option.Invoice ->
+              navController.navigate(Route.Company.Client.Invoice(id))
+
             CompanyClientProfileEvent.Option.Revoke -> Unit
 
             CompanyClientProfileEvent.Goto.BackHandler -> navController.navigateUp()
@@ -266,16 +272,16 @@ fun AppNavHost(
 
 
     composable<Route.Company.Client.History> {
-      with(hiltViewModel<CompanyClientHistoryViewModel>()) {
+      with(hiltViewModel<CompanyPaymentHistoryViewModel>()) {
         val id = it.toRoute<Route.Company.Client.History>().id
         val state = state.collectAsState().value
         val context = LocalContext.current
-        LaunchedEffect(id) { onEvent(CompanyClientHistoryEvent.Load(id, appState)) }
-        CompanyClientHistoryScreen(state) { event ->
+        LaunchedEffect(id) { onEvent(CompanyPaymentHistoryEvent.Load(id, appState)) }
+        CompanyPaymentHistoryScreen(state) { event ->
           when (event) {
-            is CompanyClientHistoryEvent.Button.Phone -> context.openDialer(event.contact)
-            CompanyClientHistoryEvent.Goto.BackHandler -> navController.navigateUp()
-            is CompanyClientHistoryEvent.Goto.Location -> {
+            is CompanyPaymentHistoryEvent.Button.Phone -> context.openDialer(event.contact)
+            CompanyPaymentHistoryEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyPaymentHistoryEvent.Goto.Location -> {
               navController.navigate(Route.Company.LocationOverview(event.id)) {
                 popUpTo(navController.graph.startDestinationId) {
                   inclusive = false
@@ -290,6 +296,31 @@ fun AppNavHost(
       }
     }
 
+
+    composable<Route.Company.Client.Invoice> {
+      with(hiltViewModel<CompanyPaymentInvoiceViewModel>()) {
+        val id = it.toRoute<Route.Company.Client.History>().id
+        val state = state.collectAsState().value
+        val context = LocalContext.current
+        LaunchedEffect(id) { onEvent(CompanyPaymentInvoiceEvent.Load(id, appState)) }
+        CompanyPaymentInvoiceScreen(state) { event ->
+          when (event) {
+            is CompanyPaymentInvoiceEvent.Button.Phone -> context.openDialer(event.contact)
+            CompanyPaymentInvoiceEvent.Goto.BackHandler -> navController.navigateUp()
+            is CompanyPaymentInvoiceEvent.Goto.Location -> {
+              navController.navigate(Route.Company.LocationOverview(event.id)) {
+                popUpTo(navController.graph.startDestinationId) {
+                  inclusive = false
+                }
+                launchSingleTop = true
+              }
+            }
+
+            else -> onEvent(event)
+          }
+        }
+      }
+    }
 
 
     composable<Route.Company.Client.Plan> {

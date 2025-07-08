@@ -35,17 +35,17 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyClientHistoryScreen(
-  state: CompanyClientHistoryState,
-  onEvent: (CompanyClientHistoryEvent) -> Unit,
+fun CompanyPaymentHistoryScreen(
+  state: CompanyPaymentHistoryState,
+  onEvent: (CompanyPaymentHistoryEvent) -> Unit,
 ) {
 
   val snackbarHostState = remember { SnackbarHostState() }
   val scope = rememberCoroutineScope()
 
   when (state) {
-    CompanyClientHistoryState.Loading -> LoadingIndicatorView()
-    is CompanyClientHistoryState.Success ->
+    CompanyPaymentHistoryState.Loading -> LoadingIndicatorView()
+    is CompanyPaymentHistoryState.Success ->
 
       Scaffold(
         snackbarHost = {
@@ -72,7 +72,7 @@ fun CompanyClientHistoryScreen(
         },
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent(CompanyClientHistoryEvent.Goto.BackHandler)
+            onEvent(CompanyPaymentHistoryEvent.Goto.BackHandler)
           }
         },
       ) {
@@ -92,10 +92,10 @@ fun CompanyClientHistoryScreen(
             AccountInfoView(state.account, state.demographic) { event ->
               when (event) {
                 is AccountInfoEvent.Location ->
-                  onEvent(CompanyClientHistoryEvent.Goto.Location(event.id))
+                  onEvent(CompanyPaymentHistoryEvent.Goto.Location(event.id))
 
                 is AccountInfoEvent.Phone ->
-                  onEvent(CompanyClientHistoryEvent.Button.Phone(event.contact))
+                  onEvent(CompanyPaymentHistoryEvent.Button.Phone(event.contact))
               }
             }
           }
@@ -103,12 +103,12 @@ fun CompanyClientHistoryScreen(
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
           items(state.payments) { payment ->
-            CompanyClientHistoryItem(
+            CompanyPaymentHistoryItem(
               entity = payment,
               plan = state.plan,
               onEvent = { event ->
                 when (event) {
-                  is CompanyClientHistoryEvent.Button.Delete ->
+                  is CompanyPaymentHistoryEvent.Button.Delete ->
                     scope.launch {
                       snackbarHostState.showSnackbar(
                         message = "Are you sure you want to delete this payment ?",
@@ -136,10 +136,10 @@ fun CompanyClientHistoryScreen(
 
 @Preview
 @Composable
-private fun CompanyClientHistoryScreenPreview() {
+private fun CompanyPaymentHistoryScreenPreview() {
   QuantcalTheme {
-    CompanyClientHistoryScreen(
-      state = CompanyClientHistoryState.Success(
+    CompanyPaymentHistoryScreen(
+      state = CompanyPaymentHistoryState.Success(
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,

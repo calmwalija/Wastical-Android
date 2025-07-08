@@ -7,6 +7,7 @@ sealed interface CompanyClientProfileEvent {
     data object Payment : Option
     data object Plan : Option
     data object History : Option
+    data object Invoice : Option
     data object Pending : Option
     data object Location : Option
     data object Revoke : Option
