@@ -13,6 +13,7 @@ sealed interface CompanyHomeEvent {
   }
 
   data object Load : CompanyHomeEvent
+  data object Fetch : CompanyHomeEvent
 
   sealed interface Goto : CompanyHomeEvent {
     data object Company : Goto

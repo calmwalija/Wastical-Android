@@ -3,6 +3,7 @@ package net.techandgraphics.quantcal.ui.screen.company.home
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthY
 import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.quantcal.data.local.database.relations.toEntity
 import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
+import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.data.remote.toAccountPaymentPlanResponse
 import net.techandgraphics.quantcal.data.remote.toPaymentResponse
 import net.techandgraphics.quantcal.domain.toAccountUiModel
@@ -58,6 +60,18 @@ class CompanyHomeViewModel @Inject constructor(
         }
       }
     }
+  }
+
+  private fun onFetchChanges() = viewModelScope.launch {
+    _channel.send(CompanyHomeChannel.Fetch.Fetching)
+    runCatching {
+      database.withTransaction {
+        database.clearAllTables()
+        accountSession.fetchSession()
+      }
+    }
+      .onSuccess { _channel.send(CompanyHomeChannel.Fetch.Success) }
+      .onFailure { _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(it))) }
   }
 
   fun dateFormat(timestamp: Long, patten: String = "d-MMMM-yyyy"): String {
@@ -150,6 +164,7 @@ class CompanyHomeViewModel @Inject constructor(
 
   fun onEvent(event: CompanyHomeEvent) {
     when (event) {
+      CompanyHomeEvent.Fetch -> onFetchChanges()
       is CompanyHomeEvent.Load -> onLoad()
       CompanyHomeEvent.Button.Export -> onExportMetadata()
       is CompanyHomeEvent.Button.WorkingMonth -> onButtonWorkingMonth(event)

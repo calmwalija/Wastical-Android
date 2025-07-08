@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -106,6 +108,7 @@ private val quickOption = listOf(
 ) {
 
   var showMenuItems by remember { mutableStateOf(false) }
+  var isFetching by remember { mutableStateOf(false) }
   val context = LocalContext.current
 
   when (state) {
@@ -119,6 +122,11 @@ private val quickOption = listOf(
           channel.collect { event ->
             when (event) {
               is CompanyHomeChannel.Export -> context.share(event.file)
+              is CompanyHomeChannel.Fetch -> isFetching = when (event) {
+                is CompanyHomeChannel.Fetch.Error -> false
+                CompanyHomeChannel.Fetch.Fetching -> true
+                CompanyHomeChannel.Fetch.Success -> false
+              }
               else -> Unit
             }
           }
@@ -154,6 +162,17 @@ private val quickOption = listOf(
                   }
                 }) {
                   Icon(painterResource(R.drawable.ic_upload_ready), null)
+                }
+              }
+
+              IconButton(
+                enabled = isFetching.not(),
+                onClick = { onEvent(CompanyHomeEvent.Fetch) }) {
+                if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_cloud_download),
+                    contentDescription = null
+                  )
                 }
               }
 
