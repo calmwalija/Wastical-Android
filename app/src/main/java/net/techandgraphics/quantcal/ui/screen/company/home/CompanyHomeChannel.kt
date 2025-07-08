@@ -17,4 +17,10 @@ sealed interface CompanyHomeChannel {
     data class Data(val status: Status) : Import
     data class Progress(val total: Int, val current: Int) : Import
   }
+
+  sealed interface Fetch : CompanyHomeChannel {
+    data object Fetching : Fetch
+    data object Success : Fetch
+    data class Error(val error: ApiResult.Error) : Fetch
+  }
 }
