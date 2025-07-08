@@ -90,7 +90,7 @@ internal val paymentGateway4Preview = PaymentGatewayUiModel(
 
 internal val company4Preview = CompanyUiModel(
   id = 1L,
-  name = "Adams Resources & Energy, Inc.",
+  name = "Tech And Graphics TAG, Inc.",
   email = "example@email.com",
   slogan = "Lorem Ipsum",
   address = "John Smith, 123 Main Street, Suite 2, Downtown, CA 91234, GA",
@@ -253,7 +253,7 @@ internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(
 
 internal val paymentWithMonthsCovered4Preview = PaymentWithMonthsCoveredUiModel(
   payment = payment4Preview,
-  covered = listOf(paymentMonthCoveredUiModel),
+  covered = (1..4).map { paymentMonthCoveredUiModel },
   account = account4Preview,
 )
 

@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.ui.screen.company.client.history
+package net.techandgraphics.quantcal.ui.screen.company.client.invoice
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -31,18 +31,17 @@ import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toZonedDateTime
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Button.Invoice
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Button.Invoice.Event
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun CompanyClientHistoryInvoiceView(
+@Composable fun CompanyPaymentInvoiceItem(
   entity: PaymentWithMonthsCoveredUiModel,
   plan: PaymentPlanUiModel,
-  onEvent: (CompanyClientHistoryEvent) -> Unit,
+  onEvent: (CompanyPaymentInvoiceEvent) -> Unit,
 ) {
+
 
   val payment = entity.payment
   val covered = entity.covered
@@ -53,7 +52,14 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
       .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(Event(payment, Invoice.Op.Preview)) }) {
+    onClick = {
+      onEvent(
+        CompanyPaymentInvoiceEvent.Button.Invoice.Event(
+          payment = payment,
+          op = CompanyPaymentInvoiceEvent.Button.Invoice.Op.Preview
+        )
+      )
+    }) {
     Row(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically
@@ -84,7 +90,14 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           modifier = Modifier.padding(end = 8.dp)
         )
       }
-      IconButton(onClick = { onEvent(Event(payment, Invoice.Op.Share)) }) {
+      IconButton(onClick = {
+        onEvent(
+          CompanyPaymentInvoiceEvent.Button.Invoice.Event(
+            payment = payment,
+            op = CompanyPaymentInvoiceEvent.Button.Invoice.Op.Share
+          )
+        )
+      }) {
         Icon(
           Icons.Default.Share,
           contentDescription = null,
@@ -98,10 +111,10 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun CompanyClientHistoryInvoiceViewPreview() {
+private fun CompanyPaymentInvoiceItemPreview() {
   QuantcalTheme {
     Box(modifier = Modifier.padding(16.dp)) {
-      CompanyClientHistoryInvoiceView(
+      CompanyPaymentInvoiceItem(
         entity = paymentWithMonthsCovered4Preview,
         plan = paymentPlan4Preview,
         onEvent = {}

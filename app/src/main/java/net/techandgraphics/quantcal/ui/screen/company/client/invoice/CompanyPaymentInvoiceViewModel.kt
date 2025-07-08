@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.ui.screen.company.client.history
+package net.techandgraphics.quantcal.ui.screen.company.client.invoice
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
-import net.techandgraphics.quantcal.data.remote.mapApiError
-import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.toAccountContactUiModel
@@ -27,34 +25,33 @@ import net.techandgraphics.quantcal.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.preview
 import net.techandgraphics.quantcal.share
 import net.techandgraphics.quantcal.ui.screen.client.invoice.pdf.invoiceToPdf
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Button
-import net.techandgraphics.quantcal.ui.screen.company.client.history.CompanyClientHistoryEvent.Load
+import net.techandgraphics.quantcal.ui.screen.company.client.invoice.CompanyPaymentInvoiceEvent.Button
+import net.techandgraphics.quantcal.ui.screen.company.client.invoice.CompanyPaymentInvoiceEvent.Load
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyClientHistoryViewModel @Inject constructor(
+class CompanyPaymentInvoiceViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
-  private val api: PaymentApi,
 ) : ViewModel() {
 
   private val _state =
-    MutableStateFlow<CompanyClientHistoryState>(CompanyClientHistoryState.Loading)
+    MutableStateFlow<CompanyPaymentInvoiceState>(CompanyPaymentInvoiceState.Loading)
   val state = _state.asStateFlow()
 
-  private fun getState() = (_state.value as CompanyClientHistoryState.Success)
+  private fun getState() = (_state.value as CompanyPaymentInvoiceState.Success)
 
   private fun onLoad(event: Load) =
     viewModelScope.launch {
-      _state.value = CompanyClientHistoryState.Loading
+      _state.value = CompanyPaymentInvoiceState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val company = database.companyDao.query().first().toCompanyUiModel()
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
-      _state.value = CompanyClientHistoryState.Success(
+      _state.value = CompanyPaymentInvoiceState.Success(
         company = company,
         account = account,
         plan = plan,
@@ -74,7 +71,7 @@ class CompanyClientHistoryViewModel @Inject constructor(
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
-      with(_state.value as CompanyClientHistoryState.Success) {
+      with(_state.value as CompanyPaymentInvoiceState.Success) {
         val accountContact = database.accountContactDao.getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
           .first()
@@ -121,18 +118,10 @@ class CompanyClientHistoryViewModel @Inject constructor(
     }
   }
 
-  private fun onEventButtonDelete(event: Button.Delete) =
-    viewModelScope.launch {
-      runCatching { api.delete(event.id) }
-        .onSuccess { database.paymentDao.delete(database.paymentDao.get(it)) }
-        .onFailure { println(mapApiError(it)) }
-    }
-
-  fun onEvent(event: CompanyClientHistoryEvent) {
+  fun onEvent(event: CompanyPaymentInvoiceEvent) {
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)
-      is Button.Delete -> onEventButtonDelete(event)
       else -> Unit
     }
   }

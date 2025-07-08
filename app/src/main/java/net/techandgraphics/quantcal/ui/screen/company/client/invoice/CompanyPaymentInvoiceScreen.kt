@@ -1,11 +1,10 @@
-package net.techandgraphics.quantcal.ui.screen.company.client.history
+package net.techandgraphics.quantcal.ui.screen.company.client.invoice
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,23 +21,23 @@ import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyClientHistoryScreen(
-  state: CompanyClientHistoryState,
-  onEvent: (CompanyClientHistoryEvent) -> Unit,
+fun CompanyPaymentInvoiceScreen(
+  state: CompanyPaymentInvoiceState,
+  onEvent: (CompanyPaymentInvoiceEvent) -> Unit,
 ) {
 
   when (state) {
-    CompanyClientHistoryState.Loading -> LoadingIndicatorView()
-    is CompanyClientHistoryState.Success ->
+    CompanyPaymentInvoiceState.Loading -> LoadingIndicatorView()
+    is CompanyPaymentInvoiceState.Success ->
 
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent(CompanyClientHistoryEvent.Goto.BackHandler)
+            onEvent(CompanyPaymentInvoiceEvent.Goto.BackHandler)
           }
         },
       ) {
@@ -48,7 +47,7 @@ fun CompanyClientHistoryScreen(
         ) {
           item {
             Text(
-              text = "Payment History",
+              text = "Payment Invoice",
               style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier.padding(bottom = 32.dp)
             )
@@ -58,10 +57,10 @@ fun CompanyClientHistoryScreen(
             AccountInfoView(state.account, state.demographic) { event ->
               when (event) {
                 is AccountInfoEvent.Location ->
-                  onEvent(CompanyClientHistoryEvent.Goto.Location(event.id))
+                  onEvent(CompanyPaymentInvoiceEvent.Goto.Location(event.id))
 
                 is AccountInfoEvent.Phone ->
-                  onEvent(CompanyClientHistoryEvent.Button.Phone(event.contact))
+                  onEvent(CompanyPaymentInvoiceEvent.Button.Phone(event.contact))
               }
             }
           }
@@ -69,37 +68,28 @@ fun CompanyClientHistoryScreen(
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
           items(state.payments) { payment ->
-            when (payment.payment.status) {
-              PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
-                payment,
-                state.plan,
-                onEvent
-              )
-
-              else -> CompanyClientHistoryView(
-                entity = payment,
-                onEvent = onEvent
-              )
-            }
+            if (payment.payment.status == PaymentStatus.Approved)
+              CompanyPaymentInvoiceItem(payment, state.plan, onEvent)
           }
-
         }
       }
   }
+
 
 }
 
 
 @Preview
 @Composable
-private fun CompanyClientHistoryScreenPreview() {
+private fun CompanyPaymentInvoiceScreenPreview() {
   QuantcalTheme {
-    CompanyClientHistoryScreen(
-      state = CompanyClientHistoryState.Success(
+    CompanyPaymentInvoiceScreen(
+      state = CompanyPaymentInvoiceState.Success(
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
-        demographic = companyLocationWithDemographic4Preview
+        demographic = companyLocationWithDemographic4Preview,
+        payments = (1..5).map { paymentWithMonthsCovered4Preview }
       ),
       onEvent = {}
     )
