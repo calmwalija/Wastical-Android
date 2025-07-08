@@ -132,7 +132,7 @@ class CompanyClientHistoryViewModel @Inject constructor(
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)
-      is Button.Delete -> onEventButtonDelete(event)
+      is Button.Delete -> Unit
       else -> Unit
     }
   }

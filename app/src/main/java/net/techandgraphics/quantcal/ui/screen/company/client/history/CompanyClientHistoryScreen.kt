@@ -8,12 +8,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
+import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
@@ -22,6 +30,7 @@ import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,11 +40,36 @@ fun CompanyClientHistoryScreen(
   onEvent: (CompanyClientHistoryEvent) -> Unit,
 ) {
 
+  val snackbarHostState = remember { SnackbarHostState() }
+  val scope = rememberCoroutineScope()
+
   when (state) {
     CompanyClientHistoryState.Loading -> LoadingIndicatorView()
     is CompanyClientHistoryState.Success ->
 
       Scaffold(
+        snackbarHost = {
+          SnackbarHost(hostState = snackbarHostState) { snackbarData ->
+            Snackbar(
+              modifier = Modifier.padding(16.dp),
+              containerColor = MaterialTheme.colorScheme.surfaceContainer,
+              contentColor = MaterialTheme.colorScheme.secondary,
+              action = {
+                TextButton(
+                  onClick = { snackbarData.performAction() }
+                ) {
+                  Text(
+                    "Confirm",
+                    color = MaterialTheme.colorScheme.primary
+                  )
+                }
+              },
+              content = {
+                Text(snackbarData.visuals.message)
+              }
+            )
+          }
+        },
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
             onEvent(CompanyClientHistoryEvent.Goto.BackHandler)
@@ -69,20 +103,30 @@ fun CompanyClientHistoryScreen(
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
           items(state.payments) { payment ->
-            when (payment.payment.status) {
-              PaymentStatus.Approved -> CompanyClientHistoryInvoiceView(
-                payment,
-                state.plan,
-                onEvent
-              )
+            CompanyClientHistoryItem(
+              entity = payment,
+              plan = state.plan,
+              onEvent = { event ->
+                when (event) {
+                  is CompanyClientHistoryEvent.Button.Delete ->
+                    scope.launch {
+                      snackbarHostState.showSnackbar(
+                        message = "Are you sure you want to delete this payment ?",
+                        actionLabel = "Confirm",
+                        duration = SnackbarDuration.Short
+                      ).also { result ->
+                        when (result) {
+                          SnackbarResult.Dismissed -> Unit
+                          SnackbarResult.ActionPerformed -> onEvent(event)
+                        }
+                      }
+                    }
 
-              else -> CompanyClientHistoryView(
-                entity = payment,
-                onEvent = onEvent
-              )
-            }
+                  else -> onEvent(event)
+                }
+              }
+            )
           }
-
         }
       }
   }
@@ -99,7 +143,8 @@ private fun CompanyClientHistoryScreenPreview() {
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,
-        demographic = companyLocationWithDemographic4Preview
+        demographic = companyLocationWithDemographic4Preview,
+        payments = (1..4).map { paymentWithMonthsCovered4Preview }
       ),
       onEvent = {}
     )
