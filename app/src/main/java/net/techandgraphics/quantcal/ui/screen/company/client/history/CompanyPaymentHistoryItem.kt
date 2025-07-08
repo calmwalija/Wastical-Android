@@ -133,20 +133,19 @@ import java.time.Month
             else -> R.drawable.ic_close
           }
 
-          IconButton(onClick = { }) {
+          Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
               painter = painterResource(statusIcon),
-              contentDescription = "Status",
-              tint = MaterialTheme.colorScheme.primary,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.secondary,
               modifier = Modifier.size(24.dp)
             )
-          }
-
-          IconButton(onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
-            Icon(
-              imageVector = Icons.Outlined.Delete,
-              contentDescription = null
-            )
+            IconButton(onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
+              Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = null
+              )
+            }
           }
 
         }
