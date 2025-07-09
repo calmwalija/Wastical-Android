@@ -68,7 +68,6 @@ import net.techandgraphics.quantcal.ui.screen.companyContact4Preview
 import net.techandgraphics.quantcal.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.quantcal.ui.theme.Green
-import net.techandgraphics.quantcal.ui.theme.Orange
 import net.techandgraphics.quantcal.ui.theme.Purple
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
@@ -83,18 +82,11 @@ private val quickOption = listOf(
   ),
 
   CompanyHomeItemModel(
-    title = " Clients ",
+    title = "Clients",
     drawableRes = R.drawable.ic_supervisor_account,
     containerColor = Green,
     event = CompanyHomeEvent.Goto.Clients
-  ),
-
-  CompanyHomeItemModel(
-    title = "Payments",
-    drawableRes = R.drawable.ic_method,
-    containerColor = Orange,
-    event = CompanyHomeEvent.Goto.Payments
-  ),
+  )
 )
 
 
@@ -127,6 +119,7 @@ private val quickOption = listOf(
                 CompanyHomeChannel.Fetch.Fetching -> true
                 CompanyHomeChannel.Fetch.Success -> false
               }
+
               else -> Unit
             }
           }
@@ -247,19 +240,19 @@ private val quickOption = listOf(
 
           item {
             FlowRow(
-              maxItemsInEachRow = 3,
+              maxItemsInEachRow = 2,
               modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-              (quickOption).forEach {
+              (quickOption).forEach { model ->
                 OutlinedCard(
-                  onClick = { onEvent(it.event) },
+                  onClick = { onEvent(model.event) },
                   colors = CardDefaults.outlinedCardColors(),
                   modifier = Modifier
                     .padding(4.dp)
-                    .fillMaxWidth(.3f)
+                    .fillMaxWidth(.48f)
                 ) {
                   Column(
                     modifier = Modifier
@@ -268,17 +261,17 @@ private val quickOption = listOf(
                     horizontalAlignment = Alignment.CenterHorizontally
                   ) {
                     Icon(
-                      painterResource(it.drawableRes),
+                      painterResource(model.drawableRes),
                       contentDescription = null,
                       modifier = Modifier.padding(8.dp),
-                      tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                      text = it.title,
+                      text = model.title,
                       style = MaterialTheme.typography.labelMedium,
                       maxLines = 1,
                       overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.padding(horizontal = 4.dp)
+                      modifier = Modifier.padding(horizontal = 4.dp),
+                      color = MaterialTheme.colorScheme.primary
                     )
                   }
                 }

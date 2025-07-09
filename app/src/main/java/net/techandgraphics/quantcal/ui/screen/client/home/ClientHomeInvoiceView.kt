@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculateToTextAmount
 import net.techandgraphics.quantcal.defaultDate
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
@@ -38,7 +37,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable fun ClientHomeInvoiceView(
   invoice: PaymentUiModel,
   paymentPlans: List<PaymentPlanUiModel>,
-  onEvent: (ClientHomeEvent) -> Unit
+  onEvent: (ClientHomeEvent) -> Unit,
 ) {
 
   Card(
@@ -72,7 +71,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         )
         paymentPlans.forEach { paymentPlan ->
           Text(
-            text = calculateToTextAmount(paymentPlan, invoice),
+            text = "TODO",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,

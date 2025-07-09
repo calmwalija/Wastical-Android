@@ -7,7 +7,6 @@ import android.graphics.pdf.PdfDocument
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.scale
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.capitalize
 import net.techandgraphics.quantcal.data.remote.payment.PaymentType
 import net.techandgraphics.quantcal.defaultDateTime
@@ -42,7 +41,7 @@ private fun tableData(
     Month.of(month.month).name.capitalize(),
     1,
     paymentPlan.fee.toAmount(),
-    paymentPlan.calculate(1).toAmount(),
+    paymentPlan.fee.toAmount(),
   )
 }
 
@@ -332,7 +331,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
+      theSentence = paymentPlan.fee.times(paymentMonthCovered.size).toAmount(),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -359,7 +358,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = paymentPlan.calculate(paymentMonthCovered.size).toAmount(),
+      theSentence = paymentPlan.fee.times(paymentMonthCovered.size).toAmount(),
       yAxis = yAxis,
       xAxis = holdXAxis,
       paint = textSize32.also { it.typeface = extraBold(context) },

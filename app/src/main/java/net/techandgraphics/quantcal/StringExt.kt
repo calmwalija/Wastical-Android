@@ -2,7 +2,6 @@ package net.techandgraphics.quantcal
 
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
-import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
 import java.time.Month
@@ -18,16 +17,6 @@ fun toFullName(title: String, firstname: String, lastname: String): String {
   return "${if (accountTitle == AccountTitle.Na) "" else accountTitle.title} $firstname $lastname"
     .trim()
 }
-
-fun calculateToTextAmount(plan: PaymentPlanUiModel, pay: PaymentUiModel): String {
-  return calculate(plan, pay).toAmount()
-}
-
-fun PaymentUiModel.calculate() = 10_000.times(3).toAmount() // TODO
-
-fun PaymentPlanUiModel.calculate(size: Int) = fee.times(size)
-
-fun calculate(plan: PaymentPlanUiModel, pay: PaymentUiModel) = plan.fee.times(pay.id) // TODO
 
 fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
 

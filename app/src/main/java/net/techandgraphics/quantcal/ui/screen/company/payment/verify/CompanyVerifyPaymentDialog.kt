@@ -31,11 +31,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.data.remote.payment.PaymentType
 import net.techandgraphics.quantcal.defaultDateTime
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toFullName
 import net.techandgraphics.quantcal.toZonedDateTime
 import net.techandgraphics.quantcal.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent.Payment.Button
@@ -46,7 +46,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable fun CompanyVerifyPaymentDialog(
   entity: PaymentWithAccountAndMethodWithGatewayUiModel,
   onEvent: (CompanyVerifyPaymentEvent) -> Unit,
-  onDismissRequest: () -> Unit
+  onDismissRequest: () -> Unit,
 ) {
 
   val account = entity.account
@@ -94,7 +94,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           Text(text = gateway.name)
 
           Text(
-            text = payment.calculate(),
+            text = entity.plan.fee.times(entity.coveredSize).toAmount(),
             style = MaterialTheme.typography.titleMedium,
           )
         }
@@ -118,7 +118,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         }
 
 
-        Row (modifier = Modifier.padding(top = 8.dp)){
+        Row(modifier = Modifier.padding(top = 8.dp)) {
           TextButton(
             onClick = { onEvent(Button.Status(payment, PaymentStatus.Declined)) },
             modifier = Modifier.fillMaxWidth(.4f)
