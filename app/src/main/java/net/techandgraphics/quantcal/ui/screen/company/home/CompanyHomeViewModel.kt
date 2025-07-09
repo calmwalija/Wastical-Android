@@ -64,13 +64,18 @@ class CompanyHomeViewModel @Inject constructor(
 
   private fun onFetchChanges() = viewModelScope.launch {
     _channel.send(CompanyHomeChannel.Fetch.Fetching)
-    runCatching {
-      database.withTransaction {
-        database.clearAllTables()
-        accountSession.fetchSession()
+    runCatching { accountSession.fetch() }
+      .onSuccess { data ->
+        try {
+          database.withTransaction {
+            database.clearAllTables()
+            accountSession.purseData(data) { _, _ -> }
+          }
+          _channel.send(CompanyHomeChannel.Fetch.Success)
+        } catch (e: Exception) {
+          _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(e)))
+        }
       }
-    }
-      .onSuccess { _channel.send(CompanyHomeChannel.Fetch.Success) }
       .onFailure { _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(it))) }
   }
 
