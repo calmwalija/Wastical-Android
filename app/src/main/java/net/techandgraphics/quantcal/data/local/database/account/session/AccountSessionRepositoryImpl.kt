@@ -29,6 +29,8 @@ class AccountSessionRepositoryImpl @Inject constructor(
   private val sessionService: AccountApi,
 ) : AccountSessionRepository {
 
+  override suspend fun fetch(): ServerResponse = sessionService.get(ACCOUNT_ID)
+
   override suspend fun fetchSession() {
     runCatching { sessionService.get(ACCOUNT_ID) }.onFailure { println(mapApiError(it)) }
       .onSuccess { accountSession ->
