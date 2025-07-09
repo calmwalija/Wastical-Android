@@ -12,4 +12,7 @@ import net.techandgraphics.quantcal.data.local.database.BaseDao
 
   @Query("SELECT * FROM account_request")
   fun flowOf(): Flow<List<AccountRequestEntity>>
+
+  @Query("SELECT * FROM account_request WHERE http_operation=:op")
+  suspend fun qByHttpOp(op: String): List<AccountRequestEntity>
 }

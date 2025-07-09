@@ -275,6 +275,7 @@ internal val accountRequest4Preview = AccountRequestEntity(
   companyLocationId = 1L,
   paymentPlanId = 1L,
   createdAt = 1,
+  updatedAt = 1,
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

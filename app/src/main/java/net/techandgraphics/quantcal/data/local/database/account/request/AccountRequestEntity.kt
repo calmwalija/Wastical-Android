@@ -12,7 +12,6 @@ import net.techandgraphics.quantcal.data.local.database.company.CompanyEntity
 import net.techandgraphics.quantcal.data.local.database.company.location.CompanyLocationEntity
 import net.techandgraphics.quantcal.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
@@ -68,6 +67,7 @@ data class AccountRequestEntity(
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("company_location_id") val companyLocationId: Long,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
-  @ColumnInfo("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
+  @ColumnInfo("created_at") val createdAt: Long,
+  @ColumnInfo("updated_at") val updatedAt: Long,
   @PrimaryKey(autoGenerate = false) val id: Long = 0,
 )
