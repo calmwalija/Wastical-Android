@@ -92,6 +92,7 @@ fun CompanyClientProfileScreen(
 
           itemsIndexed(profileItems) { index, item ->
             if (item.event is CompanyClientProfileEvent.Option.Pending && state.pending.isEmpty()) return@itemsIndexed
+            if (item.event is CompanyClientProfileEvent.Option.Invoice && state.payments.isEmpty()) return@itemsIndexed
             Card(
               modifier = Modifier.padding(4.dp),
               shape = CircleShape,
@@ -115,7 +116,7 @@ fun CompanyClientProfileScreen(
                   else -> onEvent(item.event)
                 }
               }) {
-              Row(modifier = Modifier.padding(20.dp)) {
+              Row(modifier = Modifier.padding(16.dp)) {
                 BadgedBox(badge = {
                   when (item.event) {
                     CompanyClientProfileEvent.Option.History ->

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,7 +30,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -107,14 +107,15 @@ import java.time.Month
             Text(
               text = plan.fee.times(entity.covered.size).toAmount(),
               style = MaterialTheme.typography.titleMedium,
-              fontWeight = FontWeight.Medium
+              fontWeight = FontWeight.Medium,
+              color = MaterialTheme.colorScheme.primary
             )
             Column {
               entity.covered.forEachIndexed { index, monthData ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                   Text(
                     text = index.plus(1).toString().plus(". "),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                   )
                   Text(
                     text = Month.of(monthData.month).name.capitalize(),
@@ -132,20 +133,18 @@ import java.time.Month
             else -> R.drawable.ic_close
           }
 
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-              painter = painterResource(statusIcon),
-              contentDescription = null,
-              tint = MaterialTheme.colorScheme.secondary,
-              modifier = Modifier.size(24.dp)
-            )
-            IconButton(onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
-              Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null
-              )
+          if (statusIcon == 1234)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              IconButton(
+                enabled = false,
+                onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
+                Icon(
+                  imageVector = Icons.Outlined.Delete,
+                  contentDescription = null
+                )
+              }
+              Spacer(modifier = Modifier.width(8.dp))
             }
-          }
 
         }
       }
