@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.defaultDate
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
@@ -83,7 +82,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           style = MaterialTheme.typography.bodySmall
         )
         Text(
-          text = plan.calculate(covered.size).toAmount(),
+          text = plan.fee.times(covered.size).toAmount(),
           style = MaterialTheme.typography.bodyMedium,
           maxLines = 1,
           overflow = TextOverflow.MiddleEllipsis,

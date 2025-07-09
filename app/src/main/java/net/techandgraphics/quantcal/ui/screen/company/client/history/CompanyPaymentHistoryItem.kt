@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.capitalize
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.defaultDateTime
@@ -106,7 +105,7 @@ import java.time.Month
 
           Column(modifier = Modifier.weight(1f)) {
             Text(
-              text = plan.calculate(entity.covered.size).toAmount(),
+              text = plan.fee.times(entity.covered.size).toAmount(),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Medium
             )

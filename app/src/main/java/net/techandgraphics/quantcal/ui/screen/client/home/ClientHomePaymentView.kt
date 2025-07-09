@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.defaultDate
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.imageGatewayUrl
@@ -86,7 +85,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
             style = MaterialTheme.typography.bodySmall
           )
           Text(
-            text = payment.calculate(),
+            text = "payment.calculate()",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis,

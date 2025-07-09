@@ -23,11 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.defaultDateTime
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.gatewayDrawableRes
+import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toFullName
 import net.techandgraphics.quantcal.toZonedDateTime
 import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
@@ -97,7 +97,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         }
 
         Text(
-          text = payment.calculate(),
+          text = entity.plan.fee.times(entity.coveredSize).toAmount(),
           style = MaterialTheme.typography.bodySmall,
           maxLines = 1,
           overflow = TextOverflow.MiddleEllipsis,

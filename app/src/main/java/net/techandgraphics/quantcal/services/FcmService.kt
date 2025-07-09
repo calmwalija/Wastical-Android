@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.calculate
 import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
@@ -91,8 +90,10 @@ class FcmService : FirebaseMessagingService() {
         title = "Payment Screenshot Request Verification",
         body = "${account.toFullName()} has sent a payment request",
         style = NotificationCompat.BigTextStyle().bigText(
-          "${account.toFullName()} has sent a payment request of ${payment.calculate()} " +
-            "using ${entity.gateway.name} on ${payment.updatedAt.toZonedDateTime().defaultDateTime()}",
+          "${account.toFullName()} has sent a payment request of payment.calculate() " +
+            "using ${entity.gateway.name} on ${
+              payment.updatedAt.toZonedDateTime().defaultDateTime()
+            }",
         ),
       )
 
