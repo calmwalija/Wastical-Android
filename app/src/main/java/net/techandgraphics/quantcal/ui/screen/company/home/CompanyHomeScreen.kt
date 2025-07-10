@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -27,7 +28,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,6 +67,7 @@ import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.companyContact4Preview
 import net.techandgraphics.quantcal.ui.screen.payment4CurrentLocationMonth4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
+import net.techandgraphics.quantcal.ui.theme.Brown
 import net.techandgraphics.quantcal.ui.theme.Green
 import net.techandgraphics.quantcal.ui.theme.Purple
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
@@ -76,16 +77,23 @@ private val quickOption = listOf(
 
   CompanyHomeItemModel(
     title = "Locations",
-    drawableRes = R.drawable.ic_location_searching,
+    drawableRes = R.drawable.ic_house,
     containerColor = Purple,
     event = CompanyHomeEvent.Goto.PerLocation
   ),
 
   CompanyHomeItemModel(
     title = "Clients",
-    drawableRes = R.drawable.ic_supervisor_account,
-    containerColor = Green,
+    drawableRes = R.drawable.ic_account,
+    containerColor = Brown,
     event = CompanyHomeEvent.Goto.Clients
+  ),
+
+  CompanyHomeItemModel(
+    title = "Reports",
+    drawableRes = R.drawable.ic_bar_chart,
+    containerColor = Green,
+    event = CompanyHomeEvent.Goto.Report
   )
 )
 
@@ -240,38 +248,35 @@ private val quickOption = listOf(
 
           item {
             FlowRow(
-              maxItemsInEachRow = 2,
+              maxItemsInEachRow = 3,
               modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
             ) {
               (quickOption).forEach { model ->
-                OutlinedCard(
+                Card(
                   onClick = { onEvent(model.event) },
-                  colors = CardDefaults.outlinedCardColors(),
-                  modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth(.48f)
+                  modifier = Modifier.fillMaxWidth(.3f),
+                  colors = CardDefaults.elevatedCardColors()
                 ) {
                   Column(
                     modifier = Modifier
                       .fillMaxSize()
                       .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                   ) {
                     Icon(
                       painterResource(model.drawableRes),
                       contentDescription = null,
-                      modifier = Modifier.padding(8.dp),
+                      modifier = Modifier.size(32.dp),
+                      tint = MaterialTheme.colorScheme.secondary
                     )
+                    Spacer(Modifier.height(8.dp))
                     Text(
                       text = model.title,
-                      style = MaterialTheme.typography.labelMedium,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.padding(horizontal = 4.dp),
-                      color = MaterialTheme.colorScheme.primary
+                      style = MaterialTheme.typography.bodySmall
                     )
                   }
                 }

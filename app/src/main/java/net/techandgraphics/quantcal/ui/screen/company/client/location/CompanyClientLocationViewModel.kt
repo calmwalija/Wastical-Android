@@ -12,11 +12,11 @@ import net.techandgraphics.quantcal.data.local.database.toAccountEntity
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toAccountUiModel
-import net.techandgraphics.quantcal.domain.toAreaUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
-import net.techandgraphics.quantcal.domain.toStreetUiModel
+import net.techandgraphics.quantcal.domain.toDemographicAreaUiModel
+import net.techandgraphics.quantcal.domain.toDemographicStreetUiModel
 import net.techandgraphics.quantcal.worker.account.scheduleAccountDemographicRequestWorker
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -41,10 +41,10 @@ class CompanyClientLocationViewModel @Inject constructor(
         .toCompanyLocationUiModel()
       val accountDemographicStreet =
         database.demographicStreetDao.get(accountLocation.demographicStreetId)
-          .toStreetUiModel()
+          .toDemographicStreetUiModel()
       val accountDemographicArea =
         database.demographicAreaDao.get(accountLocation.demographicAreaId)
-          .toAreaUiModel()
+          .toDemographicAreaUiModel()
       val demographic = CompanyLocationWithDemographicUiModel(
         accountLocation,
         accountDemographicArea,
