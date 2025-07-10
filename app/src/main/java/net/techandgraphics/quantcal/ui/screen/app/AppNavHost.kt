@@ -75,6 +75,9 @@ import net.techandgraphics.quantcal.ui.screen.company.payment.timeline.PaymentTi
 import net.techandgraphics.quantcal.ui.screen.company.payment.verify.CompanyVerifyPaymentEvent
 import net.techandgraphics.quantcal.ui.screen.company.payment.verify.CompanyVerifyPaymentScreen
 import net.techandgraphics.quantcal.ui.screen.company.payment.verify.CompanyVerifyPaymentViewModel
+import net.techandgraphics.quantcal.ui.screen.company.report.CompanyReportEvent
+import net.techandgraphics.quantcal.ui.screen.company.report.CompanyReportScreen
+import net.techandgraphics.quantcal.ui.screen.company.report.CompanyReportViewModel
 
 @Composable
 fun AppNavHost(
@@ -402,6 +405,7 @@ fun AppNavHost(
           when (event) {
             is Goto -> when (event) {
               Goto.Create -> navController.navigate(Route.Company.Client.Create)
+              Goto.Report -> navController.navigate(Route.Company.Report)
               Goto.Clients -> navController.navigate(Route.Company.Client.Browse)
               Goto.Payments ->
                 navController.navigate(Route.Company.Payment.Verify(PaymentStatus.Approved.name))
@@ -519,6 +523,20 @@ fun AppNavHost(
             PaymentTimelineEvent.Load -> Unit
             is PaymentTimelineEvent.Goto.Profile ->
               navController.navigate(Route.Company.Client.Profile(event.id))
+          }
+        }
+      }
+    }
+
+
+    composable<Route.Company.Report> {
+      with(hiltViewModel<CompanyReportViewModel>()) {
+        val state = state.collectAsState().value
+        CompanyReportScreen(state) { event ->
+          when (event) {
+            CompanyReportEvent.Goto.BackHandler -> navController.navigateUp()
+            CompanyReportEvent.Load -> Unit
+            else -> onEvent(event)
           }
         }
       }

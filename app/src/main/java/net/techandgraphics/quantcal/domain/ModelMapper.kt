@@ -148,7 +148,7 @@ fun CompanyBinCollectionEntity.toTrashCollectionScheduleUiModel() =
     updatedAt = updatedAt,
   )
 
-fun DemographicStreetEntity.toStreetUiModel() = DemographicStreetUiModel(
+fun DemographicStreetEntity.toDemographicStreetUiModel() = DemographicStreetUiModel(
   id = id,
   name = name,
   latitude = latitude,
@@ -157,7 +157,7 @@ fun DemographicStreetEntity.toStreetUiModel() = DemographicStreetUiModel(
   updatedAt = updatedAt,
 )
 
-fun DemographicAreaEntity.toAreaUiModel() = DemographicAreaUiModel(
+fun DemographicAreaEntity.toDemographicAreaUiModel() = DemographicAreaUiModel(
   id = id,
   name = name,
   type = type,
@@ -168,7 +168,7 @@ fun DemographicAreaEntity.toAreaUiModel() = DemographicAreaUiModel(
   updatedAt = updatedAt,
 )
 
-fun DemographicDistrictEntity.toDistrictUiModel() = DemographicDistrictUiModel(
+fun DemographicDistrictEntity.toDemographicDistrictUiModel() = DemographicDistrictUiModel(
   id = id,
   name = name,
   region = region,
@@ -265,8 +265,8 @@ fun PaymentWithMonthsCoveredEntity.toPaymentWithMonthsCoveredUiModel() =
 fun CompanyLocationWithDemographicEntity.toCompanyLocationWithDemographicUiModel() =
   CompanyLocationWithDemographicUiModel(
     location = location.toCompanyLocationUiModel(),
-    demographicArea = demographicArea.toAreaUiModel(),
-    demographicStreet = demographicStreet.toStreetUiModel(),
+    demographicArea = demographicArea.toDemographicAreaUiModel(),
+    demographicStreet = demographicStreet.toDemographicStreetUiModel(),
   )
 
 fun AccountRequestEntity.toAccountRequestUiModel() = AccountRequestUiModel(

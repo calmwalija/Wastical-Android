@@ -100,9 +100,60 @@ interface PaymentIndicatorDao {
     sortOrder: Int = 0,
   ): List<AccountWithPaymentStatusEntity>
 
+  @Query(
+    """
+    SELECT
+      account.title,
+      account.firstname,
+      account.lastname,
+      account.username as contact,
+      street.name as demographicStreet,
+      plans.fee as amount,
+      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
+    FROM
+      account AS account
+      INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
+      INNER JOIN payment_plan plans ON accountplans.payment_plan_id = plans.id
+      LEFT JOIN company_location as location ON account.company_location_id = location.id
+      LEFT JOIN demographic_street as street ON location.demographic_street_id = street.id
+      LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
+      AND month_covered.month = :month
+      AND month_covered.year = :year
+      LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
+    WHERE
+      hasPaid = :hasPaid
+    GROUP BY
+      account.id
+""",
+  )
+  suspend fun qAccounts(month: Int, year: Int, hasPaid: Boolean): List<UnPaidAccount>
+
+  @Query(
+    """
+  SELECT
+    a.id AS accountId,
+    a.title,
+    a.firstname || ' ' || a.lastname AS fullName,
+    a.username AS phoneNumber,
+    pmc.month AS paidMonth
+  FROM account a
+  LEFT JOIN payment_month_covered pmc
+    ON a.id = pmc.account_id AND pmc.year = :year
+""",
+  )
+  suspend fun getCoverageRaw(year: Int): List<CoverageRaw>
+
   @Query("SELECT month, year FROM payment_month_covered GROUP BY month, year")
   suspend fun getAllMonthsPayments(): List<MonthYear>
 }
+
+data class CoverageRaw(
+  val accountId: Long,
+  val fullName: String,
+  val title: String,
+  val phoneNumber: String,
+  val paidMonth: Int?,
+)
 
 data class PaymentPlanAgainstAccounts(
   val planId: Long,
@@ -125,6 +176,15 @@ data class MonthYear(val month: Int, val year: Int)
 data class MonthYearPayment4Month(
   val monthYear: MonthYear,
   val payment4CurrentMonth: Payment4CurrentMonth,
+)
+
+data class UnPaidAccount(
+  val title: String,
+  val firstname: String,
+  val lastname: String,
+  val demographicStreet: String,
+  val contact: String,
+  val amount: Int,
 )
 
 enum class AccountSortOrder { Paid, Unpaid, Title, Lastname, Contact }

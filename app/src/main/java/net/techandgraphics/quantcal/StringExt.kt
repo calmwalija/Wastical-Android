@@ -44,7 +44,14 @@ fun String.toKwacha() = this.plus(" Kwacha")
 fun Int.toMonthName() = Month.of(this)
   .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()).capitalize()
 
+fun Int.toShortMonthName() = Month.of(this)
+  .getDisplayName(TextStyle.SHORT, Locale.getDefault()).capitalize()
+
 fun CompanyLocationWithDemographicUiModel.toLocation() =
   demographicArea.name
     .plus(", ")
     .plus(demographicStreet.name)
+
+fun String.getAccountTitle(): String {
+  return AccountTitle.valueOf(this).title.let { if (it == AccountTitle.Na.title) "" else it.plus(" ") }
+}

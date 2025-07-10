@@ -21,10 +21,10 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toSearchTagEntity
 import net.techandgraphics.quantcal.domain.model.search.SearchTagUiModel
 import net.techandgraphics.quantcal.domain.toAccountRequestUiModel
-import net.techandgraphics.quantcal.domain.toAreaUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
+import net.techandgraphics.quantcal.domain.toDemographicAreaUiModel
+import net.techandgraphics.quantcal.domain.toDemographicStreetUiModel
 import net.techandgraphics.quantcal.domain.toSearchTagUiModel
-import net.techandgraphics.quantcal.domain.toStreetUiModel
 import net.techandgraphics.quantcal.worker.payment.scheduleAppWorker
 import javax.inject.Inject
 
@@ -63,8 +63,8 @@ class CompanyBrowseClientViewModel @Inject constructor(
 
   private suspend fun onLoad() {
     val company = database.companyDao.query().first().toCompanyUiModel()
-    val demographicAreas = database.demographicAreaDao.query().map { it.toAreaUiModel() }
-    val demographicStreets = database.demographicStreetDao.query().map { it.toStreetUiModel() }
+    val demographicAreas = database.demographicAreaDao.query().map { it.toDemographicAreaUiModel() }
+    val demographicStreets = database.demographicStreetDao.query().map { it.toDemographicStreetUiModel() }
     combine(
       database.accountDao.qAccountData(),
       database.searchTagDao.query(),
@@ -86,11 +86,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
   private suspend fun onQueryChange() {
     val currentState = _state.value
     if (currentState is CompanyBrowseClientState.Success) {
-      val ids = if (currentState.filters.isEmpty()) {
-        null
-      } else {
-        currentState.filters
-      }
+      val ids = currentState.filters.ifEmpty { null }
       database.accountDao
         .qAccountData(query = currentState.query.trim(), ids)
         .collectLatest {
@@ -108,7 +104,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
         }
         _state.value = currentState.copy(filters = updatedFilters)
         val newState = _state.value as CompanyBrowseClientState.Success
-        val ids = if (newState.filters.isEmpty()) null else newState.filters
+        val ids = newState.filters.ifEmpty { null }
         database.accountDao.qAccountData(
           query = newState.query.trim(),
           ids = ids,

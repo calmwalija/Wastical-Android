@@ -12,10 +12,10 @@ import net.techandgraphics.quantcal.data.local.Preferences
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.quantcal.domain.toAccountWithPaymentStatusUiModel
-import net.techandgraphics.quantcal.domain.toAreaUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
-import net.techandgraphics.quantcal.domain.toStreetUiModel
+import net.techandgraphics.quantcal.domain.toDemographicAreaUiModel
+import net.techandgraphics.quantcal.domain.toDemographicStreetUiModel
 import net.techandgraphics.quantcal.getToday
 import javax.inject.Inject
 
@@ -42,7 +42,7 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
 
           val demographicStreet = database.demographicStreetDao
             .get(companyLocation.demographicStreetId)
-            .toStreetUiModel()
+            .toDemographicStreetUiModel()
 
           val payment4CurrentMonth = database.paymentIndicatorDao
             .getPayment4CurrentMonthByStreetId(
@@ -53,7 +53,7 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
 
           val demographicArea = database.demographicAreaDao
             .get(companyLocation.demographicAreaId)
-            .toAreaUiModel()
+            .toDemographicAreaUiModel()
           val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
             id = companyLocation.demographicStreetId,
             month = monthYear.month,
