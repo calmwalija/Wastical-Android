@@ -25,7 +25,7 @@ import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.image2Text
 import net.techandgraphics.quantcal.toBitmap
 import net.techandgraphics.quantcal.toSoftwareBitmap
-import net.techandgraphics.quantcal.worker.scheduleAppWorker
+import net.techandgraphics.quantcal.worker.payment.scheduleAppWorker
 import javax.inject.Inject
 
 @HiltViewModel

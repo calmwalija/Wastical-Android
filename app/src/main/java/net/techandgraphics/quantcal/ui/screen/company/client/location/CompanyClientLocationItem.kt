@@ -41,6 +41,7 @@ fun CompanyClientLocationItem(
   val currentLocation = model.demographicStreet.id == location.demographicStreetId
 
   Card(
+    onClick = { onEvent(CompanyClientLocationEvent.Button.Change(model.demographicStreet)) },
     modifier = modifier.padding(4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors()
@@ -52,9 +53,10 @@ fun CompanyClientLocationItem(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      RadioButton(selected = currentLocation, onClick = {
-
-      })
+      RadioButton(
+        selected = currentLocation,
+        onClick = { onEvent(CompanyClientLocationEvent.Button.Change(model.demographicStreet)) }
+      )
 
       Column(
         modifier = Modifier

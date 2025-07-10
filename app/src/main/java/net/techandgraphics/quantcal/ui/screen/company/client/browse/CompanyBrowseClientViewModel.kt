@@ -25,7 +25,7 @@ import net.techandgraphics.quantcal.domain.toAreaUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toSearchTagUiModel
 import net.techandgraphics.quantcal.domain.toStreetUiModel
-import net.techandgraphics.quantcal.worker.scheduleAppWorker
+import net.techandgraphics.quantcal.worker.payment.scheduleAppWorker
 import javax.inject.Inject
 
 @HiltViewModel

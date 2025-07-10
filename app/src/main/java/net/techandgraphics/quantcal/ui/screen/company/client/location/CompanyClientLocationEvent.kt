@@ -1,5 +1,7 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.location
 
+import net.techandgraphics.quantcal.domain.model.demographic.DemographicStreetUiModel
+
 sealed interface CompanyClientLocationEvent {
   data class Load(val id: Long) : CompanyClientLocationEvent
 
@@ -11,6 +13,7 @@ sealed interface CompanyClientLocationEvent {
   sealed interface Button : CompanyClientLocationEvent {
     data object Clear : Button
     data class Phone(val contact: String) : Button
+    data class Change(val demographicStreet: DemographicStreetUiModel) : Button
   }
 
   sealed interface Input : CompanyClientLocationEvent {

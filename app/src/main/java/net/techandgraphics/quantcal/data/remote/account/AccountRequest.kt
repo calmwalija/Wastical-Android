@@ -17,6 +17,8 @@ data class AccountRequest(
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("company_location_id") val companyLocationId: Long,
   @SerializedName("payment_plan_id") val paymentPlanId: Long,
+  @SerializedName("created_at") val createdAt: Long = 0,
+  @SerializedName("updated_at") val updateAt: Long = 0,
 )
 
-enum class HttpOperation { Create, Edit }
+enum class HttpOperation { Create, Edit, Demographic }

@@ -58,6 +58,8 @@ fun AccountRequestEntity.toAccountRequest() = AccountRequest(
   companyId = companyId,
   companyLocationId = companyLocationId,
   paymentPlanId = paymentPlanId,
+  createdAt = createdAt,
+  updateAt = updatedAt,
 )
 
 fun AccountPaymentPlanRequestEntity.toAccountPaymentPlanRequest() =

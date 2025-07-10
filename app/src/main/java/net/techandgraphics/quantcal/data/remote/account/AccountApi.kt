@@ -29,6 +29,9 @@ interface AccountApi {
   @POST("account")
   suspend fun create(@Body accountRequest: AccountRequest): ServerResponse
 
+  @PUT("account/demographic/{id}")
+  suspend fun demographic(@Path("id") id: Long, @Body request: AccountRequest): AccountResponse
+
   suspend fun verify(contact: String): ServerResponse
   suspend fun fcmToken(request: AccountFcmTokenRequest): AccountFcmTokenResponse
 }

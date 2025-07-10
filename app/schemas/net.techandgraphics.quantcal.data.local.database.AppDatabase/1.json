@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "94bc46b7f42bce46ba25b88d95437756",
+    "identityHash": "420a838306cf0ce8619c3917bbae1982",
     "entities": [
       {
         "tableName": "account",
@@ -1620,7 +1620,7 @@
       },
       {
         "tableName": "account_request",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `contact` TEXT NOT NULL, `altContact` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `contact` TEXT NOT NULL, `altContact` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -1703,6 +1703,12 @@
           {
             "fieldPath": "createdAt",
             "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1894,7 +1900,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94bc46b7f42bce46ba25b88d95437756')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '420a838306cf0ce8619c3917bbae1982')"
     ]
   }
 }

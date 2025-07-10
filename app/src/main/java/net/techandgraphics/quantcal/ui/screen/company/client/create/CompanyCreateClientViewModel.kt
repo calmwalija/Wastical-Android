@@ -22,6 +22,7 @@ import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -40,6 +41,7 @@ class CompanyCreateClientViewModel @Inject constructor(
     if (_state.value is CompanyCreateClientState.Success) {
       val theState = (_state.value as CompanyCreateClientState.Success)
       val theId = System.currentTimeMillis()
+      val timestamp = ZonedDateTime.now().toEpochSecond()
       val account = AccountRequestEntity(
         id = theId,
         title = theState.title,
@@ -60,6 +62,8 @@ class CompanyCreateClientViewModel @Inject constructor(
         companyLocationId = theState.companyLocationId,
         httpOperation = HttpOperation.Create.name,
         accountId = theId,
+        createdAt = timestamp,
+        updatedAt = timestamp,
       )
 
       runCatching {

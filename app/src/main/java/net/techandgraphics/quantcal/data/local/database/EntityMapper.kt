@@ -1,6 +1,7 @@
 package net.techandgraphics.quantcal.data.local.database
 
 import net.techandgraphics.quantcal.data.local.database.account.AccountEntity
+import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.local.database.account.contact.AccountContactEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
@@ -407,8 +408,27 @@ fun AccountRequestEntity.toAccountEntity() =
     email = email,
     companyLocationId = companyLocationId,
     companyId = companyId,
-    updatedAt = createdAt,
+    updatedAt = updatedAt,
     createdAt = createdAt,
+  )
+
+fun AccountEntity.toAccountEntity(planId: Long) =
+  AccountRequestEntity(
+    id = id,
+    uuid = uuid,
+    title = AccountTitle.valueOf(title),
+    firstname = firstname,
+    lastname = lastname,
+    email = email,
+    companyLocationId = companyLocationId,
+    companyId = companyId,
+    updatedAt = updatedAt,
+    createdAt = createdAt,
+    contact = username,
+    altContact = "",
+    role = AccountRole.Client.name,
+    accountId = id,
+    paymentPlanId = planId,
   )
 
 fun AccountEntity.toAccountContactEntity() =
