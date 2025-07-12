@@ -24,6 +24,8 @@ import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentEvent
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentViewModel
+import net.techandgraphics.quantcal.ui.screen.company.CompanyNavGraphBuilder
+import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
 import net.techandgraphics.quantcal.ui.screen.company.client.browse.CompanyBrowseClientListEvent
 import net.techandgraphics.quantcal.ui.screen.company.client.browse.CompanyBrowseClientScreen
 import net.techandgraphics.quantcal.ui.screen.company.client.browse.CompanyBrowseClientViewModel
@@ -45,9 +47,6 @@ import net.techandgraphics.quantcal.ui.screen.company.client.pending.CompanyClie
 import net.techandgraphics.quantcal.ui.screen.company.client.plan.CompanyClientPlanEvent
 import net.techandgraphics.quantcal.ui.screen.company.client.plan.CompanyClientPlanScreen
 import net.techandgraphics.quantcal.ui.screen.company.client.plan.CompanyClientPlanViewModel
-import net.techandgraphics.quantcal.ui.screen.company.client.profile.CompanyClientProfileEvent
-import net.techandgraphics.quantcal.ui.screen.company.client.profile.CompanyClientProfileScreen
-import net.techandgraphics.quantcal.ui.screen.company.client.profile.CompanyClientProfileViewModel
 import net.techandgraphics.quantcal.ui.screen.company.home.CompanyHomeEvent.Goto
 import net.techandgraphics.quantcal.ui.screen.company.home.CompanyHomeScreen
 import net.techandgraphics.quantcal.ui.screen.company.home.CompanyHomeViewModel
@@ -90,6 +89,7 @@ fun AppNavHost(
   ) {
 
     PhoneNavGraphBuilder(navController)
+    CompanyNavGraphBuilder(navController)
 
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {
@@ -159,7 +159,7 @@ fun AppNavHost(
           when (event) {
             CompanyCreateClientEvent.Goto.BackHandler -> navController.navigateUp()
             is CompanyCreateClientEvent.Goto.Profile ->
-              navController.navigate(Route.Company.Client.Profile(event.id)) {
+              navController.navigate(CompanyRoute.ClientProfile(event.id)) {
                 popUpTo(Route.Company.Client.Create) { inclusive = true }
               }
 
@@ -200,61 +200,13 @@ fun AppNavHost(
 
                 is CompanyBrowseClientListEvent.Goto.Profile -> {
                   onEvent(CompanyBrowseClientListEvent.Button.HistoryTag)
-                  navController.navigate(Route.Company.Client.Profile(event.id))
+                  navController.navigate(CompanyRoute.ClientProfile(event.id))
                 }
               }
 
             else -> onEvent(event)
           }
 
-        }
-      }
-    }
-
-    composable<Route.Company.Client.Profile> {
-      with(hiltViewModel<CompanyClientProfileViewModel>()) {
-        val id = it.toRoute<Route.Company.Client.Profile>().id
-        val state = state.collectAsState().value
-        val context = LocalContext.current
-        LaunchedEffect(id) { onEvent(CompanyClientProfileEvent.Load(id)) }
-        CompanyClientProfileScreen(state) { event ->
-          when (event) {
-
-            CompanyClientProfileEvent.Option.History ->
-              navController.navigate(Route.Company.Client.History(id))
-
-            CompanyClientProfileEvent.Option.Location ->
-              navController.navigate(Route.Company.ClientLocation(id))
-
-            CompanyClientProfileEvent.Option.Payment ->
-              navController.navigate(Route.Company.Client.Payment(id))
-
-            CompanyClientProfileEvent.Option.Plan ->
-              navController.navigate(Route.Company.Client.Plan(id))
-
-            CompanyClientProfileEvent.Option.Pending ->
-              navController.navigate(Route.Company.Payment.Pending(id))
-
-            CompanyClientProfileEvent.Option.Invoice ->
-              navController.navigate(Route.Company.Client.Invoice(id))
-
-            CompanyClientProfileEvent.Option.Revoke -> Unit
-
-            CompanyClientProfileEvent.Goto.BackHandler -> navController.navigateUp()
-
-            is CompanyClientProfileEvent.Goto.Location -> {
-              navController.navigate(Route.Company.LocationOverview(event.id)) {
-                popUpTo(navController.graph.startDestinationId) {
-                  inclusive = false
-                }
-                launchSingleTop = true
-              }
-            }
-
-            is CompanyClientProfileEvent.Button.Phone -> context.openDialer(event.contact)
-
-            else -> Unit
-          }
         }
       }
     }
@@ -419,7 +371,7 @@ fun AppNavHost(
                 navController.navigate(Route.Company.LocationOverview(event.id))
 
               Goto.Timeline -> navController.navigate(Route.Company.Payment.Timeline)
-              is Goto.Profile -> navController.navigate(Route.Company.Client.Profile(event.id))
+              is Goto.Profile -> navController.navigate(CompanyRoute.ClientProfile(event.id))
             }
 
             else -> onEvent(event)
@@ -455,7 +407,7 @@ fun AppNavHost(
           when (event) {
             CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
             is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
-              navController.navigate(Route.Company.Client.Profile(event.id))
+              navController.navigate(CompanyRoute.ClientProfile(event.id))
 
             is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
             else -> Unit
@@ -522,7 +474,7 @@ fun AppNavHost(
             PaymentTimelineEvent.Goto.BackHandler -> navController.navigateUp()
             PaymentTimelineEvent.Load -> Unit
             is PaymentTimelineEvent.Goto.Profile ->
-              navController.navigate(Route.Company.Client.Profile(event.id))
+              navController.navigate(CompanyRoute.ClientProfile(event.id))
           }
         }
       }

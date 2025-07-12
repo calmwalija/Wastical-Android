@@ -44,7 +44,7 @@ fun CompanyBrowseLocationView(
   ) {
 
     Icon(
-      painterResource(R.drawable.ic_location_searching),
+      painter = painterResource(R.drawable.ic_house),
       contentDescription = null,
       modifier = Modifier
         .clip(CircleShape)
@@ -59,14 +59,10 @@ fun CompanyBrowseLocationView(
         .weight(1f)
     ) {
       Text(
-        text = location.districtName,
-        style = MaterialTheme.typography.labelSmall
-      )
-      Text(
-        text = location.streetName,
-        color = MaterialTheme.colorScheme.secondary,
-        style = MaterialTheme.typography.titleMedium,
         maxLines = 1,
+        text = location.streetName,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.titleMedium,
         overflow = TextOverflow.MiddleEllipsis
       )
       Text(

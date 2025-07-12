@@ -68,7 +68,7 @@ fun CompanyClientProfileScreen(
 
           item {
             Text(
-              text = "Client Info",
+              text = "Client Profile",
               style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier.padding(bottom = 32.dp)
             )
