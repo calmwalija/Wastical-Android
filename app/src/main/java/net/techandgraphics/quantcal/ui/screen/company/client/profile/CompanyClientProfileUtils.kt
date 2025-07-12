@@ -11,6 +11,11 @@ data class ProfileItem(
 
 val profileItems = listOf(
   ProfileItem(
+    title = "Edit Profile",
+    drawableRes = R.drawable.ic_edit_note,
+    event = CompanyClientProfileEvent.Option.Info,
+  ),
+  ProfileItem(
     title = "Record Payment",
     drawableRes = R.drawable.ic_payment,
     event = CompanyClientProfileEvent.Option.Payment,
@@ -39,5 +44,10 @@ val profileItems = listOf(
     title = "Change Location",
     drawableRes = R.drawable.ic_house,
     event = CompanyClientProfileEvent.Option.Location,
+  ),
+  ProfileItem(
+    title = "Remove Client",
+    drawableRes = R.drawable.ic_revoke,
+    event = CompanyClientProfileEvent.Option.Revoke,
   ),
 )
