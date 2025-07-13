@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "420a838306cf0ce8619c3917bbae1982",
+    "identityHash": "f0376ea295c8f5ca4b301ef703f41d1f",
     "entities": [
       {
         "tableName": "account",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `company_location_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `status` TEXT NOT NULL, `company_location_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `updated_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -49,6 +49,12 @@
             "columnName": "email",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "latitude",
@@ -1620,7 +1626,7 @@
       },
       {
         "tableName": "account_request",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `contact` TEXT NOT NULL, `altContact` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `contact` TEXT NOT NULL, `altContact` TEXT NOT NULL, `email` TEXT, `role` TEXT NOT NULL, `status` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_location_id` INTEGER NOT NULL, `payment_plan_id` INTEGER NOT NULL, `leaving_reason` TEXT, `leaving_timestamp` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`company_id`) REFERENCES `company`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_plan_id`) REFERENCES `payment_plan`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`company_location_id`) REFERENCES `company_location`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -1671,6 +1677,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "httpOperation",
             "columnName": "http_operation",
             "affinity": "TEXT",
@@ -1699,6 +1711,18 @@
             "columnName": "payment_plan_id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "leavingReason",
+            "columnName": "leaving_reason",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "leavingTimestamp",
+            "columnName": "leaving_timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "createdAt",
@@ -1900,7 +1924,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '420a838306cf0ce8619c3917bbae1982')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f0376ea295c8f5ca4b301ef703f41d1f')"
     ]
   }
 }

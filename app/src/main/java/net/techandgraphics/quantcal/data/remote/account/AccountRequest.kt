@@ -12,6 +12,7 @@ data class AccountRequest(
   val lastname: String,
   val contacts: List<String>,
   val email: String? = null,
+  val status: String,
   val role: AccountRole = AccountRole.Client,
   @SerializedName("http_operation") val httpOperation: String = HttpOperation.Create.name,
   @SerializedName("company_id") val companyId: Long,

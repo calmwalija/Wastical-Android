@@ -13,6 +13,7 @@ data class AccountResponse(
   val latitude: Float,
   val longitude: Float,
   val status: String,
+  val role: String,
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("leaving_reason") val leavingReason: String?,
   @SerializedName("leaving_timestamp") val leavingTimestamp: Long?,

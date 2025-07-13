@@ -64,7 +64,7 @@ import java.util.concurrent.TimeUnit
   }
 }
 
-fun Context.scheduleAppWorker() {
+fun Context.schedulePaymentWorker() {
   val workRequest = OneTimeWorkRequestBuilder<PaymentWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)

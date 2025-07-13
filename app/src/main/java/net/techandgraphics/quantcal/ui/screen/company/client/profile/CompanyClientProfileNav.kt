@@ -24,7 +24,7 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
       val state = state.collectAsState().value
       val context = LocalContext.current
       LaunchedEffect(id) { onEvent(Load(id)) }
-      CompanyClientProfileScreen(state) { event ->
+      CompanyClientProfileScreen(state, channel) { event ->
         when (event) {
           Option.History -> navController.navigate(CompanyRoute.ClientHistory(id))
           Option.Location -> navController.navigate(CompanyRoute.ClientLocation(id))
@@ -33,8 +33,6 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
           Option.Pending -> navController.navigate(CompanyRoute.PaymentPending(id))
           Option.Invoice -> navController.navigate(CompanyRoute.PaymentInvoice(id))
           Option.Info -> navController.navigate(CompanyRoute.ClientInfo(id))
-
-          Option.Revoke -> Unit
 
           Goto.BackHandler -> navController.navigateUp()
 
@@ -49,7 +47,7 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
 
           is Button.Phone -> context.openDialer(event.contact)
 
-          else -> Unit
+          else -> onEvent(event)
         }
       }
     }

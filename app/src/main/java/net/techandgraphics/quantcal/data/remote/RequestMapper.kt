@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.data.remote
 
+import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.quantcal.data.local.database.account.request.AccountRequestEntity
@@ -60,6 +61,9 @@ fun AccountRequestEntity.toAccountRequest() = AccountRequest(
   paymentPlanId = paymentPlanId,
   createdAt = createdAt,
   updateAt = updatedAt,
+  role = AccountRole.valueOf(role),
+  httpOperation = httpOperation,
+  status = status,
 )
 
 fun AccountPaymentPlanRequestEntity.toAccountPaymentPlanRequest() =

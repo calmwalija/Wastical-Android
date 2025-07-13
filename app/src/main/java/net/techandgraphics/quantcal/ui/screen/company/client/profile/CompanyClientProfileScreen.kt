@@ -20,8 +20,18 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -29,8 +39,16 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
+import net.techandgraphics.quantcal.ui.screen.SnackbarThemed
 import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoView
@@ -44,6 +62,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable
 fun CompanyClientProfileScreen(
   state: CompanyClientProfileState,
+  channel: Flow<CompanyClientProfileChannel>,
   onEvent: (CompanyClientProfileEvent) -> Unit,
 ) {
   when (state) {
@@ -52,8 +71,54 @@ fun CompanyClientProfileScreen(
 
       val context = LocalContext.current
       val hapticFeedback = LocalHapticFeedback.current
+      val snackbarHostState = remember { SnackbarHostState() }
+      val scope = rememberCoroutineScope()
+      var showWarning by remember { mutableStateOf(false) }
+
+
+      val lifecycleOwner = LocalLifecycleOwner.current
+      LaunchedEffect(key1 = channel) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          channel.collect { event ->
+            when (event) {
+
+              is CompanyClientProfileChannel.Revoke.Error ->
+                context.toast(event.error.message)
+
+              CompanyClientProfileChannel.Revoke.Success -> {
+                context.toast("Your request was submitted")
+                onEvent(CompanyClientProfileEvent.Goto.BackHandler)
+              }
+
+            }
+          }
+        }
+      }
+
+
+      if (showWarning) {
+        Dialog(onDismissRequest = { showWarning = false }) {
+          CompanyClientProfileRevokeView(onProceedWithCaution = {
+            showWarning = false
+            scope.launch {
+              snackbarHostState.showSnackbar(
+                message = "Please confirm the account revoke request for this client ?",
+                actionLabel = "Confirm",
+                duration = SnackbarDuration.Short
+              ).also { result ->
+                when (result) {
+                  SnackbarResult.Dismissed -> Unit
+                  SnackbarResult.ActionPerformed -> onEvent(CompanyClientProfileEvent.Option.Revoke)
+                }
+              }
+            }
+          }) { showWarning = false }
+        }
+      }
+
 
       Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) { SnackbarThemed(it) } },
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
             onEvent(CompanyClientProfileEvent.Goto.BackHandler)
@@ -113,6 +178,9 @@ fun CompanyClientProfileScreen(
                     } else onEvent(item.event)
                   }
 
+                  CompanyClientProfileEvent.Option.Revoke -> showWarning = true
+
+
                   else -> onEvent(item.event)
                 }
               }) {
@@ -164,7 +232,7 @@ private fun CompanyClientProfileScreenPreview() {
         account = account4Preview,
         demographic = companyLocationWithDemographic4Preview
       ),
-      onEvent = {}
-    )
+      channel = flow { }
+    ) {}
   }
 }

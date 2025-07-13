@@ -25,7 +25,7 @@ import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.image2Text
 import net.techandgraphics.quantcal.toBitmap
 import net.techandgraphics.quantcal.toSoftwareBitmap
-import net.techandgraphics.quantcal.worker.payment.scheduleAppWorker
+import net.techandgraphics.quantcal.worker.payment.schedulePaymentWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,7 +79,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
       database.paymentRequestDao.upsert(cachedPayment)
       _channel.send(CompanyMakePaymentChannel.Pay.Success)
       _state.value = getState().copy(imageUri = null)
-      application.scheduleAppWorker()
+      application.schedulePaymentWorker()
     }
   }
 

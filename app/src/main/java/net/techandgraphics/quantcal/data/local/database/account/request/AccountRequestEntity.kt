@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.account.AccountEntity
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.local.database.company.CompanyEntity
@@ -61,12 +60,15 @@ data class AccountRequestEntity(
   val contact: String,
   val altContact: String,
   val email: String? = null,
-  val role: String = AccountRole.Client.name,
+  val role: String,
+  val status: String,
   @ColumnInfo("http_operation") val httpOperation: String = HttpOperation.Create.name,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("company_location_id") val companyLocationId: Long,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
+  @ColumnInfo(name = "leaving_reason") val leavingReason: String? = null,
+  @ColumnInfo(name = "leaving_timestamp") val leavingTimestamp: Long? = null,
   @ColumnInfo("created_at") val createdAt: Long,
   @ColumnInfo("updated_at") val updatedAt: Long,
   @PrimaryKey(autoGenerate = false) val id: Long = 0,

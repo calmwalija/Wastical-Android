@@ -38,6 +38,7 @@ fun PaymentWithAccountAndMethodWithGatewayQuery.toEntity(): PaymentWithAccountAn
       lastname = lastname,
       username = username,
       email = email,
+      role = role,
       latitude = latitude,
       longitude = longitude,
       status = accStatus,

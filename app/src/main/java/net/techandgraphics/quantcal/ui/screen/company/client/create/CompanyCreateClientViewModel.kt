@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.quantcal.data.Status
+import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.local.database.account.request.AccountRequestEntity
@@ -62,8 +64,10 @@ class CompanyCreateClientViewModel @Inject constructor(
         companyLocationId = theState.companyLocationId,
         httpOperation = HttpOperation.Create.name,
         accountId = theId,
+        role = AccountRole.Client.name,
         createdAt = timestamp,
         updatedAt = timestamp,
+        status = Status.Active.name,
       )
 
       runCatching {

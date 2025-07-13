@@ -69,6 +69,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
         -- Account
         account.id AS accId,
         account.uuid AS uuid,
+        account.role AS role,
         account.title AS title,
         account.firstname AS firstname,
         account.lastname AS lastname,
@@ -142,6 +143,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
         -- Account
         account.id AS accId,
         account.uuid AS uuid,
+        account.role AS role,
         account.title AS title,
         account.firstname AS firstname,
         account.lastname AS lastname,
