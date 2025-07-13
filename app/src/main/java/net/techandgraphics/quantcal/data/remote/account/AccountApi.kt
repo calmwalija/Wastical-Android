@@ -29,6 +29,9 @@ interface AccountApi {
   @POST("account")
   suspend fun create(@Body accountRequest: AccountRequest): ServerResponse
 
+  @PUT("account/{id}")
+  suspend fun put(@Path("id") id: Long, @Body accountRequest: AccountRequest): AccountResponse
+
   @PUT("account/demographic/{id}")
   suspend fun demographic(@Path("id") id: Long, @Body request: AccountRequest): AccountResponse
 

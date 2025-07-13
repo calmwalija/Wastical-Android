@@ -25,7 +25,7 @@ import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toDemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.toDemographicStreetUiModel
 import net.techandgraphics.quantcal.domain.toSearchTagUiModel
-import net.techandgraphics.quantcal.worker.payment.scheduleAppWorker
+import net.techandgraphics.quantcal.worker.payment.schedulePaymentWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -142,7 +142,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
       CompanyBrowseClientListEvent.Button.HistoryTag -> onHistoryTag()
       is CompanyBrowseClientListEvent.Button.Tag -> onButtonTag(event)
       is CompanyBrowseClientListEvent.Button.FilterBy -> onFilterBy(event)
-      CompanyBrowseClientListEvent.Button.ScheduleUpload -> application.scheduleAppWorker()
+      CompanyBrowseClientListEvent.Button.ScheduleUpload -> application.schedulePaymentWorker()
 
       else -> Unit
     }

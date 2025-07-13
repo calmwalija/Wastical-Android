@@ -19,6 +19,7 @@ data class PaymentWithAccountAndMethodWithGatewayQuery(
 // Account fields
   val accId: Long,
   val uuid: String,
+  val role: String,
   val title: String,
   val firstname: String,
   val lastname: String,

@@ -40,6 +40,7 @@ data class AccountEntity(
   val lastname: String,
   val username: String,
   val email: String?,
+  val role: String,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: String = Status.Active.name,

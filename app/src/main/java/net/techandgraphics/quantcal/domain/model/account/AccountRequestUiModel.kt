@@ -1,6 +1,5 @@
 package net.techandgraphics.quantcal.domain.model.account
 
-import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import java.time.ZonedDateTime
@@ -14,7 +13,7 @@ data class AccountRequestUiModel(
   val contact: String,
   val altContact: String,
   val email: String? = null,
-  val role: String = AccountRole.Client.name,
+  val role: String,
   val httpOperation: String = HttpOperation.Create.name,
   val companyId: Long,
   val accountId: Long,

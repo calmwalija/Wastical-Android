@@ -79,6 +79,7 @@ fun AccountEntity.toAccountUiModel() = AccountUiModel(
   firstname = firstname,
   lastname = lastname,
   username = username,
+  role = role,
   email = email,
   status = Status.valueOf(status),
   companyId = companyId,

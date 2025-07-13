@@ -3,6 +3,7 @@ package net.techandgraphics.quantcal.ui.screen
 import android.content.Context
 import net.techandgraphics.quantcal.data.PaymentPeriod
 import net.techandgraphics.quantcal.data.Status
+import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.quantcal.data.local.database.dashboard.street.Payment4CurrentLocationMonth
@@ -44,6 +45,7 @@ internal val account4Preview = AccountUiModel(
   email = "example@email.com",
   status = Status.Active,
   companyId = 1L,
+  role = AccountRole.Client.name,
   createdAt = System.currentTimeMillis(),
   leavingTimestamp = null,
   companyLocationId = 1L,
@@ -271,6 +273,8 @@ internal val accountRequest4Preview = AccountRequestEntity(
   altContact = "889900332",
   email = account4Preview.email,
   companyId = 1L,
+  role = AccountRole.Client.name,
+  status = Status.Active.name,
   accountId = 1L,
   companyLocationId = 1L,
   paymentPlanId = 1L,
