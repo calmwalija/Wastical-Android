@@ -21,12 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.capitalize
-import net.techandgraphics.quantcal.toAmount
+import net.techandgraphics.quantcal.toShortMonthName
 import net.techandgraphics.quantcal.toZonedDateTime
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
-import net.techandgraphics.quantcal.withPatten
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
+import java.time.YearMonth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,57 +53,59 @@ import java.time.temporal.ChronoUnit
     enabled = homeActivity.clickable
   ) {
     if (homeActivity.activity == homeActivityUiModels.last().activity) {
-      state.invoices.firstOrNull()?.let { oldPay ->
-        Column(modifier = Modifier.padding(16.dp)) {
 
-          val dueDate =
-            oldPay.payment.createdAt.toZonedDateTime().plusMonths(3)
-
-          val monthCount = ChronoUnit.MONTHS.between(ZonedDateTime.now(), dueDate)
-
-          val overdueFee = state.paymentPlan.fee.times(monthCount).toAmount()
-          val isPaymentDue = ZonedDateTime.now().isAfter(dueDate)
-
-          val drawableRes = if (isPaymentDue) R.drawable.ic_close else homeActivity.drawableRes
-          val activity = if (isPaymentDue) homeActivity.activity else "Next Payment"
-
-          val error = MaterialTheme.colorScheme.onError
-
-          val brush = Brush.horizontalGradient(
-            listOf(
-              (if (isPaymentDue) error else homeActivity.iconBackground).copy(.7f),
-              (if (isPaymentDue) error else homeActivity.iconBackground).copy(.8f),
-              (if (isPaymentDue) error else homeActivity.iconBackground)
-            )
-          )
+      val lastMonthCovered = state.invoices
+        .flatMap { it.covered }
+        .sortedWith(compareBy({ it.year }, { it.month }))
+        .lastOrNull()
 
 
-          Icon(
-            painterResource(drawableRes), null,
-            modifier = Modifier
-              .padding(bottom = 8.dp)
-              .clip(CircleShape)
-              .background(brush = brush)
-              .size(42.dp)
-              .padding(8.dp),
-            tint = homeActivity.iconTint
-          )
+      Column(modifier = Modifier.padding(16.dp)) {
 
-          Text(
-            text = activity,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-          )
-
-          Text(
-            text = dueDate.withPatten(),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-          )
-
+        val lastPaid = if (lastMonthCovered != null)
+          YearMonth.of(lastMonthCovered.year, lastMonthCovered.month) else {
+          val createdDate = state.account.createdAt.toZonedDateTime().toLocalDate()
+          YearMonth.of(createdDate.year, createdDate.monthValue.minus(1))
         }
+
+
+        val nextDue = lastPaid.plusMonths(1)
+        val isPaymentDue = nextDue <= YearMonth.now()
+
+        val iconRes = if (isPaymentDue) R.drawable.ic_close else homeActivity.drawableRes
+        val statusLabel = if (isPaymentDue) homeActivity.activity else "Next Payment"
+
+        val color =
+          if (isPaymentDue) MaterialTheme.colorScheme.onError else homeActivity.iconBackground
+        val brush = Brush.horizontalGradient(
+          listOf(color.copy(0.7f), color.copy(0.8f), color)
+        )
+
+        Icon(
+          painter = painterResource(iconRes),
+          contentDescription = null,
+          modifier = Modifier
+            .padding(bottom = 8.dp)
+            .clip(CircleShape)
+            .background(brush)
+            .size(42.dp)
+            .padding(8.dp),
+          tint = homeActivity.iconTint
+        )
+        Text(
+          text = statusLabel,
+          style = MaterialTheme.typography.bodySmall,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+          text = "${nextDue.month.value.toShortMonthName()} ${nextDue.year}",
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+//          }
       }
+
     } else {
       Column(modifier = Modifier.padding(16.dp)) {
         Icon(

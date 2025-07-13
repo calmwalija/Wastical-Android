@@ -196,34 +196,37 @@ fun HomeScreen(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
-          item {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              modifier = Modifier.padding(vertical = 4.dp)
-            ) {
-              Text(
-                text = "Paid Invoice Reports",
-                modifier = Modifier
-                  .weight(1f)
-                  .padding(8.dp),
-                fontWeight = FontWeight.Bold,
-              )
+          if (state.invoices.isNotEmpty()) {
+            item {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 4.dp)
+              ) {
+                Text(
+                  text = "Paid Invoice Reports",
+                  modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp),
+                  fontWeight = FontWeight.Bold,
+                )
 
-              TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice) }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                  Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
-                  Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-                }
+                if (state.invoices.size > 3)
+                  TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice) }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                      Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
+                      Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                    }
+                  }
+
               }
             }
-          }
-
-          items(state.invoices) { payment ->
-            ClientHomeInvoiceView(
-              model = payment,
-              paymentPlan = state.paymentPlan,
-              onEvent = onEvent
-            )
+            items(state.invoices) { payment ->
+              ClientHomeInvoiceView(
+                model = payment,
+                paymentPlan = state.paymentPlan,
+                onEvent = onEvent
+              )
+            }
           }
 
           if (false) {

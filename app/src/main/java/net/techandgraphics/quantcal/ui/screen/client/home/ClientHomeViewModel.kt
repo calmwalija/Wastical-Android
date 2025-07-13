@@ -25,6 +25,7 @@ import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentGatewayUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
+import net.techandgraphics.quantcal.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.onTextToClipboard
@@ -95,6 +96,8 @@ import javax.inject.Inject
           .toPaymentMethodUiModel()
         val paymentGateway = database.paymentGatewayDao.get(paymentMethod.paymentGatewayId)
           .toPaymentGatewayUiModel()
+        val paymentMonthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
+          .map { it.toPaymentMonthCoveredUiModel() }
         invoiceToPdf(
           context = application,
           account = state.account,
@@ -106,6 +109,7 @@ import javax.inject.Inject
           paymentMethod = paymentMethod,
           onEvent = onEvent,
           paymentGateway = paymentGateway,
+          paymentMonthCovered = paymentMonthCovered,
         )
       }
     }
