@@ -11,7 +11,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.quantcal.openDialer
-import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
 import net.techandgraphics.quantcal.ui.screen.company.client.profile.CompanyClientProfileEvent.Button
 import net.techandgraphics.quantcal.ui.screen.company.client.profile.CompanyClientProfileEvent.Goto
@@ -27,12 +26,12 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
       LaunchedEffect(id) { onEvent(Load(id)) }
       CompanyClientProfileScreen(state) { event ->
         when (event) {
-          Option.History -> navController.navigate(Route.Company.Client.History(id))
-          Option.Location -> navController.navigate(Route.Company.ClientLocation(id))
-          Option.Payment -> navController.navigate(Route.Company.Client.Payment(id))
-          Option.Plan -> navController.navigate(Route.Company.Client.Plan(id))
-          Option.Pending -> navController.navigate(Route.Company.Payment.Pending(id))
-          Option.Invoice -> navController.navigate(Route.Company.Client.Invoice(id))
+          Option.History -> navController.navigate(CompanyRoute.ClientHistory(id))
+          Option.Location -> navController.navigate(CompanyRoute.ClientLocation(id))
+          Option.Payment -> navController.navigate(CompanyRoute.MakePayment(id))
+          Option.Plan -> navController.navigate(CompanyRoute.ClientPlan(id))
+          Option.Pending -> navController.navigate(CompanyRoute.PaymentPending(id))
+          Option.Invoice -> navController.navigate(CompanyRoute.PaymentInvoice(id))
           Option.Info -> navController.navigate(CompanyRoute.ClientInfo(id))
 
           Option.Revoke -> Unit
@@ -40,7 +39,7 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
           Goto.BackHandler -> navController.navigateUp()
 
           is Goto.Location -> {
-            navController.navigate(Route.Company.LocationOverview(event.id)) {
+            navController.navigate(CompanyRoute.LocationOverview(event.id)) {
               popUpTo(navController.graph.startDestinationId) {
                 inclusive = false
               }

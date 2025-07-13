@@ -1,11 +1,10 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.history
 
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
-import net.techandgraphics.quantcal.ui.activity.MainActivityState
 
 sealed interface CompanyPaymentHistoryEvent {
 
-  data class Load(val id: Long, val state: MainActivityState) : CompanyPaymentHistoryEvent
+  data class Load(val id: Long) : CompanyPaymentHistoryEvent
 
   sealed interface Button : CompanyPaymentHistoryEvent {
     sealed interface Invoice : Button {

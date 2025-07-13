@@ -1,11 +1,10 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.invoice
 
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
-import net.techandgraphics.quantcal.ui.activity.MainActivityState
 
 sealed interface CompanyPaymentInvoiceEvent {
 
-  data class Load(val id: Long, val state: MainActivityState) : CompanyPaymentInvoiceEvent
+  data class Load(val id: Long) : CompanyPaymentInvoiceEvent
 
   sealed interface Button : CompanyPaymentInvoiceEvent {
     sealed interface Invoice : Button {
