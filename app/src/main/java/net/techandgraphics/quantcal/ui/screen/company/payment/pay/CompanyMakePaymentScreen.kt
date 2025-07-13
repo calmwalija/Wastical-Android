@@ -47,7 +47,7 @@ import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.quantcal.ui.screen.imageLoader
-import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGateway4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
@@ -206,8 +206,8 @@ fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
   account = account4Preview,
   paymentPlan = paymentPlan4Preview,
   paymentMethods = listOf(
-    paymentMethodWithGateway4Preview,
-    paymentMethodWithGateway4Preview
+    paymentMethodWithGatewayAndPlan4Preview,
+    paymentMethodWithGatewayAndPlan4Preview
   ),
   imageLoader = imageLoader(context),
   company = company4Preview,

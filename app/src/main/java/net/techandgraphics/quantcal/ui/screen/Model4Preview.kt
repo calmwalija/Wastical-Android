@@ -12,9 +12,9 @@ import net.techandgraphics.quantcal.di.ImageCacheModule
 import net.techandgraphics.quantcal.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountWithPaymentStatusUiModel
+import net.techandgraphics.quantcal.domain.model.company.CompanyBinCollectionUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
-import net.techandgraphics.quantcal.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicStreetUiModel
@@ -26,7 +26,7 @@ import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
-import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
@@ -73,7 +73,7 @@ internal val paymentMethod4Preview = PaymentMethodUiModel(
   isSelected = true,
 )
 
-internal val trashSchedules4Preview = TrashCollectionScheduleUiModel(
+internal val trashSchedules4Preview = CompanyBinCollectionUiModel(
   id = 1L,
   dayOfWeek = DayOfWeek.MONDAY.name,
   companyId = 1L,
@@ -209,8 +209,12 @@ internal val accountInfo4Preview = AccountInfoUiModel(
   areaName = demographicArea4Preview.name,
 )
 
-internal val paymentMethodWithGateway4Preview =
-  PaymentMethodWithGatewayUiModel(paymentMethod4Preview, paymentGateway4Preview)
+internal val paymentMethodWithGatewayAndPlan4Preview =
+  PaymentMethodWithGatewayAndPlanUiModel(
+    paymentMethod4Preview,
+    paymentGateway4Preview,
+    paymentPlan4Preview,
+  )
 
 internal val paymentWithAccountAndMethodWithGateway4Preview =
   PaymentWithAccountAndMethodWithGatewayUiModel(

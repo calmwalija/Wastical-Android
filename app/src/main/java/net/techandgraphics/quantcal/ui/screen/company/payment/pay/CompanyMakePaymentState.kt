@@ -6,7 +6,7 @@ import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
-import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
 
 sealed interface CompanyMakePaymentState {
   object Loading : CompanyMakePaymentState
@@ -14,7 +14,7 @@ sealed interface CompanyMakePaymentState {
   data class Success(
     val account: AccountUiModel,
     val paymentPlan: PaymentPlanUiModel,
-    val paymentMethods: List<PaymentMethodWithGatewayUiModel> = listOf(),
+    val paymentMethods: List<PaymentMethodWithGatewayAndPlanUiModel> = listOf(),
     val imageLoader: ImageLoader,
     val company: CompanyUiModel,
     val numberOfMonths: Int = 1,

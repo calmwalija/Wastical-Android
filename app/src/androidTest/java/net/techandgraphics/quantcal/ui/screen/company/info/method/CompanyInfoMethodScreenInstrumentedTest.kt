@@ -10,7 +10,7 @@ import net.techandgraphics.quantcal.BaseTest
 import net.techandgraphics.quantcal.data.local.database.toCompanyEntity
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.ui.screen.company4Preview
-import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGateway4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -63,7 +63,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -87,7 +87,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -112,7 +112,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -127,10 +127,10 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     // Then
     // Payment method account should be displayed
-    composeTestRule.onNodeWithText(paymentMethodWithGateway4Preview.method.account)
+    composeTestRule.onNodeWithText(paymentMethodWithGatewayAndPlan4Preview.method.account)
       .assertIsDisplayed()
     // Gateway name should be displayed
-    composeTestRule.onNodeWithText(paymentMethodWithGateway4Preview.gateway.name)
+    composeTestRule.onNodeWithText(paymentMethodWithGatewayAndPlan4Preview.gateway.name)
       .assertIsDisplayed()
   }
 
@@ -141,7 +141,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -176,7 +176,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -192,7 +192,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
     // Then
     // Payment method card should be clickable (though no event is currently handled)
     // The card should be displayed and interactive
-    composeTestRule.onNodeWithText(paymentMethodWithGateway4Preview.method.account)
+    composeTestRule.onNodeWithText(paymentMethodWithGatewayAndPlan4Preview.method.account)
       .assertIsDisplayed()
   }
 
@@ -204,9 +204,9 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
       methods = listOf(
-        paymentMethodWithGateway4Preview,
-        paymentMethodWithGateway4Preview.copy(
-          method = paymentMethodWithGateway4Preview.method.copy(
+        paymentMethodWithGatewayAndPlan4Preview,
+        paymentMethodWithGatewayAndPlan4Preview.copy(
+          method = paymentMethodWithGatewayAndPlan4Preview.method.copy(
             id = 2L,
             account = "Test Account 2",
           ),
@@ -225,7 +225,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
     }
 
     // Then
-    composeTestRule.onNodeWithText(paymentMethodWithGateway4Preview.method.account)
+    composeTestRule.onNodeWithText(paymentMethodWithGatewayAndPlan4Preview.method.account)
       .assertIsDisplayed()
     composeTestRule.onNodeWithText("Test Account 2").assertIsDisplayed()
   }
@@ -252,7 +252,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
     // Then
     composeTestRule.onNodeWithText("Payment Method").assertIsDisplayed()
     // No payment method cards should be displayed
-    composeTestRule.onNodeWithText(paymentMethodWithGateway4Preview.method.account)
+    composeTestRule.onNodeWithText(paymentMethodWithGatewayAndPlan4Preview.method.account)
       .assertDoesNotExist()
   }
 
@@ -263,7 +263,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When
@@ -291,7 +291,7 @@ class CompanyInfoMethodScreenInstrumentedTest : BaseTest() {
 
     val successState = CompanyInfoMethodState.Success(
       company = company.toCompanyUiModel(),
-      methods = listOf(paymentMethodWithGateway4Preview),
+      methods = listOf(paymentMethodWithGatewayAndPlan4Preview),
     )
 
     // When

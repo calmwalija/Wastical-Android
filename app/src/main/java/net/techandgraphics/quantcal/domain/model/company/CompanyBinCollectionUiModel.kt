@@ -1,6 +1,6 @@
 package net.techandgraphics.quantcal.domain.model.company
 
-data class TrashCollectionScheduleUiModel(
+data class CompanyBinCollectionUiModel(
   val id: Long,
   val dayOfWeek: String,
   val companyId: Long,

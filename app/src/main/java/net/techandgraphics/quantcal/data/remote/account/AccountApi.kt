@@ -39,4 +39,4 @@ interface AccountApi {
   suspend fun fcmToken(request: AccountFcmTokenRequest): AccountFcmTokenResponse
 }
 
-const val ACCOUNT_ID = 555L
+const val ACCOUNT_ID = 572L

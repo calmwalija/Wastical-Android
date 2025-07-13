@@ -31,7 +31,7 @@ import net.techandgraphics.quantcal.gatewayDrawableRes
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.quantcal.ui.screen.company4Preview
-import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGateway4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +119,7 @@ private fun CompanyInfoMethodScreenPreview() {
     CompanyInfoMethodScreen(
       state = CompanyInfoMethodState.Success(
         company = company4Preview,
-        methods = (1..3).map { listOf(paymentMethodWithGateway4Preview) }.flatten()
+        methods = (1..3).map { listOf(paymentMethodWithGatewayAndPlan4Preview) }.flatten()
       ),
       onEvent = {}
     )

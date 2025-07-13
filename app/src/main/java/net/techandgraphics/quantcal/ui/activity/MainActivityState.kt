@@ -3,9 +3,9 @@ package net.techandgraphics.quantcal.ui.activity
 import coil.ImageLoader
 import net.techandgraphics.quantcal.domain.model.account.AccountContactUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
+import net.techandgraphics.quantcal.domain.model.company.CompanyBinCollectionUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
-import net.techandgraphics.quantcal.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicStreetUiModel
@@ -26,7 +26,7 @@ data class MainActivityState(
   val paymentAccounts: List<PaymentAccountUiModel> = listOf(),
   val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   val paymentMethods: List<PaymentMethodUiModel> = listOf(),
-  val trashSchedules: List<TrashCollectionScheduleUiModel> = listOf(),
+  val trashSchedules: List<CompanyBinCollectionUiModel> = listOf(),
   val methods: List<PaymentMethodUiModel> = listOf(),
   val paymentGateways: List<PaymentGatewayUiModel> = listOf(),
   val streets: List<DemographicStreetUiModel> = listOf(),

@@ -20,25 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
 import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.defaultDate
-import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
-import net.techandgraphics.quantcal.imageGatewayUrl
+import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.quantcal.gatewayDrawableRes
 import net.techandgraphics.quantcal.toZonedDateTime
-import net.techandgraphics.quantcal.ui.screen.imageGatewayPainter
-import net.techandgraphics.quantcal.ui.screen.imageLoader
-import net.techandgraphics.quantcal.ui.screen.payment4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @Composable fun ClientHomePaymentView(
-  payment: PaymentUiModel,
-  imageLoader: ImageLoader?,
+  model: PaymentWithMonthsCoveredUiModel,
 ) {
 
   Card(
@@ -49,11 +44,6 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
       Box(modifier = Modifier.size(42.dp)) {
-
-        val asyncImagePainter =
-          imageGatewayPainter(imageGatewayUrl(1), imageLoader!!)
-//          imageGatewayPainter(imageGatewayUrl(payment.paymentGatewayId), imageLoader!!)
-
         Icon(
           painterResource(R.drawable.ic_compare_arrows), null,
           modifier = Modifier
@@ -63,8 +53,13 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
             .padding(8.dp),
           tint = MaterialTheme.colorScheme.secondary
         )
+
+        //TODO
         Image(
-          asyncImagePainter, null,
+          painter = painterResource(
+            id = gatewayDrawableRes[0]
+          ),
+          contentDescription = null,
           modifier = Modifier
             .clip(CircleShape)
             .border(2.dp, MaterialTheme.colorScheme.onSecondary, CircleShape)
@@ -81,7 +76,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
             .padding(horizontal = 8.dp)
         ) {
           Text(
-            text = payment.createdAt.toZonedDateTime().defaultDate(),
+            text = model.payment.createdAt.toZonedDateTime().defaultDate(),
             style = MaterialTheme.typography.bodySmall
           )
           Text(
@@ -94,7 +89,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         }
 
         Text(
-          text = payment.status.name,
+          text = model.payment.status.name,
           style = MaterialTheme.typography.bodySmall,
           modifier = Modifier.padding(end = 24.dp)
         )
@@ -108,8 +103,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable fun ClientHomePaymentViewPreview() {
   QuantcalTheme {
     ClientHomePaymentView(
-      payment = payment4Preview,
-      imageLoader = imageLoader(LocalContext.current),
+      model = paymentWithMonthsCovered4Preview,
     )
   }
 }
