@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.ui.Route
-import net.techandgraphics.quantcal.ui.activity.MainActivityState
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneNavGraphBuilder
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeViewModel
@@ -24,10 +23,7 @@ import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentViewMo
 import net.techandgraphics.quantcal.ui.screen.company.CompanyNavGraphBuilder
 
 @Composable
-fun AppNavHost(
-  navController: NavHostController,
-  appState: MainActivityState,
-) {
+fun AppNavHost(navController: NavHostController) {
   NavHost(
     navController = navController,
     startDestination = Route.Client.Home
@@ -39,7 +35,7 @@ fun AppNavHost(
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(ClientPaymentEvent.AppState(appState))
+        onEvent(ClientPaymentEvent.Load(ACCOUNT_ID))
         ClientPaymentScreen(state, channel) { event ->
           when (event) {
             is ClientPaymentEvent.Response ->
@@ -82,7 +78,6 @@ fun AppNavHost(
     composable<Route.Client.Invoice> {
       with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(ClientInvoiceEvent.AppState(appState))
         ClientInvoiceScreen(state, channel) { event ->
           when (event) {
             is ClientInvoiceEvent.GoTo ->

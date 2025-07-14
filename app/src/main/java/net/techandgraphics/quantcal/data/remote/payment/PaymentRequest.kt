@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 
 data class PaymentRequest(
   val months: Int,
-  @SerializedName("screenshot_text") val screenshotText: String,
+  @SerializedName("screenshot_text") val screenshotText: String = "",
   @SerializedName("payment_method_id") val paymentMethodId: Long,
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("company_id") val companyId: Long,

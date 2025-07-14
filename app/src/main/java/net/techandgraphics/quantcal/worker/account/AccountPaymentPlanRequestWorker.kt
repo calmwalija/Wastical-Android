@@ -2,7 +2,13 @@ package net.techandgraphics.quantcal.worker.account
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -10,6 +16,8 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toAccountPaymentPlanEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.toAccountPaymentPlanRequest
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 @HiltWorker class AccountPaymentPlanRequestWorker @AssistedInject constructor(
   @Assisted val context: Context,
@@ -33,4 +41,19 @@ import net.techandgraphics.quantcal.data.remote.toAccountPaymentPlanRequest
       Result.retry()
     }
   }
+}
+
+fun Context.scheduleAccountPaymentPlanRequestWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<AccountPaymentPlanRequestWorker>()
+    .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+    .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .setId(UUID.fromString(AccountPaymentPlanRequestWorker::class.java.simpleName))
+    .build()
+  WorkManager
+    .getInstance(this)
+    .enqueueUniqueWork(
+      uniqueWorkName = AccountPaymentPlanRequestWorker::class.java.simpleName,
+      existingWorkPolicy = ExistingWorkPolicy.REPLACE,
+      request = workRequest,
+    )
 }

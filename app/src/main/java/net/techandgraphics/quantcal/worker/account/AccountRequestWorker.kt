@@ -6,6 +6,7 @@ import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -19,6 +20,7 @@ import net.techandgraphics.quantcal.data.local.database.toAccountPaymentPlanEnti
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.toAccountRequest
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 @HiltWorker class AccountRequestWorker @AssistedInject constructor(
@@ -78,6 +80,13 @@ fun Context.scheduleAccountRequestWorker() {
   val workRequest = OneTimeWorkRequestBuilder<AccountRequestWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .setId(UUID.fromString(AccountRequestWorker::class.java.simpleName))
     .build()
-  WorkManager.Companion.getInstance(this).enqueue(workRequest)
+  WorkManager
+    .getInstance(this)
+    .enqueueUniqueWork(
+      uniqueWorkName = AccountRequestWorker::class.java.simpleName,
+      existingWorkPolicy = ExistingWorkPolicy.REPLACE,
+      request = workRequest,
+    )
 }

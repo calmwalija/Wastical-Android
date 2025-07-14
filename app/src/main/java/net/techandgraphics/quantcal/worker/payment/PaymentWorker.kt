@@ -6,6 +6,7 @@ import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -23,6 +24,7 @@ import net.techandgraphics.quantcal.notification.NotificationBuilder
 import net.techandgraphics.quantcal.notification.NotificationType
 import net.techandgraphics.quantcal.notification.NotificationUiModel
 import net.techandgraphics.quantcal.toFullName
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 @HiltWorker class PaymentWorker @AssistedInject constructor(
@@ -68,6 +70,13 @@ fun Context.schedulePaymentWorker() {
   val workRequest = OneTimeWorkRequestBuilder<PaymentWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .setId(UUID.fromString(PaymentWorker::class.java.simpleName))
     .build()
-  WorkManager.Companion.getInstance(this).enqueue(workRequest)
+  WorkManager
+    .getInstance(this)
+    .enqueueUniqueWork(
+      uniqueWorkName = PaymentWorker::class.java.simpleName,
+      existingWorkPolicy = ExistingWorkPolicy.REPLACE,
+      request = workRequest,
+    )
 }
