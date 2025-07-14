@@ -6,10 +6,10 @@ import androidx.work.WorkerParameters
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
-import net.techandgraphics.quantcal.worker.account.AccountDemographicRequestWorker
-import net.techandgraphics.quantcal.worker.account.AccountPaymentPlanRequestWorker
-import net.techandgraphics.quantcal.worker.account.AccountRequestWorker
-import net.techandgraphics.quantcal.worker.payment.PaymentWorker
+import net.techandgraphics.quantcal.worker.company.account.CompanyAccountDemographicRequestWorker
+import net.techandgraphics.quantcal.worker.company.account.CompanyAccountPaymentPlanRequestWorker
+import net.techandgraphics.quantcal.worker.company.account.CompanyAccountRequestWorker
+import net.techandgraphics.quantcal.worker.company.payment.CompanyPaymentWorker
 import javax.inject.Inject
 
 class WorkerFactory @Inject constructor(
@@ -22,32 +22,32 @@ class WorkerFactory @Inject constructor(
     workerClassName: String,
     workerParameters: WorkerParameters,
   ) = when (workerClassName) {
-    PaymentWorker::class.java.name ->
-      PaymentWorker(
+    CompanyPaymentWorker::class.java.name ->
+      CompanyPaymentWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
       )
 
-    AccountRequestWorker::class.java.name ->
-      AccountRequestWorker(
+    CompanyAccountRequestWorker::class.java.name ->
+      CompanyAccountRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         accountApi = accountApi,
       )
 
-    AccountDemographicRequestWorker::class.java.name ->
-      AccountDemographicRequestWorker(
+    CompanyAccountDemographicRequestWorker::class.java.name ->
+      CompanyAccountDemographicRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         accountApi = accountApi,
       )
 
-    AccountPaymentPlanRequestWorker::class.java.name ->
-      AccountPaymentPlanRequestWorker(
+    CompanyAccountPaymentPlanRequestWorker::class.java.name ->
+      CompanyAccountPaymentPlanRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,

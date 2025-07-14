@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.worker.payment
+package net.techandgraphics.quantcal.worker.company.payment
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -27,7 +27,7 @@ import net.techandgraphics.quantcal.toFullName
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-@HiltWorker class PaymentWorker @AssistedInject constructor(
+@HiltWorker class CompanyPaymentWorker @AssistedInject constructor(
   @Assisted val context: Context,
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
@@ -66,16 +66,16 @@ import java.util.concurrent.TimeUnit
   }
 }
 
-fun Context.schedulePaymentWorker() {
-  val workRequest = OneTimeWorkRequestBuilder<PaymentWorker>()
+fun Context.scheduleCompanyPaymentWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<CompanyPaymentWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(PaymentWorker::class.java.simpleName))
+    .setId(UUID.fromString(CompanyPaymentWorker::class.java.simpleName))
     .build()
   WorkManager
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = PaymentWorker::class.java.simpleName,
+      uniqueWorkName = CompanyPaymentWorker::class.java.simpleName,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

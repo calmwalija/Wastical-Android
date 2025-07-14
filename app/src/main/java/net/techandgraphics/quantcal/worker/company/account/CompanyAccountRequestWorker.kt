@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.worker.account
+package net.techandgraphics.quantcal.worker.company.account
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -23,7 +23,7 @@ import net.techandgraphics.quantcal.data.remote.toAccountRequest
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-@HiltWorker class AccountRequestWorker @AssistedInject constructor(
+@HiltWorker class CompanyAccountRequestWorker @AssistedInject constructor(
   @Assisted val context: Context,
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
@@ -76,16 +76,16 @@ import java.util.concurrent.TimeUnit
   }
 }
 
-fun Context.scheduleAccountRequestWorker() {
-  val workRequest = OneTimeWorkRequestBuilder<AccountRequestWorker>()
+fun Context.scheduleCompanyAccountRequestWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<CompanyAccountRequestWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(AccountRequestWorker::class.java.simpleName))
+    .setId(UUID.fromString(CompanyAccountRequestWorker::class.java.simpleName))
     .build()
   WorkManager
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = AccountRequestWorker::class.java.simpleName,
+      uniqueWorkName = CompanyAccountRequestWorker::class.java.simpleName,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

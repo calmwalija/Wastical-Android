@@ -18,7 +18,7 @@ import net.techandgraphics.quantcal.data.remote.account.AccountRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.quantcal.worker.account.AccountPaymentPlanRequestWorker
+import net.techandgraphics.quantcal.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import java.io.File
 import java.text.DecimalFormat
 import java.util.Calendar
@@ -102,7 +102,7 @@ private suspend fun Context.checkIfAccountWorkerExists(
       id = UUID.fromString(AccountRequest::class.java.simpleName),
     ).zip(
       getWorkInfoByIdFlow(
-        id = UUID.fromString(AccountPaymentPlanRequestWorker::class.java.simpleName),
+        id = UUID.fromString(CompanyAccountPaymentPlanRequestWorker::class.java.simpleName),
       ),
     ) { accountRequestWorkInfo, accountRequestPlanWorkInfo ->
       Pair(accountRequestWorkInfo, accountRequestPlanWorkInfo)

@@ -23,7 +23,7 @@ import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentRequestUiModel
 import net.techandgraphics.quantcal.domain.toPaymentUiModel
-import net.techandgraphics.quantcal.worker.account.scheduleAccountRequestWorker
+import net.techandgraphics.quantcal.worker.company.account.scheduleCompanyAccountRequestWorker
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -93,7 +93,7 @@ class CompanyClientProfileViewModel @Inject constructor(
         )
       }.onSuccess {
         database.accountDao.update(newAccount)
-        application.scheduleAccountRequestWorker()
+        application.scheduleCompanyAccountRequestWorker()
         _channel.send(CompanyClientProfileChannel.Revoke.Success)
       }.onFailure {
         _channel.send(
