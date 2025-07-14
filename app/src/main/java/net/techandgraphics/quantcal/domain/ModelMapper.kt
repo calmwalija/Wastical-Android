@@ -21,7 +21,7 @@ import net.techandgraphics.quantcal.data.local.database.payment.pay.month.covere
 import net.techandgraphics.quantcal.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.quantcal.data.local.database.payment.plan.PaymentPlanEntity
 import net.techandgraphics.quantcal.data.local.database.relations.CompanyLocationWithDemographicEntity
-import net.techandgraphics.quantcal.data.local.database.relations.PaymentMethodWithGatewayEntity
+import net.techandgraphics.quantcal.data.local.database.relations.PaymentMethodWithGatewayAndPlanEntity
 import net.techandgraphics.quantcal.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.quantcal.data.local.database.relations.PaymentWithAccountAndMethodWithGatewayEntity
 import net.techandgraphics.quantcal.data.local.database.relations.PaymentWithMonthsCoveredEntity
@@ -31,9 +31,9 @@ import net.techandgraphics.quantcal.domain.model.account.AccountContactUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.account.AccountWithPaymentStatusUiModel
+import net.techandgraphics.quantcal.domain.model.company.CompanyBinCollectionUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
-import net.techandgraphics.quantcal.domain.model.company.TrashCollectionScheduleUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicDistrictUiModel
 import net.techandgraphics.quantcal.domain.model.demographic.DemographicStreetUiModel
@@ -45,7 +45,7 @@ import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.model.relations.CompanyLocationWithDemographicUiModel
-import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
@@ -139,8 +139,8 @@ fun AccountContactEntity.toAccountContactUiModel() = AccountContactUiModel(
   updatedAt = updatedAt,
 )
 
-fun CompanyBinCollectionEntity.toTrashCollectionScheduleUiModel() =
-  TrashCollectionScheduleUiModel(
+fun CompanyBinCollectionEntity.toCompanyBinCollectionUiModel() =
+  CompanyBinCollectionUiModel(
     id = id,
     dayOfWeek = dayOfWeek,
     companyId = companyId,
@@ -192,10 +192,11 @@ fun SearchTagEntity.toSearchTagUiModel() = SearchTagUiModel(
   id = id,
 )
 
-fun PaymentMethodWithGatewayEntity.toPaymentMethodWithGatewayUiModel() =
-  PaymentMethodWithGatewayUiModel(
+fun PaymentMethodWithGatewayAndPlanEntity.toPaymentMethodWithGatewayAndPlanUiModel() =
+  PaymentMethodWithGatewayAndPlanUiModel(
     method = method.toPaymentMethodUiModel(),
     gateway = gateway.toPaymentGatewayUiModel(),
+    plan = plan.toPaymentPlanUiModel(),
   )
 
 fun PaymentWithAccountAndMethodWithGatewayEntity.toPaymentWithAccountAndMethodWithGatewayUiModel() =

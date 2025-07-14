@@ -20,7 +20,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentType
 import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
-import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.image2Text
 import net.techandgraphics.quantcal.toBitmap
@@ -51,7 +51,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
         .filter { it.gateway.type == PaymentType.Cash.name }
-        .map { it.toPaymentMethodWithGatewayUiModel() }
+        .map { it.toPaymentMethodWithGatewayAndPlanUiModel() }
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
       _state.value = CompanyMakePaymentState.Success(
@@ -94,7 +94,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
       val paymentMethods = database.paymentMethodDao
         .qWithGatewayByPaymentPlanId(event.method.paymentPlanId)
         .filter { it.gateway.type == PaymentType.Cash.name }
-        .map { it.toPaymentMethodWithGatewayUiModel() }
+        .map { it.toPaymentMethodWithGatewayAndPlanUiModel() }
       _state.value = getState().copy(paymentMethods = paymentMethods)
     }
 

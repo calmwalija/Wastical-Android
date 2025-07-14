@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
-import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +26,7 @@ class CompanyInfoMethodViewModel @Inject constructor(
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
     val methods =
-      database.paymentMethodDao.qWithGateway().map { it.toPaymentMethodWithGatewayUiModel() }
+      database.paymentMethodDao.qWithGatewayAndPlan().map { it.toPaymentMethodWithGatewayAndPlanUiModel() }
     _state.value = CompanyInfoMethodState.Success(company = company, methods = methods)
   }
 

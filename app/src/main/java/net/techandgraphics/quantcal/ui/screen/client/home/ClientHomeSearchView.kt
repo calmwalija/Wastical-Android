@@ -35,8 +35,8 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun ClientHomeSearchView(
-  state: ClientHomeState,
-  onEvent: (ClientHomeEvent) -> Unit
+  state: ClientHomeState.Success,
+  onEvent: (ClientHomeEvent) -> Unit,
 ) {
 
   Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
@@ -106,7 +106,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Preview(showBackground = true)
 @Composable fun ClientHomeSearchViewPreview() {
   QuantcalTheme {
-    ClientHomeSearchView(state = ClientHomeState()) {
+    ClientHomeSearchView(state = clientHomeStateSuccess()) {
     }
   }
 }

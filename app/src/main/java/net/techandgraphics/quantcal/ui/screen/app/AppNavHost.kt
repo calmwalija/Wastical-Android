@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.activity.MainActivityState
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneNavGraphBuilder
@@ -21,7 +22,6 @@ import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentRespon
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentViewModel
 import net.techandgraphics.quantcal.ui.screen.company.CompanyNavGraphBuilder
-import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
 
 @Composable
 fun AppNavHost(
@@ -30,7 +30,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = CompanyRoute.Home
+    startDestination = Route.Client.Home
   ) {
 
     PhoneNavGraphBuilder(navController)
@@ -57,8 +57,8 @@ fun AppNavHost(
     composable<Route.Client.Home> {
       with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(ClientHomeEvent.AppState(appState))
-        HomeScreen(state, channel) { event ->
+        onEvent(ClientHomeEvent.Load(ACCOUNT_ID))
+        HomeScreen(state) { event ->
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {

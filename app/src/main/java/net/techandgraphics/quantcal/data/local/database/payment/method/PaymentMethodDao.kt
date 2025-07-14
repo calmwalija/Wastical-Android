@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.quantcal.data.local.database.BaseDao
-import net.techandgraphics.quantcal.data.local.database.relations.PaymentMethodWithGatewayEntity
+import net.techandgraphics.quantcal.data.local.database.relations.PaymentMethodWithGatewayAndPlanEntity
 
 @Dao
 interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
@@ -14,7 +14,7 @@ interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
 
   @Transaction
   @Query("SELECT * FROM payment_method GROUP BY account")
-  suspend fun qWithGateway(): List<PaymentMethodWithGatewayEntity>
+  suspend fun qWithGatewayAndPlan(): List<PaymentMethodWithGatewayAndPlanEntity>
 
   @Query("SELECT * FROM payment_method")
   fun flow(): Flow<List<PaymentMethodEntity>>
@@ -27,9 +27,9 @@ interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
 
   @Transaction
   @Query("SELECT * FROM payment_method WHERE payment_plan_id=:id")
-  suspend fun qWithGatewayByPaymentPlanId(id: Long): List<PaymentMethodWithGatewayEntity>
+  suspend fun qWithGatewayByPaymentPlanId(id: Long): List<PaymentMethodWithGatewayAndPlanEntity>
 
   @Transaction
   @Query("SELECT * FROM payment_method WHERE id=:id")
-  suspend fun getWithGatewayById(id: Long): PaymentMethodWithGatewayEntity
+  suspend fun getWithGatewayById(id: Long): PaymentMethodWithGatewayAndPlanEntity
 }

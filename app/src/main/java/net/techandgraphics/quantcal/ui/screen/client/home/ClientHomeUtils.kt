@@ -6,7 +6,7 @@ import net.techandgraphics.quantcal.ui.theme.WhiteFE
 
 internal val homeActivityUiModels = listOf(
   ClientHomeActivityItemModel(
-    activity = "Trash Collection",
+    activity = "Bin Collection",
     drawableRes = R.drawable.ic_cleaning_bucket,
     iconBackground = Color.DarkGray,
     containerColor = Color.DarkGray.copy(.05f),

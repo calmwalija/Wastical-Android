@@ -18,6 +18,9 @@ interface AccountDao : BaseDao<AccountEntity> {
   @Query("SELECT COUNT(*) FROM account")
   suspend fun getSize(): Int
 
+  @Query("SELECT * FROM account WHERE id=:id")
+  fun flowById(id: Long): Flow<AccountEntity?>
+
   @Query("SELECT * FROM account")
   fun flow(): Flow<List<AccountEntity>>
 

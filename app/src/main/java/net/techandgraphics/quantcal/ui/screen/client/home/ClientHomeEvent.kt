@@ -1,11 +1,10 @@
 package net.techandgraphics.quantcal.ui.screen.client.home
 
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
-import net.techandgraphics.quantcal.ui.activity.MainActivityState
 
 sealed interface ClientHomeEvent {
 
-  data class AppState(val state: MainActivityState) : ClientHomeEvent
+  data class Load(val id: Long) : ClientHomeEvent
 
   sealed interface Button : ClientHomeEvent {
     sealed interface Payment : Button {

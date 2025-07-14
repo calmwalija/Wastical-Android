@@ -27,16 +27,17 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.defaultDate
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
-import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
+import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toZonedDateTime
-import net.techandgraphics.quantcal.ui.screen.payment4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ClientHomeInvoiceView(
-  invoice: PaymentUiModel,
-  paymentPlans: List<PaymentPlanUiModel>,
+  model: PaymentWithMonthsCoveredUiModel,
+  paymentPlan: PaymentPlanUiModel,
   onEvent: (ClientHomeEvent) -> Unit,
 ) {
 
@@ -46,7 +47,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
       .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(ClientHomeEvent.Button.Payment.Invoice(invoice)) }) {
+    onClick = { onEvent(ClientHomeEvent.Button.Payment.Invoice(model.payment)) }) {
     Row(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically
@@ -66,21 +67,19 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           .padding(horizontal = 8.dp)
       ) {
         Text(
-          text = invoice.createdAt.toZonedDateTime().defaultDate(),
+          text = model.payment.createdAt.toZonedDateTime().defaultDate(),
           style = MaterialTheme.typography.bodySmall
         )
-        paymentPlans.forEach { paymentPlan ->
-          Text(
-            text = "TODO",
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis,
-            modifier = Modifier.padding(end = 8.dp)
-          )
-        }
+        Text(
+          text = model.covered.size.times(paymentPlan.fee).toAmount(),
+          style = MaterialTheme.typography.bodyMedium,
+          maxLines = 1,
+          overflow = TextOverflow.MiddleEllipsis,
+          modifier = Modifier.padding(end = 8.dp)
+        )
       }
 
-      IconButton(onClick = { onEvent(ClientHomeEvent.Button.Payment.Share(invoice)) }) {
+      IconButton(onClick = { onEvent(ClientHomeEvent.Button.Payment.Share(model.payment)) }) {
         Icon(
           Icons.Default.Share,
           contentDescription = null,
@@ -100,8 +99,8 @@ private fun ClientHomeInvoiceViewPreview() {
   QuantcalTheme {
     Box(modifier = Modifier.padding(16.dp)) {
       ClientHomeInvoiceView(
-        invoice = payment4Preview,
-        paymentPlans = listOf(paymentPlan4Preview),
+        paymentPlan = (paymentPlan4Preview),
+        model = paymentWithMonthsCovered4Preview,
         onEvent = {}
       )
     }

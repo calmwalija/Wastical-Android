@@ -18,6 +18,14 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query("SELECT * FROM payment WHERE id=:id")
   suspend fun get(id: Long): PaymentEntity
 
+  @Transaction
+  @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 4")
+  fun flowOfPaymentsWithMonthCovered(status: String = Approved.name): Flow<List<PaymentWithMonthsCoveredEntity>>
+
+  @Transaction
+  @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 3")
+  fun flowOfInvoicesWithMonthCovered(status: String = Approved.name): Flow<List<PaymentWithMonthsCoveredEntity>>
+
   @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 4")
   fun flowOfPayment(status: String = Approved.name): Flow<List<PaymentEntity>>
 
