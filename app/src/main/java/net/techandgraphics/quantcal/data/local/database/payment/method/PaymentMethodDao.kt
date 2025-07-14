@@ -16,6 +16,10 @@ interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
   @Query("SELECT * FROM payment_method GROUP BY account")
   suspend fun qWithGatewayAndPlan(): List<PaymentMethodWithGatewayAndPlanEntity>
 
+  @Transaction
+  @Query("SELECT * FROM payment_method GROUP BY account")
+  fun flowOfWithGatewayAndPlan(): Flow<List<PaymentMethodWithGatewayAndPlanEntity>>
+
   @Query("SELECT * FROM payment_method")
   fun flow(): Flow<List<PaymentMethodEntity>>
 

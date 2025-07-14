@@ -10,12 +10,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.zip
+import net.techandgraphics.quantcal.data.remote.account.AccountRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.worker.account.AccountPaymentPlanRequestWorker
 import java.io.File
 import java.text.DecimalFormat
 import java.util.Calendar
+import java.util.UUID
 
 fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
@@ -84,5 +91,36 @@ fun Context.openDialer(contact: String) {
     startActivity(intent)
   } else {
     toast("No app found to handle making phone calls.")
+  }
+}
+
+private suspend fun Context.checkIfAccountWorkerExists(
+  hasPendingOrRunningWorker: (Boolean) -> Unit,
+) {
+  with(WorkManager.getInstance(this)) {
+    getWorkInfoByIdFlow(
+      id = UUID.fromString(AccountRequest::class.java.simpleName),
+    ).zip(
+      getWorkInfoByIdFlow(
+        id = UUID.fromString(AccountPaymentPlanRequestWorker::class.java.simpleName),
+      ),
+    ) { accountRequestWorkInfo, accountRequestPlanWorkInfo ->
+      Pair(accountRequestWorkInfo, accountRequestPlanWorkInfo)
+    }
+  }.collectLatest { combinedWorkInfos ->
+    val (accountRequestWorkInfo, accountRequestPlanWorkInfo) = combinedWorkInfos
+
+    val hasPendingOrRunningAccountRequestWorker =
+      accountRequestWorkInfo?.state == WorkInfo.State.RUNNING ||
+        accountRequestWorkInfo?.state == WorkInfo.State.ENQUEUED
+
+    val hasPendingOrRunningAccountPaymentPlanRequestWorker =
+      accountRequestPlanWorkInfo?.state == WorkInfo.State.RUNNING ||
+        accountRequestPlanWorkInfo?.state == WorkInfo.State.ENQUEUED
+
+    hasPendingOrRunningWorker(
+      hasPendingOrRunningAccountRequestWorker ||
+        hasPendingOrRunningAccountPaymentPlanRequestWorker,
+    )
   }
 }

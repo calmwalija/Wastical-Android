@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
       QuantcalTheme {
         val state = viewModel.state.collectAsState().value
         Surface {
-          AppScreen(state = state)
+          AppScreen()
         }
       }
     }

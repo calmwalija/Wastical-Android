@@ -17,69 +17,59 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.toAmount
-import net.techandgraphics.quantcal.ui.screen.appState
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ClientPaymentPlanView(
-  state: ClientPaymentState,
-  onEvent: (ClientPaymentEvent) -> Unit
-) = state.state.paymentPlans.forEach { paymentPlan ->
+  state: ClientPaymentState.Success,
+  onEvent: (ClientPaymentEvent) -> Unit,
+) {
 
-  Column {
-    Text(
-      text = "Payment Plan",
-      modifier = Modifier.padding(8.dp)
-    )
-    Card(colors = CardDefaults.elevatedCardColors()) {
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
 
-        Column(modifier = Modifier.weight(1f)) {
-          Text(text = paymentPlan.name)
+  Card(colors = CardDefaults.elevatedCardColors()) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+
+      Column(modifier = Modifier.weight(1f)) {
+        Text(text = state.paymentPlan.name)
+        Text(
+          text = state.paymentPlan.fee.toAmount(),
+          style = MaterialTheme.typography.titleLarge,
+          color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+          text = state.paymentPlan.period.name,
+          style = MaterialTheme.typography.bodySmall
+        )
+      }
+
+      Card {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          IconButton(
+            onClick = { onEvent(ClientPaymentEvent.Button.MonthCovered(false)) },
+            enabled = state.monthsCovered > 1
+          ) {
+            Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
+          }
+
           Text(
-            text = paymentPlan.fee.toAmount(),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
+            text = "${state.monthsCovered}",
+            modifier = Modifier.padding(horizontal = 4.dp)
           )
-          Text(
-            text = paymentPlan.period.name,
-            style = MaterialTheme.typography.bodySmall
-          )
-        }
 
-        Card {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-              onClick = { onEvent(ClientPaymentEvent.Button.NumberOfMonths(false)) },
-              enabled = state.numberOfMonths > 1
-            ) {
-              Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
-            }
-
-            Text(
-              text = "${state.numberOfMonths}",
-              modifier = Modifier.padding(horizontal = 4.dp)
-            )
-
-            IconButton(
-              onClick = { onEvent(ClientPaymentEvent.Button.NumberOfMonths(true)) },
-              enabled = state.numberOfMonths < 12
-            ) {
-              Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
-            }
+          IconButton(onClick = { onEvent(ClientPaymentEvent.Button.MonthCovered(true)) }) {
+            Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
           }
         }
-
       }
+
     }
   }
 
@@ -91,9 +81,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 private fun ClientPaymentPlanViewPreview() {
   QuantcalTheme {
     ClientPaymentPlanView(
-      state = ClientPaymentState(
-        state = appState(LocalContext.current)
-      ),
+      state = clientPaymentStateSuccess(),
       onEvent = {}
     )
   }

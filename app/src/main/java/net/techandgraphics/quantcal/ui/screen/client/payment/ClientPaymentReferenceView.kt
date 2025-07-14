@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.yalantis.ucrop.UCrop
 import net.techandgraphics.quantcal.R
@@ -34,8 +33,8 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ClientPaymentReferenceView(
-  state: ClientPaymentState,
-  onEvent: (ClientPaymentEvent) -> Unit
+  state: ClientPaymentState.Success,
+  onEvent: (ClientPaymentEvent) -> Unit,
 ) {
 
   val context = LocalContext.current
@@ -63,7 +62,7 @@ import java.io.File
     }
 
   fun cropImageView(sourceUri: Uri) {
-    val destinationUri = Uri.fromFile(File(context.cacheDir, "${state.lastPaymentId}.jpg"))
+    val destinationUri = Uri.fromFile(File(context.cacheDir, "${state.timestamp}.jpg"))
     val uCropIntent = UCrop.of(sourceUri, destinationUri)
       .withAspectRatio(3f, 2f)
       .withMaxResultSize(800, 800)
@@ -76,55 +75,46 @@ import java.io.File
   }
 
 
-  Column {
-    Text(
-      text = "Payment Reference",
-      modifier = Modifier.padding(8.dp)
-    )
-    Card(
-      colors = CardDefaults.elevatedCardColors(),
-      onClick = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
+  Card(
+    colors = CardDefaults.elevatedCardColors(),
+    onClick = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
 
-      ) {
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-          .padding(16.dp)
-          .fillMaxWidth()
-      ) {
-        if (state.screenshotAttached)
-          Icon(
-            Icons.Outlined.CheckCircle,
-            contentDescription = null,
-            modifier = Modifier.size(32.dp),
-            tint = MaterialTheme.colorScheme.primary
-          ) else {
-          Icon(
-            painterResource(R.drawable.ic_add_photo), null,
-            modifier = Modifier.size(32.dp)
-          )
-        }
-        Text(
-          modifier = Modifier.padding(4.dp),
-          text = if (state.screenshotAttached) "Payment Screenshot Attached" else {
-            "Attach Payment Screenshot"
-          }
+    ) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth()
+    ) {
+      if (state.screenshotAttached)
+        Icon(
+          Icons.Outlined.CheckCircle,
+          contentDescription = null,
+          modifier = Modifier.size(32.dp),
+          tint = MaterialTheme.colorScheme.primary
+        ) else {
+        Icon(
+          painterResource(R.drawable.ic_add_photo), null,
+          modifier = Modifier.size(32.dp)
         )
       }
+      Text(
+        modifier = Modifier.padding(4.dp),
+        text = if (state.screenshotAttached) "Payment Screenshot Attached" else {
+          "Attach Payment Screenshot"
+        }
+      )
     }
   }
 }
 
 @Preview(showBackground = true)
-@PreviewLightDark
 @Composable
 private fun ClientPaymentReferenceViewPreview() {
   QuantcalTheme {
     Box(modifier = Modifier.padding(32.dp)) {
       ClientPaymentReferenceView(
-        state = ClientPaymentState(
-          screenshotAttached = false
-        ),
+        state = clientPaymentStateSuccess(),
         onEvent = {}
       )
     }
