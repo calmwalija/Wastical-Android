@@ -37,6 +37,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
   onEvent: (ClientHomeEvent) -> Unit,
 ) {
 
+  if (PaymentType.valueOf(model.gateway.type) == PaymentType.Cash) return
   Card(
     colors = CardDefaults.elevatedCardColors(),
     modifier = Modifier.padding(vertical = 8.dp),
@@ -44,7 +45,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp),
+        .padding(12.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -55,7 +56,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         contentDescription = null,
         modifier = Modifier
           .clip(CircleShape)
-          .size(48.dp),
+          .size(42.dp),
         contentScale = ContentScale.Crop,
       )
       Column(
@@ -67,10 +68,11 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           text = model.gateway.name,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
+          style = MaterialTheme.typography.bodyMedium
         )
         Text(
           text = model.method.account,
-          color = MaterialTheme.colorScheme.primary
+          color = MaterialTheme.colorScheme.primary,
         )
       }
       if (PaymentType.valueOf(model.gateway.type) != PaymentType.Cash)
