@@ -63,7 +63,7 @@ import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
-import net.techandgraphics.quantcal.ui.screen.paymentWithMonthsCovered4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -349,6 +349,6 @@ fun clientHomeStateSuccess() = ClientHomeState.Success(
   company = company4Preview,
   paymentPlan = paymentPlan4Preview,
   paymentMethods = listOf(paymentMethodWithGatewayAndPlan4Preview),
-  invoices = listOf(paymentWithMonthsCovered4Preview),
+  invoices = listOf(paymentWithAccountAndMethodWithGateway4Preview),
   companyBinCollections = listOf()
 )

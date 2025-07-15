@@ -23,7 +23,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   fun flowOfPaymentsWithMonthCovered(status: String = Approved.name): Flow<List<PaymentWithMonthsCoveredEntity>>
 
   @Transaction
-  @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 3")
+  @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 4")
   fun flowOfInvoicesWithMonthCovered(status: String = Approved.name): Flow<List<PaymentWithMonthsCoveredEntity>>
 
   @Query("SELECT * FROM payment WHERE payment_status !=:status ORDER BY id DESC LIMIT 4")
@@ -32,8 +32,9 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id DESC LIMIT 3")
   fun flowOfInvoice(status: String = Approved.name): Flow<List<PaymentEntity>>
 
+  @Transaction
   @Query("SELECT * FROM payment WHERE payment_status =:status ORDER BY id")
-  fun flowOfAllInvoices(status: String = Approved.name): Flow<List<PaymentEntity>>
+  fun flowOfAllInvoices(status: String = Approved.name): Flow<List<PaymentWithMonthsCoveredEntity>>
 
   @Query("SELECT id FROM payment ORDER BY id DESC LIMIT 1")
   fun getLastId(): Flow<Long?>
@@ -60,150 +61,41 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
 
   @Query(
     """
-        SELECT
-
-        -- Payment
-        payment.id AS paymentId,
-        payment.screenshot_text AS screenshotText,
-        payment.transaction_id AS transactionId,
-        payment.payment_method_id AS paymentMethodId,
-        payment.account_id AS accountId,
-        payment.payment_status AS paymentStatus,
-        payment.created_at AS paymentCreatedAt,
-        payment.updated_at AS paymentUpdatedAt,
-        payment.company_id AS paymentCompanyId,
-        payment.executed_by_id AS executedById,
-
-        -- Account
-        account.id AS accId,
-        account.uuid AS uuid,
-        account.role AS role,
-        account.title AS title,
-        account.firstname AS firstname,
-        account.lastname AS lastname,
-        account.username AS username,
-        account.email AS email,
-        account.latitude AS latitude,
-        account.longitude AS longitude,
-        account.status AS accStatus,
-        account.company_location_id AS companyLocationId,
-        account.company_id AS accCompanyId,
-        account.leaving_reason AS leavingReason,
-        account.leaving_timestamp AS leavingTimestamp,
-        account.updated_at AS accUpdatedAt,
-        account.created_at AS accCreatedAt,
-
-        -- Method
-        method.id AS methodId,
-        method.account AS methodAccount,
-        method.isSelected AS isSelected,
-        method.payment_plan_id AS paymentPlanId,
-        method.payment_gateway_id AS paymentGatewayId,
-        method.created_at AS methodCreatedAt,
-        method.updated_at AS methodUpdatedAt,
-
-        -- Gateway
-        gateway.id AS gatewayId,
-        gateway.name AS gatewayName,
-        gateway.type AS gatewayType,
-        gateway.created_at AS gatewayCreatedAt,
-        gateway.updated_at AS gatewayUpdatedAt,
-
-        -- Plan
-        plans.id AS planId,
-        plans.fee AS planFee,
-        plans.name AS planName,
-        plans.period AS planPeriod,
-        plans.status AS planStatus,
-        plans.company_id AS planCompanyId,
-        plans.created_at AS planCreatedAt,
-        plans.created_at AS planUpdatedAt,
-
-        (SELECT COUNT(*) FROM payment_month_covered covered WHERE covered.payment_id = payment.id ) as coveredSize
-
-        FROM payment AS payment
-        INNER JOIN account AS account ON account.id = payment.account_id
-        INNER JOIN payment_method AS method ON method.id = payment.payment_method_id
-        INNER JOIN payment_gateway AS gateway ON gateway.id = method.payment_gateway_id
-        INNER JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
-        WHERE payment.payment_status = :status
-        ORDER BY payment.created_at DESC
-    """,
+    $PAYMENT_QUERY_BASE
+    WHERE payment.payment_status = :status
+    ORDER BY payment.created_at DESC
+  """,
   )
   fun qPaymentWithAccountAndMethodWithGateway(status: String = Approved.name): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
 
   @Query(
     """
-        SELECT
+    $PAYMENT_QUERY_BASE
+    WHERE payment.payment_status != :status
+    ORDER BY payment.created_at DESC
+  """,
+  )
+  fun qPaymentWithAccountAndMethodWithGatewayNot(status: String): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
 
-        -- Payment
-        payment.id AS paymentId,
-        payment.screenshot_text AS screenshotText,
-        payment.transaction_id AS transactionId,
-        payment.payment_method_id AS paymentMethodId,
-        payment.account_id AS accountId,
-        payment.payment_status AS paymentStatus,
-        payment.created_at AS paymentCreatedAt,
-        payment.updated_at AS paymentUpdatedAt,
-        payment.company_id AS paymentCompanyId,
-        payment.executed_by_id AS executedById,
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE payment.payment_status != :status
+    ORDER BY payment.created_at DESC
+    LIMIT :limit
+  """,
+  )
+  fun qPaymentWithAccountAndMethodWithGatewayNotWithLimit(
+    status: String,
+    limit: Int,
+  ): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
 
-        -- Account
-        account.id AS accId,
-        account.uuid AS uuid,
-        account.role AS role,
-        account.title AS title,
-        account.firstname AS firstname,
-        account.lastname AS lastname,
-        account.username AS username,
-        account.email AS email,
-        account.latitude AS latitude,
-        account.longitude AS longitude,
-        account.status AS accStatus,
-        account.company_location_id AS companyLocationId,
-        account.company_id AS accCompanyId,
-        account.leaving_reason AS leavingReason,
-        account.leaving_timestamp AS leavingTimestamp,
-        account.updated_at AS accUpdatedAt,
-        account.created_at AS accCreatedAt,
-
-        -- Method
-        method.id AS methodId,
-        method.account AS methodAccount,
-        method.isSelected AS isSelected,
-        method.payment_plan_id AS paymentPlanId,
-        method.payment_gateway_id AS paymentGatewayId,
-        method.created_at AS methodCreatedAt,
-        method.updated_at AS methodUpdatedAt,
-
-        -- Gateway
-        gateway.id AS gatewayId,
-        gateway.name AS gatewayName,
-        gateway.type AS gatewayType,
-        gateway.created_at AS gatewayCreatedAt,
-        gateway.updated_at AS gatewayUpdatedAt,
-
-        -- Plan
-        plans.id AS planId,
-        plans.fee AS planFee,
-        plans.name AS planName,
-        plans.period AS planPeriod,
-        plans.status AS planStatus,
-        plans.company_id AS planCompanyId,
-        plans.created_at AS planCreatedAt,
-        plans.created_at AS planUpdatedAt,
-
-        (SELECT COUNT(*) FROM payment_month_covered covered WHERE covered.payment_id = payment.id ) as coveredSize
-
-        FROM payment AS payment
-        INNER JOIN account AS account ON account.id = payment.account_id
-        INNER JOIN payment_method AS method ON method.id = payment.payment_method_id
-        INNER JOIN payment_gateway AS gateway ON gateway.id = method.payment_gateway_id
-        INNER JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
-        WHERE payment.payment_status = :status
-        ORDER BY payment.created_at DESC
-        LIMIT :limit
-    """,
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE payment.payment_status = :status
+    ORDER BY payment.created_at DESC LIMIT :limit
+  """,
   )
   fun qPaymentWithAccountAndMethodWithGatewayLimit(
     status: String = Approved.name,

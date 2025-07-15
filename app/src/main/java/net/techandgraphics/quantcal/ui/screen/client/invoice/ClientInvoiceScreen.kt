@@ -1,33 +1,26 @@
 package net.techandgraphics.quantcal.ui.screen.client.invoice
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.quantcal.ui.screen.payment4Preview
+import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
+import net.techandgraphics.quantcal.ui.screen.account4Preview
+import net.techandgraphics.quantcal.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.quantcal.ui.screen.company4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,51 +28,46 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 fun ClientInvoiceScreen(
   state: ClientInvoiceState,
   channel: Flow<ClientInvoiceChannel>,
-  onEvent: (ClientInvoiceEvent) -> Unit
+  onEvent: (ClientInvoiceEvent) -> Unit,
 ) {
 
+  when (state) {
+    ClientInvoiceState.Loading -> LoadingIndicatorView()
+    is ClientInvoiceState.Success -> {
 
-  val lifecycleOwner = LocalLifecycleOwner.current
-  LaunchedEffect(key1 = channel) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-      channel.collect { event ->
-      }
-    }
-  }
+      val scrollState = rememberLazyListState()
 
-
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {},
-        navigationIcon = {
-          IconButton(onClick = { onEvent(ClientInvoiceEvent.GoTo.BackHandler) }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+      Scaffold(
+        topBar = {
+          CompanyInfoTopAppBarView(state.company) {
+            onEvent(ClientInvoiceEvent.GoTo.BackHandler)
           }
         },
-        modifier = Modifier.shadow(0.dp),
-        colors = TopAppBarDefaults.topAppBarColors()
-      )
-    },
-  ) {
-    Column(modifier = Modifier.padding(it)) {
+      ) {
+        LazyColumn(
+          state = scrollState,
+          contentPadding = it,
+          modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
+        ) {
 
-      Text(
-        text = "Paid Invoice Reports",
-        style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
-      )
+          item {
+            Text(
+              text = "Paid Invoice Reports",
+              style = MaterialTheme.typography.headlineSmall,
+              modifier = Modifier.padding(bottom = 32.dp)
+            )
+          }
 
-      Spacer(modifier = Modifier.height(24.dp))
+          items(state.invoices) { invoice ->
+            ClientInvoiceView(invoice, state.paymentPlan, onEvent)
+          }
 
-      LazyColumn {
-        items(state.invoices) { invoice ->
-          ClientInvoiceView(invoice, state.state.paymentPlans, onEvent)
         }
-      }
 
+      }
     }
   }
+
 }
 
 
@@ -88,17 +76,17 @@ fun ClientInvoiceScreen(
 private fun ClientInvoiceScreenPreview() {
   QuantcalTheme {
     ClientInvoiceScreen(
-      state = ClientInvoiceState(
-        invoices = (1..10)
-          .toList()
-          .mapIndexed { index, item ->
-            payment4Preview.copy(
-              id = index.toLong(),
-             )
-          }
-      ),
+      state = clientInvoiceStateSuccess(),
       channel = flow { },
       onEvent = {}
     )
   }
 }
+
+fun clientInvoiceStateSuccess() = ClientInvoiceState.Success(
+  account = account4Preview,
+  company = company4Preview,
+  paymentPlan = paymentPlan4Preview,
+  paymentMethods = listOf(paymentMethodWithGatewayAndPlan4Preview),
+  invoices = listOf(paymentWithAccountAndMethodWithGateway4Preview),
+)

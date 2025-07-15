@@ -79,6 +79,7 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Client.Invoice> {
       with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
+        LaunchedEffect(ACCOUNT_ID) { onEvent(ClientInvoiceEvent.Load(ACCOUNT_ID)) }
         ClientInvoiceScreen(state, channel) { event ->
           when (event) {
             is ClientInvoiceEvent.GoTo ->

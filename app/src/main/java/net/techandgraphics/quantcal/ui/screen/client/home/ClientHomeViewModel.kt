@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.account.session.AccountSessionRepository
+import net.techandgraphics.quantcal.data.local.database.relations.toEntity
 import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
@@ -30,6 +31,7 @@ import net.techandgraphics.quantcal.domain.toPaymentMethodUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.onTextToClipboard
 import net.techandgraphics.quantcal.preview
@@ -67,11 +69,17 @@ import javax.inject.Inject
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
         val companyBinCollections = database.companyBinCollectionDao.query()
           .map { it.toCompanyBinCollectionUiModel() }
+        val lastMonthCovered =
+          database.paymentMonthCoveredDao.getLast()?.toPaymentMonthCoveredUiModel()
         combine(
           flow = database
             .paymentDao
-            .flowOfInvoicesWithMonthCovered()
-            .map { p0 -> p0.map { it.toPaymentWithMonthsCoveredUiModel() } },
+            .qPaymentWithAccountAndMethodWithGatewayLimit(PaymentStatus.Approved.name, 4)
+            .map { p0 ->
+              p0.map {
+                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+              }
+            },
           flow2 = database
             .paymentDao
             .flowOfPaymentsWithMonthCovered()
@@ -87,6 +95,7 @@ import javax.inject.Inject
             accountContacts = accountContacts,
             companyContacts = companyContacts,
             companyBinCollections = companyBinCollections,
+            lastMonthCovered = lastMonthCovered,
           )
         }.launchIn(this)
       }
