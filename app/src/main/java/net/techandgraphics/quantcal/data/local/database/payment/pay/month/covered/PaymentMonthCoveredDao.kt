@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.quantcal.data.local.database.BaseDao
+import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 
 @Dao interface PaymentMonthCoveredDao : BaseDao<PaymentMonthCoveredEntity> {
 
@@ -18,4 +19,22 @@ import net.techandgraphics.quantcal.data.local.database.BaseDao
 
   @Query("SELECT * FROM payment_month_covered GROUP BY month, year")
   suspend fun qGroupByMonth(): List<PaymentMonthCoveredEntity>
+
+  @Query(
+    """
+    SELECT
+    pmc.*
+  FROM
+    payment p
+    JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+  WHERE
+    p.payment_status = :status
+  ORDER BY
+    year DESC,
+    month DESC
+  LIMIT
+    1
+  """,
+  )
+  suspend fun getLast(status: String = PaymentStatus.Approved.name): PaymentMonthCoveredEntity?
 }

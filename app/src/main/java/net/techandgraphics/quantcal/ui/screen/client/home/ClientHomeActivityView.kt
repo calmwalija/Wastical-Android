@@ -54,16 +54,10 @@ import java.time.YearMonth
   ) {
     if (homeActivity.activity == homeActivityUiModels.last().activity) {
 
-      val lastMonthCovered = state.invoices
-        .flatMap { it.covered }
-        .sortedWith(compareBy({ it.year }, { it.month }))
-        .lastOrNull()
-
-
       Column(modifier = Modifier.padding(16.dp)) {
 
-        val lastPaid = if (lastMonthCovered != null)
-          YearMonth.of(lastMonthCovered.year, lastMonthCovered.month) else {
+        val lastPaid = if (state.lastMonthCovered != null)
+          YearMonth.of(state.lastMonthCovered.year, state.lastMonthCovered.month) else {
           val createdDate = state.account.createdAt.toZonedDateTime().toLocalDate()
           YearMonth.of(createdDate.year, createdDate.monthValue.minus(1))
         }
