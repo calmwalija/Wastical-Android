@@ -7,6 +7,7 @@ sealed interface ClientHomeEvent {
   data class Load(val id: Long) : ClientHomeEvent
 
   sealed interface Button : ClientHomeEvent {
+    data object Fetch : Button
     sealed interface Payment : Button {
       data class Invoice(val payment: PaymentUiModel) : Payment
       data class Share(val payment: PaymentUiModel) : Payment

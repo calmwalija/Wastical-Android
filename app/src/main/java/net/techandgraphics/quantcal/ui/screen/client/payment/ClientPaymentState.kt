@@ -5,7 +5,6 @@ import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
-import java.time.ZonedDateTime
 
 sealed interface ClientPaymentState {
   data object Loading : ClientPaymentState
@@ -20,7 +19,7 @@ sealed interface ClientPaymentState {
     val monthsCovered: Int = 1,
     val screenshotAttached: Boolean = false,
     val imageUri: Uri? = null,
-    val timestamp: Long = ZonedDateTime.now().toEpochSecond(),
+    val timestamp: Long = -1,
 
   ) : ClientPaymentState
 }

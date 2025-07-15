@@ -7,7 +7,6 @@ import android.graphics.pdf.PdfDocument
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.scale
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.capitalize
 import net.techandgraphics.quantcal.data.remote.payment.PaymentType
 import net.techandgraphics.quantcal.defaultDateTime
 import net.techandgraphics.quantcal.domain.model.account.AccountContactUiModel
@@ -21,6 +20,7 @@ import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toFullName
+import net.techandgraphics.quantcal.toMonthName
 import net.techandgraphics.quantcal.toPhoneFormat
 import net.techandgraphics.quantcal.toZonedDateTime
 import net.techandgraphics.quantcal.ui.screen.client.invoice.bold
@@ -30,7 +30,6 @@ import net.techandgraphics.quantcal.ui.theme.Orange
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.time.Month
 
 private fun tableData(
   paymentMonthCovered: List<PaymentMonthCoveredUiModel> = listOf(),
@@ -38,7 +37,7 @@ private fun tableData(
 ) = paymentMonthCovered.mapIndexed { index, month ->
   listOf(
     index.plus(1).toString(),
-    Month.of(month.month).name.capitalize(),
+    month.month.toMonthName().plus(" ${month.year}"),
     1,
     paymentPlan.fee.toAmount(),
     paymentPlan.fee.toAmount(),

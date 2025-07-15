@@ -7,8 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,7 +21,8 @@ import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
-import net.techandgraphics.quantcal.onTextToClipboard
+import net.techandgraphics.quantcal.getUCropFile
+import net.techandgraphics.quantcal.worker.client.payment.scheduleClientPaymentRequestWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,49 +38,59 @@ class ClientPaymentViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
 
   private fun onLoad(event: ClientPaymentEvent.Load) = viewModelScope.launch {
-    combine(
-      flow = database.paymentMethodDao
-        .flowOfWithGatewayAndPlan()
-        .map { p0 -> p0.map { it.toPaymentMethodWithGatewayAndPlanUiModel() } },
-      flow2 = database.accountDao
-        .flowById(event.id)
-        .mapNotNull { it?.toAccountUiModel() },
-    ) { paymentMethods, account ->
-      val company = database.companyDao.query().first().toCompanyUiModel()
-      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
-      val paymentPlan =
-        database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
-      _state.value = ClientPaymentState.Success(
-        company = company,
-        account = account,
-        paymentPlan = paymentPlan,
-        paymentMethods = paymentMethods,
-      )
-    }.launchIn(this)
+    database.accountDao
+      .flowById(event.id)
+      .mapNotNull { it?.toAccountUiModel() }
+      .collectLatest { account ->
+        val company = database.companyDao.query().first().toCompanyUiModel()
+        val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+        val paymentPlan =
+          database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
+        _state.value = ClientPaymentState.Success(
+          company = company,
+          account = account,
+          paymentPlan = paymentPlan,
+        )
+        onLoadPaymentMethod()
+      }
   }
 
-  private fun onPay() = viewModelScope.launch {
+  private suspend fun onLoadPaymentMethod() {
+    database.paymentMethodDao
+      .flowOfWithGatewayAndPlan()
+      .map { p0 -> p0.map { it.toPaymentMethodWithGatewayAndPlanUiModel() } }
+      .collectLatest { paymentMethods ->
+        if (_state.value is ClientPaymentState.Success) {
+          val state = (_state.value as ClientPaymentState.Success)
+          _state.value = state.copy(paymentMethods = paymentMethods)
+        }
+      }
+  }
+
+  private fun onSubmit() = viewModelScope.launch {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
       val paymentMethods = state.paymentMethods.map { it.method }
       val paymentMethod = paymentMethods.firstOrNull { it.isSelected } ?: paymentMethods.last()
-      val paymentItem = state.paymentMethods.first { it.method.id == paymentMethod.id }
       val cachedPayment = PaymentRequest(
         paymentMethodId = paymentMethod.id,
         accountId = state.account.id,
         months = state.monthsCovered,
         companyId = state.company.id,
         executedById = state.account.id,
-        createdAt = state.timestamp,
         status = PaymentStatus.Waiting,
       ).toPaymentRequestEntity()
       database.paymentRequestDao.upsert(cachedPayment)
+      val newPayment = database.paymentRequestDao.getLast()
+      val oldFile = application.getUCropFile(state.timestamp)
+      oldFile.renameTo(application.getUCropFile(newPayment.createdAt))
+      application.scheduleClientPaymentRequestWorker()
       _state.value = state.copy(imageUri = null)
       _channel.send(ClientPaymentChannel.Pay.Success)
     }
   }
 
-  private fun onScreenshotAttached() = {
+  private fun onScreenshotAttached() {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
       _state.value = state.copy(screenshotAttached = true)
@@ -91,8 +101,8 @@ class ClientPaymentViewModel @Inject constructor(
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
       val monthsCovered = when {
-        event.isAdd -> state.monthsCovered.plus(1)
-        else -> state.monthsCovered.minus(1)
+        event.isAdd -> state.monthsCovered.plus(1).coerceAtMost(12)
+        else -> state.monthsCovered.minus(1).coerceAtLeast(1)
       }
       _state.value = state.copy(monthsCovered = monthsCovered)
     }
@@ -106,20 +116,20 @@ class ClientPaymentViewModel @Inject constructor(
           .map { it.method }
           .map { it.toPaymentMethodEntity().copy(isSelected = false) }
           .also { database.paymentMethodDao.update(it) }
-        event.method.copy(isSelected = true)
+        event.item.method.copy(isSelected = true)
           .toPaymentMethodEntity()
           .also { database.paymentMethodDao.update(it) }
       }
     }
 
-  private fun onImageUri(event: ClientPaymentEvent.Button.ImageUri) = {
+  private fun onImageUri(event: ClientPaymentEvent.Button.ImageUri) {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
       _state.value = state.copy(imageUri = event.uri)
     }
   }
 
-  private fun onShowCropView(event: ClientPaymentEvent.Button.ShowCropView) = {
+  private fun onShowCropView(event: ClientPaymentEvent.Button.ShowCropView) {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
       _state.value = state.copy(showCropView = event.show)
@@ -128,9 +138,8 @@ class ClientPaymentViewModel @Inject constructor(
 
   fun onEvent(event: ClientPaymentEvent) {
     when (event) {
-      is ClientPaymentEvent.Button.Pay -> onPay()
+      ClientPaymentEvent.Button.Submit -> onSubmit()
       is ClientPaymentEvent.Button.MonthCovered -> onMonthCovered(event)
-      is ClientPaymentEvent.Button.TextToClipboard -> application.onTextToClipboard(event.text)
       is ClientPaymentEvent.Button.ImageUri -> onImageUri(event)
       is ClientPaymentEvent.Button.ShowCropView -> onShowCropView(event)
       ClientPaymentEvent.Button.ScreenshotAttached -> onScreenshotAttached()

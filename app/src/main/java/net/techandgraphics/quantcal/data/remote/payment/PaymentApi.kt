@@ -34,11 +34,11 @@ interface PaymentApi {
   suspend fun pay(@Body request: PaymentRequest): ServerResponse
 
   @Multipart
-  @POST("payment/multipart")
-  suspend fun pay(
+  @POST("payment/screenshot")
+  suspend fun payWithScreenshot(
     @Part file: MultipartBody.Part,
     @Part("request") body: RequestBody,
-  ): PaymentResponse
+  ): ServerResponse
 
   @PUT("payment/{id}")
   suspend fun put(

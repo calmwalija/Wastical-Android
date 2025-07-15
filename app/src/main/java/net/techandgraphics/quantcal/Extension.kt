@@ -49,6 +49,7 @@ fun Color.toGradient() = Brush.horizontalGradient(
 )
 
 fun PaymentRequest.asApproved() = copy(status = PaymentStatus.Approved)
+fun PaymentRequest.asVerifying() = copy(status = PaymentStatus.Verifying)
 
 val gatewayDrawableRes = listOf(
   R.drawable.im_airtel_money,
