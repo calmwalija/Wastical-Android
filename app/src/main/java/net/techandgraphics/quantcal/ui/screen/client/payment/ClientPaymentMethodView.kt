@@ -36,7 +36,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
   Card(
     colors = CardDefaults.elevatedCardColors(),
     modifier = Modifier.padding(vertical = 8.dp),
-    onClick = { onEvent(ClientPaymentEvent.Button.PaymentMethod(item.method)) },
+    onClick = { onEvent(ClientPaymentEvent.Button.PaymentMethod(item)) },
   ) {
     Row(
       modifier = Modifier

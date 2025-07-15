@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,10 +43,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.getTimeOfDay
 import net.techandgraphics.quantcal.toFullName
@@ -61,14 +70,33 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable
 fun HomeScreen(
   state: ClientHomeState,
+  channel: Flow<ClientHomeChannel>,
   onEvent: (ClientHomeEvent) -> Unit,
 ) {
 
   var showMenuOptions by remember { mutableStateOf(false) }
+  var isFetching by remember { mutableStateOf(false) }
 
   when (state) {
     ClientHomeState.Loading -> LoadingIndicatorView()
     is ClientHomeState.Success -> {
+
+
+      val lifecycleOwner = LocalLifecycleOwner.current
+      LaunchedEffect(key1 = channel) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          channel.collect { event ->
+            when (event) {
+              is ClientHomeChannel.Fetch -> isFetching = when (event) {
+                is ClientHomeChannel.Fetch.Error -> false
+                ClientHomeChannel.Fetch.Fetching -> true
+                ClientHomeChannel.Fetch.Success -> false
+              }
+            }
+          }
+        }
+      }
+
       Scaffold(
         topBar = {
           TopAppBar(
@@ -85,6 +113,18 @@ fun HomeScreen(
               )
             },
             actions = {
+
+              IconButton(
+                enabled = isFetching.not(),
+                onClick = { onEvent(ClientHomeEvent.Button.Fetch) }) {
+                if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_cloud_download),
+                    contentDescription = null
+                  )
+                }
+              }
+
               IconButton(onClick = { }) {
                 BadgedBox(badge = { Badge() }) {
                   Icon(Icons.Outlined.Notifications, null)
@@ -299,8 +339,8 @@ private fun HomeScreenPreview() {
   QuantcalTheme {
     HomeScreen(
       state = clientHomeStateSuccess(),
-      onEvent = {}
-    )
+      channel = flow { }
+    ) {}
   }
 }
 

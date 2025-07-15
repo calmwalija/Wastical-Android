@@ -62,12 +62,10 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
             ) {
               Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowLeft, null)
             }
-
             Text(
               text = "${state.numberOfMonths}",
               modifier = Modifier.padding(horizontal = 4.dp)
             )
-
             IconButton(
               onClick = { onEvent(CompanyMakePaymentEvent.Button.NumberOfMonths(true)) },
               enabled = state.numberOfMonths < 12

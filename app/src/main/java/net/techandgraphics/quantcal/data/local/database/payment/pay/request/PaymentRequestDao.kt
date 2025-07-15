@@ -15,6 +15,9 @@ import net.techandgraphics.quantcal.data.local.database.relations.PaymentRequest
   @Query("SELECT * FROM payment_request WHERE account_id=:id")
   fun qByAccountId(id: Long): Flow<List<PaymentRequestEntity>>
 
+  @Query("SELECT * FROM payment_request ORDER BY id DESC LIMIT 1")
+  suspend fun getLast(): PaymentRequestEntity
+
   @Transaction
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(

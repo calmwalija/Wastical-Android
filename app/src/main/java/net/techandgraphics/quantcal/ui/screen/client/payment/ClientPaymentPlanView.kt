@@ -64,7 +64,10 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
             modifier = Modifier.padding(horizontal = 4.dp)
           )
 
-          IconButton(onClick = { onEvent(ClientPaymentEvent.Button.MonthCovered(true)) }) {
+          IconButton(
+            onClick = { onEvent(ClientPaymentEvent.Button.MonthCovered(true)) },
+            enabled = state.monthsCovered < 12
+          ) {
             Icon(Icons.AutoMirrored.TwoTone.KeyboardArrowRight, null)
           }
         }

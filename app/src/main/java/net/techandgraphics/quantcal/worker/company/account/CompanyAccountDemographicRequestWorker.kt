@@ -46,16 +46,18 @@ import java.util.concurrent.TimeUnit
   }
 }
 
+private const val WORKER_UUID = "c53f9ed5-4290-40f1-9796-d9f66e963f21"
+
 fun Context.scheduleCompanyAccountDemographicRequestWorker() {
   val workRequest = OneTimeWorkRequestBuilder<CompanyAccountDemographicRequestWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(CompanyAccountDemographicRequestWorker::class.java.simpleName))
+    .setId(UUID.fromString(WORKER_UUID))
     .build()
   WorkManager
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = CompanyAccountDemographicRequestWorker::class.java.simpleName,
+      uniqueWorkName = WORKER_UUID,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

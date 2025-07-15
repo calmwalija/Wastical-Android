@@ -6,9 +6,10 @@ import androidx.work.WorkerParameters
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
+import net.techandgraphics.quantcal.worker.client.payment.ClientPaymentRequestWorker
 import net.techandgraphics.quantcal.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.quantcal.worker.company.account.CompanyAccountPaymentPlanRequestWorker
-import net.techandgraphics.quantcal.worker.company.account.CompanyAccountRequestWorker
+import net.techandgraphics.quantcal.worker.company.payment.CompanyPaymentRequestWorker
 import net.techandgraphics.quantcal.worker.company.payment.CompanyPaymentWorker
 import javax.inject.Inject
 
@@ -30,12 +31,12 @@ class WorkerFactory @Inject constructor(
         paymentApi = paymentApi,
       )
 
-    CompanyAccountRequestWorker::class.java.name ->
-      CompanyAccountRequestWorker(
+    CompanyPaymentRequestWorker::class.java.name ->
+      CompanyPaymentRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
-        accountApi = accountApi,
+        paymentApi = paymentApi,
       )
 
     CompanyAccountDemographicRequestWorker::class.java.name ->
@@ -52,6 +53,14 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         accountApi = accountApi,
+      )
+
+    ClientPaymentRequestWorker::class.java.name ->
+      ClientPaymentRequestWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        paymentApi = paymentApi,
       )
 
     else -> null

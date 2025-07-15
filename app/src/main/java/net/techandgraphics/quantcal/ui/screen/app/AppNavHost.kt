@@ -1,6 +1,7 @@
 package net.techandgraphics.quantcal.ui.screen.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -35,7 +36,7 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(ClientPaymentEvent.Load(ACCOUNT_ID))
+        LaunchedEffect(ACCOUNT_ID) { onEvent(ClientPaymentEvent.Load(ACCOUNT_ID)) }
         ClientPaymentScreen(state, channel) { event ->
           when (event) {
             is ClientPaymentEvent.Response ->
@@ -54,7 +55,7 @@ fun AppNavHost(navController: NavHostController) {
       with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
         onEvent(ClientHomeEvent.Load(ACCOUNT_ID))
-        HomeScreen(state) { event ->
+        HomeScreen(state, channel) { event ->
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {

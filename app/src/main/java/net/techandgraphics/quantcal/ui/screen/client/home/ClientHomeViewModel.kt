@@ -3,6 +3,7 @@ package net.techandgraphics.quantcal.ui.screen.client.home
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
+import net.techandgraphics.quantcal.data.local.database.account.session.AccountSessionRepository
+import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.toAccountContactUiModel
@@ -38,6 +41,7 @@ import javax.inject.Inject
 @HiltViewModel class ClientHomeViewModel @Inject constructor(
   private val application: Application,
   private val database: AppDatabase,
+  private val accountSession: AccountSessionRepository,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<ClientHomeState>(ClientHomeState.Loading)
@@ -124,6 +128,23 @@ import javax.inject.Inject
     }
   }
 
+  private fun onFetchChanges() = viewModelScope.launch {
+    _channel.send(ClientHomeChannel.Fetch.Fetching)
+    runCatching { accountSession.fetch() }
+      .onSuccess { data ->
+        try {
+          database.withTransaction {
+            database.clearAllTables()
+            accountSession.purseData(data) { _, _ -> }
+          }
+          _channel.send(ClientHomeChannel.Fetch.Success)
+        } catch (e: Exception) {
+          _channel.send(ClientHomeChannel.Fetch.Error(mapApiError(e)))
+        }
+      }
+      .onFailure { _channel.send(ClientHomeChannel.Fetch.Error(mapApiError(it))) }
+  }
+
   private fun onPaymentShare(event: ClientHomeEvent.Button.Payment.Share) {
     onInvoiceToPdf(event.payment) { file ->
       file?.share(application)
@@ -134,6 +155,7 @@ import javax.inject.Inject
     when (event) {
       is ClientHomeEvent.Button.Payment.Invoice -> onPaymentTap(event)
       is ClientHomeEvent.Button.Payment.Share -> onPaymentShare(event)
+      ClientHomeEvent.Button.Fetch -> onFetchChanges()
       is ClientHomeEvent.Load -> onLoad(event)
       is ClientHomeEvent.Button.Payment.TextToClipboard -> application.onTextToClipboard(event.text)
       else -> Unit
