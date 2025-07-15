@@ -238,13 +238,13 @@ internal val paymentRequest4Preview = PaymentRequestUiModel(
   companyId = 1,
   executedById = 1,
   status = PaymentStatus.Waiting.name,
-  createdAt = 1,
+  createdAt = ZonedDateTime.now().toEpochSecond(),
 )
 
 internal val paymentRequestWithAccount4Preview = PaymentRequestWithAccountUiModel(
   account = account4Preview,
   payment = paymentRequest4Preview,
-  fee = 1,
+  fee = 10_000,
 )
 
 internal val paymentMonthCoveredUiModel = PaymentMonthCoveredUiModel(

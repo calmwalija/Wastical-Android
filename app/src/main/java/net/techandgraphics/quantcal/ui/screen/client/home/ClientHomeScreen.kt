@@ -63,6 +63,7 @@ import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentPlan4Preview
+import net.techandgraphics.quantcal.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.quantcal.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
@@ -269,19 +270,36 @@ fun HomeScreen(
             }
           }
 
-          if (false) {
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          if (state.payments.isNotEmpty()) {
             item {
               Text(
-                text = "Recent Payments",
+                text = "Payments Waiting Approval",
                 modifier = Modifier.padding(8.dp),
                 fontWeight = FontWeight.Bold,
               )
             }
 
             items(state.payments) { payment ->
-              ClientHomePaymentView(
-                model = payment
+              ClientHomePaymentView(model = payment)
+            }
+
+          }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          if (state.paymentRequests.isNotEmpty()) {
+            item {
+              Text(
+                text = "Awaiting Internet Connection",
+                modifier = Modifier.padding(8.dp),
+                fontWeight = FontWeight.Bold,
               )
+            }
+
+            items(state.paymentRequests) { payment ->
+              ClientHomePaymentRequestView(model = payment)
             }
 
           }
@@ -350,5 +368,7 @@ fun clientHomeStateSuccess() = ClientHomeState.Success(
   paymentPlan = paymentPlan4Preview,
   paymentMethods = listOf(paymentMethodWithGatewayAndPlan4Preview),
   invoices = listOf(paymentWithAccountAndMethodWithGateway4Preview),
-  companyBinCollections = listOf()
+  companyBinCollections = listOf(),
+  payments = listOf(paymentWithAccountAndMethodWithGateway4Preview),
+  paymentRequests = listOf(paymentRequestWithAccount4Preview)
 )

@@ -8,8 +8,8 @@ import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentMonthCoveredUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
+import net.techandgraphics.quantcal.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
 
 sealed interface ClientHomeState {
   data object Loading : ClientHomeState
@@ -21,7 +21,8 @@ sealed interface ClientHomeState {
     val lastMonthCovered: PaymentMonthCoveredUiModel? = null,
     val paymentMethods: List<PaymentMethodWithGatewayAndPlanUiModel> = listOf(),
     val invoices: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
-    val payments: List<PaymentWithMonthsCoveredUiModel> = listOf(),
+    val payments: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
+    val paymentRequests: List<PaymentRequestWithAccountUiModel> = listOf(),
     val companyBinCollections: List<CompanyBinCollectionUiModel> = listOf(),
     val accountContacts: List<AccountContactUiModel> = listOf(),
     val companyContacts: List<CompanyContactUiModel> = listOf(),
