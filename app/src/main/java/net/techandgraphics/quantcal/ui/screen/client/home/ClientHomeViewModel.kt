@@ -31,8 +31,8 @@ import net.techandgraphics.quantcal.domain.toPaymentMethodUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.quantcal.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.quantcal.onTextToClipboard
 import net.techandgraphics.quantcal.preview
 import net.techandgraphics.quantcal.share
@@ -82,9 +82,17 @@ import javax.inject.Inject
             },
           flow2 = database
             .paymentDao
-            .flowOfPaymentsWithMonthCovered()
-            .map { p0 -> p0.map { it.toPaymentWithMonthsCoveredUiModel() } },
-        ) { invoices, payments ->
+            .qPaymentWithAccountAndMethodWithGatewayNot(PaymentStatus.Approved.name)
+            .map { p0 ->
+              p0.map {
+                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+              }
+            },
+          flow3 = database
+            .paymentRequestDao
+            .qFlowWithAccount()
+            .map { p0 -> p0.map { it.toPaymentRequestWithAccountUiModel() } },
+        ) { invoices, payments, paymentRequests ->
           _state.value = ClientHomeState.Success(
             invoices = invoices,
             payments = payments,
@@ -96,6 +104,7 @@ import javax.inject.Inject
             companyContacts = companyContacts,
             companyBinCollections = companyBinCollections,
             lastMonthCovered = lastMonthCovered,
+            paymentRequests = paymentRequests,
           )
         }.launchIn(this)
       }

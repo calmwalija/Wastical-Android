@@ -1,13 +1,11 @@
 package net.techandgraphics.quantcal.ui.screen.client.home
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -18,22 +16,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
-import net.techandgraphics.quantcal.defaultDate
-import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.quantcal.gatewayDrawableRes
+import net.techandgraphics.quantcal.defaultDateTime
+import net.techandgraphics.quantcal.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toZonedDateTime
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
-@Composable fun ClientHomePaymentView(model: PaymentWithAccountAndMethodWithGatewayUiModel) {
+@Composable fun ClientHomePaymentRequestView(
+  model: PaymentRequestWithAccountUiModel,
+) {
   Card(
     modifier = Modifier
       .fillMaxWidth()
@@ -42,19 +38,17 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
     colors = CardDefaults.elevatedCardColors()
   ) {
     Row(
-      modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+      modifier = Modifier.padding(vertical = 6.dp, horizontal = 8.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Image(
-        painter = painterResource(
-          id = gatewayDrawableRes[model.gateway.id.minus(1).toInt()]
-        ),
+      Icon(
+        painterResource(R.drawable.ic_cloud_sync),
         contentDescription = null,
         modifier = Modifier
-          .padding(horizontal = 4.dp)
           .clip(CircleShape)
-          .size(38.dp),
-        contentScale = ContentScale.Crop,
+          .background(MaterialTheme.colorScheme.surface)
+          .size(42.dp)
+          .padding(8.dp),
       )
       Column(
         modifier = Modifier
@@ -62,50 +56,29 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
           .padding(horizontal = 8.dp)
       ) {
         Text(
-          text = model.gateway.name,
+          text = model.fee.times(model.payment.months).toAmount(),
           style = MaterialTheme.typography.bodyMedium,
           maxLines = 1,
           overflow = TextOverflow.MiddleEllipsis,
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = model.payment.createdAt.toZonedDateTime().defaultDate(),
+          text = model.payment.createdAt.toZonedDateTime().defaultDateTime(),
           style = MaterialTheme.typography.bodySmall,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
         )
       }
-
-      when (model.payment.status) {
-        PaymentStatus.Waiting -> {
-          Icon(
-            painter = painterResource(R.drawable.ic_cloud_sync),
-            contentDescription = null,
-            modifier = Modifier.padding(horizontal = 4.dp)
-          )
-        }
-
-        else -> Unit
-      }
-
-      Text(
-        text = model.coveredSize.times(model.plan.fee).toAmount(),
-        style = MaterialTheme.typography.labelMedium,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.End
-      )
-      Spacer(modifier = Modifier.width(16.dp))
     }
   }
 }
 
 
 @Preview(showBackground = true)
-@Composable fun ClientHomePaymentViewPreview() {
+@Composable fun ClientHomePaymentRequestViewPreview() {
   QuantcalTheme {
-    ClientHomePaymentView(
-      model = clientHomeStateSuccess().payments.first(),
+    ClientHomePaymentRequestView(
+      model = clientHomeStateSuccess().paymentRequests.first(),
     )
   }
 }
