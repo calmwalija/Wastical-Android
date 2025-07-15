@@ -1,7 +1,8 @@
-package net.techandgraphics.quantcal.worker.account
+package net.techandgraphics.quantcal.worker.company.account
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -13,13 +14,14 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
-import net.techandgraphics.quantcal.data.local.database.toAccountPaymentPlanEntity
+import net.techandgraphics.quantcal.data.local.database.toAccountEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
-import net.techandgraphics.quantcal.data.remote.toAccountPaymentPlanRequest
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
+import net.techandgraphics.quantcal.data.remote.toAccountRequest
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-@HiltWorker class AccountPaymentPlanRequestWorker @AssistedInject constructor(
+@HiltWorker class CompanyAccountDemographicRequestWorker @AssistedInject constructor(
   @Assisted val context: Context,
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
@@ -28,12 +30,13 @@ import java.util.concurrent.TimeUnit
 
   override suspend fun doWork(): Result {
     return try {
-      database.accountPaymentPlanRequestDao.query()
-        .onEach {
-          val newPlan = accountApi.plan(it.paymentPlanId, it.toAccountPaymentPlanRequest())
-            .toAccountPaymentPlanEntity()
-          database.accountPaymentPlanDao.update(newPlan)
-          database.accountPaymentPlanRequestDao.delete(it)
+      database.accountRequestDao
+        .qByHttpOp(HttpOperation.Demographic.name).forEach { request ->
+          val newAccount = accountApi.demographic(request.id, request.toAccountRequest())
+          database.withTransaction {
+            database.accountDao.update(newAccount.toAccountEntity())
+            database.accountRequestDao.delete(request)
+          }
         }
       Result.success()
     } catch (e: Exception) {
@@ -43,16 +46,16 @@ import java.util.concurrent.TimeUnit
   }
 }
 
-fun Context.scheduleAccountPaymentPlanRequestWorker() {
-  val workRequest = OneTimeWorkRequestBuilder<AccountPaymentPlanRequestWorker>()
+fun Context.scheduleCompanyAccountDemographicRequestWorker() {
+  val workRequest = OneTimeWorkRequestBuilder<CompanyAccountDemographicRequestWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(AccountPaymentPlanRequestWorker::class.java.simpleName))
+    .setId(UUID.fromString(CompanyAccountDemographicRequestWorker::class.java.simpleName))
     .build()
   WorkManager
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = AccountPaymentPlanRequestWorker::class.java.simpleName,
+      uniqueWorkName = CompanyAccountDemographicRequestWorker::class.java.simpleName,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

@@ -17,7 +17,7 @@ import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiMod
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toDemographicAreaUiModel
 import net.techandgraphics.quantcal.domain.toDemographicStreetUiModel
-import net.techandgraphics.quantcal.worker.account.scheduleAccountDemographicRequestWorker
+import net.techandgraphics.quantcal.worker.company.account.scheduleCompanyAccountDemographicRequestWorker
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -80,7 +80,7 @@ class CompanyClientLocationViewModel @Inject constructor(
             httpOperation = HttpOperation.Demographic.name,
           )
         runCatching { database.accountRequestDao.insert(accountRequest) }
-          .onSuccess { application.scheduleAccountDemographicRequestWorker() }
+          .onSuccess { application.scheduleCompanyAccountDemographicRequestWorker() }
           .onFailure { println(it) }
       }
     }

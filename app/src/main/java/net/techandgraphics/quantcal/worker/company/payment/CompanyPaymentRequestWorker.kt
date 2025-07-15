@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.worker.payment
+package net.techandgraphics.quantcal.worker.company.payment
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -10,7 +10,7 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 
-@HiltWorker class PaymentRequestWorker @AssistedInject constructor(
+@HiltWorker class CompanyPaymentRequestWorker @AssistedInject constructor(
   @Assisted val context: Context,
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
