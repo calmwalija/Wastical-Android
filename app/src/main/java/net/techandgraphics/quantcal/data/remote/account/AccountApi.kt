@@ -36,7 +36,9 @@ interface AccountApi {
   suspend fun demographic(@Path("id") id: Long, @Body request: AccountRequest): AccountResponse
 
   suspend fun verify(contact: String): ServerResponse
-  suspend fun fcmToken(request: AccountFcmTokenRequest): AccountFcmTokenResponse
+
+  @POST("fcm_token")
+  suspend fun fcmToken(@Body request: AccountFcmTokenRequest): AccountFcmTokenResponse
 }
 
-const val ACCOUNT_ID = 572L
+const val ACCOUNT_ID = 22L
