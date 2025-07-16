@@ -14,6 +14,7 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.data.remote.payment.PaymentType
@@ -74,7 +75,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
         months = numberOfMonths,
         companyId = account.companyId,
         executedById = ACCOUNT_ID,
-        status = PaymentStatus.Waiting,
+        status = PaymentStatus.Approved,
+        httpOperation = HttpOperation.Post.name,
       ).toPaymentRequestEntity()
       database.paymentRequestDao.upsert(cachedPayment)
       _channel.send(CompanyMakePaymentChannel.Pay.Success)

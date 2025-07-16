@@ -14,6 +14,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.zip
+import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
@@ -49,6 +50,7 @@ fun Color.toGradient() = Brush.horizontalGradient(
 )
 
 fun PaymentRequest.asApproved() = copy(status = PaymentStatus.Approved)
+fun PaymentEntity.asApproved() = copy(status = PaymentStatus.Approved.name)
 fun PaymentRequest.asVerifying() = copy(status = PaymentStatus.Verifying)
 
 val gatewayDrawableRes = listOf(

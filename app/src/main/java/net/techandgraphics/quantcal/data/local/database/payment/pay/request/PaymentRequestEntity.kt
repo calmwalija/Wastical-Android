@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.techandgraphics.quantcal.data.local.database.account.AccountEntity
 import net.techandgraphics.quantcal.data.local.database.payment.method.PaymentMethodEntity
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import java.time.ZonedDateTime
 
 @Entity(
@@ -49,5 +50,6 @@ data class PaymentRequestEntity(
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("executed_by_id") val executedById: Long,
   @ColumnInfo("payment_status") val status: String,
+  @ColumnInfo("http_operation") val httpOperation: String = HttpOperation.Post.name,
   @ColumnInfo("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
 )

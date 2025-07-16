@@ -62,7 +62,7 @@ class CompanyCreateClientViewModel @Inject constructor(
         paymentPlanId = theState.planId,
         companyId = theState.company.id,
         companyLocationId = theState.companyLocationId,
-        httpOperation = HttpOperation.Create.name,
+        httpOperation = HttpOperation.Post.name,
         accountId = theId,
         role = AccountRole.Client.name,
         createdAt = timestamp,
