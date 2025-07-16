@@ -76,6 +76,9 @@
     </service>
 
 
+    <receiver
+      android:name="net.techandgraphics.quantcal.broadcasts.company.CompanyFcmNotificationActionReceiver"
+      android:exported="false" />
   </application>
 
 

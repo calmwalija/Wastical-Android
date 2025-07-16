@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
       database.accountRequestDao.query().forEach { accountRequestEntity ->
         val account = accountRequestEntity.toAccountRequest()
         when (HttpOperation.valueOf(account.httpOperation)) {
-          HttpOperation.Create -> {
+          HttpOperation.Post -> {
             val newAccount = accountApi.create(account)
             database.withTransaction {
               newAccount.accounts
@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit
             }
           }
 
-          HttpOperation.Edit -> {
+          HttpOperation.Put -> {
             database.withTransaction {
               accountApi.put(accountRequestEntity.id, account)
                 .toAccountEntity()

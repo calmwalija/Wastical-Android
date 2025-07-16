@@ -89,7 +89,7 @@ import java.util.concurrent.TimeUnit
           ),
         )
         val builder = NotificationBuilder(context)
-        builder.show(notification)
+        builder.show(notification, payment.id)
       }
     }
   }

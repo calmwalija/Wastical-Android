@@ -14,7 +14,7 @@ data class AccountRequest(
   val email: String? = null,
   val status: String,
   val role: AccountRole = AccountRole.Client,
-  @SerializedName("http_operation") val httpOperation: String = HttpOperation.Create.name,
+  @SerializedName("http_operation") val httpOperation: String = HttpOperation.Post.name,
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("company_location_id") val companyLocationId: Long,
   @SerializedName("payment_plan_id") val paymentPlanId: Long,
@@ -22,4 +22,4 @@ data class AccountRequest(
   @SerializedName("updated_at") val updateAt: Long = 0,
 )
 
-enum class HttpOperation { Create, Edit, Demographic }
+enum class HttpOperation { Post, Put, Demographic }

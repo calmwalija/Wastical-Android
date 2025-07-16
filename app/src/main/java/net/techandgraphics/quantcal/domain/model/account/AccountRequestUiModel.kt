@@ -14,7 +14,7 @@ data class AccountRequestUiModel(
   val altContact: String,
   val email: String? = null,
   val role: String,
-  val httpOperation: String = HttpOperation.Create.name,
+  val httpOperation: String = HttpOperation.Post.name,
   val companyId: Long,
   val accountId: Long,
   val companyLocationId: Long,

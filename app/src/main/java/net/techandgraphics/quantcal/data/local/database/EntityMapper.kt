@@ -25,6 +25,7 @@ import net.techandgraphics.quantcal.data.local.database.relations.CompanyLocatio
 import net.techandgraphics.quantcal.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.quantcal.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountResponse
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.account.contact.AccountContactResponse
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanResponse
@@ -37,7 +38,6 @@ import net.techandgraphics.quantcal.data.remote.demographic.DemographicAreaRespo
 import net.techandgraphics.quantcal.data.remote.demographic.DemographicDistrictResponse
 import net.techandgraphics.quantcal.data.remote.demographic.DemographicStreetResponse
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
-import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.data.remote.payment.collection.PaymentCollectionDayResponse
 import net.techandgraphics.quantcal.data.remote.payment.gateway.PaymentGatewayResponse
 import net.techandgraphics.quantcal.data.remote.payment.method.PaymentMethodResponse
@@ -148,13 +148,14 @@ fun AccountContactResponse.toAccountContactEntity() = AccountContactEntity(
 )
 
 fun PaymentRequest.toPaymentRequestEntity() = PaymentRequestEntity(
-  status = PaymentStatus.Waiting.name,
+  status = status.name,
   accountId = accountId,
   screenshotText = screenshotText,
   paymentMethodId = paymentMethodId,
   companyId = companyId,
   executedById = executedById,
   months = months,
+  httpOperation = httpOperation,
 )
 
 fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(
@@ -464,4 +465,18 @@ fun AccountPaymentPlanRequest.toAccountPaymentPlanRequestEntity() =
     accountUuid = accountUuid,
     accountId = accountId,
     paymentPlanId = paymentPlanId,
+  )
+
+fun PaymentEntity.toPaymentRequestEntity(httpOperation: HttpOperation) =
+  PaymentRequestEntity(
+    id = id,
+    status = status,
+    accountId = accountId,
+    screenshotText = screenshotText,
+    paymentMethodId = paymentMethodId,
+    companyId = companyId,
+    executedById = executedById,
+    months = -1,
+    httpOperation = httpOperation.name,
+    createdAt = createdAt,
   )

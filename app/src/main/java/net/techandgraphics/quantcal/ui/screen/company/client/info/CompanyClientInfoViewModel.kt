@@ -54,7 +54,7 @@ class CompanyClientInfoViewModel @Inject constructor(
         database.accountRequestDao.insert(
           newAccount
             .toAccountEntity(plan.id)
-            .copy(httpOperation = HttpOperation.Edit.name),
+            .copy(httpOperation = HttpOperation.Put.name),
         )
       }.onSuccess {
         database.accountDao.update(newAccount)

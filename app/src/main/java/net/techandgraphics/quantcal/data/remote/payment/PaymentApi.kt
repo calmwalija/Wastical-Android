@@ -25,7 +25,7 @@ interface PaymentApi {
   suspend fun fetchLatest(
     @Query("account_id") accountId: Long,
     @Query("epoch_second") epochSecond: Long,
-  ): List<PaymentResponse>
+  ): ServerResponse
 
   @GET("payment/latest")
   suspend fun fetchLatest(@QueryMap params: Map<String, Any>): List<PaymentResponse>
@@ -44,7 +44,7 @@ interface PaymentApi {
   suspend fun put(
     @Path("id") id: Long,
     @Body request: PaymentRequest,
-  ): List<PaymentResponse>
+  ): ServerResponse
 
   @DELETE("payment/{id}")
   suspend fun delete(@Path("id") id: Long): Long

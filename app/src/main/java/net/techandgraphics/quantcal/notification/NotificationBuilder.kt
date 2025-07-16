@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import net.techandgraphics.quantcal.R
-import kotlin.random.Random
 
 class NotificationBuilder(private val context: Context) {
 
@@ -45,6 +44,7 @@ class NotificationBuilder(private val context: Context) {
 
   fun withActions(
     vararg actions: NotificationCompat.Action,
+    notificationId: Long,
     notification: NotificationUiModel,
   ) = builder(notification)
     .run {
@@ -57,10 +57,13 @@ class NotificationBuilder(private val context: Context) {
         return
       }
       NotificationManagerCompat.from(context)
-        .notify(Random.nextInt(), build())
+        .notify(notificationId.toInt(), build())
     }
 
-  fun show(notification: NotificationUiModel) {
+  fun show(
+    notification: NotificationUiModel,
+    notificationId: Long,
+  ) {
     builder(notification).run {
       configs(notification)
       if (ActivityCompat.checkSelfPermission(
@@ -70,7 +73,7 @@ class NotificationBuilder(private val context: Context) {
         return
       }
       NotificationManagerCompat.from(context)
-        .notify(Random.nextInt(), build())
+        .notify(notificationId.toInt(), build())
     }
   }
 

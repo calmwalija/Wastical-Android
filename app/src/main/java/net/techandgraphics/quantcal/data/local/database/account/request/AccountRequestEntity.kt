@@ -62,7 +62,7 @@ data class AccountRequestEntity(
   val email: String? = null,
   val role: String,
   val status: String,
-  @ColumnInfo("http_operation") val httpOperation: String = HttpOperation.Create.name,
+  @ColumnInfo("http_operation") val httpOperation: String = HttpOperation.Post.name,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("company_location_id") val companyLocationId: Long,

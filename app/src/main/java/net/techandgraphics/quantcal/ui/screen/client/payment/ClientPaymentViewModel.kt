@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentRequestEntity
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.toAccountUiModel
@@ -79,6 +80,7 @@ class ClientPaymentViewModel @Inject constructor(
         companyId = state.company.id,
         executedById = state.account.id,
         status = PaymentStatus.Waiting,
+        httpOperation = HttpOperation.Post.name,
       ).toPaymentRequestEntity()
       database.paymentRequestDao.upsert(cachedPayment)
       val newPayment = database.paymentRequestDao.getLast()

@@ -22,12 +22,13 @@ import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentRespon
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.quantcal.ui.screen.client.payment.ClientPaymentViewModel
 import net.techandgraphics.quantcal.ui.screen.company.CompanyNavGraphBuilder
+import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
   NavHost(
     navController = navController,
-    startDestination = Route.Client.Home
+    startDestination = CompanyRoute.Home
   ) {
 
     PhoneNavGraphBuilder(navController)

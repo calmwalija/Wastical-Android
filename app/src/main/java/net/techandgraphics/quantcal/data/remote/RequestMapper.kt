@@ -7,9 +7,11 @@ import net.techandgraphics.quantcal.data.local.database.account.request.AccountR
 import net.techandgraphics.quantcal.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.quantcal.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountRequest
+import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.quantcal.data.remote.account.token.AccountFcmTokenRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
+import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
@@ -22,9 +24,11 @@ fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   months = months,
   executedById = executedById,
   createdAt = createdAt,
+  httpOperation = httpOperation,
+  status = PaymentStatus.valueOf(status),
 )
 
-fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
+fun PaymentUiModel.toPaymentRequest(httpOperation: HttpOperation) = PaymentRequest(
   screenshotText = screenshotText,
   paymentMethodId = paymentMethodId,
   accountId = accountId,
@@ -34,6 +38,7 @@ fun PaymentUiModel.toPaymentRequest() = PaymentRequest(
   companyId = companyId,
   executedById = executedById,
   createdAt = createdAt,
+  httpOperation = httpOperation.name,
 )
 
 fun AccountFcmTokenEntity.toAccountFcmTokenRequest(accountId: Long) =
