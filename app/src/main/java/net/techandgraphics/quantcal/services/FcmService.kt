@@ -1,9 +1,5 @@
 package net.techandgraphics.quantcal.services
 
-import android.app.PendingIntent
-import android.content.Intent
-import androidx.core.app.NotificationCompat
-import androidx.room.withTransaction
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -11,23 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.techandgraphics.quantcal.R
-import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
-import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
-import net.techandgraphics.quantcal.data.local.database.toPaymentEntity
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
-import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
-import net.techandgraphics.quantcal.defaultDateTime
-import net.techandgraphics.quantcal.domain.toAccountUiModel
-import net.techandgraphics.quantcal.domain.toPaymentUiModel
-import net.techandgraphics.quantcal.getTimeOfDay
-import net.techandgraphics.quantcal.notification.NotificationBuilder
-import net.techandgraphics.quantcal.notification.NotificationType
-import net.techandgraphics.quantcal.notification.NotificationUiModel
-import net.techandgraphics.quantcal.toFullName
-import net.techandgraphics.quantcal.toZonedDateTime
-import net.techandgraphics.quantcal.ui.activity.MainActivity
+import net.techandgraphics.quantcal.data.local.database.account.token.AccountFcmTokenEntity
+import net.techandgraphics.quantcal.worker.scheduleAccountFcmTokenWorker
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,110 +17,16 @@ class FcmService : FirebaseMessagingService() {
 
   @Inject lateinit var database: AppDatabase
 
-  @Inject lateinit var paymentApi: PaymentApi
-
   private val coroutineScope = CoroutineScope(Dispatchers.IO + Job())
-  private val accountRole = if (ACCOUNT_ID == 1L) AccountRole.Client else AccountRole.Company
-
-  /**
-   Based on [net.techandgraphics.quantcal.data.local.database.account.AccountEntity]
-   logged in [net.techandgraphics.quantcal.data.local.database.AccountRole]
-   */
-
-  private suspend fun onVerificationEvent(payments: List<PaymentEntity>) {
-    when (accountRole) {
-      AccountRole.Client -> onClientRole(payments)
-      AccountRole.Company -> onCompanyRole(payments)
-    }
-  }
-
-  private suspend fun onClientRole(payments: List<PaymentEntity>) = payments.forEach { newValue ->
-
-    val account = database
-      .accountDao
-      .get(newValue.accountId)
-      .toAccountUiModel()
-
-    val notification = NotificationUiModel(
-      type = NotificationType.PaymentVerification,
-      title = "Payment Screenshot Feedback",
-      body = "Your payment screenshot with ${newValue.transactionId} has been ${newValue.status}.",
-      style = NotificationCompat.BigTextStyle().bigText(
-        "Good ${getTimeOfDay()} ${account.toFullName()}, your payment with ${newValue.transactionId} " +
-          "you send for verification has been ${newValue.status}. " +
-          "Thank you for your patience.",
-      ),
-    )
-    val builder = NotificationBuilder(this)
-    builder.show(notification)
-  }
-
-  private suspend fun onCompanyRole(payments: List<PaymentEntity>) = payments
-    .map { it.toPaymentUiModel() }
-    .forEach { payment ->
-      val account = database
-        .accountDao
-        .get(payment.accountId)
-        .toAccountUiModel()
-
-      val entity = database
-        .paymentMethodDao
-        .getWithGatewayById(payment.paymentMethodId)
-
-      val notification = NotificationUiModel(
-        type = NotificationType.PaymentVerification,
-        title = "Payment Screenshot Request Verification",
-        body = "${account.toFullName()} has sent a payment request",
-        style = NotificationCompat.BigTextStyle().bigText(
-          "${account.toFullName()} has sent a payment request of payment.calculate() " +
-            "using ${entity.gateway.name} on ${
-              payment.updatedAt.toZonedDateTime().defaultDateTime()
-            }",
-        ),
-      )
-
-      val intent = Intent(this, MainActivity::class.java)
-
-      val approveIntent = PendingIntent.getBroadcast(
-        this,
-        0,
-        intent.also { it.action = "APPROVE" },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-      )
-
-      val verifyIntent = PendingIntent.getBroadcast(
-        this,
-        1,
-        intent.also { it.action = "VERIFY" },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-      )
-
-      NotificationBuilder(this).withActions(
-        NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
-        NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
-        notification = notification,
-      )
-    }
 
   override fun onMessageReceived(p0: RemoteMessage) {
-    if (p0.data["event"]?.contains("verify") == true) {
-      coroutineScope.launch {
-        val epochSecond = database.paymentDao.getByUpdatedAtLatest()?.updatedAt ?: -1
-        runCatching {
-          database.withTransaction {
-            paymentApi.fetchLatest(ACCOUNT_ID, epochSecond)
-              .map { it.toPaymentEntity() }
-              .also { database.paymentDao.upsert(it) }
-          }
-        }.onSuccess { onVerificationEvent(it) }
-      }
-    }
     super.onMessageReceived(p0)
   }
 
   override fun onNewToken(token: String) {
     coroutineScope.launch {
-//      database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = token))
+      database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = token))
+      scheduleAccountFcmTokenWorker()
     }
     super.onNewToken(token)
   }

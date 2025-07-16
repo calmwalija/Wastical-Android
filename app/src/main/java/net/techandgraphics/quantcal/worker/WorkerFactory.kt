@@ -63,6 +63,14 @@ class WorkerFactory @Inject constructor(
         paymentApi = paymentApi,
       )
 
+    AccountFcmTokenWorker::class.java.name ->
+      AccountFcmTokenWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        accountApi = accountApi,
+      )
+
     else -> null
   }
 }
