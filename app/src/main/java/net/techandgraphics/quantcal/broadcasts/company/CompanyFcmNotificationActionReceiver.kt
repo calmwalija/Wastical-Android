@@ -14,8 +14,8 @@ import net.techandgraphics.quantcal.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.di.AppEntryPoint
-import net.techandgraphics.quantcal.services.company.CompanyFcmEvent.FcmEventConst.PAYMENT_ID
 import net.techandgraphics.quantcal.services.company.CompanyFcmNotificationAction
+import net.techandgraphics.quantcal.worker.company.payment.fcm.CompanyFetchLatestPaymentWorker.Companion.PAYMENT_ID
 import net.techandgraphics.quantcal.worker.company.payment.scheduleCompanyPaymentRequestWorker
 
 class CompanyFcmNotificationActionReceiver : BroadcastReceiver() {
@@ -32,9 +32,6 @@ class CompanyFcmNotificationActionReceiver : BroadcastReceiver() {
       CompanyFcmNotificationAction.Approve.name -> {
         val paymentId = intent.getLongExtra(PAYMENT_ID, -1L)
         if (paymentId == -1L) return
-
-        Log.e("TAG", "onReceive:paymentId " + paymentId)
-
         coroutineScope.launch {
           try {
             val cachePayment = database

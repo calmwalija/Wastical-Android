@@ -7,10 +7,12 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.worker.client.payment.ClientPaymentRequestWorker
+import net.techandgraphics.quantcal.worker.client.payment.fcm.ClientFetchLatestPaymentWorker
 import net.techandgraphics.quantcal.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.quantcal.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import net.techandgraphics.quantcal.worker.company.payment.CompanyPaymentRequestWorker
 import net.techandgraphics.quantcal.worker.company.payment.CompanyPaymentWorker
+import net.techandgraphics.quantcal.worker.company.payment.fcm.CompanyFetchLatestPaymentWorker
 import javax.inject.Inject
 
 class WorkerFactory @Inject constructor(
@@ -69,6 +71,22 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         accountApi = accountApi,
+      )
+
+    ClientFetchLatestPaymentWorker::class.java.name ->
+      ClientFetchLatestPaymentWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        paymentApi = paymentApi,
+      )
+
+    CompanyFetchLatestPaymentWorker::class.java.name ->
+      CompanyFetchLatestPaymentWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        paymentApi = paymentApi,
       )
 
     else -> null
