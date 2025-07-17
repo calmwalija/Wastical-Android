@@ -11,5 +11,4 @@ data class ClientHomeActivityItemModel(
   val iconBackground: Color = Color.Companion.White,
   val containerColor: Color = Color.Companion.White,
   val clickable: Boolean = true,
-  val event: ClientHomeEvent,
 )

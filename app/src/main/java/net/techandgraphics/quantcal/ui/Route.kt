@@ -4,12 +4,14 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
 
+  @Serializable data class Load(val logout: Boolean = false) : Client
+
   @Serializable sealed interface Client : Route {
     @Serializable data object Home : Client
 
-    @Serializable data object Payment : Client
+    @Serializable data class Payment(val id: Long) : Client
 
-    @Serializable data object Invoice : Client
+    @Serializable data class Invoice(val id: Long) : Client
 
     @Serializable data class PaymentResponse(
       val isSuccess: Boolean,

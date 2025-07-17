@@ -12,10 +12,8 @@ sealed interface CompanyHomeChannel {
 
   data class Export(val file: File) : CompanyHomeChannel
 
-  sealed interface Import : CompanyHomeChannel {
-    enum class Status { Wait, Invalid, Error, Success }
-    data class Data(val status: Status) : Import
-    data class Progress(val total: Int, val current: Int) : Import
+  sealed interface Goto : CompanyHomeChannel {
+    data object Login : Goto
   }
 
   sealed interface Fetch : CompanyHomeChannel {

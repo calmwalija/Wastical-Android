@@ -4,21 +4,23 @@ import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 
 sealed interface ClientHomeEvent {
 
-  data class Load(val id: Long) : ClientHomeEvent
+  data object Load : ClientHomeEvent
 
   sealed interface Button : ClientHomeEvent {
     data object Fetch : Button
+    data object Logout : Button
     sealed interface Payment : Button {
       data class Invoice(val payment: PaymentUiModel) : Payment
       data class Share(val payment: PaymentUiModel) : Payment
       data class TextToClipboard(val text: String) : Payment
     }
 
-    data object MakePayment : Button
+    data class MakePayment(val id: Long) : Button
     data object WasteSortGuide : Button
   }
 
   sealed interface Goto : ClientHomeEvent {
-    data object Invoice : Goto
+    data class Invoice(val id: Long) : Goto
+    data object Login : Goto
   }
 }

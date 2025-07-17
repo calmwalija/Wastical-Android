@@ -9,6 +9,7 @@ sealed interface CompanyHomeEvent {
 
   sealed interface Button : CompanyHomeEvent {
     data object Export : Button
+    data object Logout : Button
     data class WorkingMonth(val param: MonthYear) : Button
   }
 
@@ -26,6 +27,7 @@ sealed interface CompanyHomeEvent {
     data class LocationOverview(val id: Long) : Goto
     data class Profile(val id: Long) : Goto
     data object VerifyPayment : Goto
+    data object Login : Goto
   }
 
   sealed interface Payment : CompanyHomeEvent {

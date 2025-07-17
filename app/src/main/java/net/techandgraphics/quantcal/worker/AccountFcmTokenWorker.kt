@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.worker
 
+import android.accounts.AccountManager
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
@@ -13,11 +14,12 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toAccountFcmTokenEntity
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.toAccountFcmTokenRequest
+import net.techandgraphics.quantcal.getAccount
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -26,6 +28,8 @@ import java.util.concurrent.TimeUnit
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
   private val accountApi: AccountApi,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
@@ -39,18 +43,23 @@ import java.util.concurrent.TimeUnit
   }
 
   private suspend operator fun invoke() {
-    database.accountFcmTokenDao.query()
-      .filterNot { it.sync.not() }
-      .map { it.toAccountFcmTokenRequest(ACCOUNT_ID) }
-      .onEach {
-        val fcmTokenResponse = accountApi.fcmToken(it)
-        database.withTransaction {
-          with(database.accountFcmTokenDao) {
-            deleteAll()
-            insert(fcmTokenResponse.toAccountFcmTokenEntity())
+    authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
+        database.accountFcmTokenDao.query()
+          .filterNot { it.sync.not() }
+          .map { it.toAccountFcmTokenRequest(account.id) }
+          .onEach {
+            val fcmTokenResponse = accountApi.fcmToken(it)
+            database.withTransaction {
+              with(database.accountFcmTokenDao) {
+                deleteAll()
+                insert(fcmTokenResponse.toAccountFcmTokenEntity())
+              }
+            }
           }
-        }
+        return
       }
+    throw IllegalStateException()
   }
 }
 
