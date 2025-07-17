@@ -1,6 +1,5 @@
 package net.techandgraphics.quantcal.services
 
-import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +27,6 @@ class FcmService : FirebaseMessagingService() {
   private val coroutineScope = CoroutineScope(Dispatchers.IO + Job())
 
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    Log.e("TAG", "onMessageReceived: ")
     coroutineScope.launch {
       runCatching { database.accountDao.get(ACCOUNT_ID) }
         .onSuccess {

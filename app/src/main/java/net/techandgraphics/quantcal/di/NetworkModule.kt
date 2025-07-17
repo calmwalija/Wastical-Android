@@ -11,6 +11,7 @@ import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -46,5 +47,8 @@ object NetworkModule {
     )
     .protocols(listOf(Protocol.HTTP_1_1))
     .retryOnConnectionFailure(false)
+    .connectTimeout(30, TimeUnit.SECONDS)
+    .readTimeout(30, TimeUnit.SECONDS)
+    .writeTimeout(30, TimeUnit.SECONDS)
     .build()
 }
