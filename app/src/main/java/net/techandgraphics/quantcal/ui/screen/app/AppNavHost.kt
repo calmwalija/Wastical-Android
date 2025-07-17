@@ -8,9 +8,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
+import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.ui.Route
+import net.techandgraphics.quantcal.ui.activity.MainActivityEvent
+import net.techandgraphics.quantcal.ui.activity.MainViewModel
+import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneNavGraphBuilder
+import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneRoute
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.quantcal.ui.screen.client.home.HomeScreen
@@ -25,11 +29,34 @@ import net.techandgraphics.quantcal.ui.screen.company.CompanyNavGraphBuilder
 import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
 
 @Composable
-fun AppNavHost(navController: NavHostController) {
+fun AppNavHost(
+  navController: NavHostController,
+  viewModel: MainViewModel,
+) {
   NavHost(
     navController = navController,
-    startDestination = CompanyRoute.Home
+    startDestination = Route.Load(false)
   ) {
+
+    composable<Route.Load> {
+      val state = viewModel.state.collectAsState().value
+      val logout = it.toRoute<Route.Load>().logout
+      LaunchedEffect(Unit) {
+        viewModel.onEvent(MainActivityEvent.Nullify(logout))
+        viewModel.onEvent(MainActivityEvent.Load)
+      }
+      LaunchedEffect(state.account) {
+        if (state.holding) return@LaunchedEffect
+        if (state.account == null)
+          navController.navigate(PhoneRoute.Verify) { popUpTo(0) } else {
+          when (AccountRole.valueOf(state.account.role)) {
+            AccountRole.Client -> navController.navigate(Route.Client.Home) { popUpTo(0) }
+            AccountRole.Company -> navController.navigate(CompanyRoute.Home) { popUpTo(0) }
+          }
+        }
+      }
+      LoadingIndicatorView()
+    }
 
     PhoneNavGraphBuilder(navController)
     CompanyNavGraphBuilder(navController)
@@ -37,7 +64,8 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Client.Payment> {
       with(hiltViewModel<ClientPaymentViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(ACCOUNT_ID) { onEvent(ClientPaymentEvent.Load(ACCOUNT_ID)) }
+        val id = it.toRoute<Route.Client.Payment>().id
+        LaunchedEffect(id) { onEvent(ClientPaymentEvent.Load(id)) }
         ClientPaymentScreen(state, channel) { event ->
           when (event) {
             is ClientPaymentEvent.Response ->
@@ -55,15 +83,16 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Client.Home> {
       with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
-        onEvent(ClientHomeEvent.Load(ACCOUNT_ID))
         HomeScreen(state, channel) { event ->
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {
-                ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice)
+                is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice(event.id))
+                ClientHomeEvent.Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
               }
 
-            ClientHomeEvent.Button.MakePayment -> navController.navigate(Route.Client.Payment)
+            is ClientHomeEvent.Button.MakePayment ->
+              navController.navigate(Route.Client.Payment(event.id))
 
             else -> onEvent(event)
           }
@@ -80,7 +109,8 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Client.Invoice> {
       with(hiltViewModel<ClientInvoiceViewModel>()) {
         val state = state.collectAsState().value
-        LaunchedEffect(ACCOUNT_ID) { onEvent(ClientInvoiceEvent.Load(ACCOUNT_ID)) }
+        val id = it.toRoute<Route.Client.Invoice>().id
+        LaunchedEffect(id) { onEvent(ClientInvoiceEvent.Load(id)) }
         ClientInvoiceScreen(state, channel) { event ->
           when (event) {
             is ClientInvoiceEvent.GoTo ->

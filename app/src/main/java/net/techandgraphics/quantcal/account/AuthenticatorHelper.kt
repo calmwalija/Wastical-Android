@@ -4,6 +4,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import androidx.core.os.bundleOf
 import com.google.gson.Gson
+import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.keycloak.AccessTokenResponse
 import net.techandgraphics.quantcal.keycloak.JwtAccount
 import net.techandgraphics.quantcal.keycloak.JwtManager
@@ -15,6 +16,7 @@ class AuthenticatorHelper @Inject constructor(private val accountManager: Accoun
     private const val ACCOUNT_TYPE = "net.techandgraphics.quantcal"
     private const val JWT_ACCOUNT = "jwtAccount"
     const val ACCESS_TOKEN: String = "access_token"
+    const val JSON_ACCOUNT: String = "json_account"
   }
 
   fun addAccount(accessToken: AccessTokenResponse, jwtManager: JwtManager): Account? {
@@ -40,7 +42,30 @@ class AuthenticatorHelper @Inject constructor(private val accountManager: Accoun
     }
   }
 
-  private fun get() = accountManager.accounts.firstOrNull { it.type == ACCOUNT_TYPE }
+  fun addAccountPlain(account: AccountUiModel): Account? {
+    val accounts = Account(account.username, ACCOUNT_TYPE)
+    get()?.let {
+      accountManager.setUserData(
+        it,
+        JSON_ACCOUNT,
+        Gson().toJson(account),
+      )
+      return it
+    }
+    return try {
+      accountManager.addAccountExplicitly(
+        accounts,
+        null,
+        bundleOf(JSON_ACCOUNT to Gson().toJson(account)),
+      )
+      accounts
+    } catch (e: Exception) {
+      e.printStackTrace()
+      null
+    }
+  }
+
+  fun get() = accountManager.accounts.firstOrNull { it.type == ACCOUNT_TYPE }
 
   fun getJwtAccount(): JwtAccount? {
     return get()

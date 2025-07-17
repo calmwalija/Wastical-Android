@@ -1,8 +1,10 @@
 package net.techandgraphics.quantcal.worker
 
+import android.accounts.AccountManager
 import android.content.Context
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
@@ -19,6 +21,8 @@ class WorkerFactory @Inject constructor(
   private val appDatabase: AppDatabase,
   private val paymentApi: PaymentApi,
   private val accountApi: AccountApi,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
@@ -71,6 +75,8 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         accountApi = accountApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     ClientFetchLatestPaymentWorker::class.java.name ->
@@ -79,6 +85,8 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     CompanyFetchLatestPaymentWorker::class.java.name ->
@@ -87,6 +95,8 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     else -> null

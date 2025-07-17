@@ -1,20 +1,21 @@
 package net.techandgraphics.quantcal.ui.screen.client.home
 
+import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.quantcal.data.local.database.relations.toEntity
@@ -22,7 +23,6 @@ import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
 import net.techandgraphics.quantcal.domain.model.payment.PaymentUiModel
 import net.techandgraphics.quantcal.domain.toAccountContactUiModel
-import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyBinCollectionUiModel
 import net.techandgraphics.quantcal.domain.toCompanyContactUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
@@ -33,6 +33,7 @@ import net.techandgraphics.quantcal.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.getAccount
 import net.techandgraphics.quantcal.onTextToClipboard
 import net.techandgraphics.quantcal.preview
 import net.techandgraphics.quantcal.share
@@ -44,6 +45,8 @@ import javax.inject.Inject
   private val application: Application,
   private val database: AppDatabase,
   private val accountSession: AccountSessionRepository,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<ClientHomeState>(ClientHomeState.Loading)
@@ -51,12 +54,15 @@ import javax.inject.Inject
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
 
-  private fun onLoad(event: ClientHomeEvent.Load) = viewModelScope.launch {
-    database.accountDao.flowById(event.id)
-      .mapNotNull { it?.toAccountUiModel() }
-      .collectLatest { account ->
+  init {
+    onEvent(ClientHomeEvent.Load)
+  }
+
+  private fun onLoad() = viewModelScope.launch {
+    authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
         val accountContacts = database.accountContactDao
-          .getByAccountId(event.id)
+          .getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
         val company = database.companyDao.query().first().toCompanyUiModel()
         val companyContacts = database.companyContactDao
@@ -147,8 +153,9 @@ import javax.inject.Inject
   }
 
   private fun onFetchChanges() = viewModelScope.launch {
+    val account = authenticatorHelper.getAccount(accountManager) ?: return@launch
     _channel.send(ClientHomeChannel.Fetch.Fetching)
-    runCatching { accountSession.fetch() }
+    runCatching { accountSession.fetch(account.id) }
       .onSuccess { data ->
         try {
           database.withTransaction {
@@ -169,12 +176,18 @@ import javax.inject.Inject
     }
   }
 
+  private fun onLogout() = viewModelScope.launch(Dispatchers.IO) {
+    authenticatorHelper.deleteAccounts()
+    _channel.send(ClientHomeChannel.Goto.Login)
+  }
+
   fun onEvent(event: ClientHomeEvent) {
     when (event) {
       is ClientHomeEvent.Button.Payment.Invoice -> onPaymentTap(event)
       is ClientHomeEvent.Button.Payment.Share -> onPaymentShare(event)
       ClientHomeEvent.Button.Fetch -> onFetchChanges()
-      is ClientHomeEvent.Load -> onLoad(event)
+      ClientHomeEvent.Load -> onLoad()
+      ClientHomeEvent.Button.Logout -> onLogout()
       is ClientHomeEvent.Button.Payment.TextToClipboard -> application.onTextToClipboard(event.text)
       else -> Unit
     }

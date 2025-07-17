@@ -32,7 +32,7 @@ import java.time.YearMonth
   state: ClientHomeState.Success,
   homeActivity: ClientHomeActivityItemModel,
   modifier: Modifier = Modifier,
-  onEvent: (ClientHomeEvent) -> Unit,
+  onEvent: () -> Unit,
 ) {
 
 
@@ -49,7 +49,7 @@ import java.time.YearMonth
     shape = RoundedCornerShape(8),
     color = homeActivity.containerColor,
     modifier = modifier.padding(4.dp),
-    onClick = { onEvent(homeActivity.event) },
+    onClick = { onEvent() },
     enabled = homeActivity.clickable
   ) {
     if (homeActivity.activity == homeActivityUiModels.last().activity) {

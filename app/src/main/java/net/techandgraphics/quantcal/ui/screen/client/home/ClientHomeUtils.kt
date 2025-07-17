@@ -11,21 +11,20 @@ internal val homeActivityUiModels = listOf(
     iconBackground = Color.DarkGray,
     containerColor = Color.DarkGray.copy(.05f),
     clickable = false,
-    event = ClientHomeEvent.Button.MakePayment,
   ),
   ClientHomeActivityItemModel(
     activity = "Payment Due",
     drawableRes = R.drawable.ic_payment,
     iconBackground = WhiteFE.copy(.7f),
     containerColor = WhiteFE.copy(.2f),
-    event = ClientHomeEvent.Button.MakePayment,
   ),
 )
 
 internal val homeQuickActionUiModels = listOf(
-  ClientHomeQuickActionItemModel(
-    title = "Send Payment Screenshot",
+  ClientHomeActivityItemModel(
+    activity = "Send Payment Screenshot",
     drawableRes = R.drawable.ic_add_photo,
-    event = ClientHomeEvent.Button.MakePayment,
+    iconBackground = WhiteFE.copy(.7f),
+    containerColor = WhiteFE.copy(.2f),
   ),
 )
