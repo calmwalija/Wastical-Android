@@ -114,14 +114,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
-          path: qgateway/build/reports/jacoco/jacocoTestReport/html
+          path: app/build/reports/jacoco/jacocoTestReport/html
 
       - name: Install xmllint
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
       - name: Parse JaCoCo coverage and write summary
         run: |
-          XML_FILE=qgateway/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml  # Fixed path
+          XML_FILE=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           LINE_COVERAGE=$(xmllint --xpath "string(/report/counter[@type='LINE']/@covered)" $XML_FILE)
           LINE_MISSED=$(xmllint --xpath "string(/report/counter[@type='LINE']/@missed)" $XML_FILE)
           TOTAL=$((LINE_COVERAGE + LINE_MISSED))
