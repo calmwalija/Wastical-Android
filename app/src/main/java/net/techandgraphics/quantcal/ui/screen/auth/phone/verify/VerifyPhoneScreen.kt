@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -55,7 +54,6 @@ fun VerifyPhoneScreen(
 
   val context = LocalContext.current
   var isProcessing by remember { mutableStateOf(false) }
-  val hapticFeedback = LocalHapticFeedback.current
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
@@ -64,7 +62,8 @@ fun VerifyPhoneScreen(
         isProcessing = false
         when (event) {
           is VerifyPhoneChannel.Response.Failure -> context.toast(event.error.message)
-          is VerifyPhoneChannel.Response.Success -> onEvent(VerifyPhoneEvent.Goto.Home(event.account))
+          is VerifyPhoneChannel.Response.Success ->
+            onEvent(VerifyPhoneEvent.Goto.Otp(event.sms.contact))
         }
       }
     }

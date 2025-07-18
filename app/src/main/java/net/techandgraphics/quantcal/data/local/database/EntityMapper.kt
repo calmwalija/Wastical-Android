@@ -3,6 +3,7 @@ package net.techandgraphics.quantcal.data.local.database
 import net.techandgraphics.quantcal.data.local.database.account.AccountEntity
 import net.techandgraphics.quantcal.data.local.database.account.AccountTitle
 import net.techandgraphics.quantcal.data.local.database.account.contact.AccountContactEntity
+import net.techandgraphics.quantcal.data.local.database.account.otp.AccountOtpEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.quantcal.data.local.database.account.request.AccountRequestEntity
@@ -27,6 +28,7 @@ import net.techandgraphics.quantcal.data.local.database.search.tag.SearchTagEnti
 import net.techandgraphics.quantcal.data.remote.account.AccountResponse
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.account.contact.AccountContactResponse
+import net.techandgraphics.quantcal.data.remote.account.otp.AccountOtpResponse
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.quantcal.data.remote.account.token.AccountFcmTokenResponse
@@ -479,4 +481,13 @@ fun PaymentEntity.toPaymentRequestEntity(httpOperation: HttpOperation) =
     months = -1,
     httpOperation = httpOperation.name,
     createdAt = createdAt,
+  )
+
+fun AccountOtpResponse.toAccountOtpEntity() =
+  AccountOtpEntity(
+    id = id,
+    otp = otp,
+    accountId = accountId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
   )

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
+import net.techandgraphics.quantcal.data.remote.account.otp.AccountOtpApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.di.NetworkModule.api
 import net.techandgraphics.quantcal.keycloak.KeycloakApi
@@ -25,4 +26,8 @@ object NetworkApiModule {
   @Provides
   @Singleton
   fun providesKeycloakApi() = api<KeycloakApi>()
+
+  @Provides
+  @Singleton
+  fun providesAccountOtpApi() = api<AccountOtpApi>()
 }

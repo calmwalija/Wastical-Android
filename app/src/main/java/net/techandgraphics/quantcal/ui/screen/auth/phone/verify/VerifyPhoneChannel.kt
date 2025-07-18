@@ -1,13 +1,12 @@
 package net.techandgraphics.quantcal.ui.screen.auth.phone.verify
 
 import net.techandgraphics.quantcal.data.remote.ApiResult
-import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.keycloak.KeycloakErrorResponse
 
 sealed interface VerifyPhoneChannel {
 
   sealed interface Response {
-    data class Success(val account: AccountUiModel) : VerifyPhoneChannel
+    data class Success(val sms: Sms) : VerifyPhoneChannel
     data class Failure(val error: ApiResult.Error) : VerifyPhoneChannel
   }
 

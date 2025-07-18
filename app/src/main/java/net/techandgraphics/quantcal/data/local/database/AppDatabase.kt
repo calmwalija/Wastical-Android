@@ -7,6 +7,8 @@ import net.techandgraphics.quantcal.data.local.database.account.AccountDao
 import net.techandgraphics.quantcal.data.local.database.account.AccountEntity
 import net.techandgraphics.quantcal.data.local.database.account.contact.AccountContactDao
 import net.techandgraphics.quantcal.data.local.database.account.contact.AccountContactEntity
+import net.techandgraphics.quantcal.data.local.database.account.otp.AccountOtpDao
+import net.techandgraphics.quantcal.data.local.database.account.otp.AccountOtpEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.AccountPaymentPlanDao
 import net.techandgraphics.quantcal.data.local.database.account.plan.AccountPaymentPlanEntity
 import net.techandgraphics.quantcal.data.local.database.account.plan.request.AccountPaymentPlanRequestDao
@@ -73,6 +75,7 @@ import net.techandgraphics.quantcal.data.local.database.search.tag.SearchTagEnti
     PaymentRequestEntity::class,
     AccountRequestEntity::class,
     AccountPaymentPlanRequestEntity::class,
+    AccountOtpEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -106,6 +109,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val paymentRequestDao: PaymentRequestDao
   abstract val accountRequestDao: AccountRequestDao
   abstract val accountPaymentPlanRequestDao: AccountPaymentPlanRequestDao
+  abstract val accountOtpDao: AccountOtpDao
 
   companion object {
     const val NAME = "quantcal_db"
