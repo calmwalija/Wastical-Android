@@ -1,4 +1,3 @@
-
 name: Android CI with Gradle
 
 on:
@@ -9,7 +8,6 @@ permissions:
   contents: read
 
 jobs:
-
   app:
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +43,6 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew :app:assembleDebug
-        working-directory: android
 
       - name: Run tests and generate coverage
         run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport
@@ -62,18 +59,14 @@ jobs:
       - name: Parse JaCoCo coverage and write summary
         run: |
           XML_FILE=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-
-          # Extract line coverage % using xmllint and xpath
           LINE_COVERAGE=$(xmllint --xpath "string(/report/counter[@type='LINE']/@covered)" $XML_FILE)
           LINE_MISSED=$(xmllint --xpath "string(/report/counter[@type='LINE']/@missed)" $XML_FILE)
-
           TOTAL=$((LINE_COVERAGE + LINE_MISSED))
           if [ "$TOTAL" -eq 0 ]; then
             PERCENT=0
           else
             PERCENT=$((100 * LINE_COVERAGE / TOTAL))
           fi
-
           echo "### Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Lines covered: $LINE_COVERAGE / $TOTAL ($PERCENT%)" >> $GITHUB_STEP_SUMMARY
         shell: bash
@@ -113,7 +106,6 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew :qgateway:assembleDebug
-        working-directory: android
 
       - name: Run tests and generate coverage
         run: ./gradlew :qgateway:testDebugUnitTest :qgateway:jacocoTestReport
@@ -122,26 +114,22 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
-          path: app/build/reports/jacoco/jacocoTestReport/html
+          path: qgateway/build/reports/jacoco/jacocoTestReport/html
 
       - name: Install xmllint
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
       - name: Parse JaCoCo coverage and write summary
         run: |
-          XML_FILE=app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-
-          # Extract line coverage % using xmllint and xpath
+          XML_FILE=qgateway/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml  # Fixed path
           LINE_COVERAGE=$(xmllint --xpath "string(/report/counter[@type='LINE']/@covered)" $XML_FILE)
           LINE_MISSED=$(xmllint --xpath "string(/report/counter[@type='LINE']/@missed)" $XML_FILE)
-
           TOTAL=$((LINE_COVERAGE + LINE_MISSED))
           if [ "$TOTAL" -eq 0 ]; then
             PERCENT=0
           else
             PERCENT=$((100 * LINE_COVERAGE / TOTAL))
           fi
-
           echo "### Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Lines covered: $LINE_COVERAGE / $TOTAL ($PERCENT%)" >> $GITHUB_STEP_SUMMARY
         shell: bash
