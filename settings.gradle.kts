@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Quantcal-Android"
 include(":app")
- 
+include(":qgateway")
