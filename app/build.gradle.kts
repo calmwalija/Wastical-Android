@@ -145,7 +145,8 @@ dependencies {
   implementation(libs.androidx.ui)
   implementation(libs.androidx.ui.graphics)
   implementation(libs.androidx.ui.tooling.preview)
-  implementation(libs.androidx.material3)
+  implementation("androidx.compose.material3:material3-android:1.4.0-alpha18")
+  implementation("androidx.compose.material:material-icons-core")
   implementation(libs.firebase.messaging)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
@@ -164,7 +165,6 @@ dependencies {
 
   implementation(libs.kotlinx.serialization.json)
 
-//  implementation(libs.jjwt)
 
   implementation(libs.coil.compose)
 
