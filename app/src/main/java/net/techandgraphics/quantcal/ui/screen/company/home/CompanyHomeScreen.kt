@@ -128,6 +128,8 @@ private val quickOption = listOf(
                 CompanyHomeChannel.Fetch.Success -> false
               }
 
+              CompanyHomeChannel.Goto.Login -> onEvent(CompanyHomeEvent.Goto.Login)
+
               else -> Unit
             }
           }
@@ -205,10 +207,10 @@ private val quickOption = listOf(
                   HorizontalDivider()
 
                   DropdownMenuItem(text = {
-                    Text(text = "Export")
+                    Text(text = "Logout")
                   }, onClick = {
                     showMenuItems = false
-                    onEvent(CompanyHomeEvent.Button.Export)
+                    onEvent(CompanyHomeEvent.Button.Logout)
                   })
 
                 }

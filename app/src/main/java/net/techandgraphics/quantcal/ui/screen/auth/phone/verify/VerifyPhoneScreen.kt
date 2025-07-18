@@ -1,17 +1,19 @@
 package net.techandgraphics.quantcal.ui.screen.auth.phone.verify
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,99 +64,107 @@ fun VerifyPhoneScreen(
         isProcessing = false
         when (event) {
           is VerifyPhoneChannel.Response.Failure -> context.toast(event.error.message)
-
-          is VerifyPhoneChannel.Response.Success -> onEvent(VerifyPhoneEvent.Goto.Otp(event.phone))
+          is VerifyPhoneChannel.Response.Success -> onEvent(VerifyPhoneEvent.Goto.Home(event.account))
         }
       }
     }
   }
 
-  Box(
-    modifier = Modifier
-      .padding(16.dp)
-      .fillMaxSize()
-  ) {
-
-    Column(
+  Scaffold { contentPadding ->
+    LazyColumn(
+      contentPadding = contentPadding,
       modifier = Modifier
-        .fillMaxWidth()
-        .padding(32.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+        .fillMaxSize()
+        .padding(horizontal = 32.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center
     ) {
+      item {
+        Icon(
+          painter = painterResource(R.drawable.ic_tag),
+          contentDescription = null,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp)
+            .size(82.dp),
+          tint = MaterialTheme.colorScheme.secondary,
+        )
+      }
 
-      Icon(
-        painter = painterResource(R.drawable.ic_tag),
-        contentDescription = null,
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(32.dp)
-          .size(82.dp),
-        tint = MaterialTheme.colorScheme.secondary,
-      )
-
-      Text(
-        text = "Verify Your Number",
-        fontWeight = FontWeight.Bold,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier
-          .padding(bottom = 8.dp)
-          .fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.primary
-      )
-
-      Text(
-        text = buildAnnotatedString {
-          append("Enter your phone number and we will send you a ")
-          withStyle(
-            SpanStyle(
-              fontWeight = FontWeight.Bold,
-              fontSize = MaterialTheme.typography.titleMedium.fontSize
-            )
-          ) {
-            append("One Time Password (OTP)")
-          }
-          append(". Use the four digit code to verify your account.")
-
-        },
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center
-      )
+      item {
+        Text(
+          text = "Verify Your Number",
+          fontWeight = FontWeight.Bold,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          style = MaterialTheme.typography.titleLarge,
+          modifier = Modifier
+            .padding(bottom = 8.dp)
+            .fillMaxWidth(),
+          textAlign = TextAlign.Center,
+          color = MaterialTheme.colorScheme.primary
+        )
+      }
 
 
-      Spacer(modifier = Modifier.height(24.dp))
+      item {
+        Text(
+          text = buildAnnotatedString {
+            append("Enter your phone number and we will send you a ")
+            withStyle(
+              SpanStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleMedium.fontSize
+              )
+            ) {
+              append("One Time Password (OTP)")
+            }
+            append(". Use the four digit code to verify your account.")
 
+          },
+          style = MaterialTheme.typography.bodyMedium,
+          modifier = Modifier.fillMaxWidth(),
+          textAlign = TextAlign.Center
+        )
+      }
 
-      InputField(
-        painterResource = R.drawable.ic_tag,
-        value = state.contact,
-        prompt = "type phone number",
-        onValueChange = { if (it.length < 15) onEvent(VerifyPhoneEvent.Input.Phone(it)) },
-        keyboardType = KeyboardType.Phone
-      )
+      item { Spacer(modifier = Modifier.height(24.dp)) }
 
+      item {
+        InputField(
+          painterResource = R.drawable.ic_tag,
+          value = state.contact,
+          prompt = "type phone number",
+          onValueChange = { if (it.length < 15) onEvent(VerifyPhoneEvent.Input.Phone(it)) },
+          keyboardType = KeyboardType.Phone
+        )
+      }
 
-      Spacer(modifier = Modifier.height(32.dp))
+      item { Spacer(modifier = Modifier.height(24.dp)) }
 
-      Button(
-        enabled = state.contact.isDigitsOnly() && state.contact.length > 8,
-        modifier = Modifier.fillMaxWidth(.7f),
-        onClick = { onEvent(VerifyPhoneEvent.Button.Verify); isProcessing = true }
-      ) {
-        Box {
-          if (isProcessing) CircularProgressIndicator(
-            modifier = Modifier.size(16.dp),
-            color = MaterialTheme.colorScheme.secondary
-          ) else {
-            Text(text = "Verify")
+      item {
+        Button(
+          enabled = state.contact.isDigitsOnly() && state.contact.length > 8,
+          modifier = Modifier.fillMaxWidth(.7f),
+          onClick = { onEvent(VerifyPhoneEvent.Button.Verify); isProcessing = true }
+        ) {
+          Box {
+            if (isProcessing) CircularProgressIndicator(
+              modifier = Modifier.size(16.dp),
+              color = MaterialTheme.colorScheme.secondary
+            ) else {
+              Text(text = "Verify")
+            }
           }
         }
       }
+
+      item { Spacer(modifier = Modifier.fillParentMaxHeight(.3f)) }
+
     }
   }
+
+
 }
 
 @Preview(showBackground = true)

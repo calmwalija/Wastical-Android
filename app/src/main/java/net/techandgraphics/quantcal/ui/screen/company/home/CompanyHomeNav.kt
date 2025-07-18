@@ -8,7 +8,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
+import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute
+import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute.ClientProfile
+import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute.LocationOverview
+import net.techandgraphics.quantcal.ui.screen.company.CompanyRoute.PaymentVerify
 import net.techandgraphics.quantcal.ui.screen.company.home.CompanyHomeEvent.Goto
 
 fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
@@ -22,19 +26,20 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
             Goto.Report -> navController.navigate(CompanyRoute.CompanyReport)
             Goto.Clients -> navController.navigate(CompanyRoute.ClientBrowse)
             Goto.Payments ->
-              navController.navigate(CompanyRoute.PaymentVerify(PaymentStatus.Approved.name))
+              navController.navigate(PaymentVerify(PaymentStatus.Approved.name))
 
             Goto.Company -> navController.navigate(CompanyRoute.CompanyInfo)
             Goto.PerLocation -> navController.navigate(CompanyRoute.BrowseLocation)
             Goto.VerifyPayment ->
-              navController.navigate(CompanyRoute.PaymentVerify(PaymentStatus.Waiting.name))
+              navController.navigate(PaymentVerify(PaymentStatus.Waiting.name))
 
             is Goto.LocationOverview ->
-              navController.navigate(CompanyRoute.LocationOverview(event.id))
+              navController.navigate(LocationOverview(event.id))
 
             Goto.Timeline -> navController.navigate(CompanyRoute.PaymentTimeline)
 
-            is Goto.Profile -> navController.navigate(CompanyRoute.ClientProfile(event.id))
+            is Goto.Profile -> navController.navigate(ClientProfile(event.id))
+            Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
           }
 
           else -> onEvent(event)

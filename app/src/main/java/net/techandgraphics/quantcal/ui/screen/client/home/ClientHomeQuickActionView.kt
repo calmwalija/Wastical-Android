@@ -24,15 +24,15 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ClientHomeQuickActionView(
-  homeQuickActionUiModel: ClientHomeQuickActionItemModel,
+  homeQuickActionUiModel: ClientHomeActivityItemModel,
   modifier: Modifier = Modifier,
-  onEvent: (ClientHomeEvent) -> Unit
+  onEvent: () -> Unit,
 ) {
 
   OutlinedCard(
     modifier = modifier.padding(4.dp),
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(homeQuickActionUiModel.event) },
+    onClick = { onEvent() },
   ) {
     Column(
       modifier = Modifier
@@ -48,7 +48,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
         modifier = Modifier.size(32.dp)
       )
       Text(
-        text = homeQuickActionUiModel.title,
+        text = homeQuickActionUiModel.activity,
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
@@ -65,7 +65,6 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 @Composable
 private fun ClientHomeQuickActionViewPreview() {
   QuantcalTheme {
-
     ClientHomeQuickActionView(
       onEvent = {},
       homeQuickActionUiModel = homeQuickActionUiModels.first()

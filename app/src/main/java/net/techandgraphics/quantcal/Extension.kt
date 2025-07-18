@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal
 
+import android.accounts.AccountManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -12,12 +13,16 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.zip
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
+import net.techandgraphics.quantcal.account.AuthenticatorHelper.Companion.JSON_ACCOUNT
 import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
+import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import java.io.File
@@ -125,5 +130,12 @@ private suspend fun Context.checkIfAccountWorkerExists(
       hasPendingOrRunningAccountRequestWorker ||
         hasPendingOrRunningAccountPaymentPlanRequestWorker,
     )
+  }
+}
+
+fun AuthenticatorHelper.getAccount(accountManager: AccountManager): AccountUiModel? {
+  return this.get()?.let { account ->
+    val userDataJson = accountManager.getUserData(account, JSON_ACCOUNT)
+    Gson().fromJson(userDataJson, AccountUiModel::class.java)
   }
 }

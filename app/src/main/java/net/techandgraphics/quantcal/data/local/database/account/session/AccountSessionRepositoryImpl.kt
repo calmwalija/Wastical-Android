@@ -1,6 +1,8 @@
 package net.techandgraphics.quantcal.data.local.database.account.session
 
+import android.accounts.AccountManager
 import androidx.room.withTransaction
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toAccountContactEntity
 import net.techandgraphics.quantcal.data.local.database.toAccountEntity
@@ -19,28 +21,34 @@ import net.techandgraphics.quantcal.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.quantcal.data.remote.ServerResponse
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.mapApiError
+import net.techandgraphics.quantcal.getAccount
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
   private val database: AppDatabase,
   private val sessionService: AccountApi,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : AccountSessionRepository {
 
-  override suspend fun fetch(): ServerResponse = sessionService.get(ACCOUNT_ID)
+  private fun getAccount() = authenticatorHelper.getAccount(accountManager)
+
+  override suspend fun fetch(id: Long): ServerResponse = sessionService.get(id)
 
   override suspend fun fetchSession() {
-    runCatching { sessionService.get(ACCOUNT_ID) }.onFailure { println(mapApiError(it)) }
-      .onSuccess { accountSession ->
-        runCatching {
-          database.withTransaction {
-            purseData(accountSession) { _, _ -> }
+    getAccount()?.let { account ->
+      runCatching { sessionService.get(account.id) }.onFailure { println(mapApiError(it)) }
+        .onSuccess { accountSession ->
+          runCatching {
+            database.withTransaction {
+              purseData(accountSession) { _, _ -> }
+            }
           }
         }
-      }
-      .onFailure { println(it) }
+        .onFailure { println(it) }
+    }
   }
 
   override suspend fun purseData(data: ServerResponse, onProgress: suspend (Int, Int) -> Unit) {

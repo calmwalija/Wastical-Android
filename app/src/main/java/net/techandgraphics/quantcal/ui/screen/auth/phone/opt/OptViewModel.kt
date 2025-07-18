@@ -1,26 +1,19 @@
 package net.techandgraphics.quantcal.ui.screen.auth.phone.opt
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class OptViewModel @Inject constructor() : ViewModel() {
+class OptViewModel @Inject constructor(
+  private val application: Application,
+) : ViewModel() {
 
   private val _state = MutableStateFlow<OptState>(OptState.Loading)
-  val state = _state
-    .onStart {
-    }
-    .stateIn(
-      scope = viewModelScope,
-      started = SharingStarted.WhileSubscribed(5_000L),
-      initialValue = OptState.Loading,
-    )
+  val state = _state.asStateFlow()
 
   private fun onLoad(event: OptEvent.Load) {
     _state.value = OptState.Success(phone = event.phone)

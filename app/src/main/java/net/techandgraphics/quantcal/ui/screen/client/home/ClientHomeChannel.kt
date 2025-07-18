@@ -8,4 +8,8 @@ sealed interface ClientHomeChannel {
     data object Success : Fetch
     data class Error(val error: ApiResult.Error) : Fetch
   }
+
+  sealed interface Goto : ClientHomeChannel {
+    data object Login : Goto
+  }
 }

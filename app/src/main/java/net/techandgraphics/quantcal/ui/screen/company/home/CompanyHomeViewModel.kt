@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.ui.screen.company.home
 
+import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,26 +11,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.Preferences
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.quantcal.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.quantcal.data.local.database.relations.toEntity
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.data.remote.toAccountPaymentPlanResponse
 import net.techandgraphics.quantcal.data.remote.toPaymentResponse
-import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyContactUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentRequestUiModel
 import net.techandgraphics.quantcal.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.quantcal.getAccount
 import net.techandgraphics.quantcal.getToday
 import net.techandgraphics.quantcal.hash
 import net.techandgraphics.quantcal.write
@@ -44,6 +44,9 @@ class CompanyHomeViewModel @Inject constructor(
   private val application: Application,
   private val accountSession: AccountSessionRepository,
   private val preferences: Preferences,
+  private val accountHelper: AuthenticatorHelper,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyHomeState>(CompanyHomeState.Loading)
@@ -53,18 +56,13 @@ class CompanyHomeViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
 
   init {
-    viewModelScope.launch {
-      database.accountDao.flow().collectLatest {
-        if (it.isNotEmpty()) {
-          onEvent(CompanyHomeEvent.Load)
-        }
-      }
-    }
+    onEvent(CompanyHomeEvent.Load)
   }
 
   private fun onFetchChanges() = viewModelScope.launch {
+    val account = authenticatorHelper.getAccount(accountManager) ?: return@launch
     _channel.send(CompanyHomeChannel.Fetch.Fetching)
-    runCatching { accountSession.fetch() }
+    runCatching { accountSession.fetch(account.id) }
       .onSuccess { data ->
         try {
           database.withTransaction {
@@ -106,60 +104,60 @@ class CompanyHomeViewModel @Inject constructor(
   }
 
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
-    val (_, month, year) = getToday()
-    val default = Gson().toJson(MonthYear(month, year))
-    combine(
-      database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 3),
-      preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
-    ) { timeline, jsonString ->
-      val theTimeline = timeline.map {
-        it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
-      }
-      val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
-      val payment4CurrentLocationMonth =
-        database.streetIndicatorDao.getPayment4CurrentLocationMonth(
-          month = monthYear.month,
-          year = monthYear.year,
-        )
-
-      val upfrontPayments =
-        database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
-
-      val account = database.accountDao.get(ACCOUNT_ID).toAccountUiModel()
-      val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
-      val company = database.companyDao.query().first().toCompanyUiModel()
-      val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
-      val accountsSize = database.accountDao.getSize()
-      val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
-      val paymentPlanAgainstAccounts =
-        database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
-      val allMonthsPayments = database.paymentIndicatorDao
-        .getAllMonthsPayments()
-        .map {
-          MonthYearPayment4Month(
-            monthYear = it,
-            payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
-              it.month,
-              it.year,
-            ),
+    authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
+        val (_, month, year) = getToday()
+        val default = Gson().toJson(MonthYear(month, year))
+        combine(
+          database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 3),
+          preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
+        ) { timeline, jsonString ->
+          val theTimeline = timeline.map {
+            it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+          }
+          val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
+          val payment4CurrentLocationMonth =
+            database.streetIndicatorDao.getPayment4CurrentLocationMonth(
+              month = monthYear.month,
+              year = monthYear.year,
+            )
+          val upfrontPayments =
+            database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
+          val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
+          val company = database.companyDao.query().first().toCompanyUiModel()
+          val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
+          val accountsSize = database.accountDao.getSize()
+          val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
+          val paymentPlanAgainstAccounts =
+            database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
+          val allMonthsPayments = database.paymentIndicatorDao
+            .getAllMonthsPayments()
+            .map {
+              MonthYearPayment4Month(
+                monthYear = it,
+                payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
+                  it.month,
+                  it.year,
+                ),
+              )
+            }
+          _state.value = CompanyHomeState.Success(
+            payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
+            pending = pending,
+            accountsSize = accountsSize,
+            payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+            company = company,
+            account = account,
+            companyContact = companyContact,
+            expectedAmountToCollect = expectedAmountToCollect,
+            paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
+            allMonthsPayments = allMonthsPayments,
+            monthYear = monthYear,
+            timeline = theTimeline,
+            upfrontPayments = upfrontPayments,
           )
-        }
-      _state.value = CompanyHomeState.Success(
-        payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
-        pending = pending,
-        accountsSize = accountsSize,
-        payment4CurrentLocationMonth = payment4CurrentLocationMonth,
-        company = company,
-        account = account,
-        companyContact = companyContact,
-        expectedAmountToCollect = expectedAmountToCollect,
-        paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
-        allMonthsPayments = allMonthsPayments,
-        monthYear = monthYear,
-        timeline = theTimeline,
-        upfrontPayments = upfrontPayments,
-      )
-    }.launchIn(this)
+        }.launchIn(this)
+      }
   }
 
   private fun onButtonWorkingMonth(event: CompanyHomeEvent.Button.WorkingMonth) =
@@ -167,12 +165,18 @@ class CompanyHomeViewModel @Inject constructor(
       preferences.put<String>(Preferences.CURRENT_WORKING_MONTH, Gson().toJson(event.param))
     }
 
+  private fun onLogout() = viewModelScope.launch {
+    _channel.send(CompanyHomeChannel.Goto.Login)
+    accountHelper.deleteAccounts()
+  }
+
   fun onEvent(event: CompanyHomeEvent) {
     when (event) {
       CompanyHomeEvent.Fetch -> onFetchChanges()
       is CompanyHomeEvent.Load -> onLoad()
-      CompanyHomeEvent.Button.Export -> onExportMetadata()
+      CompanyHomeEvent.Button.Logout -> onLogout()
       is CompanyHomeEvent.Button.WorkingMonth -> onButtonWorkingMonth(event)
+
       else -> Unit
     }
   }

@@ -211,5 +211,6 @@ fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
   ),
   imageLoader = imageLoader(context),
   company = company4Preview,
-  demographic = companyLocationWithDemographic4Preview
+  demographic = companyLocationWithDemographic4Preview,
+  executedBy = account4Preview
 )

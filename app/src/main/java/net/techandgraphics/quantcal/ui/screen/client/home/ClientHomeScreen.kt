@@ -93,6 +93,8 @@ fun HomeScreen(
                 ClientHomeChannel.Fetch.Fetching -> true
                 ClientHomeChannel.Fetch.Success -> false
               }
+
+              ClientHomeChannel.Goto.Login -> onEvent(ClientHomeEvent.Goto.Login)
             }
           }
         }
@@ -140,15 +142,13 @@ fun HomeScreen(
                     Text(text = "Helpline")
                   }, onClick = {})
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Sign Out")
-                  }, onClick = {})
-
-
                   HorizontalDivider()
                   DropdownMenuItem(text = {
-                    Text(text = "Quit")
-                  }, onClick = {})
+                    Text(text = "Logout")
+                  }, onClick = {
+                    showMenuOptions = false
+                    onEvent(ClientHomeEvent.Button.Logout)
+                  })
                 }
               }
 
@@ -187,7 +187,7 @@ fun HomeScreen(
           item {
             ClientHomeQuickActionView(
               homeQuickActionUiModel = homeQuickActionUiModels.first(),
-              onEvent = onEvent
+              onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
             )
           }
 
@@ -212,7 +212,7 @@ fun HomeScreen(
                     state = state,
                     modifier = Modifier.fillMaxWidth(.5f),
                     homeActivity = it,
-                    onEvent = onEvent
+                    onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
                   )
                 }
             }
@@ -252,7 +252,7 @@ fun HomeScreen(
                 )
 
                 if (state.invoices.size > 3)
-                  TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice) }) {
+                  TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice(state.account.id)) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                       Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
                       Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)

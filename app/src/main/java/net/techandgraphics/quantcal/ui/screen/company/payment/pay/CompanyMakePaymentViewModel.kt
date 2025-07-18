@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.ui.screen.company.payment.pay
 
+import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,10 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentRequestEntity
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.payment.PaymentRequest
 import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus
@@ -23,6 +24,7 @@ import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiMod
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.getAccount
 import net.techandgraphics.quantcal.image2Text
 import net.techandgraphics.quantcal.toBitmap
 import net.techandgraphics.quantcal.toSoftwareBitmap
@@ -34,6 +36,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
   private val database: AppDatabase,
   private val imageLoader: ImageLoader,
   private val application: Application,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyMakePaymentState>(CompanyMakePaymentState.Loading)
@@ -44,25 +48,30 @@ class CompanyMakePaymentViewModel @Inject constructor(
 
   private fun onLoad(event: CompanyMakePaymentEvent.Load) =
     viewModelScope.launch {
-      _state.value = CompanyMakePaymentState.Loading
-      val account = database.accountDao.get(event.id).toAccountUiModel()
-      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
-      val company = database.companyDao.query().first().toCompanyUiModel()
-      val paymentPlan =
-        database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
-      val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
-        .filter { it.gateway.type == PaymentType.Cash.name }
-        .map { it.toPaymentMethodWithGatewayAndPlanUiModel() }
-      val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
-        .toCompanyLocationWithDemographicUiModel()
-      _state.value = CompanyMakePaymentState.Success(
-        company = company,
-        account = account,
-        paymentPlan = paymentPlan,
-        paymentMethods = paymentMethods,
-        imageLoader = imageLoader,
-        demographic = demographic,
-      )
+      authenticatorHelper.getAccount(accountManager)
+        ?.let { executedBy ->
+          _state.value = CompanyMakePaymentState.Loading
+          val account = database.accountDao.get(event.id).toAccountUiModel()
+          val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+          val company = database.companyDao.query().first().toCompanyUiModel()
+          val paymentPlan =
+            database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
+          val paymentMethods = database.paymentMethodDao.qWithGatewayByPaymentPlanId(paymentPlan.id)
+            .filter { it.gateway.type == PaymentType.Cash.name }
+            .map { it.toPaymentMethodWithGatewayAndPlanUiModel() }
+          val demographic =
+            database.companyLocationDao.getWithDemographic(account.companyLocationId)
+              .toCompanyLocationWithDemographicUiModel()
+          _state.value = CompanyMakePaymentState.Success(
+            company = company,
+            account = account,
+            paymentPlan = paymentPlan,
+            paymentMethods = paymentMethods,
+            imageLoader = imageLoader,
+            demographic = demographic,
+            executedBy = executedBy,
+          )
+        }
     }
 
   private fun onRecordPayment() = viewModelScope.launch {
@@ -74,7 +83,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
         accountId = account.id,
         months = numberOfMonths,
         companyId = account.companyId,
-        executedById = ACCOUNT_ID,
+        executedById = executedBy.id,
         status = PaymentStatus.Approved,
         httpOperation = HttpOperation.Post.name,
       ).toPaymentRequestEntity()

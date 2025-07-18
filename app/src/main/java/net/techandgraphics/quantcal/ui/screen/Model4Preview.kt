@@ -30,7 +30,6 @@ import net.techandgraphics.quantcal.domain.model.relations.PaymentMethodWithGate
 import net.techandgraphics.quantcal.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.quantcal.domain.model.relations.PaymentWithMonthsCoveredUiModel
-import net.techandgraphics.quantcal.ui.activity.MainActivityState
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import kotlin.random.Random
@@ -121,20 +120,6 @@ internal val payment4Preview = PaymentUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
   companyId = account4Preview.companyId,
   executedById = account4Preview.id,
-)
-
-internal fun appState(context: Context) = MainActivityState(
-  accounts = listOf(account4Preview),
-  payments = listOf(payment4Preview, payment4Preview),
-  invoices = listOf(payment4Preview, payment4Preview),
-  paymentPlans = listOf(paymentPlan4Preview),
-  paymentMethods = listOf(
-    paymentMethod4Preview,
-    paymentMethod4Preview,
-    paymentMethod4Preview,
-  ),
-  imageLoader = imageLoader(context),
-  trashSchedules = listOf(trashSchedules4Preview),
 )
 
 internal val demographicStreet4Preview = DemographicStreetUiModel(

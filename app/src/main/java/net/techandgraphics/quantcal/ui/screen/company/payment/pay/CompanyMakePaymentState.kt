@@ -13,6 +13,7 @@ sealed interface CompanyMakePaymentState {
 
   data class Success(
     val account: AccountUiModel,
+    val executedBy: AccountUiModel,
     val paymentPlan: PaymentPlanUiModel,
     val paymentMethods: List<PaymentMethodWithGatewayAndPlanUiModel> = listOf(),
     val imageLoader: ImageLoader,

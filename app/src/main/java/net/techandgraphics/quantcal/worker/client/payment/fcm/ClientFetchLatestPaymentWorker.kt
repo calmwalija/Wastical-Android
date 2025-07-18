@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.worker.client.payment.fcm
 
+import android.accounts.AccountManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -16,16 +17,17 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.broadcasts.company.CompanyFcmNotificationActionReceiver
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentEntity
 import net.techandgraphics.quantcal.data.local.database.toPaymentMonthCoveredEntity
-import net.techandgraphics.quantcal.data.remote.account.ACCOUNT_ID
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.defaultDateTime
 import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toPaymentUiModel
+import net.techandgraphics.quantcal.getAccount
 import net.techandgraphics.quantcal.getTimeOfDay
 import net.techandgraphics.quantcal.notification.NotificationBuilder
 import net.techandgraphics.quantcal.notification.NotificationType
@@ -43,6 +45,8 @@ import java.util.concurrent.TimeUnit
   @Assisted params: WorkerParameters,
   private val database: AppDatabase,
   private val paymentApi: PaymentApi,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
@@ -56,18 +60,23 @@ import java.util.concurrent.TimeUnit
   }
 
   private suspend operator fun invoke() {
-    val epochSecond = database.paymentDao.getByUpdatedAtLatest()?.updatedAt ?: -1
-    val responses = paymentApi.fetchLatest(ACCOUNT_ID, epochSecond)
-    responses.payments?.map { it.toPaymentEntity() }
-      ?.let { payments ->
-        database.paymentDao.insert(payments)
-        responses.paymentMonthsCovered
-          ?.map { it.toPaymentMonthCoveredEntity() }
-          ?.also {
-            database.paymentMonthCoveredDao.insert(it)
+    authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
+        val epochSecond = database.paymentDao.getByUpdatedAtLatest()?.updatedAt ?: -1
+        val responses = paymentApi.fetchLatest(account.id, epochSecond)
+        responses.payments?.map { it.toPaymentEntity() }
+          ?.let { payments ->
+            database.paymentDao.insert(payments)
+            responses.paymentMonthsCovered
+              ?.map { it.toPaymentMonthCoveredEntity() }
+              ?.also {
+                database.paymentMonthCoveredDao.insert(it)
+              }
+            payments.onFetchEvent()
           }
-        payments.onFetchEvent()
+        return
       }
+    throw IllegalStateException()
   }
 
   private suspend fun List<PaymentEntity>.onFetchEvent() {
