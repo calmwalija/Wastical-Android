@@ -3,6 +3,8 @@ package net.techandgraphics.qgateway.data.local.database.otp
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.techandgraphics.qgateway.domain.model.OtpUiModel
+import java.time.ZonedDateTime
 
 @Entity(tableName = "account_opt")
 data class OtpEntity(
@@ -13,4 +15,16 @@ data class OtpEntity(
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("created_at") val createdAt: Long,
   @ColumnInfo("updated_at") val updatedAt: Long,
-)
+  val sentAt: Long = ZonedDateTime.now().toEpochSecond(),
+) {
+  fun toOtpUiModel() = OtpUiModel(
+    id = id,
+    otp = otp,
+    sent = sent,
+    contact = contact,
+    accountId = accountId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    sentAt = sentAt,
+  )
+}

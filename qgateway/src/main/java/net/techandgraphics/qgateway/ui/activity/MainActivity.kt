@@ -6,23 +6,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
 import net.techandgraphics.qgateway.toast
+import net.techandgraphics.qgateway.ui.screen.app.AppScreen
 import net.techandgraphics.qgateway.ui.theme.QuantcalTheme
 
 @AndroidEntryPoint
@@ -39,16 +37,25 @@ class MainActivity : ComponentActivity() {
 
   private fun requestPermissions() =
     requestPermissionLauncher
-      .launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))
+      .launch(
+        arrayOf(
+          Manifest.permission.RECEIVE_SMS,
+          Manifest.permission.READ_SMS,
+          Manifest.permission.SEND_SMS,
+          Manifest.permission.READ_PHONE_STATE
+        )
+      )
 
 
   @OptIn(ExperimentalPermissionsApi::class)
   @Composable
-  fun SmsPermissionChecker(
+  fun PermissionChecker(
     onSmsRequest: (isGranted: Boolean) -> Unit,
   ) {
     val receiveSmsPermission = rememberPermissionState(Manifest.permission.RECEIVE_SMS)
     val readSmsPermission = rememberPermissionState(Manifest.permission.READ_SMS)
+    val readPhoneStatePermission = rememberPermissionState(Manifest.permission.READ_PHONE_STATE)
+    val sendSmsStatePermission = rememberPermissionState(Manifest.permission.SEND_SMS)
 
     LaunchedEffect(Unit) {
       if (!receiveSmsPermission.status.isGranted) {
@@ -57,35 +64,38 @@ class MainActivity : ComponentActivity() {
       if (!readSmsPermission.status.isGranted) {
         readSmsPermission.launchPermissionRequest()
       }
+
+      if (!readPhoneStatePermission.status.isGranted) {
+        readPhoneStatePermission.launchPermissionRequest()
+      }
+
+      if (!sendSmsStatePermission.status.isGranted) {
+        sendSmsStatePermission.launchPermissionRequest()
+      }
+
     }
 
-    onSmsRequest(receiveSmsPermission.status.isGranted && readSmsPermission.status.isGranted)
+    onSmsRequest(
+      receiveSmsPermission.status.isGranted
+        && readSmsPermission.status.isGranted
+        && readPhoneStatePermission.status.isGranted
+        && sendSmsStatePermission.status.isGranted
+    )
   }
-
-  private val viewModel by viewModels<MainActivityViewModel>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
       QuantcalTheme {
-        viewModel.state.collectAsState().value
-        Scaffold(modifier = Modifier.Companion.fillMaxSize()) { contentPadding ->
-          Box(
-            modifier = Modifier
-              .fillMaxSize()
-              .padding(contentPadding),
-            contentAlignment = Alignment.Center
-          ) {
-            Button(onClick = {
-
-            }) {
-              Text(text = "Send SMS")
-            }
-          }
+        var isGranted by remember { mutableStateOf(false) }
+        Surface(modifier = Modifier.Companion.fillMaxSize()) {
+          PermissionChecker { isGranted = it }
+          if (isGranted) {
+            AppScreen()
+          } else requestPermissions()
         }
       }
     }
   }
-
 }

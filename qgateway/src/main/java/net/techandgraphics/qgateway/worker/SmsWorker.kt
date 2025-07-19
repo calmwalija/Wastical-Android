@@ -19,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.techandgraphics.qgateway.data.local.database.QgatewayDatabase
 import net.techandgraphics.qgateway.helpers.SmsHelper
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -49,7 +50,12 @@ import java.util.concurrent.TimeUnit
           when (event) {
             SmsHelper.SentStatus.Success -> {
               CoroutineScope(Dispatchers.IO + Job()).launch {
-                database.optDao.update(otp.copy(sent = true))
+                database.optDao.update(
+                  otp.copy(
+                    sent = true,
+                    sentAt = ZonedDateTime.now().toEpochSecond(),
+                  ),
+                )
               }
             }
 
