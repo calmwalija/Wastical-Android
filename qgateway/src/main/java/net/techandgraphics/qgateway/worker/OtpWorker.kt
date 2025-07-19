@@ -37,11 +37,16 @@ import java.util.concurrent.TimeUnit
 
   private suspend operator fun invoke() {
     val epochSecond = database.optDao.getByUpdatedAtLatest()?.updatedAt ?: -1
-    smsApi.getLatest(epochSecond).map { it.toOtpEntity() }
-      .also {
-        database.optDao.insert(it)
-        context.scheduleSmsWorker()
-      }
+    val response = smsApi.getLatest(epochSecond)
+    database.withTransaction {
+      response.otps
+        ?.map { it.toOtpEntity() }
+        ?.also { database.optDao.insert(it) }
+      response.accounts
+        ?.map { it.toAccountEntity() }
+        ?.also { database.accountDao.insert(it) }
+      context.scheduleSmsWorker()
+    }
   }
 }
 

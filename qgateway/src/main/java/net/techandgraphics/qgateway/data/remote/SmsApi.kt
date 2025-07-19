@@ -15,5 +15,5 @@ interface SmsApi {
   suspend fun fcmToken(@Body request: FcmTokenRequest): FcmTokenResponse
 
   @GET("otp")
-  suspend fun getLatest(@Query("epoch_second") epochSecond: Long): List<OtpResponse>
+  suspend fun getLatest(@Query("epoch_second") epochSecond: Long): ServerResponse
 }
