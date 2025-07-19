@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.ui.screen.auth.phone.opt
+package net.techandgraphics.quantcal.ui.screen.auth.phone.otp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

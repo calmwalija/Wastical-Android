@@ -5,6 +5,8 @@ import net.techandgraphics.quantcal.keycloak.KeycloakErrorResponse
 
 sealed interface VerifyPhoneChannel {
 
+  data class Continue(val contact: String) : VerifyPhoneChannel
+
   sealed interface Response {
     data class Success(val sms: Sms) : VerifyPhoneChannel
     data class Failure(val error: ApiResult.Error) : VerifyPhoneChannel

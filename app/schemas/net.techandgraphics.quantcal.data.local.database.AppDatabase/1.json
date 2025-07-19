@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a1551050e905f7c29e70ebbb21042a71",
+    "identityHash": "326661435c20674e6cf756735de60384",
     "entities": [
       {
         "tableName": "account",
@@ -1928,7 +1928,7 @@
       },
       {
         "tableName": "account_opt",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `otp` INTEGER NOT NULL, `attempt` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `otp` INTEGER NOT NULL, `contact` TEXT NOT NULL, `attempt` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1940,6 +1940,12 @@
             "fieldPath": "otp",
             "columnName": "otp",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contact",
+            "columnName": "contact",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1980,7 +1986,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1551050e905f7c29e70ebbb21042a71')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '326661435c20674e6cf756735de60384')"
     ]
   }
 }

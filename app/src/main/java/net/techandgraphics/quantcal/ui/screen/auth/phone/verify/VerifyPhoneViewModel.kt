@@ -38,14 +38,29 @@ class VerifyPhoneViewModel @Inject constructor(
   val state = _state.asStateFlow()
   private var job: Job? = null
 
+  init {
+    onEvent(VerifyPhoneEvent.Load)
+  }
+
+  private fun onLoad() = viewModelScope.launch {
+    database.accountOtpDao.query()
+      .firstOrNull()
+      ?.let {
+        _channel.send(VerifyPhoneChannel.Continue(it.contact))
+      }
+  }
+
   private fun onVerify() {
     job = viewModelScope.launch {
       job?.cancel()
       val contact = state.value.contact.takeLast(9)
       val sms = Sms(contact = "993563408")
       runCatching { accountOtpApi.otp(sms.contact) }
-        .onSuccess { otpResponse ->
-          database.accountOtpDao.insert(otpResponse.toAccountOtpEntity())
+        .onSuccess { response ->
+          val otpResponse = response.accountOtps
+            ?.map { it.toAccountOtpEntity(contact) }
+            ?: return@onSuccess _channel.send(Response.Failure(mapApiError(Throwable())))
+          database.accountOtpDao.insert(otpResponse)
           _channel.send(Response.Success(sms))
         }
         .onFailure { _channel.send(Response.Failure(mapApiError(it))) }
@@ -60,6 +75,7 @@ class VerifyPhoneViewModel @Inject constructor(
     when (event) {
       is Input.Phone -> onInputPhone(event)
       VerifyPhoneEvent.Button.Verify -> onVerify()
+      is VerifyPhoneEvent.Load -> onLoad()
       else -> Unit
     }
   }

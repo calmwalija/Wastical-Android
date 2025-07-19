@@ -1,4 +1,4 @@
-package net.techandgraphics.quantcal.ui.screen.auth.phone.opt
+package net.techandgraphics.quantcal.ui.screen.auth.phone.otp
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -13,21 +13,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,73 +41,107 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import net.techandgraphics.quantcal.R
+import net.techandgraphics.quantcal.toast
+import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @Composable
-fun OptScreen(
-  state: OptState,
-  onEvent: (OptEvent) -> Unit,
+fun OtpScreen(
+  state: OtpState,
+  channel: Flow<OtpChannel>,
+  onEvent: (OtpEvent) -> Unit,
 ) {
 
+  var opt by remember { mutableStateOf("") }
+  val context = LocalContext.current
 
-  Column(
-    modifier = Modifier
-      .padding(24.dp)
-      .fillMaxSize(),
-    horizontalAlignment = Alignment.CenterHorizontally
-
-  ) {
-
-    Icon(
-      painter = painterResource(R.drawable.ic_sms),
-      contentDescription = null,
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(32.dp)
-        .size(82.dp),
-      tint = MaterialTheme.colorScheme.secondary,
-    )
-
-    Text(
-      text = "OTP Verification",
-      fontWeight = FontWeight.Bold,
-      maxLines = 1,
-      overflow = TextOverflow.Ellipsis,
-      style = MaterialTheme.typography.titleLarge,
-      modifier = Modifier
-        .padding(bottom = 8.dp)
-        .fillMaxWidth(),
-      textAlign = TextAlign.Center,
-      color = MaterialTheme.colorScheme.primary
-    )
-
-    if (state is OptState.Success)
-      Text(
-        text = "Enter the 4 digit code sent to ${state.phone}",
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center
-      )
-
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    OtpInput {
-
-    }
-
-    if (state is OptState.Success)
-      Button(
-        modifier = Modifier.fillMaxWidth(.7f),
-        onClick = { }
-      ) {
-        Box {
-          if (false) CircularProgressIndicator(modifier = Modifier.size(16.dp)) else {
-            Text(text = "Verify")
-          }
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(key1 = channel) {
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+      channel.collect { event ->
+        when (event) {
+          OtpChannel.Success -> onEvent(OtpEvent.Goto.Home)
+          is OtpChannel.Error -> context.toast(event.error.message)
         }
       }
+    }
+  }
+
+
+  when (state) {
+    OtpState.Loading -> LoadingIndicatorView()
+    is OtpState.Success -> {
+      Scaffold { contentPadding ->
+        LazyColumn(
+          contentPadding = contentPadding,
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.Center
+        ) {
+
+          item {
+            Icon(
+              painter = painterResource(R.drawable.ic_sms),
+              contentDescription = null,
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp)
+                .size(82.dp),
+              tint = MaterialTheme.colorScheme.secondary,
+            )
+          }
+
+          item {
+            Text(
+              text = "OTP Verification",
+              fontWeight = FontWeight.Bold,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              style = MaterialTheme.typography.titleLarge,
+              modifier = Modifier
+                .padding(bottom = 8.dp)
+                .fillMaxWidth(),
+              textAlign = TextAlign.Center,
+              color = MaterialTheme.colorScheme.primary
+            )
+          }
+
+          item {
+            Text(
+              text = "Enter the 4 digit code sent to ${state.phone}",
+              style = MaterialTheme.typography.bodyMedium,
+              modifier = Modifier.fillMaxWidth(),
+              textAlign = TextAlign.Center
+            )
+          }
+
+          item { Spacer(modifier = Modifier.height(8.dp)) }
+
+          item { OtpInput { opt = it } }
+
+          item {
+            Button(
+              modifier = Modifier.fillMaxWidth(.7f),
+              onClick = { onEvent(OtpEvent.Otp(opt)) }
+            ) {
+              Box {
+                Text(text = "Verify")
+              }
+            }
+          }
+        }
+
+
+      }
+    }
   }
 
 }
@@ -187,8 +226,9 @@ fun OptScreen(
 @Composable
 private fun OptScreenPreview() {
   QuantcalTheme {
-    OptScreen(
-      state = OptState.Success(phone = "999112233"),
+    OtpScreen(
+      state = OtpState.Success(phone = "999112233"),
+      channel = flow { },
       onEvent = {}
     )
   }
