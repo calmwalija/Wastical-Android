@@ -6,6 +6,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import net.techandgraphics.quantcal.account.AuthenticatorHelper
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
+import net.techandgraphics.quantcal.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
 import net.techandgraphics.quantcal.worker.client.payment.ClientPaymentRequestWorker
@@ -24,6 +25,7 @@ class WorkerFactory @Inject constructor(
   private val accountApi: AccountApi,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val accountSessionRepository: AccountSessionRepository,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
@@ -85,6 +87,16 @@ class WorkerFactory @Inject constructor(
         database = appDatabase,
         accountApi = accountApi,
         authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
+      )
+
+    AccountSessionWorker::class.java.name ->
+      AccountSessionWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        authenticatorHelper = authenticatorHelper,
+        accountSessionRepository = accountSessionRepository,
         accountManager = accountManager,
       )
 

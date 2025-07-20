@@ -7,6 +7,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable fun LoadingIndicatorView() {
@@ -14,6 +15,6 @@ import androidx.compose.ui.Modifier
     modifier = Modifier.fillMaxSize(),
     contentAlignment = Alignment.Center
   ) {
-    LoadingIndicator()
+    LoadingIndicator(modifier = Modifier.scale(3f))
   }
 }

@@ -97,10 +97,7 @@ class OtpViewModel @Inject constructor(
       is OtpEvent.Load -> onLoad(event)
       is OtpEvent.Otp -> onOtp(event)
       is OtpEvent.Timer -> when (event) {
-        OtpEvent.Timer.Failed -> {
-          Log.e("TAG", "onEvent: Failed ")
-        }
-
+        OtpEvent.Timer.Failed -> Unit
         OtpEvent.Timer.Pause -> pauseTimer()
         OtpEvent.Timer.Reset -> resetTimer()
         OtpEvent.Timer.Start -> startOrResumeTimer()

@@ -106,6 +106,10 @@ class CompanyHomeViewModel @Inject constructor(
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
     authenticatorHelper.getAccount(accountManager)
       ?.let { account ->
+        if (database.companyDao.query().isEmpty()) {
+          _channel.send(CompanyHomeChannel.Goto.Reload)
+          return@let
+        }
         val (_, month, year) = getToday()
         val default = Gson().toJson(MonthYear(month, year))
         combine(
