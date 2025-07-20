@@ -1,5 +1,10 @@
 package net.techandgraphics.quantcal.ui.screen.auth.phone.otp
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Base64
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -44,12 +49,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun OtpScreen(
@@ -77,6 +87,27 @@ fun OtpScreen(
   when (state) {
     OtpState.Loading -> LoadingIndicatorView()
     is OtpState.Success -> {
+
+      LaunchedEffect(Unit) {
+        SmsRetriever.getClient(context)
+          .startSmsRetriever()
+          .addOnSuccessListener { onEvent(OtpEvent.Timer.Start) }
+          .addOnFailureListener { onEvent(OtpEvent.Timer.Failed) }
+      }
+
+
+      OtpListener { event ->
+        when (event) {
+          is OtpListenerEvent.OTPReceived ->
+            event.opt?.let { onEvent(OtpEvent.Otp(it)) }
+
+          OtpListenerEvent.OTPTimeOut -> onEvent(OtpEvent.Timer.TimedOut)
+        }
+      }
+
+      val minutes = TimeUnit.MILLISECONDS.toMinutes(state.timeLeft) % 60
+      val seconds = TimeUnit.MILLISECONDS.toSeconds(state.timeLeft) % 60
+
       Scaffold { contentPadding ->
         LazyColumn(
           contentPadding = contentPadding,
@@ -123,6 +154,17 @@ fun OtpScreen(
             )
           }
 
+          item {
+            Text(
+              text = String.format(
+                locale = Locale.getDefault(),
+                format = "%02d:%02d", minutes, seconds
+              ),
+              style = MaterialTheme.typography.titleLarge,
+              modifier = Modifier.padding(top = 16.dp)
+            )
+          }
+
           item { Spacer(modifier = Modifier.height(8.dp)) }
 
           item { OtpInput { opt = it } }
@@ -138,12 +180,63 @@ fun OtpScreen(
             }
           }
         }
-
-
       }
     }
   }
 
+}
+
+
+object SmsRetrieverHashHelper {
+
+  fun getAppSignatures(context: Context): List<String> {
+    val appSignatures = mutableListOf<String>()
+
+    val packageName = context.packageName
+    val packageManager = context.packageManager
+
+    try {
+      val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        val info =
+          packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+        info.signingInfo?.apkContentsSigners
+      } else {
+        @Suppress("DEPRECATION")
+        val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+        @Suppress("DEPRECATION")
+        info.signatures
+      }
+
+      if (signatures != null) {
+        for (signature in signatures) {
+          val signatureBytes = signature.toByteArray()
+          val hash = hash(packageName, signatureBytes)
+          if (hash != null) {
+            appSignatures.add(hash)
+          }
+        }
+      }
+
+    } catch (e: Exception) {
+      Log.e("SmsRetrieverHashHelper", "Package not found", e)
+    }
+
+    return appSignatures
+  }
+
+  private fun hash(packageName: String, signature: ByteArray): String? {
+    return try {
+      val messageDigest = MessageDigest.getInstance("SHA-256")
+      val input = "$packageName ${Base64.encodeToString(signature, Base64.NO_WRAP)}"
+      messageDigest.update(input.toByteArray(Charsets.UTF_8))
+      val hashSignature = messageDigest.digest()
+      val base64Hash = Base64.encodeToString(hashSignature, Base64.NO_WRAP).substring(0, 11)
+      base64Hash
+    } catch (e: NoSuchAlgorithmException) {
+      Log.e("SmsRetrieverHashHelper", "hash: NoSuchAlgorithm", e)
+      null
+    }
+  }
 }
 
 @Composable private fun OtpInput(

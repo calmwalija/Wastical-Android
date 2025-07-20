@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ import net.techandgraphics.qgateway.ui.theme.QuantcalTheme
 fun OtpItem(
   modifier: Modifier = Modifier,
   accountWithOtp: AccountWithOtpUiModel,
+  onEvent: (OtpEvent) -> Unit,
 ) {
   val account = accountWithOtp.account
   Row(
@@ -66,14 +68,16 @@ fun OtpItem(
       style = MaterialTheme.typography.bodyLarge,
     )
 
-    Icon(
-      imageVector = Icons.Rounded.CheckCircle,
-      contentDescription = null,
-      modifier = Modifier
-        .size(24.dp)
-        .alpha(if (accountWithOtp.otp.sent) 1f else 0f),
-      tint = MaterialTheme.colorScheme.primary
-    )
+    IconButton(onClick = { onEvent(OtpEvent.Resend(accountWithOtp.otp)) }) {
+      Icon(
+        imageVector = Icons.Rounded.CheckCircle,
+        contentDescription = null,
+        modifier = Modifier
+          .size(24.dp)
+          .alpha(if (accountWithOtp.otp.sent) 1f else 0f),
+        tint = MaterialTheme.colorScheme.primary
+      )
+    }
 
     Spacer(modifier = Modifier.width(16.dp))
 
@@ -111,6 +115,8 @@ fun OtpItem(
 @Composable
 private fun OtpScreenPreview() {
   QuantcalTheme {
-    OtpItem(accountWithOtp = otpStateSuccess().accountWithOtps.first())
+    OtpItem(
+      accountWithOtp = otpStateSuccess().accountWithOtps.first(),
+      onEvent = {})
   }
 }

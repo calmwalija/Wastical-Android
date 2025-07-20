@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
         SmsHelper.send(
           context = context,
           contact = otp.contact,
-          message = "<#> Your OTP code for Quantcal is ${otp.otp}",
+          message = "<#> Your OTP code is ${otp.otp}\nD47+m1GLrxd",
         ) { event ->
           when (event) {
             SmsHelper.SentStatus.Success -> {

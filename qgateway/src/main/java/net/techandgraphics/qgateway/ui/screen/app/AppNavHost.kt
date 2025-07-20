@@ -19,7 +19,7 @@ fun AppNavHost(navController: NavHostController) {
     composable<Route.Otp> {
       with(hiltViewModel<OtpViewModel>()) {
         val state = state.collectAsState().value
-        OtpScreen(state)
+        OtpScreen(state, ::onEvent)
       }
     }
   }
