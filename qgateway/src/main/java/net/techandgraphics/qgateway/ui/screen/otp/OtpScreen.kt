@@ -19,6 +19,7 @@ import java.time.ZonedDateTime
 @Composable
 fun OtpScreen(
   state: OtpState,
+  onEvent: (OtpEvent) -> Unit
 ) {
 
   when (state) {
@@ -36,7 +37,8 @@ fun OtpScreen(
           items(state.accountWithOtps, key = { it.otp.id }) { accountWithOtp ->
             OtpItem(
               modifier = Modifier.animateItem(),
-              accountWithOtp = accountWithOtp
+              accountWithOtp = accountWithOtp,
+              onEvent = onEvent
             )
           }
         }
@@ -51,7 +53,7 @@ fun OtpScreen(
 @Composable
 private fun OtpScreenPreview() {
   QuantcalTheme {
-    OtpScreen(state = otpStateSuccess())
+    OtpScreen(state = otpStateSuccess()){}
   }
 }
 

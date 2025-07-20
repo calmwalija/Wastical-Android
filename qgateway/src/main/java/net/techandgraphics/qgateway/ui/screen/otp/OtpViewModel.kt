@@ -1,5 +1,6 @@
 package net.techandgraphics.qgateway.ui.screen.otp
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,11 +10,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.qgateway.data.local.database.QgatewayDatabase
+import net.techandgraphics.qgateway.worker.scheduleSmsWorker
 import javax.inject.Inject
 
 @HiltViewModel
 class OtpViewModel @Inject constructor(
   private val database: QgatewayDatabase,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<OtpState>(OtpState.Loading)
@@ -31,9 +34,15 @@ class OtpViewModel @Inject constructor(
       }
   }
 
+  private fun onResend(event: OtpEvent.Resend) = viewModelScope.launch {
+    database.optDao.update(event.otpUiModel.toOtpEntity().copy(sent = false))
+    application.scheduleSmsWorker()
+  }
+
   fun onEvent(event: OtpEvent) {
     when (event) {
       OtpEvent.Load -> onLoad()
+      is OtpEvent.Resend -> onResend(event)
     }
   }
 }
