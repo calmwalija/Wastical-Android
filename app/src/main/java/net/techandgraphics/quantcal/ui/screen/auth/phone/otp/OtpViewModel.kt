@@ -39,9 +39,8 @@ class OtpViewModel @Inject constructor(
   private var timerJob: Job? = null
   private val totalTimeMillis = 5 * 60 * 1000L
 
-
   fun startOrResumeTimer() {
-    Log.e("TAG", "startOrResumeTimer: " )
+    Log.e("TAG", "startOrResumeTimer: ")
     if (_state.value is OtpState.Success) {
       val state = (_state.value as OtpState.Success)
       if (state.isRunning) return

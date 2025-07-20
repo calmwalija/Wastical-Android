@@ -50,5 +50,3 @@ fun OtpListener(onEvent: (OtpListenerEvent) -> Unit) {
     }
   }
 }
-
-

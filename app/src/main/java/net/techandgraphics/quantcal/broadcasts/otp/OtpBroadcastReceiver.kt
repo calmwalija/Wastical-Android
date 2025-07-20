@@ -42,4 +42,3 @@ class OtpBroadcastReceiver : BroadcastReceiver() {
     fun onOTPTimeOut()
   }
 }
-
