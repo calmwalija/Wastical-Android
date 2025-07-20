@@ -9,4 +9,10 @@ interface AccountOtpDao : BaseDao<AccountOtpEntity> {
 
   @Query("SELECT * FROM account_opt")
   suspend fun query(): List<AccountOtpEntity>
+
+  @Query("DELETE FROM account_opt")
+  suspend fun deleteAll()
+
+  @Query("SELECT * FROM account_opt WHERE otp=:otp")
+  suspend fun getByOpt(otp: Int): List<AccountOtpEntity>
 }

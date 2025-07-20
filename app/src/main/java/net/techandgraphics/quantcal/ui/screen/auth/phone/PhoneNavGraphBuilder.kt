@@ -5,7 +5,7 @@ package net.techandgraphics.quantcal.ui.screen.auth.phone
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import net.techandgraphics.quantcal.ui.screen.auth.phone.opt.OtpNav
+import net.techandgraphics.quantcal.ui.screen.auth.phone.otp.OtpNav
 import net.techandgraphics.quantcal.ui.screen.auth.phone.verify.VerifyPhoneNav
 
 fun NavGraphBuilder.PhoneNavGraphBuilder(navController: NavHostController) {

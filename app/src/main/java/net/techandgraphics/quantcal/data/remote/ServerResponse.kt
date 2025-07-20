@@ -3,6 +3,7 @@ package net.techandgraphics.quantcal.data.remote
 import com.google.gson.annotations.SerializedName
 import net.techandgraphics.quantcal.data.remote.account.AccountResponse
 import net.techandgraphics.quantcal.data.remote.account.contact.AccountContactResponse
+import net.techandgraphics.quantcal.data.remote.account.otp.AccountOtpResponse
 import net.techandgraphics.quantcal.data.remote.account.plan.AccountPaymentPlanResponse
 import net.techandgraphics.quantcal.data.remote.company.CompanyContactResponse
 import net.techandgraphics.quantcal.data.remote.company.CompanyResponse
@@ -35,4 +36,5 @@ data class ServerResponse(
   @SerializedName("demographic_areas") val demographicAreas: List<DemographicAreaResponse>? = null,
   @SerializedName("demographic_districts") val demographicDistricts: List<DemographicDistrictResponse>? = null,
   @SerializedName("company_locations") val companyLocations: List<CompanyLocationResponse>? = null,
+  @SerializedName("account_otp") val accountOtps: List<AccountOtpResponse>? = null,
 )

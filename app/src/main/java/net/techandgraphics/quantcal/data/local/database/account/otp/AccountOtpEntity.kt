@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 data class AccountOtpEntity(
   @PrimaryKey val id: Long,
   val otp: Int,
+  val contact: String,
   val attempt: Int = 0,
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("created_at") val createdAt: Long,

@@ -1,6 +1,6 @@
 @file:Suppress("FunctionName")
 
-package net.techandgraphics.quantcal.ui.screen.auth.phone.opt
+package net.techandgraphics.quantcal.ui.screen.auth.phone.otp
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -9,15 +9,23 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneRoute
 
 fun NavGraphBuilder.OtpNav(navController: NavHostController) {
   composable<PhoneRoute.Opt> {
-    with(hiltViewModel<OptViewModel>()) {
+    with(hiltViewModel<OtpViewModel>()) {
       val phone = it.toRoute<PhoneRoute.Opt>().phone
       val state = state.collectAsState().value
-      LaunchedEffect(phone) { onEvent(OptEvent.Load(phone)) }
-      OptScreen(state, ::onEvent)
+      LaunchedEffect(phone) { onEvent(OtpEvent.Load(phone)) }
+      OtpScreen(state, channel) { event ->
+        when (event) {
+          OtpEvent.Goto.Home ->
+            navController.navigate(Route.Load(false)) { popUpTo(0) }
+
+          else -> onEvent(event)
+        }
+      }
     }
   }
 }

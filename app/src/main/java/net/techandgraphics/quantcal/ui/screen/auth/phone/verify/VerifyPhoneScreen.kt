@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.quantcal.R
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.InputField
+import net.techandgraphics.quantcal.ui.screen.auth.phone.verify.VerifyPhoneEvent.Goto.Otp
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @Composable
@@ -63,7 +64,10 @@ fun VerifyPhoneScreen(
         when (event) {
           is VerifyPhoneChannel.Response.Failure -> context.toast(event.error.message)
           is VerifyPhoneChannel.Response.Success ->
-            onEvent(VerifyPhoneEvent.Goto.Otp(event.sms.contact))
+            onEvent(Otp(event.sms.contact))
+
+          is VerifyPhoneChannel.Continue ->
+            onEvent(Otp(event.contact))
         }
       }
     }

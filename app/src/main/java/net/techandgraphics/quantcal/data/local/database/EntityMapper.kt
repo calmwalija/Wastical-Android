@@ -483,10 +483,11 @@ fun PaymentEntity.toPaymentRequestEntity(httpOperation: HttpOperation) =
     createdAt = createdAt,
   )
 
-fun AccountOtpResponse.toAccountOtpEntity() =
+fun AccountOtpResponse.toAccountOtpEntity(contact: String) =
   AccountOtpEntity(
     id = id,
     otp = otp,
+    contact = contact,
     accountId = accountId,
     createdAt = createdAt,
     updatedAt = updatedAt,
