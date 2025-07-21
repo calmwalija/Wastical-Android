@@ -18,8 +18,6 @@ fun NavGraphBuilder.CompanyBrowseClientNav(navController: NavHostController) {
           is CompanyBrowseClientListEvent.Goto ->
             when (event) {
               CompanyBrowseClientListEvent.Goto.BackHandler -> navController.navigateUp()
-              CompanyBrowseClientListEvent.Goto.Create ->
-                navController.navigate(CompanyRoute.ClientCreate)
 
               is CompanyBrowseClientListEvent.Goto.Profile -> {
                 onEvent(CompanyBrowseClientListEvent.Button.HistoryTag)

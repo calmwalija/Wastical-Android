@@ -22,7 +22,6 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
       CompanyHomeScreen(state, channel) { event ->
         when (event) {
           is Goto -> when (event) {
-            Goto.Create -> navController.navigate(CompanyRoute.ClientCreate)
             Goto.Report -> navController.navigate(CompanyRoute.CompanyReport)
             Goto.Clients -> navController.navigate(CompanyRoute.ClientBrowse)
             Goto.Payments ->
