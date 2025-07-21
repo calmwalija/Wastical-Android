@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.create
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
@@ -24,6 +25,7 @@ import net.techandgraphics.quantcal.data.remote.mapApiError
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.worker.company.account.scheduleCompanyAccountRequestWorker
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -31,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CompanyCreateClientViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyCreateClientState>(CompanyCreateClientState.Loading)
@@ -61,7 +64,7 @@ class CompanyCreateClientViewModel @Inject constructor(
         altContact = theState.altContact,
         paymentPlanId = theState.planId,
         companyId = theState.company.id,
-        companyLocationId = theState.companyLocationId,
+        companyLocationId = theState.demographic.location.id,
         httpOperation = HttpOperation.Post.name,
         accountId = theId,
         role = AccountRole.Client.name,
@@ -80,31 +83,28 @@ class CompanyCreateClientViewModel @Inject constructor(
         }
       }
         .onFailure { _channel.send(CompanyCreateClientChannel.Error(mapApiError(it))) }
-        .onSuccess { _channel.send(CompanyCreateClientChannel.Success(theId)) }
+        .onSuccess {
+          _channel.send(CompanyCreateClientChannel.Success(theId))
+          application.scheduleCompanyAccountRequestWorker()
+        }
     }
   }
 
-  init {
-    onEvent(CompanyCreateClientEvent.Load)
-  }
-
-  private fun onLoad() = viewModelScope.launch {
+  private fun onLoad(event: CompanyCreateClientEvent.Load) = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
-    val demographics = database.companyLocationDao.qWithDemographic()
-      .sortedBy { it.demographicStreet.name }
-      .map { it.toCompanyLocationWithDemographicUiModel() }
+    val demographic = database.companyLocationDao.getById(event.locationId)
+      .toCompanyLocationWithDemographicUiModel()
     val paymentPlans = database.paymentPlanDao.query().map { it.toPaymentPlanUiModel() }
     _state.value = CompanyCreateClientState.Success(
       company = company,
-      demographics = demographics,
+      demographic = demographic,
       paymentPlans = paymentPlans,
-      companyLocationId = demographics.firstOrNull()?.location?.id ?: -1,
     )
   }
 
   fun onEvent(event: CompanyCreateClientEvent) {
     when (event) {
-      CompanyCreateClientEvent.Load -> onLoad()
+      is CompanyCreateClientEvent.Load -> onLoad(event)
       CompanyCreateClientEvent.Button.Submit -> onSubmit()
       is CompanyCreateClientEvent.Input.Info -> onInputAccountInfo(event)
       else -> Unit
@@ -144,9 +144,6 @@ class CompanyCreateClientViewModel @Inject constructor(
 
         CompanyCreateClientEvent.Input.Type.Title ->
           _state.value = state.copy(title = AccountTitle.valueOf("${event.value}"))
-
-        CompanyCreateClientEvent.Input.Type.Location ->
-          _state.value = state.copy(companyLocationId = event.value.toString().toLong())
 
         CompanyCreateClientEvent.Input.Type.Plan ->
           _state.value = state.copy(planId = event.value.toString().toLong())

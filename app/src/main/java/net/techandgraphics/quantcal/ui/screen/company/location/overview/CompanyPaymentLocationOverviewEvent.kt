@@ -9,6 +9,7 @@ sealed interface CompanyPaymentLocationOverviewEvent {
   sealed interface Button : CompanyPaymentLocationOverviewEvent {
     data object BackHandler : Button
     data class SortBy(val sort: AccountSortOrder) : Button
+    data class ClientCreate(val locationId: Long) : Button
   }
 
   sealed interface Goto : CompanyPaymentLocationOverviewEvent {

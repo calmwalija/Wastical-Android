@@ -23,6 +23,10 @@ fun NavGraphBuilder.PaymentTimelineNav(navController: NavHostController) {
       CompanyPaymentLocationOverviewScreen(state) { event ->
         when (event) {
           CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
+
+          is CompanyPaymentLocationOverviewEvent.Button.ClientCreate ->
+            navController.navigate(CompanyRoute.ClientCreate(event.locationId))
+
           is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
             navController.navigate(CompanyRoute.ClientProfile(event.id))
 

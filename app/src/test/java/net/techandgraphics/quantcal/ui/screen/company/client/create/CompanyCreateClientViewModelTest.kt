@@ -18,31 +18,31 @@ import kotlin.test.assertTrue
 class CompanyCreateClientViewModelTest : BaseUnitTest() {
 
   @Test fun `test if onLoad sets all the fields as expected`() = runTest {
-    val viewModel = CompanyCreateClientViewModel(mockDatabase)
+    val viewModel = CompanyCreateClientViewModel(mockDatabase, mockApplication)
+    viewModel.onEvent(CompanyCreateClientEvent.Load(1))
 
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.paymentPlanDao.query() } returns listOf(paymentPlan4Preview.toPaymentPlanEntity())
-    coEvery { mockDatabase.companyLocationDao.qWithDemographic() } returns
-      listOf(companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity())
-
+    coEvery { mockDatabase.companyLocationDao.getById(1) } returns
+      (companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity())
     viewModel.state.test {
       assertTrue { awaitItem() is CompanyCreateClientState.Loading }
       val successState = awaitItem()
       assertTrue { successState is CompanyCreateClientState.Success }
       val state = successState as CompanyCreateClientState.Success
       assertTrue { state.company.name == company4Preview.name }
-      assertTrue { state.demographics.isNotEmpty() }
       cancelAndIgnoreRemainingEvents()
     }
   }
 
   @Test fun `test if onInputAccountInfo sets data as expected`() = runTest {
-    val viewModel = CompanyCreateClientViewModel(mockDatabase)
+    val viewModel = CompanyCreateClientViewModel(mockDatabase, mockApplication)
+    viewModel.onEvent(CompanyCreateClientEvent.Load(1))
 
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.paymentPlanDao.query() } returns listOf(paymentPlan4Preview.toPaymentPlanEntity())
-    coEvery { mockDatabase.companyLocationDao.qWithDemographic() } returns
-      listOf(companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity())
+    coEvery { mockDatabase.companyLocationDao.getById(1) } returns
+      companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity()
     coEvery { mockDatabase.accountContactDao.getByContact("99900324") } returns listOf()
 
     viewModel.state.test {
@@ -73,10 +73,6 @@ class CompanyCreateClientViewModelTest : BaseUnitTest() {
       viewModel.onEvent(Input.Info(3L, Input.Type.Plan))
       state = awaitItem() as CompanyCreateClientState.Success
       assertTrue { state.planId == 3L }
-
-      viewModel.onEvent(Input.Info(8L, Input.Type.Location))
-      state = awaitItem() as CompanyCreateClientState.Success
-      assertTrue { state.companyLocationId == 8L }
       cancelAndIgnoreRemainingEvents()
     }
   }

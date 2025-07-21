@@ -104,7 +104,11 @@ fun CompanyPaymentLocationOverviewScreen(
                 .fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Column(modifier = Modifier.weight(1f)) {
+              Column(
+                modifier = Modifier
+                  .padding(end = 18.dp)
+                  .weight(1f)
+              ) {
                 Text(
                   text = state.demographicStreet.name,
                   style = MaterialTheme.typography.titleLarge
@@ -116,6 +120,12 @@ fun CompanyPaymentLocationOverviewScreen(
                   overflow = TextOverflow.Ellipsis,
                   color = Muted
                 )
+              }
+
+              FilledIconButton(onClick = {
+                onEvent(CompanyPaymentLocationOverviewEvent.Button.ClientCreate(state.companyLocation.id))
+              }) {
+                Icon(painterResource(R.drawable.ic_account), null)
               }
 
               FilledIconButton(

@@ -14,9 +14,8 @@ sealed interface CompanyCreateClientState {
     val contact: String = "",
     val altContact: String = "",
     val planId: Long = 2,
-    val companyLocationId: Long = -1,
     val company: CompanyUiModel,
-    val demographics: List<CompanyLocationWithDemographicUiModel> = listOf(),
+    val demographic: CompanyLocationWithDemographicUiModel,
     val paymentPlans: List<PaymentPlanUiModel> = listOf(),
   ) : CompanyCreateClientState
 }
