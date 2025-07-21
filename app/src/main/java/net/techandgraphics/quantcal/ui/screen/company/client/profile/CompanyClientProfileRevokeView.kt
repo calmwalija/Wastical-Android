@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,61 +34,59 @@ fun CompanyClientProfileRevokeView(
   onCancelRequest: () -> Unit,
 ) {
 
-  Card {
-    Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(24.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Icon(
-        Icons.Rounded.Warning,
-        contentDescription = null,
-        modifier = Modifier.size(72.dp),
-        tint = MaterialTheme.colorScheme.error
-      )
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(24.dp),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Icon(
+      Icons.Rounded.Warning,
+      contentDescription = null,
+      modifier = Modifier.size(92.dp),
+      tint = MaterialTheme.colorScheme.error
+    )
 
-      Text(
-        text = "Warning",
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(top = 16.dp)
-      )
+    Text(
+      text = "Warning",
+      style = MaterialTheme.typography.titleLarge,
+      modifier = Modifier.padding(top = 16.dp)
+    )
 
-      Text(
-        text = "Remove Client & Revoke Access",
-        modifier = Modifier.padding(bottom = 16.dp),
-        color = MaterialTheme.colorScheme.error
-      )
+    Text(
+      text = "Remove Client & Revoke Access",
+      modifier = Modifier.padding(bottom = 16.dp),
+      color = MaterialTheme.colorScheme.error
+    )
 
-      Text(
-        text = "You are about to remove and revoke this clients's access to the system. " +
-          "They will no longer be able to log in or access any features. Please proceed with caution.",
-        textAlign = TextAlign.Center
-      )
+    Text(
+      text = "You are about to remove and revoke this clients's access to the system. " +
+        "They will no longer be able to log in or access any features. Please proceed with caution.",
+      textAlign = TextAlign.Center
+    )
 
 
-      Spacer(modifier = Modifier.height(32.dp))
+    Spacer(modifier = Modifier.height(32.dp))
 
-      Row {
-        Button(
-          modifier = Modifier.weight(1f),
-          onClick = { onProceedWithCaution.invoke() }) {
-          Box {
-            Text(text = "Proceed")
-          }
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        OutlinedButton(
-          onClick = { onCancelRequest.invoke() }) {
-          Box {
-            Text(text = "Cancel")
-          }
+    Row {
+      Button(
+        modifier = Modifier.weight(1f),
+        onClick = { onProceedWithCaution.invoke() }) {
+        Box {
+          Text(text = "Proceed")
         }
       }
 
+      Spacer(modifier = Modifier.width(8.dp))
+
+      OutlinedButton(
+        onClick = { onCancelRequest.invoke() }) {
+        Box {
+          Text(text = "Cancel")
+        }
+      }
     }
+
   }
 }
 

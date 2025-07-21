@@ -47,7 +47,7 @@ val profileItems = listOf(
   ),
   ProfileItem(
     title = "Remove Client",
-    drawableRes = R.drawable.ic_revoke,
+    drawableRes = R.drawable.ic_person_cancel,
     event = CompanyClientProfileEvent.Option.Revoke,
   ),
 )

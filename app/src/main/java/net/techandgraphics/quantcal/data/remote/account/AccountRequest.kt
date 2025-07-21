@@ -16,6 +16,8 @@ data class AccountRequest(
   val role: AccountRole = AccountRole.Client,
   @SerializedName("http_operation") val httpOperation: String = HttpOperation.Post.name,
   @SerializedName("company_id") val companyId: Long,
+  @SerializedName("leaving_reason") val leavingReason: String? = null,
+  @SerializedName("leaving_timestamp") val leavingTimestamp: Long? = null,
   @SerializedName("company_location_id") val companyLocationId: Long,
   @SerializedName("payment_plan_id") val paymentPlanId: Long,
   @SerializedName("created_at") val createdAt: Long = 0,

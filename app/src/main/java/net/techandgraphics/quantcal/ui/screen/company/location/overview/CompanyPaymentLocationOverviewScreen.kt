@@ -124,10 +124,17 @@ fun CompanyPaymentLocationOverviewScreen(
                 )
               }
 
-              FilledIconButton(onClick = {
-                onEvent(CompanyPaymentLocationOverviewEvent.Button.ClientCreate(state.companyLocation.id))
-              }) {
-                Icon(painterResource(R.drawable.ic_account), null)
+              FilledIconButton(
+                onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Button.ClientCreate(state.companyLocation.id)) },
+                shape = RoundedCornerShape(16),
+              ) {
+                Icon(
+                  painter = painterResource(R.drawable.ic_person_add),
+                  contentDescription = null,
+                  modifier = Modifier
+                    .size(24.dp)
+                    .padding(2.dp)
+                )
               }
 
               FilledIconButton(

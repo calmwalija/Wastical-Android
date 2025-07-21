@@ -62,7 +62,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query(
     """
     $PAYMENT_QUERY_BASE
-    WHERE payment.payment_status = :status
+    WHERE payment.payment_status = :status AND account.status = 'Active'
     ORDER BY payment.created_at DESC
   """,
   )
@@ -71,7 +71,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query(
     """
     $PAYMENT_QUERY_BASE
-    WHERE payment.payment_status != :status
+    WHERE payment.payment_status != :status AND account.status = 'Active'
     ORDER BY payment.created_at DESC
   """,
   )
@@ -80,7 +80,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query(
     """
     $PAYMENT_QUERY_BASE
-    WHERE payment.payment_status != :status
+    WHERE payment.payment_status != :status AND account.status = 'Active'
     ORDER BY payment.created_at DESC
     LIMIT :limit
   """,
@@ -93,12 +93,12 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
   @Query(
     """
     $PAYMENT_QUERY_BASE
-    WHERE payment.payment_status = :status
+    WHERE payment.payment_status = :paymentStatus AND account.status = 'Active'
     ORDER BY payment.created_at DESC LIMIT :limit
   """,
   )
   fun qPaymentWithAccountAndMethodWithGatewayLimit(
-    status: String = Approved.name,
+    paymentStatus: String = Approved.name,
     limit: Int = 10,
   ): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
 
@@ -128,6 +128,7 @@ import net.techandgraphics.quantcal.data.remote.payment.PaymentStatus.Approved
     ) p ON p.account_id = a.id
         WHERE (street.name LIKE '%' || :query || '%'
         OR area.name LIKE '%' || :query || '%')
+        AND a.status = 'Active'
     GROUP BY street.id, street.name, area.name
     ORDER BY streetName ASC
     """,

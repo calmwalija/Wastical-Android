@@ -84,6 +84,7 @@ interface PaymentIndicatorDao {
       AND month_covered.year = :year
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
       WHERE location.demographic_street_id =:id
+      AND account.status = 'Active'
       GROUP BY account.id
     ORDER BY
       CASE WHEN :sortOrder = 0 THEN hasPaid END ASC,
