@@ -69,6 +69,8 @@ fun AccountRequestEntity.toAccountRequest() = AccountRequest(
   role = AccountRole.valueOf(role),
   httpOperation = httpOperation,
   status = status,
+  leavingReason = leavingReason,
+  leavingTimestamp = leavingTimestamp,
 )
 
 fun AccountPaymentPlanRequestEntity.toAccountPaymentPlanRequest() =

@@ -60,6 +60,7 @@ interface AccountDao : BaseDao<AccountEntity> {
         OR ds.name LIKE '%' || :query || '%'
         OR da.name LIKE '%' || :query || '%'
         OR a.lastname LIKE '%' || :query || '%')
+        AND a.status = 'Active'
     """,
   )
   fun qAccountInfo(query: String = ""): Flow<List<AccountInfoUiModel>>
@@ -83,7 +84,7 @@ interface AccountDao : BaseDao<AccountEntity> {
         OR ds.name LIKE '%' || :query || '%'
         OR da.name LIKE '%' || :query || '%'
         OR a.lastname LIKE '%' || :query || '%')
-      AND da.id IN (:ids)
+      AND da.id IN (:ids) AND a.status = 'Active'
     """,
   )
   fun qAccountInfoFiltered(query: String = "", ids: Set<Long>): Flow<List<AccountInfoUiModel>>
