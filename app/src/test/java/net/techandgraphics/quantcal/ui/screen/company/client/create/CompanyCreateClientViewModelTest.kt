@@ -37,6 +37,7 @@ class CompanyCreateClientViewModelTest : BaseUnitTest() {
 
   @Test fun `test if onInputAccountInfo sets data as expected`() = runTest {
     val viewModel = CompanyCreateClientViewModel(mockDatabase, mockApplication)
+    viewModel.onEvent(CompanyCreateClientEvent.Load(1))
 
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.paymentPlanDao.query() } returns listOf(paymentPlan4Preview.toPaymentPlanEntity())
