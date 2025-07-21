@@ -129,6 +129,7 @@ private val quickOption = listOf(
               }
 
               CompanyHomeChannel.Goto.Login -> onEvent(CompanyHomeEvent.Goto.Login)
+              CompanyHomeChannel.Goto.Reload -> onEvent(CompanyHomeEvent.Goto.Reload)
 
               else -> Unit
             }

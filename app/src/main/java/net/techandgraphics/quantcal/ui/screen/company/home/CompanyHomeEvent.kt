@@ -28,6 +28,7 @@ sealed interface CompanyHomeEvent {
     data class Profile(val id: Long) : Goto
     data object VerifyPayment : Goto
     data object Login : Goto
+    data object Reload : Goto
   }
 
   sealed interface Payment : CompanyHomeEvent {

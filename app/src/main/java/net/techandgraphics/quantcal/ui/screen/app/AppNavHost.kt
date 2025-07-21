@@ -12,9 +12,11 @@ import net.techandgraphics.quantcal.data.local.database.AccountRole
 import net.techandgraphics.quantcal.ui.Route
 import net.techandgraphics.quantcal.ui.activity.MainActivityEvent
 import net.techandgraphics.quantcal.ui.activity.MainViewModel
-import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneNavGraphBuilder
 import net.techandgraphics.quantcal.ui.screen.auth.phone.PhoneRoute
+import net.techandgraphics.quantcal.ui.screen.auth.phone.load.LoadEvent
+import net.techandgraphics.quantcal.ui.screen.auth.phone.load.LoadScreen
+import net.techandgraphics.quantcal.ui.screen.auth.phone.load.LoadViewModel
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.quantcal.ui.screen.client.home.HomeScreen
@@ -39,23 +41,32 @@ fun AppNavHost(
   ) {
 
     composable<Route.Load> {
-      val state = viewModel.state.collectAsState().value
+      val appState = viewModel.state.collectAsState().value
       val logout = it.toRoute<Route.Load>().logout
       LaunchedEffect(Unit) {
         viewModel.onEvent(MainActivityEvent.Nullify(logout))
         viewModel.onEvent(MainActivityEvent.Load)
       }
-      LaunchedEffect(state.account) {
-        if (state.holding) return@LaunchedEffect
-        if (state.account == null)
+      LaunchedEffect(appState.account) {
+        if (appState.holding) return@LaunchedEffect
+        if (appState.account == null)
           navController.navigate(PhoneRoute.Verify) { popUpTo(0) } else {
-          when (AccountRole.valueOf(state.account.role)) {
+          when (AccountRole.valueOf(appState.account.role)) {
             AccountRole.Client -> navController.navigate(Route.Client.Home) { popUpTo(0) }
             AccountRole.Company -> navController.navigate(CompanyRoute.Home) { popUpTo(0) }
           }
         }
       }
-      LoadingIndicatorView()
+
+      with(hiltViewModel<LoadViewModel>()) {
+        LaunchedEffect(Unit) { onEvent(LoadEvent.Load) }
+        val state = state.collectAsState().value
+        LoadScreen(state, channel) { event ->
+          when (event) {
+            LoadEvent.Load -> navController.navigate(Route.Load) { popUpTo(0) }
+          }
+        }
+      }
     }
 
     PhoneNavGraphBuilder(navController)

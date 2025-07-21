@@ -40,6 +40,7 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
 
             is Goto.Profile -> navController.navigate(ClientProfile(event.id))
             Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
+            Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
           }
 
           else -> onEvent(event)
