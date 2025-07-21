@@ -111,7 +111,9 @@ fun CompanyPaymentLocationOverviewScreen(
               ) {
                 Text(
                   text = state.demographicStreet.name,
-                  style = MaterialTheme.typography.titleLarge
+                  style = MaterialTheme.typography.titleLarge,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis
                 )
                 Text(
                   text = state.demographicArea.name,
