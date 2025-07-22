@@ -107,7 +107,7 @@ fun ClientPaymentScreen(
               }
             }
 
-            Activity.RESULT_CANCELED ->  onEvent(ClientPaymentEvent.Button.ShowCropView(false))
+            Activity.RESULT_CANCELED -> onEvent(ClientPaymentEvent.Button.ShowCropView(false))
 
             else -> onEvent(ClientPaymentEvent.Button.ShowCropView(false))
           }
@@ -141,11 +141,8 @@ fun ClientPaymentScreen(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
           channel.collect { event ->
             when (event) {
-              is ClientPaymentChannel.Pay.Failure ->
-                onEvent(ClientPaymentEvent.Response(false, event.error.message))
 
-              ClientPaymentChannel.Pay.Success ->
-                onEvent(ClientPaymentEvent.Response(true, null))
+              ClientPaymentChannel.Pay.Success -> onEvent(ClientPaymentEvent.GoTo.BackHandler)
 
             }
           }

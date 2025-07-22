@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.Preferences
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
@@ -54,26 +55,28 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
           val demographicArea = database.demographicAreaDao
             .get(companyLocation.demographicAreaId)
             .toDemographicAreaUiModel()
-          val accounts = database.paymentIndicatorDao.getAccountsWithPaymentStatusByStreetId(
+
+          val company = database.companyDao.query().first().toCompanyUiModel()
+
+          database.paymentIndicatorDao.flowOfAccountsWithPaymentStatusByStreetId(
             id = companyLocation.demographicStreetId,
             month = monthYear.month,
             year = monthYear.year,
-          ).map { it.toAccountWithPaymentStatusUiModel() }
-
-          val company = database.companyDao.query().first().toCompanyUiModel()
-          val expectedAmountToCollect =
-            database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
-
-          _state.value = CompanyPaymentLocationOverviewState.Success(
-            company = company,
-            demographicStreet = demographicStreet,
-            demographicArea = demographicArea,
-            accounts = accounts,
-            payment4CurrentMonth = payment4CurrentMonth,
-            expectedAmountToCollect = expectedAmountToCollect,
-            companyLocation = companyLocation,
-            monthYear = monthYear,
-          )
+          ).map { p0 -> p0.map { it.toAccountWithPaymentStatusUiModel() } }
+            .collectLatest { accounts ->
+              val expectedAmountToCollect =
+                database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
+              _state.value = CompanyPaymentLocationOverviewState.Success(
+                company = company,
+                demographicStreet = demographicStreet,
+                demographicArea = demographicArea,
+                accounts = accounts,
+                payment4CurrentMonth = payment4CurrentMonth,
+                expectedAmountToCollect = expectedAmountToCollect,
+                companyLocation = companyLocation,
+                monthYear = monthYear,
+              )
+            }
         }
     }
 

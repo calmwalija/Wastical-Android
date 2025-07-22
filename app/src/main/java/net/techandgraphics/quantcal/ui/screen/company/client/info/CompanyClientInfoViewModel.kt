@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.info
 
+import android.app.Application
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,11 +19,13 @@ import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.worker.company.account.scheduleCompanyAccountRequestWorker
 import javax.inject.Inject
 
 @HiltViewModel
 class CompanyClientInfoViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyClientInfoState>(CompanyClientInfoState.Loading)
@@ -58,6 +61,7 @@ class CompanyClientInfoViewModel @Inject constructor(
         )
       }.onSuccess {
         database.accountDao.update(newAccount)
+        application.scheduleCompanyAccountRequestWorker()
         _channel.send(CompanyClientInfoChannel.Submit.Success)
       }.onFailure {
         _channel.send(

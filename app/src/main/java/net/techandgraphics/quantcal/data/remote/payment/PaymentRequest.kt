@@ -12,5 +12,6 @@ data class PaymentRequest(
   @SerializedName("executed_by_id") val executedById: Long,
   @SerializedName("http_operation") val httpOperation: String,
   @SerializedName("payment_status") val status: PaymentStatus = PaymentStatus.Failed,
+  @SerializedName("updated_at") val updateAt: Long = ZonedDateTime.now().toEpochSecond(),
   @SerializedName("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
 )

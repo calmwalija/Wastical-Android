@@ -37,5 +37,6 @@ data class AccountPaymentPlanRequestEntity(
   @ColumnInfo("account_id") val accountId: Long,
   @ColumnInfo("payment_plan_id") val paymentPlanId: Long,
   @ColumnInfo("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
+  @ColumnInfo("updated_at") val updatedAt: Long = ZonedDateTime.now().toEpochSecond(),
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
 )

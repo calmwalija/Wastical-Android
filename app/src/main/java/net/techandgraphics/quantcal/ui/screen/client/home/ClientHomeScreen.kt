@@ -69,7 +69,7 @@ import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(
+fun ClientHomeScreen(
   state: ClientHomeState,
   channel: Flow<ClientHomeChannel>,
   onEvent: (ClientHomeEvent) -> Unit,
@@ -95,6 +95,7 @@ fun HomeScreen(
               }
 
               ClientHomeChannel.Goto.Login -> onEvent(ClientHomeEvent.Goto.Login)
+              ClientHomeChannel.Goto.Reload -> onEvent(ClientHomeEvent.Goto.Reload)
             }
           }
         }
@@ -207,11 +208,11 @@ fun HomeScreen(
                     iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
                   ) else item
                 }
-                .forEach {
+                .forEach { homeActivityItemModel ->
                   HomeActivityView(
                     state = state,
                     modifier = Modifier.fillMaxWidth(.5f),
-                    homeActivity = it,
+                    homeActivity = homeActivityItemModel,
                     onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
                   )
                 }
@@ -353,9 +354,9 @@ fun HomeScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeScreenPreview() {
+private fun ClientHomeScreenPreview() {
   QuantcalTheme {
-    HomeScreen(
+    ClientHomeScreen(
       state = clientHomeStateSuccess(),
       channel = flow { }
     ) {}

@@ -158,6 +158,8 @@ fun PaymentRequest.toPaymentRequestEntity() = PaymentRequestEntity(
   executedById = executedById,
   months = months,
   httpOperation = httpOperation,
+  createdAt = createdAt,
+  updatedAt = updateAt,
 )
 
 fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(
@@ -462,11 +464,14 @@ fun AccountEntity.toAccountPaymentPlanEntity(planId: Long) =
     updatedAt = updatedAt,
   )
 
-fun AccountPaymentPlanRequest.toAccountPaymentPlanRequestEntity() =
+fun AccountPaymentPlanRequest.toAccountPaymentPlanRequestEntity(id: Long) =
   AccountPaymentPlanRequestEntity(
     accountUuid = accountUuid,
     accountId = accountId,
     paymentPlanId = paymentPlanId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    id = id,
   )
 
 fun PaymentEntity.toPaymentRequestEntity(httpOperation: HttpOperation) =

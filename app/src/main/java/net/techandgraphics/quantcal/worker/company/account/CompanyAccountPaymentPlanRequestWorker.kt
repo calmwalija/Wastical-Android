@@ -29,11 +29,14 @@ import java.util.concurrent.TimeUnit
   override suspend fun doWork(): Result {
     return try {
       database.accountPaymentPlanRequestDao.query()
-        .onEach {
-          val newPlan = accountApi.plan(it.paymentPlanId, it.toAccountPaymentPlanRequest())
+        .onEach { accountPaymentPlanRequest ->
+          val newPlan = accountApi.plan(
+            accountPaymentPlanRequest.id,
+            accountPaymentPlanRequest.toAccountPaymentPlanRequest(),
+          )
             .toAccountPaymentPlanEntity()
           database.accountPaymentPlanDao.update(newPlan)
-          database.accountPaymentPlanRequestDao.delete(it)
+          database.accountPaymentPlanRequestDao.delete(accountPaymentPlanRequest)
         }
       Result.success()
     } catch (e: Exception) {

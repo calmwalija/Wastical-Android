@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
-import net.techandgraphics.quantcal.worker.client.payment.fcm.scheduleFetchLatestPaymentWorker
+import net.techandgraphics.quantcal.worker.client.payment.fcm.scheduleClientFetchLatestPaymentWorker
 
 class ClientFcmEvent(
   private val context: Context,
@@ -20,7 +20,7 @@ class ClientFcmEvent(
     when {
       remoteMessage.data["event"]
         ?.contains("fetch") == true -> {
-        context.scheduleFetchLatestPaymentWorker()
+        context.scheduleClientFetchLatestPaymentWorker()
       }
     }
   }

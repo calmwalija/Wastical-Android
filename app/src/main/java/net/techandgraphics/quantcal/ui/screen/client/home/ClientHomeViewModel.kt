@@ -61,6 +61,10 @@ import javax.inject.Inject
   private fun onLoad() = viewModelScope.launch {
     authenticatorHelper.getAccount(accountManager)
       ?.let { account ->
+        if (database.companyDao.query().isEmpty()) {
+          _channel.send(ClientHomeChannel.Goto.Reload)
+          return@let
+        }
         val accountContacts = database.accountContactDao
           .getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
@@ -75,8 +79,6 @@ import javax.inject.Inject
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
         val companyBinCollections = database.companyBinCollectionDao.query()
           .map { it.toCompanyBinCollectionUiModel() }
-        val lastMonthCovered =
-          database.paymentMonthCoveredDao.getLast()?.toPaymentMonthCoveredUiModel()
         combine(
           flow = database
             .paymentDao
@@ -99,6 +101,8 @@ import javax.inject.Inject
             .qFlowWithAccount()
             .map { p0 -> p0.map { it.toPaymentRequestWithAccountUiModel() } },
         ) { invoices, payments, paymentRequests ->
+          val lastMonthCovered =
+            database.paymentMonthCoveredDao.getLast()?.toPaymentMonthCoveredUiModel()
           _state.value = ClientHomeState.Success(
             invoices = invoices,
             payments = payments,

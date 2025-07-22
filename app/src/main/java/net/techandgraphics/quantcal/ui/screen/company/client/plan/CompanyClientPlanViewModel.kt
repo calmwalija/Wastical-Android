@@ -1,5 +1,6 @@
 package net.techandgraphics.quantcal.ui.screen.company.client.plan
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
@@ -17,11 +18,14 @@ import net.techandgraphics.quantcal.domain.toAccountUiModel
 import net.techandgraphics.quantcal.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.quantcal.domain.toCompanyUiModel
 import net.techandgraphics.quantcal.domain.toPaymentPlanUiModel
+import net.techandgraphics.quantcal.worker.company.account.scheduleCompanyAccountPaymentPlanRequestWorker
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CompanyClientPlanViewModel @Inject constructor(
   private val database: AppDatabase,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyClientPlanState>(CompanyClientPlanState.Loading)
@@ -71,10 +75,13 @@ class CompanyClientPlanViewModel @Inject constructor(
       val state = (_state.value as CompanyClientPlanState.Success)
 
       val oldAccountPlan = database.accountPaymentPlanDao.getByAccountId(state.account.id)
-      val newAccountPlan = oldAccountPlan.copy(paymentPlanId = state.plan.id)
+      val newAccountPlan = oldAccountPlan.copy(
+        updatedAt = ZonedDateTime.now().toEpochSecond(),
+        paymentPlanId = state.plan.id,
+      )
       val newAccountPlanRequest = newAccountPlan
         .toAccountPaymentPlanRequest()
-        .toAccountPaymentPlanRequestEntity()
+        .toAccountPaymentPlanRequestEntity(newAccountPlan.id)
 
       runCatching {
         database.withTransaction {
@@ -84,7 +91,10 @@ class CompanyClientPlanViewModel @Inject constructor(
         }
       }
         .onFailure { _channel.send(CompanyClientPlanChannel.Error(mapApiError(it))) }
-        .onSuccess { _channel.send(CompanyClientPlanChannel.Success) }
+        .onSuccess {
+          application.scheduleCompanyAccountPaymentPlanRequestWorker()
+          _channel.send(CompanyClientPlanChannel.Success)
+        }
     }
   }
 

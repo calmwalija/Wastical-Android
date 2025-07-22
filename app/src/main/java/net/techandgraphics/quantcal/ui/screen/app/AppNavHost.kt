@@ -19,7 +19,7 @@ import net.techandgraphics.quantcal.ui.screen.auth.phone.load.LoadScreen
 import net.techandgraphics.quantcal.ui.screen.auth.phone.load.LoadViewModel
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeViewModel
-import net.techandgraphics.quantcal.ui.screen.client.home.HomeScreen
+import net.techandgraphics.quantcal.ui.screen.client.home.ClientHomeScreen
 import net.techandgraphics.quantcal.ui.screen.client.invoice.ClientInvoiceEvent
 import net.techandgraphics.quantcal.ui.screen.client.invoice.ClientInvoiceScreen
 import net.techandgraphics.quantcal.ui.screen.client.invoice.ClientInvoiceViewModel
@@ -94,12 +94,13 @@ fun AppNavHost(
     composable<Route.Client.Home> {
       with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
-        HomeScreen(state, channel) { event ->
+        ClientHomeScreen(state, channel) { event ->
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {
                 is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice(event.id))
                 ClientHomeEvent.Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
+                ClientHomeEvent.Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
               }
 
             is ClientHomeEvent.Button.MakePayment ->
