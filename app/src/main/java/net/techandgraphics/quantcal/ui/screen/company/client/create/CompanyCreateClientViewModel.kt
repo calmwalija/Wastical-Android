@@ -59,7 +59,8 @@ class CompanyCreateClientViewModel @Inject constructor(
               UUID.randomUUID().toString()
                 .plus("-")
                 .plus(System.currentTimeMillis().toString().take(5)),
-            )
+            ).replace("-", "")
+            .take(32)
         },
         altContact = theState.altContact,
         paymentPlanId = theState.planId,

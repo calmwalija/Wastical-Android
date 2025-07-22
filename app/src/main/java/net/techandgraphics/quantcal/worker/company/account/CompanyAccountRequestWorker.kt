@@ -17,6 +17,8 @@ import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.local.database.toAccountContactEntity
 import net.techandgraphics.quantcal.data.local.database.toAccountEntity
 import net.techandgraphics.quantcal.data.local.database.toAccountPaymentPlanEntity
+import net.techandgraphics.quantcal.data.local.database.toPaymentEntity
+import net.techandgraphics.quantcal.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.quantcal.data.remote.account.AccountApi
 import net.techandgraphics.quantcal.data.remote.account.HttpOperation
 import net.techandgraphics.quantcal.data.remote.toAccountRequest
@@ -49,6 +51,14 @@ import java.util.concurrent.TimeUnit
               newAccount.accountPaymentPlans
                 ?.map { it.toAccountPaymentPlanEntity() }
                 ?.also { database.accountPaymentPlanDao.insert(it) }
+
+              newAccount.payments
+                ?.map { it.toPaymentEntity() }
+                ?.also { database.paymentDao.insert(it) }
+
+              newAccount.paymentMonthsCovered
+                ?.map { it.toPaymentMonthCoveredEntity() }
+                ?.also { database.paymentMonthCoveredDao.insert(it) }
 
               val oldAccount = database.accountDao.get(accountRequestEntity.id)
               database.accountDao.delete(oldAccount)

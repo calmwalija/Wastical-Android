@@ -14,21 +14,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -43,9 +45,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.toAmount
 import net.techandgraphics.quantcal.toast
 import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
+import net.techandgraphics.quantcal.ui.screen.SnackbarThemed
 import net.techandgraphics.quantcal.ui.screen.account4Preview
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoEvent
 import net.techandgraphics.quantcal.ui.screen.company.AccountInfoView
@@ -66,28 +70,27 @@ fun CompanyClientPlanScreen(
     CompanyClientPlanState.Loading -> LoadingIndicatorView()
     is CompanyClientPlanState.Success -> {
 
-      var isProcessing by remember { mutableStateOf(false) }
       val hapticFeedback = LocalHapticFeedback.current
       val context = LocalContext.current
       val lifecycleOwner = LocalLifecycleOwner.current
+      val snackbarHostState = remember { SnackbarHostState() }
+      val scope = rememberCoroutineScope()
 
       LaunchedEffect(key1 = channel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
           channel.collectLatest { event ->
             when (event) {
               is CompanyClientPlanChannel.Error -> {
-                isProcessing = false
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 context.toast(event.error.message)
               }
 
               CompanyClientPlanChannel.Success -> {
-                isProcessing = false
-                context.toast("Payment Plan Changed")
+                context.toast("Plan change request submitted")
                 onEvent(CompanyClientPlanEvent.Goto.BackHandler)
               }
 
-              CompanyClientPlanChannel.Processing -> isProcessing = true
+              CompanyClientPlanChannel.Processing -> Unit
             }
           }
         }
@@ -96,6 +99,7 @@ fun CompanyClientPlanScreen(
 
 
       Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) { SnackbarThemed(it) } },
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
             onEvent(CompanyClientPlanEvent.Goto.BackHandler)
@@ -131,7 +135,7 @@ fun CompanyClientPlanScreen(
 
           itemsIndexed(state.paymentPlans) { index, paymentPlan ->
             OutlinedCard(
-              modifier = Modifier.padding(vertical = 4.dp),
+              modifier = Modifier.padding(vertical = 5.dp, horizontal = 16.dp),
               colors = if (paymentPlan.active) CardDefaults.outlinedCardColors(
                 containerColor = MaterialTheme.colorScheme.primary.copy(.1f)
               ) else {
@@ -197,27 +201,48 @@ fun CompanyClientPlanScreen(
           }
 
 
+          item { Spacer(modifier = Modifier.height(48.dp)) }
+
           item {
             Row(
               modifier = Modifier
-                .padding(top = 24.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
               horizontalArrangement = Arrangement.Center
             ) {
-              ElevatedButton(
-                enabled = isProcessing.not(),
-                shape = RoundedCornerShape(8),
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onEvent(CompanyClientPlanEvent.Button.Submit) }) {
+              Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                  scope.launch {
+                    snackbarHostState.showSnackbar(
+                      message = "Please confirm the account payment plan change request for this client ?",
+                      actionLabel = "Confirm",
+                      duration = SnackbarDuration.Short
+                    ).also { result ->
+                      when (result) {
+                        SnackbarResult.Dismissed -> Unit
+                        SnackbarResult.ActionPerformed -> onEvent(CompanyClientPlanEvent.Button.Submit)
+                      }
+                    }
+                  }
+                }) {
                 Box {
-                  Text(
-                    text = "Change Payment Plan",
-                    modifier = Modifier.padding(8.dp)
-                  )
+                  Text(text = "Change Payment Plan")
                 }
               }
+
+              Spacer(modifier = Modifier.width(8.dp))
+
+              OutlinedButton(
+                onClick = { onEvent(CompanyClientPlanEvent.Goto.BackHandler) }) {
+                Box {
+                  Text(text = "Cancel")
+                }
+              }
+
             }
           }
+
         }
       }
     }

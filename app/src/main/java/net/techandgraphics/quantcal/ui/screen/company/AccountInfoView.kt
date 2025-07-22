@@ -77,7 +77,7 @@ fun AccountInfoView(
       }
     }
 
-    if (account.username.isDigitsOnly())
+    if (account.username.trim().isNotEmpty() && account.username.isDigitsOnly())
       Box(modifier = Modifier.padding(horizontal = 8.dp)) {
         IconButton(
           enabled = account.username.isDigitsOnly(),

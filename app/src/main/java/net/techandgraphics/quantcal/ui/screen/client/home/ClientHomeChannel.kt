@@ -11,5 +11,6 @@ sealed interface ClientHomeChannel {
 
   sealed interface Goto : ClientHomeChannel {
     data object Login : Goto
+    data object Reload : Goto
   }
 }

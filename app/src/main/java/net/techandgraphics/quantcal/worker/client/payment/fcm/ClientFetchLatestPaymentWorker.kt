@@ -130,7 +130,7 @@ import java.util.concurrent.TimeUnit
 
 private const val WORKER_UUID = "085afec2-116d-453e-9a4b-e06ac8e57d45"
 
-fun Context.scheduleFetchLatestPaymentWorker() {
+fun Context.scheduleClientFetchLatestPaymentWorker() {
   val workRequest = OneTimeWorkRequestBuilder<ClientFetchLatestPaymentWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)

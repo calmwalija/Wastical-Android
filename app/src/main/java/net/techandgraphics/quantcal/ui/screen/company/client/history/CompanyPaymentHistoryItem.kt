@@ -118,7 +118,7 @@ import java.time.Month
                     style = MaterialTheme.typography.bodyMedium,
                   )
                   Text(
-                    text = Month.of(monthData.month).name.capitalize(),
+                    text = Month.of(monthData.month).name.capitalize().plus(" ${monthData.year}"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )

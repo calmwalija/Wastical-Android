@@ -24,6 +24,7 @@ fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   months = months,
   executedById = executedById,
   createdAt = createdAt,
+  updateAt = updatedAt,
   httpOperation = httpOperation,
   status = PaymentStatus.valueOf(status),
 )
@@ -52,6 +53,8 @@ fun PaymentPlanUiModel.toAccountPaymentPlanRequest(account: AccountUiModel) =
     accountId = account.id,
     accountUuid = account.uuid,
     paymentPlanId = id,
+    updatedAt = updatedAt,
+    createdAt = createdAt,
   )
 
 fun AccountRequestEntity.toAccountRequest() = AccountRequest(
@@ -78,6 +81,8 @@ fun AccountPaymentPlanRequestEntity.toAccountPaymentPlanRequest() =
     accountUuid = accountUuid,
     accountId = accountId,
     paymentPlanId = paymentPlanId,
+    updatedAt = updatedAt,
+    createdAt = createdAt,
   )
 
 fun AccountPaymentPlanEntity.toAccountPaymentPlanRequest() =
@@ -85,4 +90,6 @@ fun AccountPaymentPlanEntity.toAccountPaymentPlanRequest() =
     accountUuid = accountUuid,
     accountId = accountId,
     paymentPlanId = paymentPlanId,
+    updatedAt = updatedAt,
+    createdAt = createdAt,
   )

@@ -52,4 +52,5 @@ data class PaymentRequestEntity(
   @ColumnInfo("payment_status") val status: String,
   @ColumnInfo("http_operation") val httpOperation: String = HttpOperation.Post.name,
   @ColumnInfo("created_at") val createdAt: Long = ZonedDateTime.now().toEpochSecond(),
+  @ColumnInfo("updated_at") val updatedAt: Long = ZonedDateTime.now().toEpochSecond(),
 )
