@@ -27,6 +27,12 @@ interface PaymentApi {
     @Query("epoch_second") epochSecond: Long,
   ): ServerResponse
 
+  @GET("payment/latest_by_company")
+  suspend fun fetchLatestByCompany(
+    @Query("account_id") accountId: Long,
+    @Query("epoch_second") epochSecond: Long,
+  ): ServerResponse
+
   @GET("payment/latest")
   suspend fun fetchLatest(@QueryMap params: Map<String, Any>): List<PaymentResponse>
 

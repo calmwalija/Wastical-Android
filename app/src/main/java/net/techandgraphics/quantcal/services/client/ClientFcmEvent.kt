@@ -6,6 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.techandgraphics.quantcal.data.local.database.AppDatabase
 import net.techandgraphics.quantcal.data.remote.payment.PaymentApi
+import net.techandgraphics.quantcal.services.FcmEvent
+import net.techandgraphics.quantcal.worker.client.payment.fcm.scheduleClientFetchLatestPaymentByCompanyWorker
 import net.techandgraphics.quantcal.worker.client.payment.fcm.scheduleClientFetchLatestPaymentWorker
 
 class ClientFcmEvent(
@@ -21,6 +23,11 @@ class ClientFcmEvent(
       remoteMessage.data["event"]
         ?.contains("fetch") == true -> {
         context.scheduleClientFetchLatestPaymentWorker()
+      }
+
+      remoteMessage.data["event"]
+        ?.contains(FcmEvent.PaymentCompanyMade.name) == true -> {
+        context.scheduleClientFetchLatestPaymentByCompanyWorker()
       }
     }
   }
