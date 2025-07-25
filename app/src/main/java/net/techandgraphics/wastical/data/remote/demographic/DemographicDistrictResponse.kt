@@ -1,0 +1,11 @@
+package net.techandgraphics.wastical.data.remote.demographic
+
+import com.google.gson.annotations.SerializedName
+
+data class DemographicDistrictResponse(
+  val id: Long,
+  val name: String,
+  val region: String,
+  @SerializedName("created_at") val createdAt: Long,
+  @SerializedName("updated_at") val updatedAt: Long,
+)

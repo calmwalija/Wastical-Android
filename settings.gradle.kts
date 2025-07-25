@@ -20,6 +20,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Quantcal-Android"
+rootProject.name = "Wastical"
 include(":app")
-include(":qgateway")
+include(":wcompanion")

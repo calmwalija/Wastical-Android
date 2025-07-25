@@ -1,3 +1,0 @@
-package net.techandgraphics.quantcal.ui.screen.company.location.overview
-
-sealed interface CompanyPaymentLocationOverviewChannel

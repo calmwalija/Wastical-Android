@@ -1,0 +1,17 @@
+package net.techandgraphics.wastical.ui.screen.company.client.pending
+
+import net.techandgraphics.wastical.domain.model.payment.PaymentRequestUiModel
+
+sealed interface CompanyClientPendingPaymentEvent {
+  data class Load(val id: Long) : CompanyClientPendingPaymentEvent
+
+  sealed interface Button : CompanyClientPendingPaymentEvent {
+    data class Delete(val payment: PaymentRequestUiModel) : Button
+    data class Phone(val contact: String) : Button
+  }
+
+  sealed interface Goto : CompanyClientPendingPaymentEvent {
+    data object BackHandler : Goto
+    data class Location(val id: Long) : Goto
+  }
+}
