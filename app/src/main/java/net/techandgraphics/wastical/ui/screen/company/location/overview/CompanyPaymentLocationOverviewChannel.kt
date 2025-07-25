@@ -1,0 +1,3 @@
+package net.techandgraphics.wastical.ui.screen.company.location.overview
+
+sealed interface CompanyPaymentLocationOverviewChannel

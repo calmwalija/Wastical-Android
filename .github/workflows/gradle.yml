@@ -53,7 +53,7 @@ jobs:
           name: jacoco-html-report
           path: app/build/reports/jacoco/jacocoTestReport/html
 
-  qgateway:
+  wcompanion:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -75,7 +75,7 @@ jobs:
             gradle-${{ runner.os }}-
 
       - name: Decode google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > qgateway/google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > wcompanion/google-services.json
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
@@ -84,13 +84,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Spotless check app module
-        run: ./gradlew :qgateway:spotlessCheck
+        run: ./gradlew :wcompanion:spotlessCheck
 
       - name: Build with Gradle
-        run: ./gradlew :qgateway:assembleDebug
+        run: ./gradlew :wcompanion:assembleDebug
 
       - name: Run tests and generate coverage
-        run: ./gradlew :qgateway:testDebugUnitTest :qgateway:jacocoTestReport
+        run: ./gradlew :wcompanion:testDebugUnitTest :wcompanion:jacocoTestReport
 
       - name: Upload JaCoCo HTML report
         uses: actions/upload-artifact@v4
