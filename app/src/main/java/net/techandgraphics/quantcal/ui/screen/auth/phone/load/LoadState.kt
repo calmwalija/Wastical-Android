@@ -1,7 +1,8 @@
 package net.techandgraphics.quantcal.ui.screen.auth.phone.load
 
-import net.techandgraphics.quantcal.domain.model.company.CompanyUiModel
+import net.techandgraphics.quantcal.domain.model.account.AccountUiModel
 
-data class LoadState(
-  val companies: List<CompanyUiModel> = listOf(),
-)
+sealed interface LoadState {
+  data object Loading : LoadState
+  data class Success(val account: AccountUiModel? = null) : LoadState
+}

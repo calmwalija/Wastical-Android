@@ -17,22 +17,22 @@ fun LoadScreen(
   channel: Flow<LoadChannel>,
   onEvent: (LoadEvent) -> Unit,
 ) {
-
   val context = LocalContext.current
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-  LaunchedEffect(key1 = channel) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-      channel.collect { event ->
-        when (event) {
-          is LoadChannel.Error -> context.toast(event.error.message)
-          LoadChannel.Success -> onEvent(LoadEvent.Load)
+  if (state is LoadState.Success) {
+    LaunchedEffect(key1 = channel) {
+      lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        channel.collect { event ->
+          when (event) {
+            is LoadChannel.Error -> context.toast(event.error.message)
+            is LoadChannel.Success -> onEvent(LoadEvent.Success(state.account!!))
+            LoadChannel.NoAccount -> onEvent(LoadEvent.NoAccount)
+          }
         }
       }
     }
   }
-
   LoadingIndicatorView()
-
 }
 
 
@@ -40,7 +40,7 @@ fun LoadScreen(
 @Composable
 private fun LoadScreenPreview() {
   LoadScreen(
-    state = LoadState(),
+    state = LoadState.Loading,
     channel = flow { }
   ) {}
 }

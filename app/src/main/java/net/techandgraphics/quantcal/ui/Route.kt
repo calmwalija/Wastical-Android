@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
 
-  @Serializable data class Load(val logout: Boolean = false) : Client
+  @Serializable data class Load(val shouldLogout: Boolean = false) : Client
 
   @Serializable sealed interface Client : Route {
     @Serializable data object Home : Client
