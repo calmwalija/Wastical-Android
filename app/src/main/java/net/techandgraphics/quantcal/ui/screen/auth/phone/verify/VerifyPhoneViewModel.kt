@@ -54,7 +54,7 @@ class VerifyPhoneViewModel @Inject constructor(
     job = viewModelScope.launch {
       job?.cancel()
       val contact = state.value.contact.takeLast(9)
-      val sms = Sms(contact = "993563408")
+      val sms = Sms(contact = contact)
       runCatching { accountOtpApi.otp(sms.contact) }
         .onSuccess { response ->
           val otpResponse = response.accountOtps

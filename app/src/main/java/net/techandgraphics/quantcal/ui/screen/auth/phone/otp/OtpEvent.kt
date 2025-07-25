@@ -7,12 +7,4 @@ sealed interface OtpEvent {
   sealed interface Goto : OtpEvent {
     data object Home : Goto
   }
-
-  sealed interface Timer : OtpEvent {
-    data object Start : Timer
-    data object Pause : Timer
-    data object Reset : Timer
-    data object Failed : Timer
-    data object TimedOut : Timer
-  }
 }

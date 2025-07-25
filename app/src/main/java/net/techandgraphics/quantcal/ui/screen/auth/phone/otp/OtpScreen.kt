@@ -58,8 +58,6 @@ import net.techandgraphics.quantcal.ui.screen.LoadingIndicatorView
 import net.techandgraphics.quantcal.ui.theme.QuantcalTheme
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 @Composable
 fun OtpScreen(
@@ -91,8 +89,8 @@ fun OtpScreen(
       LaunchedEffect(Unit) {
         SmsRetriever.getClient(context)
           .startSmsRetriever()
-          .addOnSuccessListener { onEvent(OtpEvent.Timer.Start) }
-          .addOnFailureListener { onEvent(OtpEvent.Timer.Failed) }
+          .addOnSuccessListener { Unit }
+          .addOnFailureListener { Unit }
       }
 
 
@@ -101,12 +99,9 @@ fun OtpScreen(
           is OtpListenerEvent.OTPReceived ->
             event.opt?.let { onEvent(OtpEvent.Otp(it)) }
 
-          OtpListenerEvent.OTPTimeOut -> onEvent(OtpEvent.Timer.TimedOut)
+          OtpListenerEvent.OTPTimeOut -> Unit
         }
       }
-
-      val minutes = TimeUnit.MILLISECONDS.toMinutes(state.timeLeft) % 60
-      val seconds = TimeUnit.MILLISECONDS.toSeconds(state.timeLeft) % 60
 
       Scaffold { contentPadding ->
         LazyColumn(
@@ -154,23 +149,13 @@ fun OtpScreen(
             )
           }
 
-          item {
-            Text(
-              text = String.format(
-                locale = Locale.getDefault(),
-                format = "%02d:%02d", minutes, seconds
-              ),
-              style = MaterialTheme.typography.titleLarge,
-              modifier = Modifier.padding(top = 16.dp)
-            )
-          }
-
           item { Spacer(modifier = Modifier.height(8.dp)) }
 
           item { OtpInput { opt = it } }
 
           item {
             Button(
+              enabled = opt.length > 3,
               modifier = Modifier.fillMaxWidth(.7f),
               onClick = { onEvent(OtpEvent.Otp(opt)) }
             ) {
