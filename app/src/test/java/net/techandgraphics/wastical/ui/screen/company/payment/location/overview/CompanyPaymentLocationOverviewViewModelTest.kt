@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import net.techandgraphics.BaseUnitTest
+import net.techandgraphics.wastical.BaseUnitTest
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.AccountSortOrder
 import net.techandgraphics.wastical.ui.screen.company.location.overview.CompanyPaymentLocationOverviewEvent
 import net.techandgraphics.wastical.ui.screen.company.location.overview.CompanyPaymentLocationOverviewState

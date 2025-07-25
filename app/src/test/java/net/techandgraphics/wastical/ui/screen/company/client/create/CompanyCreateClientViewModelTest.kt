@@ -3,7 +3,7 @@ package net.techandgraphics.wastical.ui.screen.company.client.create
 import app.cash.turbine.test
 import io.mockk.coEvery
 import kotlinx.coroutines.test.runTest
-import net.techandgraphics.BaseUnitTest
+import net.techandgraphics.wastical.BaseUnitTest
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
 import net.techandgraphics.wastical.data.local.database.toCompanyEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyLocationWithDemographicEntity

@@ -6,7 +6,7 @@ import io.mockk.every
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import net.techandgraphics.BaseUnitTest
+import net.techandgraphics.wastical.BaseUnitTest
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyLocationWithDemographicEntity
