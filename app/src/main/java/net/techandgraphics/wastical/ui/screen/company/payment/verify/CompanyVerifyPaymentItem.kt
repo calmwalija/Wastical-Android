@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
-import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.gatewayDrawableRes
@@ -31,19 +35,20 @@ import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@Composable fun CompanyVerifyPaymentView(
-  entity: PaymentWithAccountAndMethodWithGatewayUiModel,
+@Composable fun CompanyVerifyPaymentItem(
+  modifier: Modifier = Modifier,
+  model: PaymentWithAccountAndMethodWithGatewayUiModel,
   onEvent: (CompanyVerifyPaymentEvent) -> Unit,
 ) {
 
-  val payment = entity.payment
-  val account = entity.account
-
+  val payment = model.payment
+  val account = model.account
 
   Card(
-    modifier = Modifier.padding(vertical = 4.dp),
+    modifier = modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
     onClick = { onEvent(CompanyVerifyPaymentEvent.Goto.Profile(account.id)) }
@@ -52,7 +57,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
       Box(modifier = Modifier.size(48.dp)) {
         Image(
-          painter = painterResource(gatewayDrawableRes[entity.gateway.id.minus(1).toInt()]),
+          painter = painterResource(gatewayDrawableRes[model.gateway.id.minus(1).toInt()]),
           contentDescription = null,
           modifier = Modifier
             .padding(4.dp)
@@ -80,30 +85,43 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis
           )
-
-        }
-
-        when (payment.status) {
-          PaymentStatus.Verifying -> R.drawable.ic_help
-          PaymentStatus.Approved -> R.drawable.ic_check_circle
-          else -> R.drawable.ic_close
-        }.also {
-          Icon(
-            painterResource(it),
-            contentDescription = null,
-            modifier = Modifier.padding(horizontal = 16.dp),
-            tint = MaterialTheme.colorScheme.primary
+          Text(
+            text = model.plan.fee.times(model.coveredSize).toAmount(),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.MiddleEllipsis,
+            modifier = Modifier.padding(end = 16.dp)
           )
         }
 
-        Text(
-          text = entity.plan.fee.times(entity.coveredSize).toAmount(),
-          style = MaterialTheme.typography.bodySmall,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          modifier = Modifier.padding(end = 16.dp)
-        )
+        if (model.gateway.type != PaymentType.Cash.name) {
+          IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Image(payment)) }) {
+            Icon(
+              painter = painterResource(R.drawable.ic_image),
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary
+            )
+          }
+        }
 
+        Card(shape = CircleShape) {
+          Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+            IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Approve(payment)) }) {
+              Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = null,
+                tint = Green
+              )
+            }
+            IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Deny(payment)) }) {
+              Icon(
+                imageVector = Icons.Rounded.Clear,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error
+              )
+            }
+          }
+        }
       }
     }
   }
@@ -111,10 +129,10 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
 @Preview(showBackground = true)
-@Composable fun CompanyVerifyPaymentViewPreview() {
+@Composable fun CompanyVerifyPaymentItemPreview() {
   WasticalTheme {
-    CompanyVerifyPaymentView(
-      entity = paymentWithAccountAndMethodWithGateway4Preview,
+    CompanyVerifyPaymentItem(
+      model = paymentWithAccountAndMethodWithGateway4Preview,
       onEvent = {}
     )
   }

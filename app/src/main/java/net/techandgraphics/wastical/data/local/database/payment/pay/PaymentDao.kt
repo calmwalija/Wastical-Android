@@ -170,4 +170,7 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
   fun qUpfrontPayments(month: Int, year: Int): List<UpfrontPayment>
 
   data class UpfrontPayment(val fee: Int, val accountId: Long)
+
+  @Query("SELECT * FROM payment GROUP BY payment_status")
+  fun qPaymentStatus(): Flow<List<PaymentEntity>>
 }
