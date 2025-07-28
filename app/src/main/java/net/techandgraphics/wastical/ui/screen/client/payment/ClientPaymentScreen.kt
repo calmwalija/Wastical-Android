@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -26,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -128,7 +132,10 @@ fun ClientPaymentScreen(
 
 
       if (showPaymentScreenshotDialog && paymentItem != null) {
-        ModalBottomSheet(onDismissRequest = { showPaymentScreenshotDialog = false }) {
+        ModalBottomSheet(
+          onDismissRequest = { showPaymentScreenshotDialog = false },
+          sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
           ClientPaymentScreenShotView(
             item = paymentItem!!,
             onProceed = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
@@ -223,6 +230,10 @@ fun ClientPaymentScreen(
 
         },
       ) {
+
+        val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+
+
         LazyColumn(
           state = scrollState,
           contentPadding = it,
@@ -230,10 +241,17 @@ fun ClientPaymentScreen(
         ) {
 
           item {
-            Text(
-              text = "Send Payment Screenshot",
+            BasicText(
+              text = "Send Proof Of Payment Image",
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 32.dp)
+              color = ColorProducer { contentColor },
+              modifier = Modifier
+                .padding(end = 16.dp)
+                .padding(bottom = 32.dp),
+              maxLines = 1,
+              autoSize = TextAutoSize.StepBased(
+                maxFontSize = MaterialTheme.typography.headlineMedium.fontSize
+              )
             )
           }
 
