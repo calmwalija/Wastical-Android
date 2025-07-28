@@ -45,7 +45,7 @@ fun CompanyBrowseLocationScreen(
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
           item {
             Row(

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.defaultDate
+import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.gatewayDrawableRes
@@ -81,7 +82,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = model.payment.createdAt.toZonedDateTime().defaultDate(),
+          text = model.payment.createdAt.toZonedDateTime().defaultDateTime(),
           style = MaterialTheme.typography.bodySmall,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,

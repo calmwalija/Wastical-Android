@@ -113,7 +113,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       ) {
 
         LazyColumn(
-          contentPadding = it, modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
+          contentPadding = it,
+          modifier = Modifier.padding(16.dp)
         ) {
 
           item {

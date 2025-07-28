@@ -1,20 +1,21 @@
 package net.techandgraphics.wastical.ui.screen.company.info.plan
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -46,12 +47,18 @@ fun CompanyInfoPlanScreen(
           onEvent(CompanyInfoPlanEvent.Button.BackHandler)
         }
       },
-      contentWindowInsets = WindowInsets.safeGestures
+      floatingActionButton = {
+        FloatingActionButton(
+          onClick = {},
+          containerColor = MaterialTheme.colorScheme.primary
+        ) {
+          Icon(Icons.Default.Add, null)
+        }
+      }
     ) {
-
       LazyColumn(
         contentPadding = it,
-        modifier = Modifier.padding(vertical = 32.dp)
+        modifier = Modifier.padding(16.dp)
       ) {
         item {
           Text(
@@ -62,17 +69,16 @@ fun CompanyInfoPlanScreen(
         }
         itemsIndexed(state.plans) { index, plan ->
           OutlinedCard(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            colors = CardDefaults.elevatedCardColors()
+            modifier = Modifier.padding(vertical = 4.dp),
+            colors = CardDefaults.elevatedCardColors(),
+            onClick = {}
           ) {
             Row(
               modifier = Modifier
-                .clickable { }
                 .fillMaxWidth()
                 .padding(16.dp),
               verticalAlignment = Alignment.CenterVertically
             ) {
-
               Column(
                 modifier = Modifier
                   .padding(horizontal = 8.dp)

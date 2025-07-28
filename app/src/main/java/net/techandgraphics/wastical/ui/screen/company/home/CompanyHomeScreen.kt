@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -218,15 +217,12 @@ private val quickOption = listOf(
               }
 
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-              containerColor = MaterialTheme.colorScheme.surfaceContainer
-            ),
           )
         },
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
           item {
             Row(verticalAlignment = Alignment.CenterVertically) {
