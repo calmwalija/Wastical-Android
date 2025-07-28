@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -47,6 +49,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
   private val _channel = Channel<CompanyMakePaymentChannel>()
   val channel = _channel.receiveAsFlow()
 
+  private var recordPaymentJob: Job? = null
+
   private fun onLoad(event: CompanyMakePaymentEvent.Load) =
     viewModelScope.launch {
       authenticatorHelper.getAccount(accountManager)
@@ -75,24 +79,28 @@ class CompanyMakePaymentViewModel @Inject constructor(
         }
     }
 
-  private fun onRecordPayment() = viewModelScope.launch {
-    with(state.value as CompanyMakePaymentState.Success) {
-      val method = paymentMethods.first { it.method.isSelected }
-      val cachedPayment = PaymentRequest(
-        screenshotText = screenshotText,
-        paymentMethodId = method.method.id,
-        accountId = account.id,
-        months = numberOfMonths,
-        companyId = account.companyId,
-        executedById = executedBy.id,
-        status = PaymentStatus.Approved,
-        httpOperation = HttpOperation.Post.name,
-        paymentReference = paymentReference(),
-      ).toPaymentRequestEntity()
-      database.paymentRequestDao.upsert(cachedPayment)
-      _channel.send(CompanyMakePaymentChannel.Pay.Success)
-      _state.value = getState().copy(imageUri = null)
-      application.scheduleCompanyPaymentRequestWorker()
+  private fun onRecordPayment() {
+    recordPaymentJob?.cancel()
+    recordPaymentJob = viewModelScope.launch {
+      delay(5_00)
+      with(state.value as CompanyMakePaymentState.Success) {
+        val method = paymentMethods.first { it.method.isSelected }
+        val cachedPayment = PaymentRequest(
+          screenshotText = screenshotText,
+          paymentMethodId = method.method.id,
+          accountId = account.id,
+          months = numberOfMonths,
+          companyId = account.companyId,
+          executedById = executedBy.id,
+          status = PaymentStatus.Approved,
+          httpOperation = HttpOperation.Post.name,
+          paymentReference = paymentReference(),
+        ).toPaymentRequestEntity()
+        database.paymentRequestDao.upsert(cachedPayment)
+        _channel.send(CompanyMakePaymentChannel.Pay.Success)
+        _state.value = getState().copy(imageUri = null)
+        application.scheduleCompanyPaymentRequestWorker()
+      }
     }
   }
 

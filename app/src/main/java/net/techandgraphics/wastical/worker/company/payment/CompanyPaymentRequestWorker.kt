@@ -94,7 +94,7 @@ fun Context.scheduleCompanyPaymentRequestWorker() {
     .getInstance(this)
     .enqueueUniqueWork(
       uniqueWorkName = WORKER_UUID,
-      existingWorkPolicy = ExistingWorkPolicy.REPLACE,
+      existingWorkPolicy = ExistingWorkPolicy.KEEP,
       request = workRequest,
     )
 }
