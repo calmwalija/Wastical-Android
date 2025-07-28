@@ -1,19 +1,20 @@
 package net.techandgraphics.wastical.ui.screen.company.info.method
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -49,11 +50,18 @@ fun CompanyInfoMethodScreen(
           onEvent(CompanyInfoMethodEvent.Button.BackHandler)
         }
       },
-      contentWindowInsets = WindowInsets.safeGestures
+      floatingActionButton = {
+        FloatingActionButton(
+          onClick = {},
+          containerColor = MaterialTheme.colorScheme.primary
+        ) {
+          Icon(Icons.Default.Add, null)
+        }
+      }
     ) {
       LazyColumn(
         contentPadding = it,
-        modifier = Modifier.padding(vertical = 32.dp)
+        modifier = Modifier.padding(16.dp)
       ) {
         item {
           Text(
@@ -64,44 +72,39 @@ fun CompanyInfoMethodScreen(
         }
         items(state.methods) { ofType ->
           OutlinedCard(
-            modifier = Modifier.padding(vertical = 8.dp),
-            colors = CardDefaults.elevatedCardColors()
+            modifier = Modifier.padding(vertical = 4.dp),
+            colors = CardDefaults.elevatedCardColors(),
+            onClick = {}
           ) {
             Row(
               modifier = Modifier
-                .clickable { }
-                .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically
             ) {
-
               Image(
                 painterResource(gatewayDrawableRes[ofType.gateway.id.minus(1).toInt()]),
                 contentDescription = null,
                 modifier = Modifier
                   .clip(CircleShape)
-                  .size(32.dp),
+                  .size(42.dp),
                 contentScale = ContentScale.Crop,
               )
-
               Column(
                 modifier = Modifier
                   .padding(horizontal = 8.dp)
                   .weight(1f)
               ) {
-
                 Text(
                   text = ofType.method.account,
                   style = MaterialTheme.typography.bodySmall,
                   maxLines = 1,
                   overflow = TextOverflow.MiddleEllipsis
                 )
-
                 Text(
                   text = ofType.gateway.name,
                   style = MaterialTheme.typography.titleMedium
                 )
-
               }
             }
           }

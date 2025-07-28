@@ -3,7 +3,6 @@ package net.techandgraphics.wastical.ui.screen.client.invoice
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,8 +34,6 @@ fun ClientInvoiceScreen(
     ClientInvoiceState.Loading -> LoadingIndicatorView()
     is ClientInvoiceState.Success -> {
 
-      val scrollState = rememberLazyListState()
-
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
@@ -45,9 +42,8 @@ fun ClientInvoiceScreen(
         },
       ) {
         LazyColumn(
-          state = scrollState,
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
 
           item {

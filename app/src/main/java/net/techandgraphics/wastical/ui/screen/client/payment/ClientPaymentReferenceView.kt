@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
@@ -52,9 +53,11 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       }
       Text(
         modifier = Modifier.padding(4.dp),
-        text = if (state.screenshotAttached) "Payment Screenshot Attached" else {
-          "Attach Payment Screenshot"
-        }
+        text = if (state.screenshotAttached) "Proof Of Payment Image Attached" else {
+          "Attach Proof Of Payment Image"
+        },
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
       )
     }
   }

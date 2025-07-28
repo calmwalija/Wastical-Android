@@ -2,7 +2,6 @@ package net.techandgraphics.wastical.ui.screen.client.payment
 
 import android.app.Activity
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.BottomAppBar
@@ -77,7 +75,6 @@ fun ClientPaymentScreen(
     ClientPaymentState.Loading -> LoadingIndicatorView()
     is ClientPaymentState.Success -> {
 
-      val scrollState = rememberLazyListState()
       var loading by remember { mutableStateOf(false) }
       var paymentItem by remember { mutableStateOf<PaymentMethodWithGatewayAndPlanUiModel?>(null) }
       var showPaymentScreenshotDialog by remember { mutableStateOf(false) }
@@ -237,9 +234,8 @@ fun ClientPaymentScreen(
 
 
         LazyColumn(
-          state = scrollState,
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
 
           item {

@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -97,7 +98,10 @@ fun CompanyClientProfileScreen(
 
 
       if (showWarning) {
-        ModalBottomSheet(onDismissRequest = { showWarning = false }) {
+        ModalBottomSheet(
+          onDismissRequest = { showWarning = false },
+          sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
           CompanyClientProfileRevokeView(onProceedWithCaution = {
             showWarning = false
             scope.launch {
@@ -128,7 +132,7 @@ fun CompanyClientProfileScreen(
 
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 8.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
 
           item {

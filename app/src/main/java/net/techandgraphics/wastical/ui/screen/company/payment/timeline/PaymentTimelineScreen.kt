@@ -37,7 +37,7 @@ fun PaymentTimelineScreen(
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(vertical = 32.dp, horizontal = 4.dp)
+          modifier = Modifier.padding(16.dp)
         ) {
           item {
             Text(
