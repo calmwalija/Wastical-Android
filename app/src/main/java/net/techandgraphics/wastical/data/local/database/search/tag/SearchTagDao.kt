@@ -7,6 +7,6 @@ import net.techandgraphics.wastical.data.local.database.BaseDao
 
 @Dao
 abstract class SearchTagDao : BaseDao<SearchTagEntity> {
-  @Query("SELECT * FROM search_tag ORDER BY id DESC LIMIT 32")
+  @Query("SELECT * FROM search_tag ORDER BY timestamp DESC LIMIT 16")
   abstract fun query(): Flow<List<SearchTagEntity>>
 }
