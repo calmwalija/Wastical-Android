@@ -26,6 +26,7 @@ import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import java.io.File
+import java.security.SecureRandom
 import java.text.DecimalFormat
 import java.util.Calendar
 import java.util.UUID
@@ -138,4 +139,21 @@ fun AuthenticatorHelper.getAccount(accountManager: AccountManager): AccountUiMod
     val userDataJson = accountManager.getUserData(account, JSON_ACCOUNT)
     Gson().fromJson(userDataJson, AccountUiModel::class.java)
   }
+}
+
+fun paymentReference(length: Int = 256): String {
+  val secureRandom = SecureRandom()
+  val charPool = buildCharPool()
+
+  return (1..length)
+    .map { secureRandom.nextInt(charPool.size) }
+    .map(charPool::get)
+    .joinToString("")
+}
+
+private fun buildCharPool(): List<Char> {
+  val letters = ('a'..'z') + ('A'..'Z')
+  val numbers = ('0'..'9')
+  val symbols = "!@=#$%=&*()_+-=[]{}|;:,.<>?/"
+  return letters + numbers + symbols.toList()
 }

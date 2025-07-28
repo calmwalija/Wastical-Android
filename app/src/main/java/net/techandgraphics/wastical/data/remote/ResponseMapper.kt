@@ -128,6 +128,7 @@ fun PaymentRequest.toPaymentRequest() = PaymentRequestEntity(
   companyId = companyId,
   executedById = executedById,
   months = months,
+  paymentReference = paymentReference
 )
 
 fun DemographicDistrictEntity.toDemographicDistrictResponse() =
@@ -246,7 +247,8 @@ fun PaymentRequestEntity.toPaymentResponse() =
     companyId = companyId,
     executedById = executedById,
     updatedAt = createdAt,
-    months = months
+    months = months,
+    paymentReference = paymentReference
   )
 
 

@@ -7,14 +7,12 @@ import net.techandgraphics.wastical.data.local.database.account.request.AccountR
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastical.data.remote.account.AccountRequest
-import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.wastical.data.remote.account.token.AccountFcmTokenRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
-import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 
 fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   screenshotText = screenshotText,
@@ -27,19 +25,7 @@ fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   updateAt = updatedAt,
   httpOperation = httpOperation,
   status = PaymentStatus.valueOf(status),
-)
-
-fun PaymentUiModel.toPaymentRequest(httpOperation: HttpOperation) = PaymentRequest(
-  screenshotText = screenshotText,
-  paymentMethodId = paymentMethodId,
-  accountId = accountId,
-  // TODO
-  months = 2,
-  status = status,
-  companyId = companyId,
-  executedById = executedById,
-  createdAt = createdAt,
-  httpOperation = httpOperation.name,
+  paymentReference = paymentReference,
 )
 
 fun AccountFcmTokenEntity.toAccountFcmTokenRequest(accountId: Long) =

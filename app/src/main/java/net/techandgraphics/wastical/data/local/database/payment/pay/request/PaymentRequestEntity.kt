@@ -47,6 +47,7 @@ data class PaymentRequestEntity(
   @ColumnInfo("screenshot_text") val screenshotText: String,
   @ColumnInfo("payment_method_id") val paymentMethodId: Long,
   @ColumnInfo("account_id") val accountId: Long,
+  @ColumnInfo("payment_reference") val paymentReference: String,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("executed_by_id") val executedById: Long,
   @ColumnInfo("payment_status") val status: String,

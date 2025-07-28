@@ -9,6 +9,7 @@ data class PaymentRequest(
   @SerializedName("payment_method_id") val paymentMethodId: Long,
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("company_id") val companyId: Long,
+  @SerializedName("payment_reference") val paymentReference: String,
   @SerializedName("executed_by_id") val executedById: Long,
   @SerializedName("http_operation") val httpOperation: String,
   @SerializedName("payment_status") val status: PaymentStatus = PaymentStatus.Failed,

@@ -8,6 +8,7 @@ data class PaymentWithAccountAndMethodWithGatewayQuery(
   val paymentId: Long,
   val screenshotText: String,
   val transactionId: String,
+  val paymentReference: String,
   val paymentMethodId: Long,
   val accountId: Long,
   val paymentStatus: String,

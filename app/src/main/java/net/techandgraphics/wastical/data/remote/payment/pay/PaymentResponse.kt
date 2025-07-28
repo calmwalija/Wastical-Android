@@ -8,6 +8,7 @@ data class PaymentResponse(
   @SerializedName("screenshot_text") val screenshotText: String,
   @SerializedName("transaction_id") val transactionId: String,
   @SerializedName("payment_method_id") val paymentMethodId: Long,
+  @SerializedName("payment_reference") val paymentReference: String,
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("payment_status") val status: String,
   @SerializedName("created_at") val createdAt: Long,

@@ -5,6 +5,7 @@ data class PaymentRequestUiModel(
   val months: Int,
   val screenshotText: String,
   val paymentMethodId: Long,
+  val paymentReference: String,
   val accountId: Long,
   val companyId: Long,
   val executedById: Long,

@@ -45,6 +45,7 @@ data class PaymentEntity(
   @ColumnInfo("transaction_id") val transactionId: String,
   @ColumnInfo("payment_method_id") val paymentMethodId: Long,
   @ColumnInfo("account_id") val accountId: Long,
+  @ColumnInfo("payment_reference") val paymentReference: String,
   @ColumnInfo("payment_status") val status: String,
   @ColumnInfo("created_at") val createdAt: Long,
   @ColumnInfo("updated_at") val updatedAt: Long,
