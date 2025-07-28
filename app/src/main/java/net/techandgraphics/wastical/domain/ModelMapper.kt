@@ -103,6 +103,7 @@ fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   updatedAt = updatedAt,
   companyId = companyId,
   executedById = accountId,
+  paymentReference = paymentReference,
 )
 
 fun CompanyEntity.toCompanyUiModel() = CompanyUiModel(
@@ -189,7 +190,6 @@ fun SearchTagEntity.toSearchTagUiModel() = SearchTagUiModel(
   query = query,
   tag = tag,
   timestamp = timestamp,
-  id = id,
 )
 
 fun PaymentMethodWithGatewayAndPlanEntity.toPaymentMethodWithGatewayAndPlanUiModel() =
@@ -237,6 +237,7 @@ fun PaymentRequestEntity.toPaymentRequestUiModel() = PaymentRequestUiModel(
   executedById = executedById,
   status = status,
   createdAt = createdAt,
+  paymentReference = paymentReference,
 )
 
 fun PaymentRequestWithAccountEntity.toPaymentRequestWithAccountUiModel() =

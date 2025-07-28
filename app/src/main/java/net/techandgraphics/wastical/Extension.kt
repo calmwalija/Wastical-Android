@@ -141,7 +141,7 @@ fun AuthenticatorHelper.getAccount(accountManager: AccountManager): AccountUiMod
   }
 }
 
-fun paymentReference(length: Int = 256): String {
+fun paymentReference(length: Int = 224): String {
   val secureRandom = SecureRandom()
   val charPool = buildCharPool()
 

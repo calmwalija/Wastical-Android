@@ -30,6 +30,7 @@ import net.techandgraphics.wastical.domain.model.relations.PaymentMethodWithGate
 import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.wastical.paymentReference
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import kotlin.random.Random
@@ -120,6 +121,7 @@ internal val payment4Preview = PaymentUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
   companyId = account4Preview.companyId,
   executedById = account4Preview.id,
+  paymentReference = paymentReference(),
 )
 
 internal val demographicStreet4Preview = DemographicStreetUiModel(
@@ -224,6 +226,7 @@ internal val paymentRequest4Preview = PaymentRequestUiModel(
   executedById = 1,
   status = PaymentStatus.Waiting.name,
   createdAt = ZonedDateTime.now().toEpochSecond(),
+  paymentReference = paymentReference(),
 )
 
 internal val paymentRequestWithAccount4Preview = PaymentRequestWithAccountUiModel(
