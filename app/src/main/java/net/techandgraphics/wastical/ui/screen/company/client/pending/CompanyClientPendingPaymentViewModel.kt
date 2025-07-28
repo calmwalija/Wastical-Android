@@ -26,7 +26,7 @@ import javax.inject.Inject
 
   private fun onLoad(event: CompanyClientPendingPaymentEvent.Load) =
     viewModelScope.launch {
-      database.paymentRequestDao.getWithAccountByAccountId(event.id)
+      database.paymentRequestDao.qWithAccountByAccountId(event.id)
         .map { entity -> entity.map { it.toPaymentRequestWithAccountUiModel() } }
         .collectLatest { pending ->
           val company = database.companyDao.query().first().toCompanyUiModel()

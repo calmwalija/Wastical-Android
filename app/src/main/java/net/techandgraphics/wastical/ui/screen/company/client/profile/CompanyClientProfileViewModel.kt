@@ -7,7 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -16,12 +17,11 @@ import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.mapApiError
-import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
-import net.techandgraphics.wastical.domain.toPaymentRequestUiModel
+import net.techandgraphics.wastical.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.toPaymentUiModel
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import java.time.ZonedDateTime
@@ -47,30 +47,21 @@ class CompanyClientProfileViewModel @Inject constructor(
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
-      database.paymentRequestDao.qByAccountId(account.id)
-        .map { entity -> entity.map { it.toPaymentRequestUiModel() } }
-        .collectLatest { pending ->
-          _state.value = CompanyClientProfileState.Success(
-            company = company,
-            account = account,
-            pending = pending,
-            demographic = demographic,
-          )
-          getPayments(account)
-        }
+      combine(
+        flow = database.paymentRequestDao.qWithAccountByAccountId(account.id)
+          .map { entity -> entity.map { it.toPaymentRequestWithAccountUiModel() } },
+        flow2 = database.paymentDao.flowOfByAccountId(account.id)
+          .map { flowOf -> flowOf.map { it.toPaymentUiModel() } },
+      ) { pending, payments ->
+        _state.value = CompanyClientProfileState.Success(
+          company = company,
+          account = account,
+          pending = pending,
+          payments = payments,
+          demographic = demographic,
+        )
+      }.launchIn(viewModelScope)
     }
-
-  private suspend fun getPayments(account: AccountUiModel) {
-    database.paymentDao.flowOfByAccountId(account.id)
-      .map { flowOf -> flowOf.map { it.toPaymentUiModel() } }
-      .collectLatest { payments ->
-        if (_state.value is CompanyClientProfileState.Success) {
-          _state.value = (_state.value as CompanyClientProfileState.Success).copy(
-            payments = payments,
-          )
-        }
-      }
-  }
 
   private fun onOptionRevoke() = viewModelScope.launch {
     if (_state.value is CompanyClientProfileState.Success) {
