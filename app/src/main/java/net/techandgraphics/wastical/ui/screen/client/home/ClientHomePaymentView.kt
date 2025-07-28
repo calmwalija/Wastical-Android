@@ -33,9 +33,12 @@ import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@Composable fun ClientHomePaymentView(model: PaymentWithAccountAndMethodWithGatewayUiModel) {
+@Composable fun ClientHomePaymentView(
+  modifier: Modifier = Modifier,
+  model: PaymentWithAccountAndMethodWithGatewayUiModel,
+) {
   Card(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .padding(vertical = 4.dp),
     shape = CircleShape,

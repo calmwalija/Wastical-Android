@@ -277,8 +277,11 @@ fun ClientHomeScreen(
               )
             }
 
-            items(state.payments) { payment ->
-              ClientHomePaymentView(model = payment)
+            items(state.payments, key = { key -> key.payment.id }) { payment ->
+              ClientHomePaymentView(
+                modifier = Modifier.animateItem(),
+                model = payment
+              )
             }
 
           }
@@ -294,8 +297,11 @@ fun ClientHomeScreen(
               )
             }
 
-            items(state.paymentRequests) { payment ->
-              ClientHomePaymentRequestView(model = payment)
+            items(state.paymentRequests, key = { key -> key.payment.id }) { payment ->
+              ClientHomePaymentRequestView(
+                modifier = Modifier.animateItem(),
+                model = payment
+              )
             }
 
           }
