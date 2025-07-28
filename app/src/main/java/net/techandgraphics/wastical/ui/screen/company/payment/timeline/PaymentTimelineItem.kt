@@ -30,13 +30,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.defaultTime
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
-import net.techandgraphics.wastical.toInvoice
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
@@ -89,22 +89,19 @@ fun PaymentTimelineItem(
         .onGloballyPositioned { layoutCoordinates ->
           contentHeight = layoutCoordinates.size.height
         }
-        .padding(vertical = 16.dp)
+        .padding(vertical = 8.dp)
         .weight(1f),
       verticalArrangement = Arrangement.Center
     ) {
-
       Text(
         text = account.toFullName(),
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.primary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
       )
       Text(
         text = plan.fee.times(p0.coveredSize).toAmount(),
         style = MaterialTheme.typography.bodyLarge
-      )
-      Text(
-        text = "Invoice #: ${account.toInvoice(payment)}",
-        style = MaterialTheme.typography.labelLarge,
       )
       Text(
         text = payment.createdAt.toZonedDateTime().defaultTime(),

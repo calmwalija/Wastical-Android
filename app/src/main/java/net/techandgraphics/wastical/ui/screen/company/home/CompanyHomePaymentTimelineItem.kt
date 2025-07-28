@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -84,7 +85,7 @@ fun CompanyHomePaymentTimelineItem(
       modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
         .clickable { onEvent(CompanyHomeEvent.Goto.Profile(account.id)) }
-        .padding(start = 24.dp)
+        .padding(start = 16.dp)
         .onGloballyPositioned { layoutCoordinates ->
           contentHeight = layoutCoordinates.size.height
         }
@@ -94,7 +95,9 @@ fun CompanyHomePaymentTimelineItem(
     ) {
       Text(
         text = account.toFullName(),
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.primary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
       )
       Text(
         text = plan.fee.times(p0.coveredSize).toAmount(),
@@ -102,7 +105,7 @@ fun CompanyHomePaymentTimelineItem(
       )
       Text(
         text = payment.createdAt.toZonedDateTime().toTimeAgo(),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.labelLarge,
       )
     }
   }

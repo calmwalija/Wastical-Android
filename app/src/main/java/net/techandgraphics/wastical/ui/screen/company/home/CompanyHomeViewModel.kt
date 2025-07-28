@@ -106,14 +106,10 @@ class CompanyHomeViewModel @Inject constructor(
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
     authenticatorHelper.getAccount(accountManager)
       ?.let { account ->
-        if (database.companyDao.query().isEmpty()) {
-          _channel.send(CompanyHomeChannel.Goto.Reload)
-          return@let
-        }
         val (_, month, year) = getToday()
         val default = Gson().toJson(MonthYear(month, year))
         combine(
-          database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 3),
+          database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4),
           preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
         ) { timeline, jsonString ->
           val theTimeline = timeline.map {
@@ -128,6 +124,10 @@ class CompanyHomeViewModel @Inject constructor(
           val upfrontPayments =
             database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
           val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
+          if (database.companyDao.query().isEmpty()) {
+            _channel.send(CompanyHomeChannel.Goto.Reload)
+            return@combine
+          }
           val company = database.companyDao.query().first().toCompanyUiModel()
           val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
           val accountsSize = database.accountDao.getSize()
@@ -144,7 +144,10 @@ class CompanyHomeViewModel @Inject constructor(
                   it.year,
                 ),
               )
-            }
+            }.sortedWith(
+              compareByDescending<MonthYearPayment4Month> { it.monthYear.year }
+                .thenByDescending { it.monthYear.month },
+            )
           _state.value = CompanyHomeState.Success(
             payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
             pending = pending,
@@ -161,7 +164,7 @@ class CompanyHomeViewModel @Inject constructor(
             upfrontPayments = upfrontPayments,
           )
         }.launchIn(this)
-      }
+      } ?: _channel.send(CompanyHomeChannel.Goto.Reload)
   }
 
   private fun onButtonWorkingMonth(event: CompanyHomeEvent.Button.WorkingMonth) =

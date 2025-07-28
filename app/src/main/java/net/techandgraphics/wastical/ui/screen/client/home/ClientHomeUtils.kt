@@ -22,7 +22,7 @@ internal val homeActivityUiModels = listOf(
 
 internal val homeQuickActionUiModels = listOf(
   ClientHomeActivityItemModel(
-    activity = "Send Payment Screenshot",
+    activity = "Send Proof Of Payment Image",
     drawableRes = R.drawable.ic_add_photo,
     iconBackground = WhiteFE.copy(.7f),
     containerColor = WhiteFE.copy(.2f),
