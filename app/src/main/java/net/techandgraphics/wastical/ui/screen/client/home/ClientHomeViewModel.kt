@@ -90,7 +90,7 @@ import javax.inject.Inject
             },
           flow2 = database
             .paymentDao
-            .qPaymentWithAccountAndMethodWithGatewayNot(PaymentStatus.Approved.name)
+            .qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
             .map { p0 ->
               p0.map {
                 it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()

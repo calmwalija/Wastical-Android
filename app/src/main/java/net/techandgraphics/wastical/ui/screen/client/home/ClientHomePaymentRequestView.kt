@@ -28,10 +28,11 @@ import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable fun ClientHomePaymentRequestView(
+  modifier: Modifier = Modifier,
   model: PaymentRequestWithAccountUiModel,
 ) {
   Card(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .padding(vertical = 4.dp),
     shape = CircleShape,
