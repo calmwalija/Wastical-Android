@@ -12,8 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.AccountInfoEvent
@@ -34,8 +38,14 @@ fun CompanyClientPendingPaymentScreen(
     CompanyClientPendingPaymentState.Loading -> LoadingIndicatorView()
     is CompanyClientPendingPaymentState.Success -> {
 
+      val context = LocalContext.current
+      val hapticFeedback = LocalHapticFeedback.current
       LaunchedEffect(state.pending) {
-        if (state.pending.isEmpty()) onEvent(CompanyClientPendingPaymentEvent.Goto.BackHandler)
+        if (state.pending.isEmpty()) {
+          onEvent(CompanyClientPendingPaymentEvent.Goto.BackHandler)
+          hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+          context.toast("No pending proof of payments available")
+        }
       }
 
       Scaffold(
@@ -51,7 +61,7 @@ fun CompanyClientPendingPaymentScreen(
         ) {
           item {
             Text(
-              text = "Pending Payments",
+              text = "Pending Proof Of Payments",
               style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier.padding(bottom = 32.dp)
             )

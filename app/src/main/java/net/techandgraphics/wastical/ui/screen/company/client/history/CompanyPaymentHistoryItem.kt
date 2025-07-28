@@ -14,10 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,12 +43,14 @@ import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toZonedDateTime
+import net.techandgraphics.wastical.ui.HorizontalRuleView
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.Month
 
 @Composable fun CompanyPaymentHistoryItem(
+  modifier: Modifier = Modifier,
   entity: PaymentWithMonthsCoveredUiModel,
   plan: PaymentPlanUiModel,
   onEvent: (CompanyPaymentHistoryEvent) -> Unit,
@@ -56,9 +60,9 @@ import java.time.Month
   var contentHeight by remember { mutableIntStateOf(0) }
 
   Column(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
-      .padding(vertical = 6.dp),
+      .padding(vertical = 8.dp),
   ) {
     Text(
       text = payment.createdAt.toZonedDateTime().defaultDateTime(),
@@ -67,6 +71,12 @@ import java.time.Month
         .padding(horizontal = 16.dp),
       fontWeight = FontWeight.Bold,
       style = MaterialTheme.typography.titleMedium
+    )
+    Text(
+      text = payment.status.name,
+      modifier = Modifier.padding(horizontal = 16.dp),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.primary
     )
 
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -100,7 +110,8 @@ import java.time.Month
             .onGloballyPositioned { layoutCoordinates ->
               contentHeight = layoutCoordinates.size.height
             }
-            .fillMaxWidth()
+            .fillMaxWidth(),
+          verticalAlignment = Alignment.CenterVertically
         ) {
 
           Column(modifier = Modifier.weight(1f)) {
@@ -127,28 +138,41 @@ import java.time.Month
             }
           }
 
-          val statusIcon = when (payment.status) {
-            PaymentStatus.Verifying -> R.drawable.ic_help
-            PaymentStatus.Approved -> R.drawable.ic_check_circle
-            else -> R.drawable.ic_close
-          }
-
-          if (statusIcon == 1234)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              IconButton(
-                enabled = false,
-                onClick = { onEvent(CompanyPaymentHistoryEvent.Button.Delete(payment.id)) }) {
-                Icon(
-                  imageVector = Icons.Outlined.Delete,
-                  contentDescription = null
-                )
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            when (payment.status) {
+              PaymentStatus.Verifying -> {
+                OutlinedCard(shape = CircleShape) {
+                  Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    IconButton(
+                      onClick = { onEvent(CompanyPaymentHistoryEvent.Payment.Approve(payment)) }) {
+                      Icon(
+                        painterResource(R.drawable.ic_check_circle),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                      )
+                    }
+                    IconButton(
+                      onClick = { onEvent(CompanyPaymentHistoryEvent.Payment.Deny(payment)) }) {
+                      Icon(
+                        imageVector = Icons.Rounded.Clear,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                      )
+                    }
+                  }
+                }
               }
-              Spacer(modifier = Modifier.width(8.dp))
-            }
 
+              else -> Unit
+
+            }
+          }
+          Spacer(modifier = Modifier.width(8.dp))
         }
+
       }
     }
+    HorizontalRuleView({})
   }
 }
 

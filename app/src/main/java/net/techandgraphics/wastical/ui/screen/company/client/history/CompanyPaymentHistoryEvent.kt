@@ -16,6 +16,11 @@ sealed interface CompanyPaymentHistoryEvent {
     data class Phone(val contact: String) : Button
   }
 
+  sealed interface Payment : CompanyPaymentHistoryEvent {
+    data class Approve(val payment: PaymentUiModel) : Payment
+    data class Deny(val payment: PaymentUiModel) : Payment
+  }
+
   sealed interface Goto : CompanyPaymentHistoryEvent {
     data object BackHandler : Goto
     data class Location(val id: Long) : Goto

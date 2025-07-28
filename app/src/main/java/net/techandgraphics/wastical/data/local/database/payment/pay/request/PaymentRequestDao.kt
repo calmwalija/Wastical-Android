@@ -7,13 +7,17 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
 import net.techandgraphics.wastical.data.local.database.relations.PaymentRequestWithAccountEntity
+import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 
 @Dao interface PaymentRequestDao : BaseDao<PaymentRequestEntity> {
   @Query("SELECT * FROM payment_request")
   suspend fun query(): List<PaymentRequestEntity>
 
-  @Query("SELECT * FROM payment_request WHERE account_id=:id")
-  fun qByAccountId(id: Long): Flow<List<PaymentRequestEntity>>
+  @Query("SELECT * FROM payment_request WHERE account_id=:id AND payment_status=:status")
+  fun qByAccountId(
+    id: Long,
+    status: String = PaymentStatus.Waiting.name,
+  ): Flow<List<PaymentRequestEntity>>
 
   @Query("SELECT * FROM payment_request ORDER BY id DESC LIMIT 1")
   suspend fun getLast(): PaymentRequestEntity
@@ -45,7 +49,8 @@ import net.techandgraphics.wastical.data.local.database.relations.PaymentRequest
     JOIN payment_method AS method ON method.id = request.payment_method_id
     JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
     WHERE acc.id = :id
+    AND request.id NOT IN (SELECT id FROM payment)
   """,
   )
-  fun getWithAccountByAccountId(id: Long): Flow<List<PaymentRequestWithAccountEntity>>
+  fun qWithAccountByAccountId(id: Long): Flow<List<PaymentRequestWithAccountEntity>>
 }

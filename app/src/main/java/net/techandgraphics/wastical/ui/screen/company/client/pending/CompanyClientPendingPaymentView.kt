@@ -1,14 +1,11 @@
 package net.techandgraphics.wastical.ui.screen.company.client.pending
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -18,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +25,6 @@ import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAcc
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
-import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
@@ -41,29 +36,22 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
   val payment = entity.payment
   val account = entity.account
-  val context = LocalContext.current
 
   Card(
     modifier = Modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(CompanyClientPendingPaymentEvent.Goto.BackHandler) }
   ) {
     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
       Icon(
-        imageVector = Icons.Outlined.Delete,
-        contentDescription = "Delete",
-        tint = MaterialTheme.colorScheme.error,
+        painterResource(R.drawable.ic_database_upload),
+        contentDescription = null,
         modifier = Modifier
           .padding(4.dp)
           .size(42.dp)
           .clip(CircleShape)
           .background(MaterialTheme.colorScheme.error.copy(.1f))
-          .combinedClickable(
-            onClick = { context.toast("Long press to delete") },
-            onLongClick = { onEvent(CompanyClientPendingPaymentEvent.Button.Delete(entity.payment)) }
-          )
           .padding(12.dp)
       )
 

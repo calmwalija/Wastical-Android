@@ -10,9 +10,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
+import net.techandgraphics.wastical.data.local.database.toPaymentEntity
+import net.techandgraphics.wastical.data.local.database.toPaymentRequestEntity
+import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
-import net.techandgraphics.wastical.domain.model.account.AccountUiModel
+import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastical.data.remote.toPaymentResponse
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.domain.toAccountContactUiModel
 import net.techandgraphics.wastical.domain.toAccountUiModel
@@ -29,6 +34,7 @@ import net.techandgraphics.wastical.share
 import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Button
 import net.techandgraphics.wastical.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Load
+import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
 import java.io.File
 import javax.inject.Inject
 
@@ -43,8 +49,6 @@ class CompanyPaymentHistoryViewModel @Inject constructor(
     MutableStateFlow<CompanyPaymentHistoryState>(CompanyPaymentHistoryState.Loading)
   val state = _state.asStateFlow()
 
-  private fun getState() = (_state.value as CompanyPaymentHistoryState.Success)
-
   private fun onLoad(event: Load) =
     viewModelScope.launch {
       _state.value = CompanyPaymentHistoryState.Loading
@@ -54,23 +58,18 @@ class CompanyPaymentHistoryViewModel @Inject constructor(
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
-      _state.value = CompanyPaymentHistoryState.Success(
-        company = company,
-        account = account,
-        plan = plan,
-        demographic = demographic,
-      )
-      launch { getPayments(account) }
+      database.paymentDao.flowOfWithMonthCoveredByAccountId(account.id)
+        .map { flowOf -> flowOf.map { it.toPaymentWithMonthsCoveredUiModel() } }
+        .collectLatest { payments ->
+          _state.value = CompanyPaymentHistoryState.Success(
+            company = company,
+            account = account,
+            plan = plan,
+            payments = payments,
+            demographic = demographic,
+          )
+        }
     }
-
-  private fun getPayments(account: AccountUiModel) = viewModelScope.launch {
-    database.paymentDao.flowOfWithMonthCoveredByAccountId(account.id)
-      .map { flowOf ->
-        flowOf.map { it.toPaymentWithMonthsCoveredUiModel() }
-          .sortedBy { it.payment.createdAt }
-      }
-      .collectLatest { payments -> _state.value = getState().copy(payments = payments) }
-  }
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
@@ -128,11 +127,40 @@ class CompanyPaymentHistoryViewModel @Inject constructor(
         .onFailure { println(mapApiError(it)) }
     }
 
+  private fun onPaymentDeny(event: CompanyPaymentHistoryEvent.Payment.Deny) =
+    viewModelScope.launch {
+      val cachePayment =
+        event.payment
+          .toPaymentEntity()
+          .toPaymentRequestEntity(httpOperation = HttpOperation.Put)
+          .copy(status = PaymentStatus.Declined.name)
+      onCachePayment(cachePayment)
+    }
+
+  private suspend fun onCachePayment(cachePayment: PaymentRequestEntity) {
+    database.paymentRequestDao.insert(cachePayment)
+    cachePayment.toPaymentResponse().toPaymentEntity().also { payment ->
+      database.paymentDao.update(payment)
+    }
+    application.scheduleCompanyPaymentRequestWorker()
+  }
+
+  private fun onPaymentApprove(event: CompanyPaymentHistoryEvent.Payment.Approve) =
+    viewModelScope.launch {
+      val cachePayment =
+        event.payment
+          .toPaymentEntity()
+          .toPaymentRequestEntity(httpOperation = HttpOperation.Put)
+          .copy(status = PaymentStatus.Approved.name)
+      onCachePayment(cachePayment)
+    }
+
   fun onEvent(event: CompanyPaymentHistoryEvent) {
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)
-      is Button.Delete -> Unit
+      is CompanyPaymentHistoryEvent.Payment.Approve -> onPaymentApprove(event)
+      is CompanyPaymentHistoryEvent.Payment.Deny -> onPaymentDeny(event)
       else -> Unit
     }
   }

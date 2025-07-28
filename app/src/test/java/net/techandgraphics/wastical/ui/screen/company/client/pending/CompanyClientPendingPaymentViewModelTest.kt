@@ -33,7 +33,7 @@ class CompanyClientPendingPaymentViewModelTest : BaseUnitTest() {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `test if onLoad sets all the fields as expected`() = runTest {
-    every { mockDatabase.paymentRequestDao.getWithAccountByAccountId(1) } returns flowOf(
+    every { mockDatabase.paymentRequestDao.qWithAccountByAccountId(1) } returns flowOf(
       listOf(paymentRequestWithAccount4Preview.toPaymentRequestWithAccountEntity()),
     )
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())

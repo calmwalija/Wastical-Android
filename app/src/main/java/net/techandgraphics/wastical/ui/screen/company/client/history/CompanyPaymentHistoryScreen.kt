@@ -40,7 +40,7 @@ fun CompanyPaymentHistoryScreen(
 ) {
 
   val snackbarHostState = remember { SnackbarHostState() }
-  val scope = rememberCoroutineScope()
+  val coroutineScope = rememberCoroutineScope()
 
   when (state) {
     CompanyPaymentHistoryState.Loading -> LoadingIndicatorView()
@@ -84,15 +84,44 @@ fun CompanyPaymentHistoryScreen(
 
           items(state.payments) { payment ->
             CompanyPaymentHistoryItem(
+              modifier = Modifier.animateItem(),
               entity = payment,
               plan = state.plan,
               onEvent = { event ->
                 when (event) {
                   is CompanyPaymentHistoryEvent.Button.Delete ->
-                    scope.launch {
+                    coroutineScope.launch {
                       snackbarHostState.showSnackbar(
                         message = "Are you sure you want to delete this payment ?",
                         actionLabel = "Confirm",
+                        duration = SnackbarDuration.Short
+                      ).also { result ->
+                        when (result) {
+                          SnackbarResult.Dismissed -> Unit
+                          SnackbarResult.ActionPerformed -> onEvent(event)
+                        }
+                      }
+                    }
+
+                  is CompanyPaymentHistoryEvent.Payment.Approve ->
+                    coroutineScope.launch {
+                      snackbarHostState.showSnackbar(
+                        message = "Please confirm payment approval ?",
+                        actionLabel = "Approve",
+                        duration = SnackbarDuration.Short
+                      ).also { result ->
+                        when (result) {
+                          SnackbarResult.Dismissed -> Unit
+                          SnackbarResult.ActionPerformed -> onEvent(event)
+                        }
+                      }
+                    }
+
+                  is CompanyPaymentHistoryEvent.Payment.Deny ->
+                    coroutineScope.launch {
+                      snackbarHostState.showSnackbar(
+                        message = "Please confirm payment denial ?",
+                        actionLabel = "Deny",
                         duration = SnackbarDuration.Short
                       ).also { result ->
                         when (result) {
