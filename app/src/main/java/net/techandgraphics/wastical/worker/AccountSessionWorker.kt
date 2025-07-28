@@ -26,14 +26,14 @@ import java.util.concurrent.TimeUnit
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
-  private val accountSessionRepository: AccountSessionRepository,
+  private val repository: AccountSessionRepository,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
     return try {
       val account = authenticatorHelper.getAccount(accountManager)
       if (account != null) {
-        accountSessionRepository.fetchSession()
+        repository.purseData(repository.fetch(account.id)) { _, _ -> }
         Result.success()
       } else {
         Result.failure()

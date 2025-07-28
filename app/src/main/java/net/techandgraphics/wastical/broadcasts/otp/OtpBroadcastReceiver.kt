@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package net.techandgraphics.wastical.broadcasts.otp
 
 import android.content.BroadcastReceiver

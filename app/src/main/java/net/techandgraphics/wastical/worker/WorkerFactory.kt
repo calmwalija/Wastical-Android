@@ -97,7 +97,7 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         authenticatorHelper = authenticatorHelper,
-        accountSessionRepository = accountSessionRepository,
+        repository = accountSessionRepository,
         accountManager = accountManager,
       )
 

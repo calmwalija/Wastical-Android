@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
-import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import javax.inject.Inject
 
@@ -35,7 +34,10 @@ class OtpViewModel @Inject constructor(
 
   private fun onOtp(event: OtpEvent.Otp) = viewModelScope.launch {
     if (event.opt.isDigitsOnly().not()) return@launch
-    if (database.accountOtpDao.getByOpt(event.opt.toInt()).isEmpty()) return@launch
+    if (database.accountOtpDao.getByOpt(event.opt.toInt()).isEmpty()) {
+      _channel.send(OtpChannel.Error(IllegalStateException("Invalid OTP")))
+      return@launch
+    }
     val otp = database.accountOtpDao.query().first()
     try {
       database.withTransaction {
@@ -48,7 +50,7 @@ class OtpViewModel @Inject constructor(
         _channel.send(OtpChannel.Success)
       }
     } catch (e: Exception) {
-      _channel.send(OtpChannel.Error(mapApiError(e)))
+      _channel.send(OtpChannel.Error(e))
     }
   }
 
