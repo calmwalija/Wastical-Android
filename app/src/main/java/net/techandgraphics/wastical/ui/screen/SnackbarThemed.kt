@@ -19,8 +19,9 @@ import androidx.compose.ui.unit.dp
       TextButton(
         onClick = { snackbarData.performAction() }
       ) {
+
         Text(
-          "Confirm",
+          snackbarData.visuals.actionLabel ?: "Confirm",
           color = MaterialTheme.colorScheme.primary
         )
       }

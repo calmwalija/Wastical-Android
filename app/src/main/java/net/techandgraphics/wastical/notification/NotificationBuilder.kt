@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import net.techandgraphics.wastical.R
 
 class NotificationBuilder(private val context: Context) {
@@ -31,9 +30,8 @@ class NotificationBuilder(private val context: Context) {
   }
 
   private fun NotificationCompat.Builder.configs(notification: NotificationUiModel) {
-    setSmallIcon(R.drawable.ic_alternate)
+    setSmallIcon(R.drawable.ic_logo)
     setPriority(NotificationCompat.PRIORITY_HIGH)
-    setColor(ContextCompat.getColor(context, R.color.teal_700))
     setCategory(NotificationCompat.CATEGORY_MESSAGE)
     setAutoCancel(true)
     setDefaults(Notification.DEFAULT_ALL)
