@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ecb038a6bf1f1fbc056aefd64324d0b8",
+    "identityHash": "cd0dec8b7a067a5457cf988790b23152",
     "entities": [
       {
         "tableName": "account",
@@ -400,7 +400,7 @@
       },
       {
         "tableName": "payment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_reference` TEXT NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -430,6 +430,12 @@
             "fieldPath": "accountId",
             "columnName": "account_id",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentReference",
+            "columnName": "payment_reference",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1448,7 +1454,7 @@
       },
       {
         "tableName": "search_tag",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `tag` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `tag` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`query`))",
         "fields": [
           {
             "fieldPath": "query",
@@ -1467,36 +1473,20 @@
             "columnName": "timestamp",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "query"
           ]
         },
-        "indices": [
-          {
-            "name": "index_search_tag_query",
-            "unique": false,
-            "columnNames": [
-              "query"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_search_tag_query` ON `${TABLE_NAME}` (`query`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "payment_request",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `months` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_reference` TEXT NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, `payment_status` TEXT NOT NULL, `http_operation` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1526,6 +1516,12 @@
             "fieldPath": "accountId",
             "columnName": "account_id",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentReference",
+            "columnName": "payment_reference",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1998,7 +1994,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ecb038a6bf1f1fbc056aefd64324d0b8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cd0dec8b7a067a5457cf988790b23152')"
     ]
   }
 }

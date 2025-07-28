@@ -8,6 +8,7 @@ const val PAYMENT_QUERY_BASE = """
       payment.id AS paymentId,
       payment.screenshot_text AS screenshotText,
       payment.transaction_id AS transactionId,
+      payment.payment_reference AS paymentReference,
       payment.payment_method_id AS paymentMethodId,
       payment.account_id AS accountId,
       payment.payment_status AS paymentStatus,

@@ -116,6 +116,7 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   updatedAt = updatedAt,
   companyId = companyId,
   executedById = executedById,
+  paymentReference = paymentReference,
 )
 
 fun AccountResponse.toAccountEntity() = AccountEntity(
@@ -160,6 +161,7 @@ fun PaymentRequest.toPaymentRequestEntity() = PaymentRequestEntity(
   httpOperation = httpOperation,
   createdAt = createdAt,
   updatedAt = updateAt,
+  paymentReference = paymentReference,
 )
 
 fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(
@@ -270,7 +272,6 @@ fun SearchTagUiModel.toSearchTagEntity() = SearchTagEntity(
   query = query,
   tag = tag,
   timestamp = timestamp,
-  id = id,
 )
 
 fun CompanyUiModel.toCompanyEntity() = CompanyEntity(
@@ -375,6 +376,7 @@ fun PaymentRequestUiModel.toPaymentRequestEntity() = PaymentRequestEntity(
   executedById = executedById,
   status = status,
   createdAt = createdAt,
+  paymentReference = paymentReference,
 )
 
 fun PaymentRequestWithAccountUiModel.toPaymentRequestWithAccountEntity() =
@@ -395,6 +397,7 @@ fun PaymentUiModel.toPaymentEntity() = PaymentEntity(
   updatedAt = updatedAt,
   companyId = companyId,
   executedById = executedById,
+  paymentReference = paymentReference,
 )
 
 fun CompanyLocationWithDemographicUiModel.toCompanyLocationWithDemographicEntity() =
@@ -486,6 +489,7 @@ fun PaymentEntity.toPaymentRequestEntity(httpOperation: HttpOperation) =
     months = -1,
     httpOperation = httpOperation.name,
     createdAt = createdAt,
+    paymentReference = paymentReference,
   )
 
 fun AccountOtpResponse.toAccountOtpEntity(contact: String) =

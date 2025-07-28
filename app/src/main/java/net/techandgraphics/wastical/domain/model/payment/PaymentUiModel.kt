@@ -7,6 +7,7 @@ data class PaymentUiModel(
   val screenshotText: String,
   val transactionId: String,
   val paymentMethodId: Long,
+  val paymentReference: String,
   val accountId: Long,
   val status: PaymentStatus,
   val createdAt: Long,

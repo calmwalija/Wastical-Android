@@ -29,6 +29,7 @@ fun PaymentWithAccountAndMethodWithGatewayQuery.toEntity(): PaymentWithAccountAn
       updatedAt = paymentUpdatedAt,
       companyId = paymentCompanyId,
       executedById = executedById,
+      paymentReference = paymentReference,
     ),
     account = AccountEntity(
       id = accId,
