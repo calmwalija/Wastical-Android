@@ -10,12 +10,12 @@ import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyLocationWithDemographicEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
-import net.techandgraphics.wastical.data.local.database.toPaymentRequestEntity
+import net.techandgraphics.wastical.data.local.database.toPaymentRequestWithAccountEntity
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastical.ui.screen.payment4Preview
-import net.techandgraphics.wastical.ui.screen.paymentRequest4Preview
+import net.techandgraphics.wastical.ui.screen.paymentRequestWithAccount4Preview
 import org.junit.Test
 import kotlin.test.assertTrue
 
@@ -33,10 +33,11 @@ class CompanyClientProfileViewModelTest : BaseUnitTest() {
   @Test
   fun `test if onLoad sets all the fields as expected`() = runTest {
     val viewModel = CompanyClientProfileViewModel(mockDatabase, mockApplication)
+    viewModel.onEvent(CompanyClientProfileEvent.Load(1))
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.accountDao.get(1) } returns account4Preview.toAccountEntity()
-    every { mockDatabase.paymentRequestDao.qByAccountId(1) } returns
-      flowOf(listOf(paymentRequest4Preview.toPaymentRequestEntity()))
+    every { mockDatabase.paymentRequestDao.qWithAccountByAccountId(1) } returns
+      flowOf(listOf(paymentRequestWithAccount4Preview.toPaymentRequestWithAccountEntity()))
     every { mockDatabase.paymentDao.flowOfByAccountId(1) } returns
       flowOf(listOf(payment4Preview.toPaymentEntity()))
     coEvery { mockDatabase.companyLocationDao.getWithDemographic(account4Preview.companyLocationId) } returns
