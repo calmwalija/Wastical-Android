@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
 
   override suspend fun doWork(): Result {
     return try {
-      database.withTransaction { invoke() }
+      invoke()
       Result.success()
     } catch (e: Exception) {
       e.printStackTrace()
@@ -49,17 +49,13 @@ import java.util.concurrent.TimeUnit
           .filterNot { it.sync.not() }
           .map { it.toAccountFcmTokenRequest(account.id) }
           .onEach {
-            val fcmTokenResponse = accountApi.fcmToken(it)
+            val fcmTokenResponse = accountApi.fcmToken(it).toAccountFcmTokenEntity()
             database.withTransaction {
-              with(database.accountFcmTokenDao) {
-                deleteAll()
-                insert(fcmTokenResponse.toAccountFcmTokenEntity())
-              }
+              database.accountFcmTokenDao.deleteAll()
+              database.accountFcmTokenDao.insert(fcmTokenResponse)
             }
           }
-        return
-      }
-    throw IllegalStateException()
+      } ?: throw IllegalStateException("Account not available yet")
   }
 }
 

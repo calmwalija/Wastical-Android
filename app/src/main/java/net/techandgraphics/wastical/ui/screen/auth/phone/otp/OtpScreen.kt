@@ -1,10 +1,5 @@
 package net.techandgraphics.wastical.ui.screen.auth.phone.otp
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Base64
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -20,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -56,9 +53,8 @@ import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OtpScreen(
   state: OtpState,
@@ -68,14 +64,16 @@ fun OtpScreen(
 
   var opt by remember { mutableStateOf("") }
   val context = LocalContext.current
+  var isProcessing by remember { mutableStateOf(false) }
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
       channel.collect { event ->
+        isProcessing = false
         when (event) {
           OtpChannel.Success -> onEvent(OtpEvent.Goto.Home)
-          is OtpChannel.Error -> context.toast(event.error.message)
+          is OtpChannel.Error -> context.toast(event.error.localizedMessage!!)
         }
       }
     }
@@ -151,16 +149,23 @@ fun OtpScreen(
 
           item { Spacer(modifier = Modifier.height(8.dp)) }
 
-          item { OtpInput { opt = it } }
+          item {
+            OtpInput(onOtpChanged = { opt = it })
+          }
 
           item {
             Button(
-              enabled = opt.length > 3,
+              enabled = opt.length > 3 && isProcessing.not(),
               modifier = Modifier.fillMaxWidth(.7f),
-              onClick = { onEvent(OtpEvent.Otp(opt)) }
+              onClick = { onEvent(OtpEvent.Otp(opt)); isProcessing = true }
             ) {
               Box {
-                Text(text = "Verify")
+                if (isProcessing) LoadingIndicator(
+                  modifier = Modifier.size(24.dp),
+                  color = MaterialTheme.colorScheme.secondary
+                ) else {
+                  Text(text = "Verify OTP")
+                }
               }
             }
           }
@@ -168,69 +173,24 @@ fun OtpScreen(
       }
     }
   }
-
 }
 
 
-object SmsRetrieverHashHelper {
-
-  fun getAppSignatures(context: Context): List<String> {
-    val appSignatures = mutableListOf<String>()
-
-    val packageName = context.packageName
-    val packageManager = context.packageManager
-
-    try {
-      val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        val info =
-          packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
-        info.signingInfo?.apkContentsSigners
-      } else {
-        @Suppress("DEPRECATION")
-        val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-        @Suppress("DEPRECATION")
-        info.signatures
-      }
-
-      if (signatures != null) {
-        for (signature in signatures) {
-          val signatureBytes = signature.toByteArray()
-          val hash = hash(packageName, signatureBytes)
-          if (hash != null) {
-            appSignatures.add(hash)
-          }
-        }
-      }
-
-    } catch (e: Exception) {
-      Log.e("SmsRetrieverHashHelper", "Package not found", e)
-    }
-
-    return appSignatures
-  }
-
-  private fun hash(packageName: String, signature: ByteArray): String? {
-    return try {
-      val messageDigest = MessageDigest.getInstance("SHA-256")
-      val input = "$packageName ${Base64.encodeToString(signature, Base64.NO_WRAP)}"
-      messageDigest.update(input.toByteArray(Charsets.UTF_8))
-      val hashSignature = messageDigest.digest()
-      val base64Hash = Base64.encodeToString(hashSignature, Base64.NO_WRAP).substring(0, 11)
-      base64Hash
-    } catch (e: NoSuchAlgorithmException) {
-      Log.e("SmsRetrieverHashHelper", "hash: NoSuchAlgorithm", e)
-      null
-    }
-  }
-}
-
-@Composable private fun OtpInput(
+@Composable
+private fun OtpInput(
   otpLength: Int = 4,
-  onOtpComplete: (String) -> Unit,
+  onOtpChanged: (String) -> Unit,
 ) {
-
   val otpValues = remember { mutableStateListOf(*Array(otpLength) { "" }) }
   val keyboardController = LocalSoftwareKeyboardController.current
+
+  fun emitChange() {
+    val currentOtp = otpValues.joinToString("")
+    onOtpChanged(currentOtp)
+    if (otpValues.all { it.isNotEmpty() }) {
+      keyboardController?.hide()
+    }
+  }
 
   fun handleOtpInput(input: String, index: Int) {
     if (input.length == 1 && input.all { it.isDigit() }) {
@@ -238,10 +198,7 @@ object SmsRetrieverHashHelper {
       if (index < otpLength - 1) {
         otpValues[index + 1] = ""
       }
-      if (otpValues.all { it.isNotEmpty() }) {
-        keyboardController?.hide()
-        onOtpComplete(otpValues.joinToString(""))
-      }
+      emitChange()
     }
   }
 
@@ -249,6 +206,7 @@ object SmsRetrieverHashHelper {
     val lastFilledIndex = otpValues.indexOfLast { it.isNotEmpty() }
     if (lastFilledIndex >= 0) {
       otpValues[lastFilledIndex] = ""
+      emitChange()
     }
   }
 
