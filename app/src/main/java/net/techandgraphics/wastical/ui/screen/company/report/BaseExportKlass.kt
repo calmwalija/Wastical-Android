@@ -5,12 +5,13 @@ import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import androidx.core.text.isDigitsOnly
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastical.getAccountTitle
 import net.techandgraphics.wastical.toShortMonthName
+import net.techandgraphics.wastical.ui.screen.client.invoice.bold
+import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -49,12 +50,12 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
     val paint = Paint().apply {
       color = Color.BLACK
       textSize = 13f
-      typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+      typeface = light(this@BaseExportKlass)
     }
 
     val titlePaint = Paint(paint).apply {
       textSize = 18f
-      typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+      typeface = bold(this@BaseExportKlass)
     }
 
     fun drawHeader(canvas: Canvas) {
@@ -135,13 +136,12 @@ fun exportCoverageToPdf(
 
   val titlePaint = Paint().apply {
     textSize = 18f
-    typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
-    color = Color.BLACK
+    typeface = bold(context)
   }
 
   val paint = Paint().apply {
     textSize = 14f
-    color = Color.BLACK
+    typeface = light(context)
   }
 
   fun drawHeaders() {
@@ -191,7 +191,7 @@ fun exportCoverageToPdf(
 }
 
 private fun PdfDocument.saveToInternal(context: Context): File? {
-  val pdfFile = File(context.filesDir, "filename.pdf")
+  val pdfFile = File(context.filesDir, "Payment Coverage Report.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)

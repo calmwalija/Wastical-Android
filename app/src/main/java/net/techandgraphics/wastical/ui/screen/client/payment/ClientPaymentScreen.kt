@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.ui.screen.client.payment
 
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -90,9 +91,10 @@ fun ClientPaymentScreen(
       val imagePickerLauncher =
         rememberLauncherForActivityResult(
           ActivityResultContracts.PickVisualMedia()
-        ) {
+        ) { uri ->
+          if (uri == null) return@rememberLauncherForActivityResult
           onEvent(ClientPaymentEvent.Button.ShowCropView(true))
-          onEvent(ClientPaymentEvent.Button.ImageUri(it))
+          onEvent(ClientPaymentEvent.Button.ImageUri(uri))
         }
 
       val uCropLauncher =
@@ -120,8 +122,8 @@ fun ClientPaymentScreen(
       fun cropImageView(sourceUri: Uri) {
         val destinationUri = Uri.fromFile(File(context.cacheDir, "${state.timestamp}.jpg"))
         val uCropIntent = UCrop.of(sourceUri, destinationUri)
-          .withAspectRatio(3f, 2f)
-          .withMaxResultSize(800, 800)
+          .withMaxResultSize(720, 1080)
+          .useSourceImageAspectRatio()
           .getIntent(context)
         uCropLauncher.launch(uCropIntent)
       }

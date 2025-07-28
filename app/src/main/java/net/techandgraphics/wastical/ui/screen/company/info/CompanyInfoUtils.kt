@@ -11,7 +11,7 @@ data class CompanyInfoItem(
 val companyInfoItems = listOf(
   CompanyInfoItem(
     title = "Edit Info",
-    drawableRes = R.drawable.ic_account,
+    drawableRes = R.drawable.ic_edit_note,
     event = CompanyInfoEvent.Goto.Edit,
   ),
   CompanyInfoItem(

@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,6 +66,7 @@ fun CompanyMakePaymentScreen(
   var loading by remember { mutableStateOf(false) }
   var isSuccess by remember { mutableStateOf(false) }
   val context = LocalContext.current
+  val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
 
 
   val lifecycleOwner = LocalLifecycleOwner.current
@@ -144,7 +148,7 @@ fun CompanyMakePaymentScreen(
                 if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
                   CircularProgressIndicator(modifier = Modifier.size(16.dp))
                 } else Text(
-                  text = "Pay",
+                  text = "Submit",
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
                 )
@@ -164,10 +168,17 @@ fun CompanyMakePaymentScreen(
 
 
           item {
-            Text(
-              text = "Record Payment",
+            BasicText(
+              text = "Record Proof Of Payment",
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 32.dp)
+              color = ColorProducer { contentColor },
+              modifier = Modifier
+                .padding(end = 16.dp)
+                .padding(bottom = 32.dp),
+              maxLines = 1,
+              autoSize = TextAutoSize.StepBased(
+                maxFontSize = MaterialTheme.typography.headlineMedium.fontSize
+              )
             )
           }
 
