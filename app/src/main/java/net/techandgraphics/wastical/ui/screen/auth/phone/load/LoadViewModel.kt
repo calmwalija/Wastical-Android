@@ -51,7 +51,10 @@ class LoadViewModel @Inject constructor(
   }
 
   private fun onLogout() = viewModelScope.launch {
-    runCatching { database.withTransaction { database.clearAllTables() } }
+    runCatching {
+      authenticatorHelper.deleteAccounts()
+      database.withTransaction { database.clearAllTables() }
+    }
     _channel.send(element = LoadChannel.NoAccount)
   }
 
