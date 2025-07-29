@@ -20,7 +20,7 @@ fun NavGraphBuilder.ClientSettingsNav(navController: NavHostController) {
             ClientSettingsEvent.Goto.Settings -> navController.navigate(Route.Client.Info)
           }
 
-          else -> Unit
+          else -> onEvent(event)
         }
       }
     }

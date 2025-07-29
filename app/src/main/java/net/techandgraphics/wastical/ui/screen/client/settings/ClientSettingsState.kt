@@ -12,5 +12,7 @@ sealed interface ClientSettingsState {
     val company: CompanyUiModel,
     val plan: PaymentPlanUiModel,
     val contacts: List<AccountContactUiModel>,
+    val dynamicColor: Boolean = false,
+    val darkTheme: Boolean = false,
   ) : ClientSettingsState
 }
