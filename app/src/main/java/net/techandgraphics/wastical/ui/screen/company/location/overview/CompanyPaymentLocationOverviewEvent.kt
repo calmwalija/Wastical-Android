@@ -14,5 +14,6 @@ sealed interface CompanyPaymentLocationOverviewEvent {
 
   sealed interface Goto : CompanyPaymentLocationOverviewEvent {
     data class Profile(val id: Long) : Goto
+    data class RecordProofOfPayment(val id: Long) : Goto
   }
 }

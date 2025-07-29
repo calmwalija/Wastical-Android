@@ -1,7 +1,8 @@
 package net.techandgraphics.wastical.ui.screen.company.location.overview
 
+import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +38,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyPaymentLocationClientView(
+fun CompanyPaymentLocationClientItem(
   entity: AccountWithPaymentStatusUiModel,
   modifier: Modifier = Modifier,
   onEvent: (CompanyPaymentLocationOverviewEvent) -> Unit,
@@ -46,18 +48,18 @@ fun CompanyPaymentLocationClientView(
     modifier = modifier.padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
+    onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.Profile(account.id)) }
   ) {
     Row(
       modifier = modifier
-        .clickable { onEvent(CompanyPaymentLocationOverviewEvent.Goto.Profile(account.id)) }
-        .padding(8.dp)
+        .padding(horizontal = 8.dp, vertical = 4.dp)
         .fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically
     ) {
       CompanyListClientLetterView(account.lastname)
       Column(
         modifier = Modifier
-          .padding(horizontal = 8.dp)
+          .padding(horizontal = 16.dp)
           .weight(1f)
       ) {
         Text(
@@ -72,6 +74,14 @@ fun CompanyPaymentLocationClientView(
         )
       }
 
+      Text(
+        text = entity.amount.toAmount(),
+        style = MaterialTheme.typography.bodySmall,
+        maxLines = 1,
+        overflow = TextOverflow.MiddleEllipsis,
+        modifier = Modifier.padding(end = 16.dp)
+      )
+
       when {
         entity.hasPaid -> R.drawable.ic_check_circle
         else -> R.drawable.ic_close
@@ -83,15 +93,17 @@ fun CompanyPaymentLocationClientView(
           tint = if (entity.hasPaid) Green else Color.Red,
         )
       }
-
-      Text(
-        text = entity.amount.toAmount(),
-        style = MaterialTheme.typography.bodySmall,
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-        modifier = Modifier.padding(end = 16.dp)
-      )
-
+      OutlinedCard(
+        shape = CircleShape,
+        onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment(account.id)) },
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(.5f))
+      ) {
+        Text(
+          text = "Pay",
+          style = MaterialTheme.typography.bodySmall,
+          modifier = Modifier.padding(horizontal = 32.dp, vertical = 12.dp),
+        )
+      }
     }
   }
 }
@@ -122,11 +134,11 @@ fun CompanyPaymentLocationClientView(
 }
 
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun CompanyPaymentLocationClientPreview() {
+private fun CompanyPaymentLocationClientItemPreview() {
   WasticalTheme {
-    CompanyPaymentLocationClientView(
+    CompanyPaymentLocationClientItem(
       entity = accountWithPaymentStatus4Preview,
       onEvent = {}
     )

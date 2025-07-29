@@ -30,6 +30,9 @@ fun NavGraphBuilder.PaymentTimelineNav(navController: NavHostController) {
           is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
             navController.navigate(CompanyRoute.ClientProfile(event.id))
 
+          is CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment ->
+            navController.navigate(CompanyRoute.MakePayment(event.id))
+
           is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
           else -> Unit
         }

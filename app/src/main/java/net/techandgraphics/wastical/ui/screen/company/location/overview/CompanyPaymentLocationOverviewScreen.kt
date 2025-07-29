@@ -188,11 +188,11 @@ fun CompanyPaymentLocationOverviewScreen(
 
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
-          items(state.accounts, key = { it.account.id }) { entity ->
-            CompanyPaymentLocationClientView(
+          items(state.accounts, key = { key -> key.account.id }) { entity ->
+            CompanyPaymentLocationClientItem(
               entity = entity,
               modifier = Modifier.animateItem(),
-              onEvent
+              onEvent = onEvent
             )
           }
         }
