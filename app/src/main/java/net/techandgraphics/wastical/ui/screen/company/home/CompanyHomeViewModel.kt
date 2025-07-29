@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
@@ -23,11 +24,11 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthY
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.data.remote.mapApiError
+import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.data.remote.toAccountPaymentPlanResponse
 import net.techandgraphics.wastical.data.remote.toPaymentResponse
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
-import net.techandgraphics.wastical.domain.toPaymentRequestUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getToday
@@ -111,7 +112,14 @@ class CompanyHomeViewModel @Inject constructor(
         combine(
           database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4),
           preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
-        ) { timeline, jsonString ->
+          database.paymentDao
+            .qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
+            .map { fromDb ->
+              fromDb.map {
+                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+              }
+            },
+        ) { timeline, jsonString, proofOfPayments ->
           val theTimeline = timeline.map {
             it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
           }
@@ -123,7 +131,6 @@ class CompanyHomeViewModel @Inject constructor(
             )
           val upfrontPayments =
             database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
-          val pending = database.paymentRequestDao.query().map { it.toPaymentRequestUiModel() }
           if (database.companyDao.query().isEmpty()) {
             _channel.send(CompanyHomeChannel.Goto.Reload)
             return@combine
@@ -150,7 +157,7 @@ class CompanyHomeViewModel @Inject constructor(
             )
           _state.value = CompanyHomeState.Success(
             payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
-            pending = pending,
+            proofOfPayments = proofOfPayments,
             accountsSize = accountsSize,
             payment4CurrentLocationMonth = payment4CurrentLocationMonth,
             company = company,

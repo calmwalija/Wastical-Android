@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
@@ -108,6 +110,7 @@ private val quickOption = listOf(
 
   var showMenuItems by remember { mutableStateOf(false) }
   var isFetching by remember { mutableStateOf(false) }
+  var showNotification by remember { mutableStateOf(false) }
   val context = LocalContext.current
 
   when (state) {
@@ -155,16 +158,37 @@ private val quickOption = listOf(
               }
             },
             actions = {
-              if (state.pending.isNotEmpty()) IconButton(onClick = { onEvent(CompanyHomeEvent.Goto.VerifyPayment) }) {
-                BadgedBox(badge = {
-                  Badge {
-                    Text(
-                      text = state.pending.size.toString(),
-                      style = MaterialTheme.typography.labelSmall
+
+              val badgeCount = state.proofOfPayments.size
+
+              if (state.proofOfPayments.isNotEmpty()) {
+                IconButton(onClick = { showNotification = !showNotification }) {
+                  BadgedBox(badge = { Badge { Text(text = "$badgeCount") } }) {
+                    Icon(Icons.Outlined.Notifications, null)
+                  }
+
+                  DropdownMenu(
+                    expanded = showNotification,
+                    onDismissRequest = { showNotification = false }) {
+                    DropdownMenuItem(
+                      text = {
+                        Row {
+                          Badge(containerColor = MaterialTheme.colorScheme.primary) {
+                            Text(
+                              text = state.proofOfPayments.size.toString(),
+                              style = MaterialTheme.typography.labelSmall
+                            )
+                          }
+                          Spacer(modifier = Modifier.width(4.dp))
+                          Text(text = "Verify Payments")
+                        }
+                      },
+                      onClick = {
+                        showNotification = false
+                        onEvent(CompanyHomeEvent.Goto.Payments)
+                      },
                     )
                   }
-                }) {
-                  Icon(painterResource(R.drawable.ic_upload_ready), null)
                 }
               }
 
@@ -182,13 +206,6 @@ private val quickOption = listOf(
               IconButton(onClick = { showMenuItems = true }) {
                 Icon(Icons.Default.MoreVert, null)
                 DropdownMenu(showMenuItems, onDismissRequest = { showMenuItems = false }) {
-
-                  DropdownMenuItem(text = {
-                    Text(text = "Payments")
-                  }, onClick = {
-                    showMenuItems = false
-                    onEvent(CompanyHomeEvent.Goto.Payments)
-                  })
 
                   DropdownMenuItem(text = {
                     Text(text = "Timeline")
@@ -344,6 +361,7 @@ fun companyHomeStateSuccess(): CompanyHomeState.Success {
         payment4CurrentMonth = Payment4CurrentMonth(120, 935_000),
       )
     },
-    timeline = (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
+    proofOfPayments = (1..3).map { paymentWithAccountAndMethodWithGateway4Preview },
+    timeline = (1..3).map { paymentWithAccountAndMethodWithGateway4Preview },
   )
 }
