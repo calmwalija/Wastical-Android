@@ -7,7 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import dagger.hilt.android.AndroidEntryPoint
 import net.techandgraphics.wastical.ui.screen.app.AppScreen
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
@@ -15,6 +17,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+  private val viewModel by viewModels<MainActivityViewModel>()
   private val launcher = registerForActivityResult(
     contract = ActivityResultContracts.RequestPermission(),
   ) {}
@@ -23,6 +26,9 @@ class MainActivity : ComponentActivity() {
     if (Build.VERSION.SDK_INT >= 33) launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
-    setContent { WasticalTheme { Surface { AppScreen() } } }
+    setContent {
+      val state = viewModel.state.collectAsState().value
+      WasticalTheme(dynamicColor = state.dynamicColor) { Surface { AppScreen() } }
+    }
   }
 }

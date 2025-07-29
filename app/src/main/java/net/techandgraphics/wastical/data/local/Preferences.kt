@@ -57,5 +57,7 @@ import javax.inject.Singleton
   companion object {
     const val PREFS_NAME = "quantcal_prefs"
     const val CURRENT_WORKING_MONTH = "current_working_month"
+    const val DYNAMIC_COLOR = "dynamic_color"
+    const val DARK_THEME = "dark_theme"
   }
 }
