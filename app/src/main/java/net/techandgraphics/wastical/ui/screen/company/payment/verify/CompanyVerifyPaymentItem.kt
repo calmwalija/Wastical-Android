@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +35,6 @@ import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
-import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable fun CompanyVerifyPaymentItem(
@@ -85,14 +84,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             maxLines = 1,
             overflow = TextOverflow.MiddleEllipsis
           )
-          Text(
-            text = model.plan.fee.times(model.coveredSize).toAmount(),
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis,
-            modifier = Modifier.padding(end = 16.dp)
-          )
         }
+
 
         if (model.gateway.type != PaymentType.Cash.name) {
           IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Image(payment)) }) {
@@ -104,13 +97,21 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           }
         }
 
-        Card(shape = CircleShape) {
+        Text(
+          text = model.plan.fee.times(model.coveredSize).toAmount(),
+          style = MaterialTheme.typography.bodySmall,
+          maxLines = 1,
+          overflow = TextOverflow.MiddleEllipsis,
+          modifier = Modifier.padding(horizontal = 8.dp)
+        )
+
+        OutlinedCard(shape = CircleShape) {
           Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Approve(payment)) }) {
               Icon(
-                imageVector = Icons.Rounded.CheckCircle,
+                painterResource(R.drawable.ic_check_circle),
                 contentDescription = null,
-                tint = Green
+                tint = MaterialTheme.colorScheme.primary
               )
             }
             IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Deny(payment)) }) {
