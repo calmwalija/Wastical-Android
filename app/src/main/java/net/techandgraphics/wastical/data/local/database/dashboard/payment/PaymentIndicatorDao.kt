@@ -3,6 +3,7 @@ package net.techandgraphics.wastical.data.local.database.dashboard.payment
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Query
+import androidx.room.RoomWarnings
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
@@ -136,6 +137,7 @@ interface PaymentIndicatorDao {
     sortOrder: Int = 0,
   ): Flow<List<AccountWithPaymentStatusEntity>>
 
+  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query(
     """
     SELECT
