@@ -23,5 +23,6 @@ sealed interface ClientHomeEvent {
     data class Invoice(val id: Long) : Goto
     data object Login : Goto
     data object Reload : Goto
+    data object Settings : Goto
   }
 }

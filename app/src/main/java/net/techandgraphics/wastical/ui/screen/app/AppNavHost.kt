@@ -18,6 +18,7 @@ import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoadViewModel
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeScreen
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeViewModel
+import net.techandgraphics.wastical.ui.screen.client.info.ClientInfoNav
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceEvent
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceScreen
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceViewModel
@@ -96,6 +97,7 @@ fun AppNavHost(
             is ClientHomeEvent.Goto ->
               when (event) {
                 is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice(event.id))
+                ClientHomeEvent.Goto.Settings -> navController.navigate(Route.Client.Settings)
                 ClientHomeEvent.Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
                 ClientHomeEvent.Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
               }
@@ -133,6 +135,7 @@ fun AppNavHost(
       }
     }
 
+    ClientInfoNav(navController)
 
   }
 }
