@@ -59,7 +59,7 @@ fun CompanyPaymentLocationClientItem(
       CompanyListClientLetterView(account.lastname)
       Column(
         modifier = Modifier
-          .padding(horizontal = 16.dp)
+          .padding(horizontal = 8.dp)
           .weight(1f)
       ) {
         Text(
@@ -71,6 +71,8 @@ fun CompanyPaymentLocationClientItem(
         Text(
           text = account.username,
           style = MaterialTheme.typography.labelSmall,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
       }
 
@@ -79,7 +81,6 @@ fun CompanyPaymentLocationClientItem(
         style = MaterialTheme.typography.bodySmall,
         maxLines = 1,
         overflow = TextOverflow.MiddleEllipsis,
-        modifier = Modifier.padding(end = 16.dp)
       )
 
       when {
