@@ -18,7 +18,6 @@ import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoadViewModel
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeScreen
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeViewModel
-import net.techandgraphics.wastical.ui.screen.client.info.ClientInfoNav
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceEvent
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceScreen
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceViewModel
@@ -137,7 +136,6 @@ fun AppNavHost(
     }
 
     ClientSettingsNav(navController)
-    ClientInfoNav(navController)
 
   }
 }
