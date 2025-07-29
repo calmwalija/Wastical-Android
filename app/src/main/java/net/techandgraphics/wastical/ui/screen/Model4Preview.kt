@@ -9,6 +9,7 @@ import net.techandgraphics.wastical.data.local.database.account.request.AccountR
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.di.ImageCacheModule
+import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountWithPaymentStatusUiModel
@@ -37,7 +38,7 @@ import kotlin.random.Random
 
 internal val account4Preview = AccountUiModel(
   id = 1L,
-  uuid = "",
+  uuid = "uuid",
   title = AccountTitle.DR,
   firstname = "Lorem",
   lastname = "Ipsum",
@@ -52,6 +53,16 @@ internal val account4Preview = AccountUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
 )
 
+internal val accountContact4Preview = AccountContactUiModel(
+  id = 1L,
+  uuid = account4Preview.uuid,
+  email = account4Preview.email,
+  contact = account4Preview.username,
+  primary = true,
+  accountId = account4Preview.id,
+  createdAt = account4Preview.createdAt,
+  updatedAt = account4Preview.updatedAt,
+)
 internal val paymentPlan4Preview = PaymentPlanUiModel(
   id = 1L,
   fee = 10_000,
