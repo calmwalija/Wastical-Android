@@ -26,6 +26,7 @@ import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentEvent
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentViewModel
+import net.techandgraphics.wastical.ui.screen.client.settings.ClientSettingsNav
 import net.techandgraphics.wastical.ui.screen.company.CompanyNavGraphBuilder
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
 
@@ -135,6 +136,7 @@ fun AppNavHost(
       }
     }
 
+    ClientSettingsNav(navController)
     ClientInfoNav(navController)
 
   }
