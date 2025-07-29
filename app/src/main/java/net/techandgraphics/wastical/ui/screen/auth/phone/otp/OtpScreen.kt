@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,8 +51,11 @@ import com.google.android.gms.auth.api.phone.SmsRetriever
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
+import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toast
+import net.techandgraphics.wastical.ui.HorizontalRuleView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -74,6 +78,7 @@ fun OtpScreen(
         when (event) {
           OtpChannel.Success -> onEvent(OtpEvent.Goto.Home)
           is OtpChannel.Error -> context.toast(event.error.localizedMessage!!)
+          OtpChannel.Verify -> onEvent(OtpEvent.Goto.Verify)
         }
       }
     }
@@ -95,7 +100,11 @@ fun OtpScreen(
       OtpListener { event ->
         when (event) {
           is OtpListenerEvent.OTPReceived ->
-            event.opt?.let { onEvent(OtpEvent.Otp(it)) }
+            event.opt?.let {
+              opt = it
+              isProcessing = true
+              onEvent(OtpEvent.Otp(it))
+            }
 
           OtpListenerEvent.OTPTimeOut -> Unit
         }
@@ -125,11 +134,11 @@ fun OtpScreen(
 
           item {
             Text(
-              text = "OTP Verification",
+              text = "One Time Password Verification",
               fontWeight = FontWeight.Bold,
-              maxLines = 1,
+              maxLines = 2,
               overflow = TextOverflow.Ellipsis,
-              style = MaterialTheme.typography.titleLarge,
+              style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier
                 .padding(bottom = 8.dp)
                 .fillMaxWidth(),
@@ -149,9 +158,7 @@ fun OtpScreen(
 
           item { Spacer(modifier = Modifier.height(8.dp)) }
 
-          item {
-            OtpInput(onOtpChanged = { opt = it })
-          }
+          item { OtpInput(onOtpChanged = { opt = it }) }
 
           item {
             Button(
@@ -164,11 +171,32 @@ fun OtpScreen(
                   modifier = Modifier.size(24.dp),
                   color = MaterialTheme.colorScheme.secondary
                 ) else {
-                  Text(text = "Verify OTP")
+                  Text(text = "Verify")
                 }
               }
             }
           }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item {
+            HorizontalRuleView({
+              Text(
+                text = "Not ${state.account.toFullName()} ?",
+                modifier = Modifier.padding(horizontal = 8.dp),
+                style = MaterialTheme.typography.bodyMedium
+              )
+            })
+          }
+
+          item { Spacer(modifier = Modifier.height(8.dp)) }
+
+          item {
+            TextButton(onClick = { onEvent(OtpEvent.NotMe) }) {
+              Text(text = "Use another phone number")
+            }
+          }
+
         }
       }
     }
@@ -263,7 +291,10 @@ private fun OtpInput(
 private fun OptScreenPreview() {
   WasticalTheme {
     OtpScreen(
-      state = OtpState.Success(phone = "999112233"),
+      state = OtpState.Success(
+        phone = "999112233",
+        account = account4Preview
+      ),
       channel = flow { },
       onEvent = {}
     )

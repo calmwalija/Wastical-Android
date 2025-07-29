@@ -23,6 +23,9 @@ fun NavGraphBuilder.OtpNav(navController: NavHostController) {
           OtpEvent.Goto.Home ->
             navController.navigate(Route.Load(false)) { popUpTo(0) }
 
+          OtpEvent.Goto.Verify ->
+            navController.navigate(Route.Load(true)) { popUpTo(0) }
+
           else -> onEvent(event)
         }
       }
