@@ -71,6 +71,24 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
   @Query(
     """
     $PAYMENT_QUERY_BASE
+        WHERE (account.firstname LIKE '%' || :query || '%'
+        OR account.username LIKE '%' || :query || '%'
+        OR account.title LIKE '%' || :query || '%'
+        OR gateway.name LIKE '%' || :query || '%'
+        OR plans.fee LIKE '%' || :query || '%'
+        OR account.lastname LIKE '%' || :query || '%')
+      AND  payment.payment_status = :status AND account.status = 'Active'
+    ORDER BY payment.created_at DESC
+  """,
+  )
+  fun qPaymentWithAccountAndMethodWithGateway(
+    query: String = "",
+    status: String = Approved.name,
+  ): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
+
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
     WHERE payment.payment_status != :status AND account.status = 'Active'
     ORDER BY payment.created_at DESC
   """,
