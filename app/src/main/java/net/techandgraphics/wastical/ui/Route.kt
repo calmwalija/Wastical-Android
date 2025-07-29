@@ -13,6 +13,10 @@ sealed interface Route {
 
     @Serializable data class Invoice(val id: Long) : Client
 
+    @Serializable data object Settings : Client
+
+    @Serializable data object Info : Client
+
     @Serializable data class PaymentResponse(
       val isSuccess: Boolean,
       val error: String? = null,

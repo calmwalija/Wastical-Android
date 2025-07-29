@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.client.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -138,6 +139,14 @@ fun ClientHomeScreen(
                 Icon(Icons.Default.MoreVert, null)
                 DropdownMenu(showMenuOptions, onDismissRequest = { showMenuOptions = false }) {
 
+
+                  DropdownMenuItem(text = {
+                    Text(text = "Settings")
+                  }, onClick = {
+                    showMenuOptions = false
+                    onEvent(ClientHomeEvent.Goto.Settings)
+                  })
+
                   DropdownMenuItem(text = {
                     Text(text = "Helpline")
                   }, onClick = {})
@@ -162,7 +171,7 @@ fun ClientHomeScreen(
 
           item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-              LetterView(state.account)
+              LetterView(state.account, onEvent)
               Column(modifier = Modifier.padding(horizontal = 8.dp)) {
                 Text(
                   text = "Good ${getTimeOfDay()}",
@@ -313,7 +322,10 @@ fun ClientHomeScreen(
 }
 
 
-@Composable fun LetterView(account: AccountUiModel) {
+@Composable fun LetterView(
+  account: AccountUiModel,
+  onEvent: ((ClientHomeEvent) -> Unit)? = null,
+) {
   val brush = Brush.horizontalGradient(
     listOf(
       MaterialTheme.colorScheme.primary.copy(.7f),
@@ -322,7 +334,13 @@ fun ClientHomeScreen(
     )
   )
 
-  Box(contentAlignment = Alignment.Center) {
+  Box(
+    contentAlignment = Alignment.Center,
+    modifier = Modifier
+      .clip(CircleShape)
+      .clickable(onEvent != null) {
+        onEvent?.invoke(ClientHomeEvent.Goto.Settings)
+      }) {
     Box(
       modifier = Modifier
         .clip(CircleShape)
