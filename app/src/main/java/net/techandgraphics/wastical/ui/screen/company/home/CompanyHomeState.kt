@@ -9,7 +9,6 @@ import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentDao
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
-import net.techandgraphics.wastical.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 
 sealed interface CompanyHomeState {
@@ -24,7 +23,7 @@ sealed interface CompanyHomeState {
     val accountsSize: Int,
     val upfrontPayments: List<PaymentDao.UpfrontPayment> = listOf(),
     val monthYear: MonthYear,
-    val pending: List<PaymentRequestUiModel> = listOf(),
+    val proofOfPayments: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
     val expectedAmountToCollect: Int,
     val paymentPlanAgainstAccounts: List<PaymentPlanAgainstAccounts>,
     val allMonthsPayments: List<MonthYearPayment4Month> = listOf(),
