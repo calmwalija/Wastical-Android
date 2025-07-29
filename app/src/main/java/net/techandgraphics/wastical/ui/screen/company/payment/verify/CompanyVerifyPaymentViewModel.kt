@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -35,6 +37,7 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
   private val _channel = Channel<CompanyVerifyPaymentChannel>()
   val channel = _channel.receiveAsFlow()
   val state = _state.asStateFlow()
+  private var searchJob: Job? = null
 
   private fun onLoad() = viewModelScope.launch {
     database.paymentDao
@@ -50,6 +53,29 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
           payments = payments,
         )
       }
+  }
+
+  private fun onInputSearch(event: CompanyVerifyPaymentEvent.Input.Search) {
+    if (_state.value is CompanyVerifyPaymentState.Success) {
+      _state.value = (_state.value as CompanyVerifyPaymentState.Success).copy(query = event.query)
+      searchJob?.cancel()
+      searchJob = viewModelScope.launch {
+        delay(1_000)
+        database.paymentDao
+          .qPaymentWithAccountAndMethodWithGateway(
+            query = event.query.trim(),
+            status = PaymentStatus.Verifying.name,
+          )
+          .map { fromDb ->
+            fromDb.map {
+              it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+            }
+          }.collectLatest { payments ->
+            _state.value =
+              (_state.value as CompanyVerifyPaymentState.Success).copy(payments = payments)
+          }
+      }
+    }
   }
 
   init {
@@ -89,6 +115,7 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
       is CompanyVerifyPaymentEvent.Load -> onLoad()
       is CompanyVerifyPaymentEvent.Payment.Approve -> onPaymentApprove(event)
       is CompanyVerifyPaymentEvent.Payment.Deny -> onPaymentDeny(event)
+      is CompanyVerifyPaymentEvent.Input.Search -> onInputSearch(event)
       else -> Unit
     }
   }

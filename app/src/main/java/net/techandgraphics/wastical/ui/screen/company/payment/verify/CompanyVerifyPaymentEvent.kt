@@ -17,5 +17,10 @@ sealed interface CompanyVerifyPaymentEvent {
     data class Profile(val id: Long) : Goto
   }
 
-  sealed interface Button : CompanyVerifyPaymentEvent
+  sealed interface Input : CompanyVerifyPaymentEvent {
+    class Search(val query: String) : CompanyVerifyPaymentEvent
+  }
+  sealed interface Button : CompanyVerifyPaymentEvent {
+    data object Clear : Button
+  }
 }

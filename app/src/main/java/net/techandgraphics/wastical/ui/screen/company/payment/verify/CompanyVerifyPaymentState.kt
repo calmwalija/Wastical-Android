@@ -7,6 +7,7 @@ sealed interface CompanyVerifyPaymentState {
   data object Loading : CompanyVerifyPaymentState
   data class Success(
     val company: CompanyUiModel,
+    val query: String = "",
     val payments: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
   ) : CompanyVerifyPaymentState
 }
