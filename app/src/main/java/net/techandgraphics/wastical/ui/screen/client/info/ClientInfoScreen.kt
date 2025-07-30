@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,11 +36,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -49,6 +54,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
+import net.techandgraphics.wastical.toFullName
+import net.techandgraphics.wastical.toast
+import net.techandgraphics.wastical.ui.screen.AccountAvatarView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
 import net.techandgraphics.wastical.ui.screen.account4Preview
@@ -70,13 +78,20 @@ fun ClientInfoScreen(
     is ClientInfoState.Success -> {
 
       val context = LocalContext.current
-
+      val haptics = LocalHapticFeedback.current
       val lifecycleOwner = LocalLifecycleOwner.current
 
       LaunchedEffect(key1 = channel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
           channel.collect { event ->
+            when (event) {
+              is ClientInfoChannel.Submit.Error -> {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                context.toast(event.error.message)
+              }
 
+              ClientInfoChannel.Submit.Success -> onEvent(ClientInfoEvent.Button.BackHandler)
+            }
           }
         }
       }
@@ -110,19 +125,45 @@ fun ClientInfoScreen(
         ) {
 
           item {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+              AccountAvatarView(
+                modifier = Modifier.size(160.dp),
+                account = state.account
+              )
+            }
+          }
+
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+          item {
             Text(
-              text = "Edit Info",
+              text = state.account.toFullName(),
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 32.dp)
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis,
+              textAlign = TextAlign.Center,
+              modifier = Modifier.fillMaxWidth()
             )
           }
 
+          item {
+            Text(
+              text = state.account.username,
+              maxLines = 1,
+              overflow = TextOverflow.MiddleEllipsis,
+              style = MaterialTheme.typography.bodyMedium,
+              textAlign = TextAlign.Center,
+              modifier = Modifier.fillMaxWidth()
+            )
+          }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
               var fSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.firstname) {
-                fSize = state.account.firstname.length
+              LaunchedEffect(state.newAccount.firstname) {
+                fSize = state.newAccount.firstname.length
               }
               Text(
                 text = "First Name",
@@ -136,13 +177,13 @@ fun ClientInfoScreen(
                   Box(modifier = Modifier.padding(start = 8.dp)) {
                     TextButton(onClick = { showTitle = true }) {
                       Text(
-                        text = state.account.title.title,
+                        text = state.newAccount.title.title,
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.titleMedium
                       )
 
                       DropdownMenu(expanded = showTitle, onDismissRequest = { showTitle = false }) {
-                        AccountTitle.entries.filterNot { title -> title == state.account.title }
+                        AccountTitle.entries.filterNot { title -> title == state.newAccount.title }
                           .forEach { title ->
                             DropdownMenuItem(
                               text = { Text(text = title.title) },
@@ -161,10 +202,10 @@ fun ClientInfoScreen(
                     }
                   }
                 },
-                placeholder = { Text(text = state.account.firstname) },
+                placeholder = { Text(text = state.newAccount.firstname) },
                 shape = RoundedCornerShape(24),
                 maxLines = 1,
-                value = state.account.firstname,
+                value = state.newAccount.firstname,
                 onValueChange = { newValue ->
                   if (newValue.length < 62)
                     onEvent(
@@ -192,8 +233,8 @@ fun ClientInfoScreen(
           item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
               var lSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.lastname) {
-                lSize = state.account.lastname.length
+              LaunchedEffect(state.newAccount.lastname) {
+                lSize = state.newAccount.lastname.length
               }
               Text(
                 text = "Last Name",
@@ -202,10 +243,10 @@ fun ClientInfoScreen(
               )
               TextField(
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.account.lastname) },
+                placeholder = { Text(text = state.newAccount.lastname) },
                 shape = RoundedCornerShape(24),
                 maxLines = 1,
-                value = state.account.lastname,
+                value = state.newAccount.lastname,
                 onValueChange = { newValue ->
                   if (newValue.length < 62)
                     onEvent(
@@ -224,88 +265,6 @@ fun ClientInfoScreen(
                     modifier = Modifier.padding(end = 24.dp, start = 8.dp)
                   )
                 },
-              )
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-              var cSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.username) {
-                cSize = state.account.username.length
-              }
-              Text(
-                text = "Phone Number",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp)
-              )
-              TextField(
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.account.username) },
-                shape = RoundedCornerShape(24),
-                value = state.account.username,
-                onValueChange = { newValue ->
-                  if (newValue.length <= 10)
-                    onEvent(
-                      ClientInfoEvent.Input.Type(
-                        newValue = newValue,
-                        ofType = ClientInfoEvent.Input.OfType.Contact
-                      )
-                    )
-                },
-                colors = textFieldDefaults,
-                trailingIcon = {
-                  Text(
-                    text = "$cSize/10",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
-                  )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-              )
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-
-              var eSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.email) { eSize = (state.account.email ?: "").length }
-
-              Text(
-                text = "Email Address",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp)
-              )
-              TextField(
-                trailingIcon = {
-                  Text(
-                    text = "$eSize/48",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
-                  )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                placeholder = { Text(text = state.account.email ?: "") },
-                shape = RoundedCornerShape(24),
-                value = state.account.email ?: "",
-                onValueChange = { newValue ->
-                  if (newValue.length < 48)
-                    onEvent(
-                      ClientInfoEvent.Input.Type(
-                        newValue = newValue,
-                        ofType = ClientInfoEvent.Input.OfType.Email
-                      )
-                    )
-                },
-                colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
               )
             }
           }
@@ -374,5 +333,6 @@ private fun ClientInfoScreenPreview() {
 
 fun clientInfoStateSuccess() = ClientInfoState.Success(
   account = account4Preview,
+  newAccount = account4Preview,
   company = company4Preview
 )

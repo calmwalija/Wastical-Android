@@ -23,6 +23,7 @@ import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.domain.toAccountContactUiModel
+import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyBinCollectionUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
@@ -60,11 +61,12 @@ import javax.inject.Inject
 
   private fun onLoad() = viewModelScope.launch {
     authenticatorHelper.getAccount(accountManager)
-      ?.let { account ->
+      ?.let { internalAccount ->
         if (database.companyDao.query().isEmpty()) {
           _channel.send(ClientHomeChannel.Goto.Reload)
           return@let
         }
+        val account = database.accountDao.get(internalAccount.id).toAccountUiModel()
         val accountContacts = database.accountContactDao
           .getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }

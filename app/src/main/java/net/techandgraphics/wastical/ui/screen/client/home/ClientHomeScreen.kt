@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +57,7 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.getTimeOfDay
+import net.techandgraphics.wastical.openDialer
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toInitials
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
@@ -82,6 +84,7 @@ fun ClientHomeScreen(
     ClientHomeState.Loading -> LoadingIndicatorView()
     is ClientHomeState.Success -> {
 
+      val context = LocalContext.current
 
       val lifecycleOwner = LocalLifecycleOwner.current
       LaunchedEffect(key1 = channel) {
@@ -144,12 +147,17 @@ fun ClientHomeScreen(
                     Text(text = "Settings")
                   }, onClick = {
                     showMenuOptions = false
-                    onEvent(ClientHomeEvent.Goto.Settings)
+                    onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
                   })
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Helpline")
-                  }, onClick = {})
+                  state.companyContacts.firstOrNull()?.let { contact ->
+                    DropdownMenuItem(text = {
+                      Text(text = "Helpline")
+                    }, onClick = {
+                      showMenuOptions = false
+                      context.openDialer(contact.contact)
+                    })
+                  }
 
                   HorizontalDivider()
                   DropdownMenuItem(text = {
@@ -171,7 +179,9 @@ fun ClientHomeScreen(
 
           item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-              LetterView(state.account, onEvent)
+              LetterView(state.account) {
+                onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
+              }
               Column(modifier = Modifier.padding(horizontal = 8.dp)) {
                 Text(
                   text = "Good ${getTimeOfDay()}",
@@ -324,7 +334,7 @@ fun ClientHomeScreen(
 
 @Composable fun LetterView(
   account: AccountUiModel,
-  onEvent: ((ClientHomeEvent) -> Unit)? = null,
+  onEvent: (() -> Unit)? = null,
 ) {
   val brush = Brush.horizontalGradient(
     listOf(
@@ -339,7 +349,7 @@ fun ClientHomeScreen(
     modifier = Modifier
       .clip(CircleShape)
       .clickable(onEvent != null) {
-        onEvent?.invoke(ClientHomeEvent.Goto.Settings)
+        onEvent?.invoke()
       }) {
     Box(
       modifier = Modifier

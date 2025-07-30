@@ -8,5 +8,6 @@ sealed interface ClientInfoState {
   data class Success(
     val company: CompanyUiModel,
     val account: AccountUiModel,
+    val newAccount: AccountUiModel,
   ) : ClientInfoState
 }
