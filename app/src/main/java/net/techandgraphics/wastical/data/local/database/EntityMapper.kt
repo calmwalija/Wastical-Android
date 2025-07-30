@@ -60,6 +60,7 @@ import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.domain.model.relations.CompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.model.search.SearchTagUiModel
+import java.time.ZonedDateTime
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
   id = id,
@@ -162,6 +163,7 @@ fun PaymentRequest.toPaymentRequestEntity() = PaymentRequestEntity(
   createdAt = createdAt,
   updatedAt = updateAt,
   paymentReference = paymentReference,
+  id = System.currentTimeMillis().plus(ZonedDateTime.now().toEpochSecond()),
 )
 
 fun DemographicDistrictResponse.toDemographicDistrictEntity() = DemographicDistrictEntity(

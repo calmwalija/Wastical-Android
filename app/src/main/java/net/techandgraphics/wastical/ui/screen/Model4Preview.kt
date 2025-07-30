@@ -225,7 +225,12 @@ internal val paymentWithAccountAndMethodWithGateway4Preview =
   )
 
 internal val accountWithPaymentStatus4Preview =
-  AccountWithPaymentStatusUiModel(account4Preview, Random.nextBoolean(), 10_000)
+  AccountWithPaymentStatusUiModel(
+    account = account4Preview,
+    hasPaid = Random.nextBoolean(),
+    amount = 10_000,
+    offlinePay = false,
+  )
 
 internal val paymentRequest4Preview = PaymentRequestUiModel(
   id = 1,
