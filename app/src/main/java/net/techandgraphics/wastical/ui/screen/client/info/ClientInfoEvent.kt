@@ -2,7 +2,7 @@ package net.techandgraphics.wastical.ui.screen.client.info
 
 sealed interface ClientInfoEvent {
 
-  data object Load : ClientInfoEvent
+  data class Load(val id: Long) : ClientInfoEvent
 
   sealed interface Button : ClientInfoEvent {
     data object BackHandler : Button
@@ -10,7 +10,7 @@ sealed interface ClientInfoEvent {
   }
 
   sealed interface Input : ClientInfoEvent {
-    enum class OfType { FName, LName, Contact, AltContact, Email, Title }
+    enum class OfType { FName, LName, Title }
     data class Type(val newValue: String, val ofType: OfType) : Input
   }
 }

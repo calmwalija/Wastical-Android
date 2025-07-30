@@ -1,7 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.client.settings
 
 import android.os.Build
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +36,7 @@ import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.ui.HorizontalRuleView
+import net.techandgraphics.wastical.ui.screen.AccountAvatarView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.accountContact4Preview
@@ -49,7 +48,6 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun ClientSettingsScreen(
   state: ClientSettingsState,
   onEvent: (ClientSettingsEvent) -> Unit,
@@ -72,18 +70,17 @@ fun ClientSettingsScreen(
           modifier = Modifier.padding(16.dp),
         ) {
 
+
           item {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-              Image(
-                painterResource(R.drawable.im_placeholder),
-                contentDescription = null,
-                modifier = Modifier
-                  .padding(bottom = 24.dp)
-                  .clip(CircleShape)
-                  .size(160.dp)
+              AccountAvatarView(
+                modifier = Modifier.size(160.dp),
+                account = state.account
               )
             }
           }
+
+          item { Spacer(modifier = Modifier.height(16.dp)) }
 
           item {
             Text(
@@ -91,7 +88,6 @@ fun ClientSettingsScreen(
               style = MaterialTheme.typography.headlineSmall,
               maxLines = 1,
               overflow = TextOverflow.MiddleEllipsis,
-              color = MaterialTheme.colorScheme.primary,
               textAlign = TextAlign.Center,
               modifier = Modifier.fillMaxWidth()
             )
@@ -124,42 +120,6 @@ fun ClientSettingsScreen(
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            Card(
-              colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-              ),
-              modifier = Modifier.padding(4.dp)
-            ) {
-              Row(modifier = Modifier.padding(16.dp)) {
-                Icon(
-                  painterResource(R.drawable.ic_developer),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.primary
-                )
-                Column(modifier = Modifier.padding(start = 16.dp)) {
-                  Text(text = "Developer")
-                  Text(
-                    text = stringResource(R.string.developer),
-                    style = MaterialTheme.typography.bodySmall
-                  )
-                }
-              }
-            }
-            HorizontalRuleView({})
-            Row(modifier = Modifier.padding(16.dp)) {
-              Icon(
-                painterResource(R.drawable.ic_info),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-              )
-              Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = "App Info")
-                Text(
-                  text = "Version ${BuildConfig.VERSION_NAME}",
-                  style = MaterialTheme.typography.bodySmall
-                )
-              }
-            }
             HorizontalRuleView({})
             Row(modifier = Modifier.padding(16.dp)) {
               Icon(
@@ -175,11 +135,10 @@ fun ClientSettingsScreen(
                 )
               }
             }
+            HorizontalRuleView({})
           }
 
-
           item { Spacer(modifier = Modifier.height(24.dp)) }
-
 
 
           item {
@@ -246,6 +205,43 @@ fun ClientSettingsScreen(
               }
             }
           }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item {
+            HorizontalRuleView({})
+            Row(modifier = Modifier.padding(16.dp)) {
+              Icon(
+                painterResource(R.drawable.ic_info),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+              )
+              Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(text = "App Info")
+                Text(
+                  text = "Version ${BuildConfig.VERSION_NAME}",
+                  style = MaterialTheme.typography.bodySmall
+                )
+              }
+            }
+            HorizontalRuleView({})
+            Row(modifier = Modifier.padding(16.dp)) {
+              Icon(
+                painterResource(R.drawable.ic_payment),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+              )
+              Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(text = "Developer")
+                Text(
+                  text = stringResource(R.string.developer),
+                  style = MaterialTheme.typography.bodySmall
+                )
+              }
+            }
+            HorizontalRuleView({})
+          }
+
         }
       }
     }

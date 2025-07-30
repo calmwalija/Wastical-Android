@@ -98,7 +98,9 @@ fun AppNavHost(
             is ClientHomeEvent.Goto ->
               when (event) {
                 is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice(event.id))
-                ClientHomeEvent.Goto.Settings -> navController.navigate(Route.Client.Settings)
+                is ClientHomeEvent.Goto.Settings ->
+                  navController.navigate(Route.Client.Settings(event.id))
+
                 ClientHomeEvent.Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
                 ClientHomeEvent.Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
               }
