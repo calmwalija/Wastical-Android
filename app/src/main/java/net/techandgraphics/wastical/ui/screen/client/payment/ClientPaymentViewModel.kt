@@ -48,12 +48,16 @@ import javax.inject.Inject
         val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
         val paymentPlan =
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
-        _state.value = ClientPaymentState.Success(
-          company = company,
-          account = account,
-          paymentPlan = paymentPlan,
-        )
-        onLoadPaymentMethod()
+        database.paymentMethodDao.flowOfWithGatewayAndPlan()
+          .map { p0 -> p0.map { it.toPaymentMethodWithGatewayAndPlanUiModel() } }
+          .collectLatest { paymentMethods ->
+            _state.value = ClientPaymentState.Success(
+              company = company,
+              account = account,
+              paymentMethods = paymentMethods,
+              paymentPlan = paymentPlan,
+            )
+          }
       }
   }
 
@@ -84,17 +88,6 @@ import javax.inject.Inject
         _channel.send(ClientPaymentChannel.Pay.Success)
       }
     }
-  }
-
-  private suspend fun onLoadPaymentMethod() {
-    database.paymentMethodDao.flowOfWithGatewayAndPlan()
-      .map { p0 -> p0.map { it.toPaymentMethodWithGatewayAndPlanUiModel() } }
-      .collectLatest { paymentMethods ->
-        if (_state.value is ClientPaymentState.Success) {
-          val state = (_state.value as ClientPaymentState.Success)
-          _state.value = state.copy(paymentMethods = paymentMethods)
-        }
-      }
   }
 
   private fun onScreenshotAttached() {
