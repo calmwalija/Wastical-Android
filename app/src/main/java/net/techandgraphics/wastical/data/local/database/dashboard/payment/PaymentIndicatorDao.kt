@@ -74,7 +74,22 @@ interface PaymentIndicatorDao {
     SELECT
       account.*,
       plans.fee as amount,
-      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
+      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM payment_month_covered pmc
+          JOIN (
+            SELECT account_id, SUM(months) AS total_months
+            FROM payment_request
+            GROUP BY account_id
+          ) pr ON pr.account_id = pmc.account_id
+          WHERE pmc.account_id = account.id
+            AND :month BETWEEN pmc.month AND (pmc.month + pr.total_months)
+            AND pmc.year = :year
+        ) THEN 1
+        ELSE 0
+      END AS offlinePay
     FROM
       account AS account
       INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
@@ -88,7 +103,7 @@ interface PaymentIndicatorDao {
       WHERE location.demographic_street_id =:id
       AND account.status = 'Active'
       GROUP BY account.id
-    ORDER BY
+    ORDER BY offlinePay,
       CASE WHEN :sortOrder = 0 THEN hasPaid END ASC,
       CASE WHEN :sortOrder = 1 THEN hasPaid END DESC,
       CASE WHEN :sortOrder = 2 THEN account.title END ASC,
@@ -108,27 +123,42 @@ interface PaymentIndicatorDao {
     SELECT
       account.*,
       plans.fee as amount,
-      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
-    FROM
-      account AS account
-      INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
-      INNER JOIN  payment_plan plans ON accountplans.payment_plan_id = plans.id
-      LEFT JOIN company_location as location ON account.company_location_id = location.id
-      LEFT JOIN demographic_street as district ON location.demographic_district_id = district.id
-      LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
+      CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM payment_month_covered pmc
+          JOIN (
+            SELECT account_id, SUM(months) AS total_months
+            FROM payment_request
+            GROUP BY account_id
+          ) pr ON pr.account_id = pmc.account_id
+          WHERE pmc.account_id = account.id
+            AND :month BETWEEN pmc.month AND (pmc.month + pr.total_months)
+            AND pmc.year = :year
+        ) THEN 1
+        ELSE 0
+      END AS offlinePay
+  FROM
+    account AS account
+    INNER JOIN account_payment_plan accountplans ON account.id = accountplans.account_id
+    INNER JOIN payment_plan plans ON accountplans.payment_plan_id = plans.id
+    LEFT JOIN company_location AS location ON account.company_location_id = location.id
+    LEFT JOIN demographic_street AS district ON location.demographic_district_id = district.id
+    LEFT JOIN payment_month_covered AS month_covered ON account.id = month_covered.account_id
       AND month_covered.month = :month
       AND month_covered.year = :year
-      LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
-      WHERE location.demographic_street_id =:id
+    LEFT JOIN payment AS payment ON month_covered.payment_id = payment.id
+    WHERE location.demographic_street_id = :id
       AND account.status = 'Active'
       GROUP BY account.id
-    ORDER BY
+    ORDER BY offlinePay,
       CASE WHEN :sortOrder = 0 THEN hasPaid END ASC,
       CASE WHEN :sortOrder = 1 THEN hasPaid END DESC,
       CASE WHEN :sortOrder = 2 THEN account.title END ASC,
       CASE WHEN :sortOrder = 3 THEN account.lastname END ASC,
       CASE WHEN :sortOrder = 4 THEN account.username END ASC
-""",
+  """,
   )
   fun flowOfAccountsWithPaymentStatusByStreetId(
     id: Long,
@@ -206,6 +236,7 @@ data class AccountWithPaymentStatusEntity(
   @Embedded
   val account: AccountEntity,
   val hasPaid: Boolean,
+  val offlinePay: Boolean,
   val amount: Int,
 )
 

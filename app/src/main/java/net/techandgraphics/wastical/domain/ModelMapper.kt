@@ -214,6 +214,7 @@ fun AccountWithPaymentStatusEntity.toAccountWithPaymentStatusUiModel() =
     account = account.toAccountUiModel(),
     hasPaid = hasPaid,
     amount = amount,
+    offlinePay = offlinePay,
   )
 
 fun CompanyLocationEntity.toCompanyLocationUiModel() = CompanyLocationUiModel(

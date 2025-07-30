@@ -85,13 +85,13 @@ fun CompanyPaymentLocationClientItem(
 
       when {
         entity.hasPaid -> R.drawable.ic_check_circle
-        else -> R.drawable.ic_close
+        else -> if (entity.offlinePay) R.drawable.ic_upload_ready else R.drawable.ic_close
       }.also {
         Icon(
           painterResource(it),
           contentDescription = null,
           modifier = Modifier.padding(horizontal = 16.dp),
-          tint = if (entity.hasPaid) Green else Color.Red,
+          tint = if (entity.hasPaid || entity.offlinePay) Green else Color.Red,
         )
       }
       OutlinedCard(

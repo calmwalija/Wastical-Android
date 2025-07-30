@@ -64,7 +64,6 @@ fun CompanyMakePaymentScreen(
 
   val scrollState = rememberLazyListState()
   var loading by remember { mutableStateOf(false) }
-  var isSuccess by remember { mutableStateOf(false) }
   val context = LocalContext.current
   val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
 
@@ -75,17 +74,15 @@ fun CompanyMakePaymentScreen(
       channel.collect { event ->
         loading = false
         when (event) {
-          CompanyMakePaymentChannel.Pay.Success -> isSuccess = true
+          CompanyMakePaymentChannel.Pay.Success -> {
+            context.toast("Payment request submitted")
+            onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
+          }
         }
       }
     }
   }
 
-
-  if (isSuccess) {
-    context.toast("Payment request submitted")
-    onEvent(CompanyMakePaymentEvent.GoTo.BackHandler)
-  }
 
   when (state) {
     CompanyMakePaymentState.Loading -> LoadingIndicatorView()
