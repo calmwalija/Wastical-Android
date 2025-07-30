@@ -211,7 +211,7 @@ fun ClientPaymentScreen(
                   loading = true
                 },
                 colors = ButtonDefaults.buttonColors(
-                  containerColor = MaterialTheme.colorScheme.primary.copy(.3f)
+                  containerColor = MaterialTheme.colorScheme.primary.copy(.7f)
                 ),
                 modifier = Modifier.fillMaxWidth(.6f),
               ) {
