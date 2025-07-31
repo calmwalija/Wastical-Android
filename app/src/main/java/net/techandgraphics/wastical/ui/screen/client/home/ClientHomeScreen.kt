@@ -91,12 +91,7 @@ fun ClientHomeScreen(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
           channel.collect { event ->
             when (event) {
-              is ClientHomeChannel.Fetch -> isFetching = when (event) {
-                is ClientHomeChannel.Fetch.Error -> false
-                ClientHomeChannel.Fetch.Fetching -> true
-                ClientHomeChannel.Fetch.Success -> false
-              }
-
+              is ClientHomeChannel.Fetch -> isFetching = false
               ClientHomeChannel.Goto.Login -> onEvent(ClientHomeEvent.Goto.Login)
               ClientHomeChannel.Goto.Reload -> onEvent(ClientHomeEvent.Goto.Reload)
             }
@@ -123,7 +118,10 @@ fun ClientHomeScreen(
 
               IconButton(
                 enabled = isFetching.not(),
-                onClick = { onEvent(ClientHomeEvent.Button.Fetch) }) {
+                onClick = {
+                  isFetching = true
+                  onEvent(ClientHomeEvent.Button.Fetch)
+                }) {
                 if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
                   Icon(
                     painter = painterResource(R.drawable.ic_cloud_download),

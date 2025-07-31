@@ -5,10 +5,15 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 import net.techandgraphics.wastical.data.local.database.relations.PaymentMethodWithGatewayAndPlanEntity
 
 @Dao
-interface PaymentMethodDao : BaseDao<PaymentMethodEntity> {
+interface PaymentMethodDao : BaseDao<PaymentMethodEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM payment_method ORDER BY updated_at DESC LIMIT 1")
+  override suspend fun getLastUpdatedTimestamp(): Long
+
   @Query("SELECT * FROM payment_method")
   suspend fun query(): List<PaymentMethodEntity>
 

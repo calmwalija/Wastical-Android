@@ -74,88 +74,88 @@ class AccountSessionRepositoryImpl @Inject constructor(
 
       data.run {
         paymentGateways?.map { it.toPaymentGatewayEntity() }?.also {
-          paymentGatewayDao.insert(it)
+          paymentGatewayDao.upsert(it)
           onProgress(totalItemCount, it.size)
         }
         demographicDistricts?.map { it.toDemographicDistrictEntity() }
           ?.also {
-            demographicDistrictDao.insert(it)
+            demographicDistrictDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
         demographicAreas?.map { it.toDemographicAreaEntity() }
           ?.also {
-            demographicAreaDao.insert(it)
+            demographicAreaDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
         demographicStreets?.map { it.toDemographicStreetEntity() }
           ?.also {
-            demographicStreetDao.insert(it)
+            demographicStreetDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
         companies?.map { it.toCompanyEntity() }?.also {
-          companyDao.insert(it)
+          companyDao.upsert(it)
           onProgress(totalItemCount, it.size)
         }
 
         companyContacts?.map { it.toCompanyContactEntity() }
           ?.also {
-            companyContactDao.insert(it)
+            companyContactDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
 
         companyLocations?.map { it.toCompanyLocationRequest() }
           ?.also {
-            companyLocationDao.insert(it)
+            companyLocationDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
 
         companyBinCollections?.map { it.toCompanyBinCollectionEntity() }
           ?.also {
-            companyBinCollectionDao.insert(it)
+            companyBinCollectionDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
 
         accounts?.map { it.toAccountEntity() }
           ?.also { account ->
-            accountDao.insert(account)
+            accountDao.upsert(account)
             onProgress(totalItemCount, account.size)
           }
 
         accountContacts?.map { it.toAccountContactEntity() }
           ?.also {
-            accountContactDao.insert(it)
+            accountContactDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
         paymentPlans?.map { it.toPaymentPlanEntity() }?.also {
-          paymentPlanDao.insert(it)
+          paymentPlanDao.upsert(it)
           onProgress(totalItemCount, it.size)
         }
         accountPaymentPlans?.map { it.toAccountPaymentPlanEntity() }
           ?.also {
-            accountPaymentPlanDao.insert(it)
+            accountPaymentPlanDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
         paymentCollectionDays?.map { it.toPaymentCollectionDayEntity() }
           ?.also {
-            paymentDayDao.insert(it)
+            paymentCollectionDayDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
 
         paymentMethods?.map { it.toPaymentMethodEntity() }
           ?.map { it.copy(isSelected = (it.account == "In Person")) }
           ?.also {
-            paymentMethodDao.insert(it)
+            paymentMethodDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
 
         payments?.map { it.toPaymentEntity() }?.also {
-          paymentDao.insert(it)
+          paymentDao.upsert(it)
           onProgress(totalItemCount, it.size)
         }
 
         paymentMonthsCovered?.map { it.toPaymentMonthCoveredEntity() }
           ?.also {
-            paymentMonthCoveredDao.insert(it)
+            paymentMonthCoveredDao.upsert(it)
             onProgress(totalItemCount, it.size)
           }
       }

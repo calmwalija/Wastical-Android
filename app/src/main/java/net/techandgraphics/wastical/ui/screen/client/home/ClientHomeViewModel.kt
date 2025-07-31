@@ -4,22 +4,23 @@ import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.withTransaction
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
-import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
-import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.domain.toAccountContactUiModel
@@ -39,15 +40,17 @@ import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
 import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
+import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
+import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel class ClientHomeViewModel @Inject constructor(
   private val application: Application,
   private val database: AppDatabase,
-  private val accountSession: AccountSessionRepository,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val workManager: WorkManager,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<ClientHomeState>(ClientHomeState.Loading)
@@ -159,21 +162,27 @@ import javax.inject.Inject
   }
 
   private fun onFetchChanges() = viewModelScope.launch {
-    val account = authenticatorHelper.getAccount(accountManager) ?: return@launch
-    _channel.send(ClientHomeChannel.Fetch.Fetching)
-    runCatching { accountSession.fetch(account.id) }
-      .onSuccess { data ->
-        try {
-          database.withTransaction {
-            database.clearAllTables()
-            accountSession.purseData(data) { _, _ -> }
+    if (_state.value is ClientHomeState.Success) {
+      observeAccountSessionWorker()
+      application.scheduleAccountLastUpdatedWorker()
+    }
+  }
+
+  private fun observeAccountSessionWorker() {
+    viewModelScope.launch {
+      workManager.getWorkInfosForUniqueWorkFlow(LAST_UPDATED_WORKER_UUID)
+        .mapNotNull { workInfoList -> workInfoList.firstOrNull() }
+        .collect { workInfo ->
+          when (workInfo.state) {
+            WorkInfo.State.SUCCEEDED -> {
+              delay(1_000)
+              _channel.send(ClientHomeChannel.Fetch.Success)
+            }
+
+            else -> Unit
           }
-          _channel.send(ClientHomeChannel.Fetch.Success)
-        } catch (e: Exception) {
-          _channel.send(ClientHomeChannel.Fetch.Error(mapApiError(e)))
         }
-      }
-      .onFailure { _channel.send(ClientHomeChannel.Fetch.Error(mapApiError(it))) }
+    }
   }
 
   private fun onPaymentShare(event: ClientHomeEvent.Button.Payment.Share) {

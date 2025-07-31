@@ -5,8 +5,10 @@ import android.content.Context
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
+import net.techandgraphics.wastical.data.remote.LastUpdatedApi
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
@@ -27,6 +29,8 @@ class WorkerFactory @Inject constructor(
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
   private val accountSessionRepository: AccountSessionRepository,
+  private val lastUpdatedApi: LastUpdatedApi,
+  private val preferences: Preferences,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
@@ -129,6 +133,18 @@ class WorkerFactory @Inject constructor(
         paymentApi = paymentApi,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+      )
+
+    AccountLastUpdatedWorker::class.java.name ->
+      AccountLastUpdatedWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        lastUpdatedApi = lastUpdatedApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
+        accountSessionRepository = accountSessionRepository,
+        preferences = preferences,
       )
 
     else -> null
