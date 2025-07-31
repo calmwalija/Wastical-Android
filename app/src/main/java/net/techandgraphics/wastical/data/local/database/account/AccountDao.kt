@@ -9,6 +9,10 @@ import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 
 @Dao
 interface AccountDao : BaseDao<AccountEntity> {
+
+  @Query("SELECT updated_at FROM account WHERE id=:id")
+  suspend fun getLastUpdatedTimestampById(id: Long): Long
+
   @Query("SELECT * FROM account")
   suspend fun query(): List<AccountEntity>
 

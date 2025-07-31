@@ -4,9 +4,14 @@ import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 
 @Dao
-interface CompanyBinCollectionDao : BaseDao<CompanyBinCollectionEntity> {
+interface CompanyBinCollectionDao : BaseDao<CompanyBinCollectionEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM company_bin_collection ORDER BY updated_at DESC LIMIT 1")
+  override suspend fun getLastUpdatedTimestamp(): Long
+
   @Query("SELECT * FROM company_bin_collection")
   suspend fun query(): List<CompanyBinCollectionEntity>
 

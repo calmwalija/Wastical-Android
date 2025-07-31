@@ -6,6 +6,7 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastical.data.local.database.query.PaymentWithAccountAndMethodWithGatewayQuery
 import net.techandgraphics.wastical.data.local.database.relations.PaymentWithAccountEntity
@@ -13,7 +14,10 @@ import net.techandgraphics.wastical.data.local.database.relations.PaymentWithMon
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
 
-@Dao interface PaymentDao : BaseDao<PaymentEntity> {
+@Dao interface PaymentDao : BaseDao<PaymentEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM payment ORDER BY updated_at DESC LIMIT 1")
+  override suspend fun getLastUpdatedTimestamp(): Long
 
   @Query("SELECT * FROM payment WHERE id=:id")
   suspend fun get(id: Long): PaymentEntity

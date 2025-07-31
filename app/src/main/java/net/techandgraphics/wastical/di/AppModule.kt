@@ -3,6 +3,7 @@ package net.techandgraphics.wastical.di
 import android.accounts.AccountManager
 import android.app.Application
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -24,7 +25,6 @@ object AppModule {
       .fallbackToDestructiveMigration()
       .setQueryCallback(
         queryCallback = { query, args ->
-//          println("query $query == args $args")
         },
         Executors.newSingleThreadExecutor(),
       )
@@ -34,6 +34,12 @@ object AppModule {
   @Provides
   @Singleton
   fun providesGson(): Gson = Gson()
+
+  @Provides
+  @Singleton
+  fun providesWorkManager(application: Application): WorkManager {
+    return WorkManager.getInstance(application)
+  }
 
   @Provides
   @Singleton

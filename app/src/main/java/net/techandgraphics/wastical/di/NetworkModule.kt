@@ -1,10 +1,13 @@
 package net.techandgraphics.wastical.di
 
+import com.google.common.net.HttpHeaders
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import net.techandgraphics.wastical.appUrl
+import net.techandgraphics.wastical.data.local.Preferences
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -18,31 +21,40 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-  private const val AUTHORIZATION = "Authorization"
-  private const val COOKIE = "Cookie"
-
-  inline fun <reified T> api(baseUrl: String = appUrl().apiDomain): T =
+  inline fun <reified T> api(
+    okHttpClient: OkHttpClient,
+    baseUrl: String = appUrl().apiDomain,
+  ): T =
     Retrofit.Builder().baseUrl(baseUrl)
-      .client(authOkHttpClient())
+      .client(okHttpClient)
       .addConverterFactory(GsonConverterFactory.create())
       .build()
       .create(T::class.java)
 
   @Singleton
   @Provides
-  fun authOkHttpClient() = OkHttpClient.Builder()
+  fun authOkHttpClient(preferences: Preferences) = OkHttpClient.Builder()
     .addInterceptor(
       Interceptor { chain: Interceptor.Chain ->
         val request = chain.request().newBuilder()
-        request.addHeader(AUTHORIZATION, "Bearer")
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer")
         chain.proceed(request.build())
       },
     )
+    .addInterceptor { chain ->
+      val request = chain.request()
+      val requestUrl = request.url.toString()
+      val urlEtag = runBlocking { preferences.get<String?>(requestUrl, null) }
+      val newRequest = request.newBuilder().apply {
+        urlEtag?.let { addHeader(HttpHeaders.LAST_MODIFIED, urlEtag) }
+      }.build()
+      chain.proceed(newRequest)
+    }
     .addInterceptor(
       HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BASIC
-        redactHeader(AUTHORIZATION)
-        redactHeader(COOKIE)
+        redactHeader(HttpHeaders.AUTHORIZATION)
+        redactHeader(HttpHeaders.COOKIE)
       },
     )
     .protocols(listOf(Protocol.HTTP_1_1))

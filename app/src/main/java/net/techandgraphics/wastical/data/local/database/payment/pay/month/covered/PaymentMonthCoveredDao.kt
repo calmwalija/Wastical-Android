@@ -4,9 +4,13 @@ import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 
-@Dao interface PaymentMonthCoveredDao : BaseDao<PaymentMonthCoveredEntity> {
+@Dao interface PaymentMonthCoveredDao : BaseDao<PaymentMonthCoveredEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM payment_month_covered ORDER BY updated_at DESC LIMIT 1")
+  override suspend fun getLastUpdatedTimestamp(): Long
 
   @Query("SELECT * FROM payment_month_covered")
   fun flowOfPaymentMonthCovered(): Flow<List<PaymentMonthCoveredEntity>>

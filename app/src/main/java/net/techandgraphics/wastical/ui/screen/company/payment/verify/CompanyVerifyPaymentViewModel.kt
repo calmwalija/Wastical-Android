@@ -24,6 +24,7 @@ import net.techandgraphics.wastical.data.remote.toPaymentResponse
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -88,7 +89,10 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         event.payment
           .toPaymentEntity()
           .toPaymentRequestEntity(httpOperation = HttpOperation.Put)
-          .copy(status = PaymentStatus.Declined.name)
+          .copy(
+            status = PaymentStatus.Declined.name,
+            updatedAt = ZonedDateTime.now().toEpochSecond(),
+          )
       onCachePayment(cachePayment)
     }
 
@@ -106,7 +110,11 @@ class CompanyVerifyPaymentViewModel @Inject constructor(
         event.payment
           .toPaymentEntity()
           .toPaymentRequestEntity(httpOperation = HttpOperation.Put)
-          .copy(status = PaymentStatus.Approved.name)
+          .copy(
+            status = PaymentStatus.Approved.name,
+            updatedAt = ZonedDateTime.now().toEpochSecond(),
+          )
+
       onCachePayment(cachePayment)
     }
 

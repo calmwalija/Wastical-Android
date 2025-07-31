@@ -4,9 +4,14 @@ import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 
 @Dao
-interface AccountContactDao : BaseDao<AccountContactEntity> {
+interface AccountContactDao : BaseDao<AccountContactEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM account_contact ORDER BY updated_at DESC LIMIT 1")
+  override suspend fun getLastUpdatedTimestamp(): Long
+
   @Query("SELECT * FROM account_contact")
   suspend fun query(): List<AccountContactEntity>
 

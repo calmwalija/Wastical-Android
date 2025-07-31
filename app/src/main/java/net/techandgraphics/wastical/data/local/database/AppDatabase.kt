@@ -94,7 +94,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val demographicStreetDao: DemographicStreetDao
   abstract val demographicAreaDao: DemographicAreaDao
   abstract val companyBinCollectionDao: CompanyBinCollectionDao
-  abstract val paymentDayDao: PaymentCollectionDayDao
+  abstract val paymentCollectionDayDao: PaymentCollectionDayDao
   abstract val accountPaymentPlanDao: AccountPaymentPlanDao
   abstract val paymentGatewayDao: PaymentGatewayDao
   abstract val accountFcmTokenDao: AccountFcmTokenDao
@@ -112,6 +112,6 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val accountOtpDao: AccountOtpDao
 
   companion object {
-    const val NAME = "quantcal_db"
+    const val NAME = "wastical_db"
   }
 }
