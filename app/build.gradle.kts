@@ -212,6 +212,9 @@ dependencies {
 
   implementation("com.auth0:java-jwt:4.4.0")
 
+  implementation(libs.accompanist.systemuicontroller)
+
+
   implementation("com.google.android.gms:play-services-auth:19.0.0")
 
 }
