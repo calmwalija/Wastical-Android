@@ -94,17 +94,7 @@ fun CompanyPaymentLocationClientItem(
           tint = if (entity.hasPaid || entity.offlinePay) Green else Color.Red,
         )
       }
-      OutlinedCard(
-        shape = CircleShape,
-        onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment(account.id)) },
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(.5f))
-      ) {
-        Text(
-          text = "Pay",
-          style = MaterialTheme.typography.bodySmall,
-          modifier = Modifier.padding(horizontal = 32.dp, vertical = 12.dp),
-        )
-      }
+
     }
   }
 }

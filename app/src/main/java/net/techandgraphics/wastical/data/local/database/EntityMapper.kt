@@ -15,6 +15,7 @@ import net.techandgraphics.wastical.data.local.database.company.location.Company
 import net.techandgraphics.wastical.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastical.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastical.data.local.database.demographic.street.DemographicStreetEntity
+import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
 import net.techandgraphics.wastical.data.local.database.payment.collection.PaymentCollectionDayEntity
 import net.techandgraphics.wastical.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastical.data.local.database.payment.method.PaymentMethodEntity
@@ -25,6 +26,7 @@ import net.techandgraphics.wastical.data.local.database.payment.plan.PaymentPlan
 import net.techandgraphics.wastical.data.local.database.relations.CompanyLocationWithDemographicEntity
 import net.techandgraphics.wastical.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEntity
+import net.techandgraphics.wastical.data.remote.NotificationResponse
 import net.techandgraphics.wastical.data.remote.account.AccountResponse
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.account.contact.AccountContactResponse
@@ -500,6 +502,21 @@ fun AccountOtpResponse.toAccountOtpEntity(contact: String) =
     otp = otp,
     contact = contact,
     accountId = accountId,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
+
+fun NotificationResponse.toNotificationEntity() =
+  NotificationEntity(
+    id = id,
+    uuid = uuid,
+    isRead = isRead,
+    recipientId = recipientId,
+    recipientRole = recipientRole,
+    senderId = senderId,
+    type = type,
+    metadata = metadata,
+    deliveredAt = deliveredAt,
     createdAt = createdAt,
     updatedAt = updatedAt,
   )

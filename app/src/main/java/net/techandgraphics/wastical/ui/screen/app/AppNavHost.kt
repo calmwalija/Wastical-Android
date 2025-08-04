@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.ui.Route
+import net.techandgraphics.wastical.ui.activity.MainActivity
 import net.techandgraphics.wastical.ui.screen.auth.phone.PhoneNavGraphBuilder
 import net.techandgraphics.wastical.ui.screen.auth.phone.PhoneRoute
 import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoadEvent
@@ -17,11 +18,13 @@ import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoadScreen
 import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoadViewModel
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeEvent
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeScreen
+import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeState
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.wastical.ui.screen.client.info.ClientInfoNav
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceEvent
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceScreen
 import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceViewModel
+import net.techandgraphics.wastical.ui.screen.client.notification.ClientNotificationNav
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentEvent
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentScreen
@@ -29,10 +32,12 @@ import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentViewMo
 import net.techandgraphics.wastical.ui.screen.client.settings.ClientSettingsNav
 import net.techandgraphics.wastical.ui.screen.company.CompanyNavGraphBuilder
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
+import net.techandgraphics.wastical.worker.client.payment.INTENT_EXTRA_GOTO
 
 @Composable
 fun AppNavHost(
   navController: NavHostController,
+  activity: MainActivity,
 ) {
   NavHost(
     navController = navController,
@@ -93,6 +98,14 @@ fun AppNavHost(
     composable<Route.Client.Home> {
       with(hiltViewModel<ClientHomeViewModel>()) {
         val state = state.collectAsState().value
+        LaunchedEffect(state) {
+          activity.intent?.getStringExtra(INTENT_EXTRA_GOTO)?.let { route ->
+            if (state is ClientHomeState.Success) {
+              activity.intent = null
+              navController.navigate(Route.Client.Notification(state.account.id))
+            }
+          }
+        }
         ClientHomeScreen(state, channel) { event ->
           when (event) {
             is ClientHomeEvent.Goto ->
@@ -103,6 +116,9 @@ fun AppNavHost(
 
                 ClientHomeEvent.Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
                 ClientHomeEvent.Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
+
+                is ClientHomeEvent.Goto.Notification ->
+                  navController.navigate(Route.Client.Notification(event.id))
               }
 
             is ClientHomeEvent.Button.MakePayment ->
@@ -140,6 +156,7 @@ fun AppNavHost(
 
     ClientSettingsNav(navController)
     ClientInfoNav(navController)
+    ClientNotificationNav(navController)
 
   }
 }

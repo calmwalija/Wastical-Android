@@ -30,8 +30,8 @@ import net.techandgraphics.wastical.domain.toPaymentUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getTimeOfDay
 import net.techandgraphics.wastical.notification.NotificationBuilder
+import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.notification.NotificationUiModel
 import net.techandgraphics.wastical.services.company.CompanyFcmNotificationAction
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
@@ -88,8 +88,8 @@ import java.util.concurrent.TimeUnit
         val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
         val months = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
         val theAmount = months.size.times(plan.fee).toAmount()
-        val notification = NotificationUiModel(
-          type = NotificationType.PaymentFetchLatest,
+        val notification = NotificationBuilderModel(
+          type = NotificationType.PROOF_OF_PAYMENT_RECEIVED,
           title = "New Payment Added",
           body = "New payment has been added and approved",
           style = NotificationCompat.BigTextStyle().bigText(
@@ -120,7 +120,7 @@ import java.util.concurrent.TimeUnit
 
         NotificationBuilder(context)
           .show(
-            notification = notification,
+            model = notification,
             notificationId = payment.id,
           )
       }

@@ -4,6 +4,7 @@ import android.accounts.AccountManager
 import android.content.Context
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
@@ -31,6 +32,7 @@ class WorkerFactory @Inject constructor(
   private val accountSessionRepository: AccountSessionRepository,
   private val lastUpdatedApi: LastUpdatedApi,
   private val preferences: Preferences,
+  private val gson: Gson,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
@@ -83,6 +85,7 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        gson = gson,
       )
 
     AccountFcmTokenWorker::class.java.name ->

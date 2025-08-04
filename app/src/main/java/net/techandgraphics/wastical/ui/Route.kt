@@ -17,6 +17,8 @@ sealed interface Route {
 
     @Serializable data class Info(val id: Long) : Client
 
+    @Serializable data class Notification(val id: Long) : Client
+
     @Serializable data class PaymentResponse(
       val isSuccess: Boolean,
       val error: String? = null,

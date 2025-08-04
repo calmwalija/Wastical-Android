@@ -37,4 +37,5 @@ data class ServerResponse(
   @SerializedName("demographic_districts") val demographicDistricts: List<DemographicDistrictResponse>? = null,
   @SerializedName("company_locations") val companyLocations: List<CompanyLocationResponse>? = null,
   @SerializedName("account_otp") val accountOtps: List<AccountOtpResponse>? = null,
+  @SerializedName("notifications") val notifications: List<NotificationResponse>? = null,
 )

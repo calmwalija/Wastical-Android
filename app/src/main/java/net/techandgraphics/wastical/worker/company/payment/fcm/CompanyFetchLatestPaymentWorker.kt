@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
-import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -30,8 +29,8 @@ import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toPaymentUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.notification.NotificationBuilder
+import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.notification.NotificationUiModel
 import net.techandgraphics.wastical.services.company.CompanyFcmNotificationAction
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
@@ -50,7 +49,7 @@ import java.util.concurrent.TimeUnit
 
   override suspend fun doWork(): Result {
     return try {
-      database.withTransaction { invoke() }
+      invoke()
       Result.success()
     } catch (e: Exception) {
       e.printStackTrace()
@@ -90,8 +89,9 @@ import java.util.concurrent.TimeUnit
         val plan = database.paymentPlanDao.get(method.paymentPlanId)
         val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
         val months = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
-        val notification = NotificationUiModel(
-          type = NotificationType.PaymentVerification,
+
+        val notification = NotificationBuilderModel(
+          type = NotificationType.PROOF_OF_PAYMENT_SUBMITTED,
           title = "Payment Request Verification",
           body = "${account.toFullName()} has sent a payment request",
           style = NotificationCompat.BigTextStyle().bigText(
@@ -120,11 +120,13 @@ import java.util.concurrent.TimeUnit
         )
 
         NotificationBuilder(context)
-          .withActions(
-            NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
-            NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
-            notification = notification,
+          .show(
+            model = notification,
             notificationId = payment.id,
+            actions = arrayOf(
+              NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
+              NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
+            ),
           )
       }
   }

@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.domain
 
 import net.techandgraphics.wastical.data.PaymentPeriod
 import net.techandgraphics.wastical.data.Status
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
 import net.techandgraphics.wastical.data.local.database.account.contact.AccountContactEntity
@@ -14,6 +15,8 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.Accoun
 import net.techandgraphics.wastical.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastical.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastical.data.local.database.demographic.street.DemographicStreetEntity
+import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
+import net.techandgraphics.wastical.data.local.database.notification.NotificationSyncStatus
 import net.techandgraphics.wastical.data.local.database.payment.gateway.PaymentGatewayEntity
 import net.techandgraphics.wastical.data.local.database.payment.method.PaymentMethodEntity
 import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntity
@@ -27,6 +30,7 @@ import net.techandgraphics.wastical.data.local.database.relations.PaymentWithAcc
 import net.techandgraphics.wastical.data.local.database.relations.PaymentWithMonthsCoveredEntity
 import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastical.domain.model.NotificationUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
@@ -50,6 +54,7 @@ import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAcc
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastical.domain.model.search.SearchTagUiModel
+import net.techandgraphics.wastical.notification.NotificationType
 
 fun PaymentPlanEntity.toPaymentPlanUiModel() = PaymentPlanUiModel(
   id = id,
@@ -290,3 +295,21 @@ fun AccountRequestEntity.toAccountRequestUiModel() = AccountRequestUiModel(
   createdAt = createdAt,
   id = id,
 )
+
+fun NotificationEntity.toNotificationUiModel() =
+  NotificationUiModel(
+    id = id,
+    uuid = uuid,
+    body = body,
+    bigText = bigText,
+    isRead = isRead,
+    recipientId = recipientId,
+    recipientRole = AccountRole.valueOf(recipientRole),
+    senderId = senderId,
+    type = NotificationType.valueOf(type),
+    metadata = metadata,
+    deliveredAt = deliveredAt,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    syncStatus = NotificationSyncStatus.entries.first { it.ordinal == syncStatus },
+  )
