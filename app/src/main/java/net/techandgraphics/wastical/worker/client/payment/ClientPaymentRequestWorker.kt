@@ -93,7 +93,7 @@ import java.util.concurrent.TimeUnit
       }?.forEach { notification ->
         val plan = database.paymentPlanDao.get(method.paymentPlanId)
         val theAmount = paymentRequest.months.times(plan.fee).toAmount()
-        val theBody = "Your payment of $theAmount has been sent for verification."
+        val theBody = "Your proof of payment of $theAmount has been submitted and awaits verification."
         val bigText =
           "$theBody We'll notify you once the verification is complete. Thank you for your patience."
         val newNotification = notification.copy(

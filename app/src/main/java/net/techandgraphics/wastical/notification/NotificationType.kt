@@ -16,12 +16,17 @@ enum class NotificationType(val id: String, val description: String) {
 
   PROOF_OF_PAYMENT_APPROVED(
     id = "ef02538d-d8fe-4692-a67a-54eeec16e1bb",
-    description = "Payment approved by company",
+    description = "Proof Of Payment Approved",
   ),
 
-  PROOF_OF_PAYMENT_REJECTED(
+  PROOF_OF_PAYMENT_DECLINED(
     id = "a4c30371-431f-4c73-9e60-ab4d569797d0",
-    description = "Payment rejected by company",
+    description = "Proof Of Payment Declined",
+  ),
+
+  PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY(
+    id = "4e13b8c5-4076-4313-87d4-3dda81edbfe4",
+    description = "Proof Of Payment Submitted By Company",
   ),
 
   WASTE_COLLECTION_REMINDER(

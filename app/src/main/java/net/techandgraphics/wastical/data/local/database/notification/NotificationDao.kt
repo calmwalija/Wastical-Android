@@ -13,4 +13,7 @@ abstract class NotificationDao : BaseDao<NotificationEntity> {
 
   @Query("SELECT * FROM notification ORDER BY id DESC")
   abstract fun flowOf(): Flow<List<NotificationEntity>>
+
+  @Query("SELECT * FROM notification WHERE id = :id")
+  abstract fun get(id: Long): NotificationEntity?
 }

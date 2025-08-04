@@ -13,8 +13,8 @@ import net.techandgraphics.wastical.data.remote.LastUpdatedApi
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
-import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchLatestPaymentByCompanyWorker
-import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchLatestPaymentWorker
+import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentSubmittedByCompanyWorker
+import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountRequestWorker
@@ -108,14 +108,15 @@ class WorkerFactory @Inject constructor(
         accountManager = accountManager,
       )
 
-    ClientFetchLatestPaymentWorker::class.java.name ->
-      ClientFetchLatestPaymentWorker(
+    ClientFetchProofOfPaymentWorker::class.java.name ->
+      ClientFetchProofOfPaymentWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        gson = gson,
       )
 
     CompanyFetchLatestPaymentWorker::class.java.name ->
@@ -128,14 +129,15 @@ class WorkerFactory @Inject constructor(
         accountManager = accountManager,
       )
 
-    ClientFetchLatestPaymentByCompanyWorker::class.java.name ->
-      ClientFetchLatestPaymentByCompanyWorker(
+    ClientFetchProofOfPaymentSubmittedByCompanyWorker::class.java.name ->
+      ClientFetchProofOfPaymentSubmittedByCompanyWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        gson = gson,
       )
 
     AccountLastUpdatedWorker::class.java.name ->
