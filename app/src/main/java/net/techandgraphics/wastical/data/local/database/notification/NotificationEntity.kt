@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
+import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntity
 
 @Entity(
   tableName = "notification",
@@ -14,6 +15,13 @@ import net.techandgraphics.wastical.data.local.database.account.AccountEntity
       entity = AccountEntity::class,
       parentColumns = ["id"],
       childColumns = ["sender_id"],
+      onUpdate = ForeignKey.CASCADE,
+      onDelete = ForeignKey.CASCADE,
+    ),
+    ForeignKey(
+      entity = PaymentEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["payment_id"],
       onUpdate = ForeignKey.CASCADE,
       onDelete = ForeignKey.CASCADE,
     ),
@@ -31,6 +39,7 @@ data class NotificationEntity(
   @ColumnInfo("recipient_id") val recipientId: Long?,
   @ColumnInfo("recipient_role") val recipientRole: String,
   @ColumnInfo("sender_id") val senderId: Long,
+  @ColumnInfo("payment_id") val paymentId: Long?,
   @ColumnInfo("notification_type") val type: String,
   @ColumnInfo("metadata") val metadata: String?,
   @ColumnInfo("delivered_at") val deliveredAt: Long?,

@@ -23,7 +23,6 @@ import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
-import net.techandgraphics.wastical.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getTimeOfDay
@@ -31,6 +30,7 @@ import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
+import net.techandgraphics.wastical.theAmount
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
@@ -62,26 +62,22 @@ import java.util.concurrent.TimeUnit
   private suspend fun onDoWork() {
     authenticatorHelper.getAccount(accountManager)
       ?.let { account ->
-
         val epochSecond = database.paymentDao.getByUpdatedAtLatest()?.updatedAt ?: -1
         val newValue = paymentApi.fetchLatestByCompany(account.id, epochSecond)
-
         database.withTransaction {
           newValue.payments?.map { it.toPaymentEntity() }
-            ?.let { payments -> database.paymentDao.insert(payments) }
+            ?.let { payments -> database.paymentDao.upsert(payments) }
 
           newValue.paymentMonthsCovered
             ?.map { it.toPaymentMonthCoveredEntity() }
-            ?.also { database.paymentMonthCoveredDao.insert(it) }
+            ?.also { database.paymentMonthCoveredDao.upsert(it) }
 
           newValue.notifications?.map { notificationResponse ->
             notificationResponse.toNotificationEntity()
           }?.forEach { notification ->
-            val payment = gson.fromJson(notification.metadata, PaymentResponse::class.java)
+            val payment = database.paymentDao.get(notification.paymentId!!)
             val method = database.paymentMethodDao.get(payment.paymentMethodId)
-            val plan = database.paymentPlanDao.get(method.paymentPlanId)
-            val monthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
-            val theAmount = monthCovered.sumOf { it.month }.times(plan.fee).toAmount()
+            val theAmount = database.theAmount(payment).toAmount()
             val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
             val theBody =
               "Proof of payment of $theAmount has been submitted on your behalf by the company."
@@ -94,7 +90,7 @@ import java.util.concurrent.TimeUnit
 
             val newNotification = notification.copy(bigText = bigText, body = theBody)
 
-            database.notificationDao.get(newNotification.id)?.let {
+            if (database.notificationDao.get(newNotification.id) == null) {
               database.notificationDao.upsert(newNotification)
             }
           }

@@ -514,6 +514,7 @@ fun NotificationResponse.toNotificationEntity() =
     recipientId = recipientId,
     recipientRole = recipientRole,
     senderId = senderId,
+    paymentId = paymentId,
     type = type,
     metadata = metadata,
     deliveredAt = deliveredAt,

@@ -11,6 +11,7 @@ data class NotificationResponse(
   @SerializedName("notification_type") val type: String,
   @SerializedName("metadata") val metadata: String?,
   @SerializedName("delivered_at") val deliveredAt: Long?,
+  @SerializedName("payment_id") val paymentId: Long?,
   @SerializedName("sender_id") val senderId: Long,
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("created_at") val createdAt: Long,

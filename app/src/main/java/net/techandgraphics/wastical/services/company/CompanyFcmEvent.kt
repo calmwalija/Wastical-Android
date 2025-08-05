@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
+import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.worker.company.payment.fcm.scheduleCompanyFetchLatestPaymentWorker
 
 class CompanyFcmEvent(
@@ -19,7 +20,7 @@ class CompanyFcmEvent(
   fun onEvent() = coroutineScope.launch {
     when {
       remoteMessage.data["event"]
-        ?.contains("verify") == true -> {
+        ?.contains(NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY.name) == true -> {
         context.scheduleCompanyFetchLatestPaymentWorker()
       }
     }

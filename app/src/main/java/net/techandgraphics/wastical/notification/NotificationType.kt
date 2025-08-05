@@ -29,6 +29,11 @@ enum class NotificationType(val id: String, val description: String) {
     description = "Proof Of Payment Submitted By Company",
   ),
 
+  PROOF_OF_PAYMENT_COMPANY_VERIFY(
+    id = "3366f023-eede-452c-8743-3d8e8373eefa",
+    description = "Proof Of Payment Company Verification",
+  ),
+
   WASTE_COLLECTION_REMINDER(
     id = "7541db40-3e46-4bd4-8bc3-5b9362c9cdc8",
     description = "Upcoming waste collection reminder",

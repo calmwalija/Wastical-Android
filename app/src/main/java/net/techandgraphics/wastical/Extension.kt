@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.zip
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.account.AuthenticatorHelper.Companion.JSON_ACCOUNT
+import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntity
 import net.techandgraphics.wastical.data.remote.account.AccountRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
@@ -156,4 +157,11 @@ private fun buildCharPool(): List<Char> {
   val numbers = ('0'..'9')
   val symbols = "!@=#$%=&*()_+-=[]{}|;:,.<>?/"
   return letters + numbers + symbols.toList()
+}
+
+suspend fun AppDatabase.theAmount(payment: PaymentEntity): Int {
+  val method = paymentMethodDao.get(payment.paymentMethodId)
+  val plan = paymentPlanDao.get(method.paymentPlanId)
+  val monthCovered = paymentMonthCoveredDao.getByPaymentId(payment.id)
+  return monthCovered.size.times(plan.fee)
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "27cf93bc5db7037607a5ed17528caa43",
+    "identityHash": "474b8a996b17824c465ef1b42a0a9ec9",
     "entities": [
       {
         "tableName": "account",
@@ -1992,7 +1992,7 @@
       },
       {
         "tableName": "notification",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `big_text` TEXT NOT NULL, `is_read` INTEGER NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `big_text` TEXT NOT NULL, `is_read` INTEGER NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `payment_id` INTEGER, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2041,6 +2041,12 @@
             "columnName": "sender_id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "paymentId",
+            "columnName": "payment_id",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "type",
@@ -2107,6 +2113,17 @@
             "referencedColumns": [
               "id"
             ]
+          },
+          {
+            "table": "payment",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "payment_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
           }
         ]
       }
@@ -2114,7 +2131,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '27cf93bc5db7037607a5ed17528caa43')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '474b8a996b17824c465ef1b42a0a9ec9')"
     ]
   }
 }
