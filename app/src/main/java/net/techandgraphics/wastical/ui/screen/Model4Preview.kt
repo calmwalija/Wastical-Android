@@ -7,8 +7,10 @@ import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
 import net.techandgraphics.wastical.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
+import net.techandgraphics.wastical.data.local.database.notification.NotificationSyncStatus
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.di.ImageCacheModule
+import net.techandgraphics.wastical.domain.model.NotificationUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
@@ -31,6 +33,7 @@ import net.techandgraphics.wastical.domain.model.relations.PaymentMethodWithGate
 import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.paymentReference
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
@@ -288,6 +291,23 @@ internal val accountRequest4Preview = AccountRequestEntity(
   paymentPlanId = 1L,
   createdAt = 1,
   updatedAt = 1,
+)
+
+internal val notification4Preview = NotificationUiModel(
+  id = 1,
+  uuid = "uuid",
+  body = "Too Much Work in a Single Transaction",
+  bigText = "The UI freezing you're experiencing may be due to heavy operations running on the main thread",
+  isRead = Random.nextBoolean(),
+  recipientId = 1,
+  recipientRole = AccountRole.Client,
+  senderId = 1,
+  type = NotificationType.PROOF_OF_PAYMENT_SUBMITTED,
+  metadata = null,
+  deliveredAt = null,
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
+  syncStatus = NotificationSyncStatus.Synced,
 )
 
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

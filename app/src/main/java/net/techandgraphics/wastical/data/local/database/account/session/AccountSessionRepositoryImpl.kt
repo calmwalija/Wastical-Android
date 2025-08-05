@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.data.local.database.account.session
 
 import android.accounts.AccountManager
 import androidx.room.withTransaction
+import com.google.gson.Gson
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.toAccountContactEntity
@@ -14,6 +15,7 @@ import net.techandgraphics.wastical.data.local.database.toCompanyLocationRequest
 import net.techandgraphics.wastical.data.local.database.toDemographicAreaEntity
 import net.techandgraphics.wastical.data.local.database.toDemographicDistrictEntity
 import net.techandgraphics.wastical.data.local.database.toDemographicStreetEntity
+import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentCollectionDayEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentGatewayEntity
@@ -23,7 +25,9 @@ import net.techandgraphics.wastical.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastical.data.remote.ServerResponse
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.mapApiError
+import net.techandgraphics.wastical.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.toAmount
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
@@ -31,6 +35,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
   private val sessionService: AccountApi,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val gson: Gson,
 ) : AccountSessionRepository {
 
   private fun getAccount() = authenticatorHelper.getAccount(accountManager)
@@ -70,6 +75,7 @@ class AccountSessionRepositoryImpl @Inject constructor(
           .plus(demographicAreas?.size ?: 0)
           .plus(demographicDistricts?.size ?: 0)
           .plus(companyLocations?.size ?: 0)
+          .plus(notifications?.size ?: 0)
       }
 
       data.run {
@@ -157,6 +163,24 @@ class AccountSessionRepositoryImpl @Inject constructor(
           ?.also {
             paymentMonthCoveredDao.upsert(it)
             onProgress(totalItemCount, it.size)
+          }
+
+        notifications?.map { it.toNotificationEntity() }
+          ?.forEachIndexed { index, notification ->
+            val payment = gson.fromJson(notification.metadata, PaymentResponse::class.java)
+            val monthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
+            val method = database.paymentMethodDao.get(payment.paymentMethodId)
+            val plan = database.paymentPlanDao.get(method.paymentPlanId)
+            val theAmount = monthCovered.sumOf { it.month }.times(plan.fee).toAmount()
+            val theBody = "Your payment of $theAmount has been sent for verification."
+            val bigText =
+              "$theBody We'll notify you once the verification is complete. Thank you for your patience."
+            val newNotification = notification.copy(
+              bigText = bigText,
+              body = theBody,
+            )
+            notificationDao.upsert(newNotification)
+            onProgress(totalItemCount, index.plus(1))
           }
       }
     }

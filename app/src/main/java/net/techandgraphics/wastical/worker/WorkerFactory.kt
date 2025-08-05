@@ -4,6 +4,7 @@ import android.accounts.AccountManager
 import android.content.Context
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
@@ -12,8 +13,8 @@ import net.techandgraphics.wastical.data.remote.LastUpdatedApi
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
-import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchLatestPaymentByCompanyWorker
-import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchLatestPaymentWorker
+import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentSubmittedByCompanyWorker
+import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountRequestWorker
@@ -31,6 +32,7 @@ class WorkerFactory @Inject constructor(
   private val accountSessionRepository: AccountSessionRepository,
   private val lastUpdatedApi: LastUpdatedApi,
   private val preferences: Preferences,
+  private val gson: Gson,
 ) : WorkerFactory() {
   override fun createWorker(
     appContext: Context,
@@ -83,6 +85,7 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        gson = gson,
       )
 
     AccountFcmTokenWorker::class.java.name ->
@@ -105,14 +108,15 @@ class WorkerFactory @Inject constructor(
         accountManager = accountManager,
       )
 
-    ClientFetchLatestPaymentWorker::class.java.name ->
-      ClientFetchLatestPaymentWorker(
+    ClientFetchProofOfPaymentWorker::class.java.name ->
+      ClientFetchProofOfPaymentWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        gson = gson,
       )
 
     CompanyFetchLatestPaymentWorker::class.java.name ->
@@ -125,14 +129,15 @@ class WorkerFactory @Inject constructor(
         accountManager = accountManager,
       )
 
-    ClientFetchLatestPaymentByCompanyWorker::class.java.name ->
-      ClientFetchLatestPaymentByCompanyWorker(
+    ClientFetchProofOfPaymentSubmittedByCompanyWorker::class.java.name ->
+      ClientFetchProofOfPaymentSubmittedByCompanyWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        gson = gson,
       )
 
     AccountLastUpdatedWorker::class.java.name ->
