@@ -20,6 +20,10 @@ import java.io.IOException
 
 class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
 
+  companion object {
+    const val PDF_TEXT_SIZE = 8f
+  }
+
   private val pdfDocument = PdfDocument()
   private val cellPadding = 5f
 
@@ -30,7 +34,7 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
   }
 
   private val cellPaint = Paint().apply {
-    textSize = 7f
+    textSize = PDF_TEXT_SIZE
     typeface = light(this@BaseExportKlass)
     color = Color.BLACK
   }
@@ -43,13 +47,13 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
 
   private val headerPaint = Paint().apply {
     color = Color.BLACK
-    textSize = 8f
+    textSize = PDF_TEXT_SIZE
     typeface = bold(this@BaseExportKlass)
   }
 
   private val pageTitlePaint = Paint().apply {
     color = Color.BLACK
-    textSize = 8f
+    textSize = PDF_TEXT_SIZE.plus(3f)
     typeface = bold(this@BaseExportKlass)
     textAlign = Paint.Align.CENTER
   }
@@ -70,13 +74,29 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
     require(columnHeaders.size == columnWidths.size) {
       "Column headers and widths must have the same size"
     }
-    val pageWidth = 595
-    val pageHeight = 842
+    val pageWidth = 600
+    val pageHeight = 920
 
     val startYHeader = 64
     var currentY = startYHeader + lineHeight
 
     var pageIndex = 1
+
+    fun calculateTotalPages(): Int {
+      var pageCount = 1
+      var currentY = startYHeader + lineHeight
+
+      items.forEach { _ ->
+        if (currentY > pageHeight - 60) {
+          pageCount++
+          currentY = startYHeader + 20f // Reset Y for new page (same as your logic)
+        }
+        currentY += lineHeight
+      }
+      return pageCount
+    }
+
+    val totalPages = calculateTotalPages()
 
     var canvas: Canvas
     var page =
@@ -87,7 +107,7 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
 
     canvas.drawText(pageTitle, pageWidth / 2f, margin, pageTitlePaint)
 
-    canvas.drawText("page. $pageIndex", pageWidth / 2f, pageHeight - (40f), cellPaint)
+    canvas.drawText("Page $pageIndex of $totalPages", pageWidth / 2f, pageHeight - 30f, cellPaint)
 
     fun drawHeader(canvas: Canvas) {
       val headerHeight = lineHeight * 1.2f
@@ -161,9 +181,9 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
         currentY = startYHeader + 20f
 
         canvas.drawText(
-          "page. $pageIndex",
+          "Page $pageIndex of $totalPages",
           pageWidth / 2f,
-          pageHeight.minus(40f),
+          pageHeight - 30f,
           cellPaint,
         )
 

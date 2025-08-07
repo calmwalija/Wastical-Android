@@ -28,10 +28,10 @@ import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.lastDayOfMonth
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.toAmount
-import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
 import java.io.File
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -52,7 +52,7 @@ class CompanyReportViewModel @Inject constructor(
   private var fullNameWidth: Float = -1f
 
   private val paint = Paint().apply {
-    textSize = 7f
+    textSize = PDF_TEXT_SIZE
     typeface = light(application)
   }
 
@@ -64,12 +64,14 @@ class CompanyReportViewModel @Inject constructor(
     onEvent(CompanyReportEvent.Load)
   }
 
-  private fun Float.padding() = plus(24)
+  private fun Float.padding() = plus(24f)
+  private fun String.mills() = this + " - " + System.currentTimeMillis().toString().take(5)
 
   private fun toFullname(title: String, name: String) =
     title.getAccountTitle().plus(" ${name.trim()}")
 
   private fun String.toContact() = if (isDigitsOnly()) this else ""
+  private fun ZonedDateTime.toDate() = month.value.toMonthName().plus(" ${this.year}")
 
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
@@ -93,8 +95,9 @@ class CompanyReportViewModel @Inject constructor(
           .thenBy { it.month },
       )
 
-    fullNameWidth = accounts.maxOfOrNull { paint.measureText(it.toFullName()) }
-      ?.plus(24f)
+    fullNameWidth = accounts
+      .maxOfOrNull { paint.measureText(it.title.title.plus(it.lastname)) }
+      ?.padding()
       ?: 120f
 
     _state.value = CompanyReportState.Success(
@@ -137,7 +140,6 @@ class CompanyReportViewModel @Inject constructor(
       val demographicAreaWidth =
         dataset.maxOfOrNull { item -> paint.measureText(item.demographicArea) }
           ?.padding() ?: 120f
-      val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths =
         listOf(
@@ -146,7 +148,6 @@ class CompanyReportViewModel @Inject constructor(
           contactWidth,
           amountWidth,
           demographicAreaWidth,
-          createdAtWidth,
         )
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
@@ -155,12 +156,11 @@ class CompanyReportViewModel @Inject constructor(
           fullNameWidth,
           contactWidth,
           amountWidth,
-          createdAtWidth,
           demographicAreaWidth,
           locationWidth,
         )
 
-      val filename = "New Clients Report - ${startMonthDate.defaultDate()}"
+      val filename = "New Clients Report - ${startMonthDate.toDate()}"
 
       BaseExportKlass<AccountExport>(application)
         .toPdf(
@@ -168,21 +168,19 @@ class CompanyReportViewModel @Inject constructor(
           columnHeaders = listOf(
             "#",
             "Full Name",
-            "Phone",
+            "Contact",
             "Amount",
-            "Created",
             "Area",
             "Location",
           ),
           columnWidths = columnWidths,
-          filename = filename,
+          filename = filename.mills(),
           pageTitle = filename,
           items = dataset,
           valueExtractor = { account ->
             listOf(
-              account.title.getAccountTitle() + account.lastname.trim(),
-              account.createdAt.toZonedDateTime().defaultDate(),
-              if (account.username.isDigitsOnly()) account.username.as9DigitContact() else "",
+              toFullname(account.title, account.lastname),
+              account.username.toContact(),
               account.fee.toAmount(),
               account.demographicArea,
               account.demographicStreet,
@@ -202,7 +200,6 @@ class CompanyReportViewModel @Inject constructor(
       val demographicAreaWidth =
         dataset.maxOfOrNull { item -> paint.measureText(item.demographicArea) }
           ?.padding() ?: 120f
-      val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths =
         listOf(
@@ -211,7 +208,6 @@ class CompanyReportViewModel @Inject constructor(
           contactWidth,
           amountWidth,
           demographicAreaWidth,
-          createdAtWidth,
         )
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
@@ -220,12 +216,11 @@ class CompanyReportViewModel @Inject constructor(
           fullNameWidth,
           contactWidth,
           amountWidth,
-          createdAtWidth,
           demographicAreaWidth,
           locationWidth,
         )
 
-      val filename = "Active Clients Report - ${ZonedDateTime.now().defaultDate()}"
+      val filename = "Active Clients Report - ${ZonedDateTime.now().toDate()}"
 
       BaseExportKlass<AccountExport>(application)
         .toPdf(
@@ -235,12 +230,11 @@ class CompanyReportViewModel @Inject constructor(
             "Full Name",
             "Phone",
             "Amount",
-            "Created",
             "Area",
             "Location",
           ),
           columnWidths = columnWidths,
-          filename = filename,
+          filename = filename.mills(),
           pageTitle = filename,
           items = dataset,
           valueExtractor = { account ->
@@ -248,7 +242,6 @@ class CompanyReportViewModel @Inject constructor(
               account.title.getAccountTitle() + account.lastname.trim(),
               if (account.username.isDigitsOnly()) account.username.as9DigitContact() else "",
               account.fee.toAmount(),
-              account.createdAt.toZonedDateTime().defaultDate(),
               account.demographicArea,
               account.demographicStreet,
             )
@@ -282,14 +275,14 @@ class CompanyReportViewModel @Inject constructor(
       val columnWidths =
         listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 60f, 20f, 20f)
 
-      val filename = "Missed Payment Report - ${state.filters.first().month.toMonthName()}"
+      val filename = "Missed Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
 
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
           company = state.company,
           columnHeaders = listOf("#", "Full Name", "Contact", "Amount", "Location", "", "", ""),
           columnWidths = columnWidths,
-          filename = filename,
+          filename = filename.mills(),
           pageTitle = filename,
           items = dataset,
           valueExtractor = { account ->
@@ -318,13 +311,14 @@ class CompanyReportViewModel @Inject constructor(
         hasPaid = true,
       )
 
+      val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(countWidth, fullNameWidth, createdAtWidth, contactWidth, amountWidth)
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
         listOf(countWidth, fullNameWidth, contactWidth, amountWidth, createdAtWidth, locationWidth)
 
-      val filename = "Paid Payment Report - ${state.filters.first().month.toMonthName()}"
+      val filename = "Paid Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
 
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
@@ -339,7 +333,7 @@ class CompanyReportViewModel @Inject constructor(
               toFullname(account.title, account.lastname),
               account.contact.toContact(),
               account.amount.toAmount(),
-              account.paidOn.toZonedDateTime().defaultDateTime(),
+              account.paidOn.toZonedDateTime().defaultDate(),
               account.demographicStreet,
             )
           },
