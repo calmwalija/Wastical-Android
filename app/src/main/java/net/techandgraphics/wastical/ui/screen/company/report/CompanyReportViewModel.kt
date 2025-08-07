@@ -17,6 +17,7 @@ import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.AccountExport
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.CoverageRaw
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.OverpaymentItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.defaultDateTime
@@ -28,7 +29,9 @@ import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.lastDayOfMonth
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
+import net.techandgraphics.wastical.toShortMonthName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
@@ -62,10 +65,20 @@ class CompanyReportViewModel @Inject constructor(
 
   init {
     onEvent(CompanyReportEvent.Load)
+    deleteCachedPdfs()
+  }
+
+  private fun deleteCachedPdfs() = viewModelScope.launch(Dispatchers.IO) {
+    application.filesDir
+      .listFiles()
+      ?.filter { file -> file.isFile && file.name.endsWith(".pdf", ignoreCase = true) }
+      ?.forEach { file ->
+        runCatching { file.delete() }.onFailure { it.printStackTrace() }
+      }
   }
 
   private fun Float.padding() = plus(24f)
-  private fun String.mills() = this + " - " + System.currentTimeMillis().toString().take(5)
+  private fun String.mills() = this + " - " + System.currentTimeMillis().toString().drop(5)
 
   private fun toFullname(title: String, name: String) =
     title.getAccountTitle().plus(" ${name.trim()}")
@@ -120,6 +133,66 @@ class CompanyReportViewModel @Inject constructor(
           .copy(filters = updatedFilters)
       }
     }
+
+  private fun onReportOverpayment() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val dataset = database.paymentIndicatorDao.qOverpayment()
+      val zonedDateTime = ZonedDateTime.now()
+
+      val createdAtWidth = paint.measureText(zonedDateTime.defaultDate()).padding()
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths =
+        listOf(
+          countWidth,
+          createdAtWidth,
+          fullNameWidth,
+          contactWidth,
+          amountWidth,
+        )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+
+      val columnWidths =
+        listOf(
+          countWidth,
+          fullNameWidth,
+          contactWidth,
+          createdAtWidth,
+          amountWidth,
+          locationWidth,
+        )
+
+      val filename = "OverPayment Report - ${zonedDateTime.toDate()}"
+
+      BaseExportKlass<OverpaymentItem>(application)
+        .toPdf(
+          company = state.company,
+          columnHeaders = listOf(
+            "#",
+            "Full Name",
+            "Contact",
+            "Due",
+            "Amount",
+            "Location",
+          ),
+          columnWidths = columnWidths,
+          filename = filename.mills(),
+          pageTitle = filename,
+          items = dataset,
+          valueExtractor = { item ->
+            listOf(
+              item.account.toAccountUiModel().toFullName(),
+              item.account.username.toContact(),
+              item.maxMonth.toShortMonthName().plus(" ${item.maxYear}"),
+              item.overpayment.toAmount(),
+              item.demographicStreet,
+            )
+          },
+          onEvent = ::onEventPdf,
+        )
+    }
+  }
 
   private fun onReportNewClient() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
@@ -268,7 +341,6 @@ class CompanyReportViewModel @Inject constructor(
         hasPaid = false,
       )
 
-      println("🔥🔥🔥🔥🔥🔥🔥🔥🔥 $dataset")
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 60f, 20f, 20f)
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
@@ -325,7 +397,7 @@ class CompanyReportViewModel @Inject constructor(
           company = state.company,
           columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Paid", "Location"),
           columnWidths = columnWidths,
-          filename = filename,
+          filename = filename.mills(),
           pageTitle = filename,
           items = dataset,
           valueExtractor = { account ->
@@ -388,7 +460,7 @@ class CompanyReportViewModel @Inject constructor(
       CompanyReportEvent.Button.Report.PaidPayment -> onReportPaidPayment()
       CompanyReportEvent.Button.Report.NewClient -> onReportNewClient()
 
-      CompanyReportEvent.Button.Report.Overpayment -> Unit
+      CompanyReportEvent.Button.Report.Overpayment -> onReportOverpayment()
       CompanyReportEvent.Button.Report.PaymentCoverage -> Unit
       CompanyReportEvent.Button.Report.LocationBased -> Unit
       CompanyReportEvent.Button.Report.ClientDisengagement -> Unit

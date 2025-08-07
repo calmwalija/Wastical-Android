@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
+import java.time.YearMonth
 
 @Dao
 interface PaymentIndicatorDao {
@@ -222,7 +223,51 @@ interface PaymentIndicatorDao {
 
   @Query("SELECT month, year FROM payment_month_covered GROUP BY month, year")
   suspend fun getAllMonthsPayments(): List<MonthYear>
+
+  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+  @Query(
+    """
+    SELECT
+      SUM(pp.fee) AS overpayment,
+      COUNT(*) AS months,
+      ds.name as demographicStreet,
+      MAX(pmc.month) AS maxMonth,
+      MAX(pmc.year) AS maxYear,
+      a.*
+    FROM
+      account a
+      INNER JOIN payment p ON a.id = p.account_id
+      INNER JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+      INNER JOIN account_payment_plan app ON a.id = app.account_id
+      INNER JOIN payment_plan pp ON pp.id = app.payment_plan_id
+      INNER JOIN company_location cl ON cl.id = a.company_location_id
+      INNER JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+    GROUP BY
+      p.id
+    HAVING
+      maxMonth >= :month
+      AND maxYear >= :year
+      AND months > 1
+    ORDER BY
+      maxMonth DESC
+
+  """,
+  )
+  suspend fun qOverpayment(
+    month: Int = YearMonth.now().month.value,
+    year: Int = YearMonth.now().year,
+  ): List<OverpaymentItem>
 }
+
+data class OverpaymentItem(
+  @Embedded
+  val account: AccountEntity,
+  val months: Int,
+  val maxMonth: Int,
+  val maxYear: Int,
+  val overpayment: Int,
+  val demographicStreet: String,
+)
 
 data class CoverageRaw(
   val accountId: Long,
