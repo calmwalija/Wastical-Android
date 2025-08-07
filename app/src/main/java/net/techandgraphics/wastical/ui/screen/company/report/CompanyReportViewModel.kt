@@ -15,15 +15,14 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
-import net.techandgraphics.wastical.data.local.database.dashboard.payment.CoverageRaw
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.OutstandingBalanceItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.OverpaymentItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.getAccountTitle
-import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.lastDayOfMonth
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.toAmount
@@ -35,6 +34,7 @@ import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
 import java.io.File
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel class CompanyReportViewModel @Inject constructor(
@@ -394,23 +394,6 @@ import javax.inject.Inject
     }
   }
 
-  private fun mapToCoverageMatrix(
-    rawList: List<CoverageRaw>,
-    months: List<Int>,
-  ): List<PaymentCoverageRow> {
-    return rawList.groupBy { it.accountId }.map { (_, rows) ->
-      val first = rows.first()
-      val monthsPaid = rows.mapNotNull { it.paidMonth }.toSet()
-      val monthMap = months.associateWith { it in monthsPaid }
-      PaymentCoverageRow(
-        fullName = first.fullName,
-        phoneNumber = first.phoneNumber,
-        monthStatus = monthMap,
-        title = first.title,
-      )
-    }
-  }
-
   private fun onReportLocationBased() = viewModelScope.launch(Dispatchers.IO) {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
@@ -530,23 +513,83 @@ import javax.inject.Inject
     }
   }
 
-  private fun onButtonExportCoverage() = viewModelScope.launch {
+  private fun onReportOutstandingBalance() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
-      val months = database.paymentMonthCoveredDao.qGroupByMonth().map { it.month }
-      val theData: List<PaymentCoverageRow> =
-        mapToCoverageMatrix(database.paymentIndicatorDao.getCoverageRaw(year), months)
-      BaseExportKlass<PaymentCoverageRow>(application).toCoveragePdf(
+      val dataset = database.paymentIndicatorDao.qOutstandingBalance().filter { item ->
+        val duration = monthsBetween(
+          item.account.createdAt
+            .toZonedDateTime()
+            .withDayOfMonth(1)
+            .minusMonths(1),
+        )
+        item.monthCovered < duration
+      }
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.account.toAccountUiModel().toFullName()) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        createdAtWidth,
+        createdAtWidth,
+      )
+
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        createdAtWidth,
+        createdAtWidth,
+        locationWidth,
+      )
+
+      val filename = "Outstanding Balance Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<OutstandingBalanceItem>(application).toPdf(
         company = state.company,
-        pdfHeaders = listOf("#", "Name", "Phone"),
-        pdfWidths = listOf(40f, 160f, 100f),
-        filename = "Payment Coverage",
-        onEvent = { file -> file?.preview(application) },
-        items = theData,
-        months = months,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Paid",
+          "Balance",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          val duration = monthsBetween(
+            item.account.createdAt
+              .toZonedDateTime()
+              .withDayOfMonth(1)
+              .minusMonths(1),
+          )
+          listOf(
+            item.account.toAccountUiModel().toFullName(),
+            item.account.username.toContact(),
+            item.totalPaid.toAmount(),
+            duration.times(item.feePlan)
+              .minus(item.monthCovered.times(item.feePlan))
+              .toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
       )
     }
+  }
+
+  private fun monthsBetween(start: ZonedDateTime, end: ZonedDateTime = ZonedDateTime.now()): Long {
+    return ChronoUnit.MONTHS.between(start, end)
   }
 
   private fun onLocationDialogPickMonth(event: CompanyReportEvent.Button.LocationDialog.Pick) =
@@ -569,7 +612,7 @@ import javax.inject.Inject
       CompanyReportEvent.Button.Report.NewClient -> onReportNewClient()
 
       CompanyReportEvent.Button.Report.Overpayment -> onReportOverpayment()
-      CompanyReportEvent.Button.Report.PaymentCoverage -> Unit
+      CompanyReportEvent.Button.Report.OutstandingBalance -> onReportOutstandingBalance()
       CompanyReportEvent.Button.Report.LocationBased -> onReportLocationBased()
       CompanyReportEvent.Button.Report.ClientDisengagement -> onReportClientDisengagement()
     }

@@ -21,7 +21,7 @@ sealed interface CompanyReportEvent {
       data object Overpayment : Report
       data object LocationBased : Report
       data object ClientDisengagement : Report
-      data object PaymentCoverage : Report
+      data object OutstandingBalance : Report
     }
 
     sealed interface MonthDialog : CompanyReportEvent {

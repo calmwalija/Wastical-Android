@@ -180,8 +180,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.Overpayment
             ),
             CompanyReportItem(
-              label = "Payment Coverage Report",
-              event = CompanyReportEvent.Button.Report.PaymentCoverage
+              label = "Outstanding Balance Report",
+              event = CompanyReportEvent.Button.Report.OutstandingBalance
             )
           ).forEach { item ->
             CompanyReportItemView(
@@ -215,7 +215,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     }
 
 
-                    CompanyReportEvent.Button.Report.PaymentCoverage -> onEvent(event)
+                    CompanyReportEvent.Button.Report.OutstandingBalance -> onEvent(event)
                     CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
                     CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
