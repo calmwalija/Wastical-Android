@@ -170,7 +170,7 @@ class CompanyReportViewModel @Inject constructor(
           company = state.company,
           columnHeaders = listOf(
             "#",
-            "Full Name",
+            "Name",
             "Contact",
             "Due",
             "Amount",
@@ -240,7 +240,7 @@ class CompanyReportViewModel @Inject constructor(
           company = state.company,
           columnHeaders = listOf(
             "#",
-            "Full Name",
+            "Name",
             "Contact",
             "Amount",
             "Area",
@@ -300,7 +300,7 @@ class CompanyReportViewModel @Inject constructor(
           company = state.company,
           columnHeaders = listOf(
             "#",
-            "Full Name",
+            "Name",
             "Phone",
             "Amount",
             "Area",
@@ -342,17 +342,17 @@ class CompanyReportViewModel @Inject constructor(
       )
 
       val countWidth = paint.measureText(dataset.size.toString()).padding()
-      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 60f, 20f, 20f)
+      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 80f, 20f, 20f)
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
-        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 60f, 20f, 20f)
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 80f, 20f, 20f)
 
       val filename = "Missed Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
 
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
           company = state.company,
-          columnHeaders = listOf("#", "Full Name", "Contact", "Amount", "Location", "", "", ""),
+          columnHeaders = listOf("#", "Name", "Contact", "Amount", "Location", "", "", ""),
           columnWidths = columnWidths,
           filename = filename.mills(),
           pageTitle = filename,
@@ -395,7 +395,7 @@ class CompanyReportViewModel @Inject constructor(
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
           company = state.company,
-          columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Paid", "Location"),
+          columnHeaders = listOf("#", "Name", "Phone", "Amount", "Paid", "Location"),
           columnWidths = columnWidths,
           filename = filename.mills(),
           pageTitle = filename,
@@ -443,7 +443,7 @@ class CompanyReportViewModel @Inject constructor(
       BaseExportKlass<PaymentCoverageRow>(application)
         .toCoveragePdf(
           company = state.company,
-          pdfHeaders = listOf("#", "Full Name", "Phone"),
+          pdfHeaders = listOf("#", "Name", "Phone"),
           pdfWidths = listOf(40f, 160f, 100f),
           filename = "Payment Coverage",
           onEvent = { file -> file?.preview(application) },
