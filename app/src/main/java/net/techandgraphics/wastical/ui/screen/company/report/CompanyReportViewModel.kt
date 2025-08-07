@@ -12,15 +12,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.techandgraphics.wastical.as9DigitContact
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
-import net.techandgraphics.wastical.data.local.database.account.ActiveAccountItem
+import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.CoverageRaw
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.OverpaymentItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
 import net.techandgraphics.wastical.defaultDate
-import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.getAccountTitle
@@ -57,7 +56,7 @@ import javax.inject.Inject
     typeface = light(application)
   }
 
-  private val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDateTime()).padding()
+  private val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
   private val contactWidth = paint.measureText("9912345678").padding()
   private val amountWidth = paint.measureText(100_000.toAmount()).padding()
 
@@ -217,7 +216,7 @@ import javax.inject.Inject
 
       val filename = "New Clients Report - ${startMonthDate.toDate()}"
 
-      BaseExportKlass<ActiveAccountItem>(application).toPdf(
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf(
           "#",
@@ -273,7 +272,7 @@ import javax.inject.Inject
 
       val filename = "Active Clients Report - ${ZonedDateTime.now().toDate()}"
 
-      BaseExportKlass<ActiveAccountItem>(application).toPdf(
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf(
           "#",
@@ -289,8 +288,8 @@ import javax.inject.Inject
         items = dataset,
         valueExtractor = { account ->
           listOf(
-            account.title.getAccountTitle() + account.lastname.trim(),
-            if (account.username.isDigitsOnly()) account.username.as9DigitContact() else "",
+            toFullname(account.title, account.lastname),
+            account.username.toContact(),
             account.fee.toAmount(),
             account.demographicArea,
             account.demographicStreet,
@@ -389,7 +388,7 @@ import javax.inject.Inject
     }
   }
 
-  fun mapToCoverageMatrix(
+  private fun mapToCoverageMatrix(
     rawList: List<CoverageRaw>,
     months: List<Int>,
   ): List<PaymentCoverageRow> {
@@ -437,7 +436,7 @@ import javax.inject.Inject
 
       val filename = "Location Based Clients Report - ${ZonedDateTime.now().toDate()}"
 
-      BaseExportKlass<ActiveAccountItem>(application).toPdf(
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf(
           "#",
@@ -458,6 +457,68 @@ import javax.inject.Inject
             account.fee.toAmount(),
             account.demographicArea,
             account.demographicStreet,
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportClientDisengagement() = viewModelScope.launch(Dispatchers.IO) {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val dataset = database.accountIndicatorDao.qActiveAccounts(status = Status.Inactive.name)
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }?.padding()
+          ?: 120f
+
+      val leavingReasonWidth =
+        dataset.maxOfOrNull { item -> paint.measureText(item.leavingReason ?: "") }?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        leavingReasonWidth,
+        createdAtWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        leavingReasonWidth,
+        createdAtWidth,
+        locationWidth,
+      )
+
+      val filename = "Client Disengagement Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Reason",
+          "Date",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.leavingReason ?: "",
+            item.updatedAt.toZonedDateTime().defaultDate(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,
@@ -506,7 +567,7 @@ import javax.inject.Inject
       CompanyReportEvent.Button.Report.Overpayment -> onReportOverpayment()
       CompanyReportEvent.Button.Report.PaymentCoverage -> Unit
       CompanyReportEvent.Button.Report.LocationBased -> onReportLocationBased()
-      CompanyReportEvent.Button.Report.ClientDisengagement -> Unit
+      CompanyReportEvent.Button.Report.ClientDisengagement -> onReportClientDisengagement()
     }
   }
 

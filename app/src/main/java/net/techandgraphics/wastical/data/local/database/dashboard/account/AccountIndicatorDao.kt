@@ -5,7 +5,7 @@ import androidx.room.Query
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.account.ACCOUNT_QUERY_EXPORT
-import net.techandgraphics.wastical.data.local.database.account.ActiveAccountItem
+import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
 
 @Dao interface AccountIndicatorDao {
 
@@ -69,7 +69,7 @@ import net.techandgraphics.wastical.data.local.database.account.ActiveAccountIte
   suspend fun qActiveAccounts(
     status: String = Status.Active.name,
     role: String = AccountRole.Client.name,
-  ): List<ActiveAccountItem>
+  ): List<ReportAccountItem>
 
   @Query(
     """
@@ -86,7 +86,7 @@ import net.techandgraphics.wastical.data.local.database.account.ActiveAccountIte
     streets: List<Long>,
     status: String = Status.Active.name,
     role: String = AccountRole.Client.name,
-  ): List<ActiveAccountItem>
+  ): List<ReportAccountItem>
 
   @Query(
     """
@@ -102,7 +102,7 @@ import net.techandgraphics.wastical.data.local.database.account.ActiveAccountIte
     end: Long,
     status: String = Status.Active.name,
     role: String = AccountRole.Client.name,
-  ): List<ActiveAccountItem>
+  ): List<ReportAccountItem>
 
   @Query(
     """

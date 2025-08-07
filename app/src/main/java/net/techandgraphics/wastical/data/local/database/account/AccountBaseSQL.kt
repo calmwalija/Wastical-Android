@@ -9,7 +9,9 @@ const val ACCOUNT_QUERY_EXPORT = """
       a.lastname,
       a.title,
       a.username,
+      a.leaving_reason as leavingReason,
       a.created_at as createdAt,
+      a.updated_at as updatedAt,
       pp.fee,
       ds.name as demographicStreet,
       da.name as demographicArea

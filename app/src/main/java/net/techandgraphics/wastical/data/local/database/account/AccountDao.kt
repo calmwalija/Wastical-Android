@@ -106,11 +106,13 @@ interface AccountDao : BaseDao<AccountEntity> {
   suspend fun getByCreatedAt(createAt: String): List<AccountEntity>
 }
 
-data class ActiveAccountItem(
+data class ReportAccountItem(
   val firstname: String,
   val lastname: String,
   val title: String,
+  val leavingReason: String? = null,
   val createdAt: Long,
+  val updatedAt: Long,
   val fee: Int,
   val username: String,
   val demographicStreet: String,
