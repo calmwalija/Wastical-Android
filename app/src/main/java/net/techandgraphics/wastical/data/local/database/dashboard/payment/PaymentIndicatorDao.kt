@@ -177,6 +177,7 @@ interface PaymentIndicatorDao {
       account.username as contact,
       street.name as demographicStreet,
       plans.fee as amount,
+      month_covered.created_at as paidOn,
       CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
     FROM
       account AS account
@@ -254,6 +255,7 @@ data class UnPaidAccount(
   val demographicStreet: String,
   val contact: String,
   val amount: Int,
+  val paidOn: Long,
 )
 
 enum class AccountSortOrder { Unpaid, Paid, Title, Lastname, Contact }

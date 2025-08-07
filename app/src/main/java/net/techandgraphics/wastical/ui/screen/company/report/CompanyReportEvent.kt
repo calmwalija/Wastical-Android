@@ -1,5 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+
 sealed interface CompanyReportEvent {
 
   data object Load : CompanyReportEvent
@@ -17,6 +19,13 @@ sealed interface CompanyReportEvent {
       data object Plan : Export
       data object Coverage : Export
       data object Geographic : Export
+      data object NewAccount : Export
+    }
+
+    sealed interface MonthDialog : CompanyReportEvent {
+      data object Close : MonthDialog
+      data object Proceed : MonthDialog
+      data class PickMonth(val monthYear: MonthYear) : MonthDialog
     }
   }
 }

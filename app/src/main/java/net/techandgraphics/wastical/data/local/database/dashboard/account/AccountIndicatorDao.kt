@@ -2,8 +2,10 @@ package net.techandgraphics.wastical.data.local.database.dashboard.account
 
 import androidx.room.Dao
 import androidx.room.Query
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import net.techandgraphics.wastical.data.Status
+import net.techandgraphics.wastical.data.local.database.AccountRole
+import net.techandgraphics.wastical.data.local.database.account.ACCOUNT_QUERY_EXPORT
+import net.techandgraphics.wastical.data.local.database.account.AccountExport
 
 @Dao interface AccountIndicatorDao {
 
@@ -31,15 +33,6 @@ import java.time.ZonedDateTime
   )
   suspend fun getExpectedTotalThisMonth(): Int
 
-//  @Query(
-//    """
-//    SELECT SUM(payment_plan_fee)
-//    FROM payment
-//    WHERE strftime('%Y-%m', datetime(created_at / 1000, 'unixepoch')) = strftime('%Y-%m', 'now')
-// """,
-//  )
-//  suspend fun getTotalPaymentsThisMonth(): Int?
-
   @Query(
     """
     SELECT COUNT(*)
@@ -62,32 +55,35 @@ import java.time.ZonedDateTime
   )
   suspend fun getTotalAmountReceived(): Int?
 
-//  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-//  @Query(
-//    """
-//    SELECT A.*, SUM(P.payment_plan_fee) as totalPaid
-//    FROM account A
-//    JOIN payment P ON A.id = P.id
-//    GROUP BY A.id
-//    ORDER BY totalPaid DESC
-//    LIMIT 10
-// """,
-//  )
-//  suspend fun getTopPayingAccounts(): List<TopPayingAccount>
+  @Query("SELECT created_at FROM account GROUP BY created_at ORDER BY created_at")
+  suspend fun qMonthsCreated(): List<Long>
 
-//  @Query(
-//    """
-//    SELECT s.name AS streetName, COUNT(a.id) AS accountCount
-//    FROM account a
-//    INNER JOIN demographic_street s ON a.street_id = s.id
-//    GROUP BY s.id
-// """,
-//  )
-//  fun getAccountsPerStreet(): List<StreetAccountCount>
-}
+  @Query(
+    """
+    $ACCOUNT_QUERY_EXPORT
+    WHERE a.status = :status
+    AND a.role = :role
+    ORDER BY ds.name, a.lastname, createdAt
+  """,
+  )
+  suspend fun qActiveAccounts(
+    status: String = Status.Active.name,
+    role: String = AccountRole.Client.name,
+  ): List<AccountExport>
 
-fun getMonthStartTimestamp(year: Int, month: Int): Long {
-  val zone = ZoneId.systemDefault()
-  val startOfMonth = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, zone)
-  return (startOfMonth.toEpochSecond()).also { println(it) }
+  @Query(
+    """
+     $ACCOUNT_QUERY_EXPORT
+      WHERE a.created_at BETWEEN :start AND :end
+    AND a.status = :status
+    AND a.role = :role
+    ORDER BY ds.name, a.lastname, createdAt
+  """,
+  )
+  suspend fun qRange(
+    start: Long,
+    end: Long,
+    status: String = Status.Active.name,
+    role: String = AccountRole.Client.name,
+  ): List<AccountExport>
 }

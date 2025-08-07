@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical
 
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.domain.model.relations.CompanyLocationWithDemographicUiModel
@@ -35,6 +36,8 @@ fun String.toInitials() = firstOrNull()?.uppercase().plus(lastOrNull()?.lowercas
 
 fun String.toPhoneFormat() = replace(Regex("(\\d{3})(\\d{3})(\\d{3})"), "+265-$1-$2-$3")
 
+fun String.as9DigitContact() = takeLast(9)
+
 fun AccountUiModel.toInvoice(payment: PaymentUiModel) = "${id.times(5983)}-${payment.createdAt}"
 
 fun Number.toWords() = toEnglishWords()
@@ -46,6 +49,8 @@ fun Int.toMonthName() = Month.of(this)
 
 fun Int.toShortMonthName() = Month.of(this)
   .getDisplayName(TextStyle.SHORT, Locale.getDefault()).capitalize()
+
+fun MonthYear.toYear() = this.year
 
 fun CompanyLocationWithDemographicUiModel.toLocation() =
   demographicArea.name
