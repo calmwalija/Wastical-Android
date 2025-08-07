@@ -49,7 +49,6 @@ import javax.inject.Inject
   val channel = _channel.receiveAsFlow()
 
   private val pdfMaxWidth = 595f - 18f - 48f
-  private var fullNameWidth: Float = -1f
 
   private val paint = Paint().apply {
     textSize = PDF_TEXT_SIZE
@@ -98,10 +97,6 @@ import javax.inject.Inject
         compareBy<MonthYear> { it.year }.thenBy { it.month },
       )
 
-    fullNameWidth =
-      accounts.maxOfOrNull { paint.measureText(it.title.title.plus(it.lastname)) }?.padding()
-        ?: 120f
-
     _state.value = CompanyReportState.Success(
       company = company,
       accounts = accounts,
@@ -128,6 +123,11 @@ import javax.inject.Inject
 
       val dataset = database.paymentIndicatorDao.qOverpayment()
       val zonedDateTime = ZonedDateTime.now()
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.account.toAccountUiModel().toFullName()) }
+          ?.padding()
+          ?: 120f
 
       val createdAtWidth = paint.measureText(zonedDateTime.defaultDate()).padding()
       val countWidth = paint.measureText(dataset.size.toString()).padding()
@@ -171,7 +171,7 @@ import javax.inject.Inject
             item.account.username.toContact(),
             item.maxMonth.toShortMonthName().plus(" ${item.maxYear}"),
             item.overpayment.toAmount(),
-            item.demographicStreet,
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,
@@ -193,16 +193,17 @@ import javax.inject.Inject
       val end = lastDayOfMonth.toEpochSecond()
 
       val dataset = database.accountIndicatorDao.qRange(start = start, end = end)
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
 
-      val demographicAreaWidth =
-        dataset.maxOfOrNull { item -> paint.measureText(item.demographicArea) }?.padding() ?: 120f
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(
         countWidth,
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
       )
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths = listOf(
@@ -210,7 +211,6 @@ import javax.inject.Inject
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
         locationWidth,
       )
 
@@ -223,20 +223,18 @@ import javax.inject.Inject
           "Name",
           "Contact",
           "Amount",
-          "Area",
           "Location",
         ),
         columnWidths = columnWidths,
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
-        valueExtractor = { account ->
+        valueExtractor = { item ->
           listOf(
-            toFullname(account.title, account.lastname),
-            account.username.toContact(),
-            account.fee.toAmount(),
-            account.demographicArea,
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,
@@ -250,15 +248,18 @@ import javax.inject.Inject
       val state = (_state.value as CompanyReportState.Success)
 
       val dataset = database.accountIndicatorDao.qActiveAccounts()
-      val demographicAreaWidth =
-        dataset.maxOfOrNull { item -> paint.measureText(item.demographicArea) }?.padding() ?: 120f
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(
         countWidth,
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
       )
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths = listOf(
@@ -266,7 +267,6 @@ import javax.inject.Inject
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
         locationWidth,
       )
 
@@ -279,20 +279,18 @@ import javax.inject.Inject
           "Name",
           "Phone",
           "Amount",
-          "Area",
           "Location",
         ),
         columnWidths = columnWidths,
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
-        valueExtractor = { account ->
+        valueExtractor = { item ->
           listOf(
-            toFullname(account.title, account.lastname),
-            account.username.toContact(),
-            account.fee.toAmount(),
-            account.demographicArea,
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,
@@ -317,28 +315,32 @@ import javax.inject.Inject
         hasPaid = false,
       )
 
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
       val countWidth = paint.measureText(dataset.size.toString()).padding()
-      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 80f, 20f, 20f)
+      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 20f, 20f)
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
-        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 80f, 20f, 20f)
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 20f, 20f)
 
       val filename = "Missed Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
 
       BaseExportKlass<UnPaidAccount>(application).toPdf(
         company = state.company,
-        columnHeaders = listOf("#", "Name", "Contact", "Amount", "Location", "", "", ""),
+        columnHeaders = listOf("#", "Name", "Contact", "Amount", "Location", "", ""),
         columnWidths = columnWidths,
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
-        valueExtractor = { account ->
+        valueExtractor = { item ->
           listOf(
-            toFullname(account.title, account.lastname),
-            account.contact.toContact(),
-            account.amount.toAmount(),
-            account.demographicStreet,
-            "",
+            toFullname(item.title, item.lastname),
+            item.contact.toContact(),
+            item.amount.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
             "",
             "",
           )
@@ -358,6 +360,10 @@ import javax.inject.Inject
         hasPaid = true,
       )
 
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
       val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(countWidth, fullNameWidth, createdAtWidth, contactWidth, amountWidth)
@@ -374,13 +380,13 @@ import javax.inject.Inject
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
-        valueExtractor = { account ->
+        valueExtractor = { item ->
           listOf(
-            toFullname(account.title, account.lastname),
-            account.contact.toContact(),
-            account.amount.toAmount(),
-            account.paidOn.toZonedDateTime().defaultDate(),
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.contact.toContact(),
+            item.amount.toAmount(),
+            item.paidOn.toZonedDateTime().defaultDate(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,
@@ -413,16 +419,17 @@ import javax.inject.Inject
       val streets = state.demographicFilters.map { it.theStreetId }.distinct()
 
       val dataset = database.accountIndicatorDao.qLocationBased(areas, streets)
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
 
-      val demographicAreaWidth =
-        dataset.maxOfOrNull { item -> paint.measureText(item.demographicArea) }?.padding() ?: 120f
       val countWidth = paint.measureText(dataset.size.toString()).padding()
       val pdfWidths = listOf(
         countWidth,
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
       )
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths = listOf(
@@ -430,7 +437,6 @@ import javax.inject.Inject
         fullNameWidth,
         contactWidth,
         amountWidth,
-        demographicAreaWidth,
         locationWidth,
       )
 
@@ -443,20 +449,18 @@ import javax.inject.Inject
           "Name",
           "Phone",
           "Amount",
-          "Area",
           "Location",
         ),
         columnWidths = columnWidths,
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
-        valueExtractor = { account ->
+        valueExtractor = { item ->
           listOf(
-            toFullname(account.title, account.lastname),
-            account.username.toContact(),
-            account.fee.toAmount(),
-            account.demographicArea,
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
         onEvent = ::onEventPdf,

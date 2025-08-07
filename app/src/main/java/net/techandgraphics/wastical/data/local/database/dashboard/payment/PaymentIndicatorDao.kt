@@ -178,6 +178,7 @@ interface PaymentIndicatorDao {
       account.lastname,
       account.username as contact,
       street.name as demographicStreet,
+      area.name as demographicArea,
       plans.fee as amount,
       month_covered.created_at as paidOn,
       CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
@@ -187,6 +188,7 @@ interface PaymentIndicatorDao {
       INNER JOIN payment_plan plans ON accountplans.payment_plan_id = plans.id
       LEFT JOIN company_location as location ON account.company_location_id = location.id
       LEFT JOIN demographic_street as street ON location.demographic_street_id = street.id
+      LEFT JOIN demographic_area as area ON location.demographic_area_id = area.id
       LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
       AND month_covered.month IN (:months)
       AND month_covered.year IN (:years)
@@ -231,6 +233,7 @@ interface PaymentIndicatorDao {
       SUM(pp.fee) AS overpayment,
       COUNT(*) AS months,
       ds.name as demographicStreet,
+      da.name as demographicArea,
       MAX(pmc.month) AS maxMonth,
       MAX(pmc.year) AS maxYear,
       a.*
@@ -242,6 +245,7 @@ interface PaymentIndicatorDao {
       INNER JOIN payment_plan pp ON pp.id = app.payment_plan_id
       INNER JOIN company_location cl ON cl.id = a.company_location_id
       INNER JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+      INNER JOIN demographic_area da ON da.id = cl.demographic_area_id
     GROUP BY
       p.id
     HAVING
@@ -267,6 +271,7 @@ data class OverpaymentItem(
   val maxYear: Int,
   val overpayment: Int,
   val demographicStreet: String,
+  val demographicArea: String,
 )
 
 data class CoverageRaw(
@@ -306,6 +311,7 @@ data class UnPaidAccount(
   val firstname: String,
   val lastname: String,
   val demographicStreet: String,
+  val demographicArea: String,
   val contact: String,
   val amount: Int,
   val paidOn: Long,
