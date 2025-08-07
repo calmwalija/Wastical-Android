@@ -5,7 +5,7 @@ import androidx.room.Query
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.account.ACCOUNT_QUERY_EXPORT
-import net.techandgraphics.wastical.data.local.database.account.AccountExport
+import net.techandgraphics.wastical.data.local.database.account.ActiveAccountItem
 
 @Dao interface AccountIndicatorDao {
 
@@ -69,7 +69,24 @@ import net.techandgraphics.wastical.data.local.database.account.AccountExport
   suspend fun qActiveAccounts(
     status: String = Status.Active.name,
     role: String = AccountRole.Client.name,
-  ): List<AccountExport>
+  ): List<ActiveAccountItem>
+
+  @Query(
+    """
+    $ACCOUNT_QUERY_EXPORT
+    WHERE a.status = :status
+    AND ds.id IN (:streets)
+    AND da.id IN (:areas)
+    AND a.role = :role
+    ORDER BY ds.name, a.lastname, createdAt
+  """,
+  )
+  suspend fun qLocationBased(
+    areas: List<Long>,
+    streets: List<Long>,
+    status: String = Status.Active.name,
+    role: String = AccountRole.Client.name,
+  ): List<ActiveAccountItem>
 
   @Query(
     """
@@ -85,5 +102,30 @@ import net.techandgraphics.wastical.data.local.database.account.AccountExport
     end: Long,
     status: String = Status.Active.name,
     role: String = AccountRole.Client.name,
-  ): List<AccountExport>
+  ): List<ActiveAccountItem>
+
+  @Query(
+    """
+  SELECT
+    da.name as theArea,
+    cl.id as locationId,
+    ds.id as theStreetId,
+    da.id as theAreaId,
+    ds.name as theStreet
+    FROM
+    company_location cl
+    JOIN demographic_area da ON da.id = cl.demographic_area_id
+    JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+    ORDER BY ds.name
+  """,
+  )
+  suspend fun qDemographics(): List<DemographicItem>
 }
+
+data class DemographicItem(
+  val locationId: Long,
+  val theAreaId: Long,
+  val theStreetId: Long,
+  val theArea: String,
+  val theStreet: String,
+)

@@ -30,7 +30,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 fun CompanyReportMonthFilterView(
   filters: Set<MonthYear>,
   items: List<MonthYear>,
-  onEvent: (CompanyReportEvent) -> Unit,
+  onEvent: (CompanyReportEvent.Button.MonthDialog) -> Unit,
 ) {
 
   Column {

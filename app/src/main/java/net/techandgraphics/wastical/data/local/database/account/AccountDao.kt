@@ -106,7 +106,7 @@ interface AccountDao : BaseDao<AccountEntity> {
   suspend fun getByCreatedAt(createAt: String): List<AccountEntity>
 }
 
-data class AccountExport(
+data class ActiveAccountItem(
   val firstname: String,
   val lastname: String,
   val title: String,

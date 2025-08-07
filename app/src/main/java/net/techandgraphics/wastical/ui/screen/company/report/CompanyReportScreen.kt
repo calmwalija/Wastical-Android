@@ -27,13 +27,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
-import net.techandgraphics.wastical.ui.screen.demographicStreet4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +45,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
   var contentHeight by remember { mutableIntStateOf(0) }
   var showMonthDialog by remember { mutableStateOf(false) }
+  var showLocationDialog by remember { mutableStateOf(false) }
   var eventToProceedWith by remember { mutableStateOf<CompanyReportEvent.Button.Report?>(null) }
   val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   val months4AccPay = remember { mutableStateListOf<MonthYear?>(null) }
@@ -99,7 +100,38 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                 onEvent(withEvent)
               }
 
-              else -> onEvent(event)
+              is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
+            }
+          }
+        }
+      }
+
+      if (showLocationDialog) {
+        ModalBottomSheet(
+          onDismissRequest = {
+            eventToProceedWith?.let { event -> indicators[event] = false }
+            showLocationDialog = false
+          }, sheetState = modalBottomSheetState,
+          dragHandle = {},
+          sheetGesturesEnabled = false
+        ) {
+          CompanyReportLocationFilterView(
+            filters = state.demographicFilters,
+            demographicItems = state.demographics,
+          ) { event ->
+            when (event) {
+              CompanyReportEvent.Button.LocationDialog.Close -> {
+                eventToProceedWith?.let { event -> indicators[event] = false }
+                showLocationDialog = false
+              }
+
+              CompanyReportEvent.Button.LocationDialog.Proceed -> eventToProceedWith?.let { withEvent ->
+                showLocationDialog = false
+                onEvent(withEvent)
+              }
+
+
+              is CompanyReportEvent.Button.LocationDialog.Pick -> onEvent(event)
             }
           }
         }
@@ -128,6 +160,14 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.NewClient
             ),
             CompanyReportItem(
+              label = "Location-based Reports",
+              event = CompanyReportEvent.Button.Report.LocationBased
+            ),
+            CompanyReportItem(
+              label = "Client Disengagement Report",
+              event = CompanyReportEvent.Button.Report.ClientDisengagement
+            ),
+            CompanyReportItem(
               label = "Paid Payment Report",
               event = CompanyReportEvent.Button.Report.PaidPayment
             ),
@@ -138,14 +178,6 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             CompanyReportItem(
               label = "Overpayment Report",
               event = CompanyReportEvent.Button.Report.Overpayment
-            ),
-            CompanyReportItem(
-              label = "Location-based Reports",
-              event = CompanyReportEvent.Button.Report.LocationBased
-            ),
-            CompanyReportItem(
-              label = "Client Disengagement Report",
-              event = CompanyReportEvent.Button.Report.ClientDisengagement
             ),
             CompanyReportItem(
               label = "Payment Coverage Report",
@@ -184,7 +216,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
                     CompanyReportEvent.Button.Report.PaymentCoverage -> onEvent(event)
-                    CompanyReportEvent.Button.Report.LocationBased -> onEvent(event)
+                    CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
                     CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
                   }
@@ -216,7 +248,15 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 fun companyReportStateSuccess() = CompanyReportState.Success(
   company = company4Preview,
   accounts = (1..5).map { account4Preview },
-  demographics = (1..7).map { demographicStreet4Preview },
+  demographics = (1L..7).map {
+    DemographicItem(
+      theStreet = "Ipsum",
+      locationId = it,
+      theArea = "Lorem",
+      theAreaId = 1L,
+      theStreetId = 1L
+    )
+  },
   allMonthPayments = (1..10).mapIndexed { index, _ ->
     val cIndex = index.plus(1)
     MonthYear(cIndex, 2025)

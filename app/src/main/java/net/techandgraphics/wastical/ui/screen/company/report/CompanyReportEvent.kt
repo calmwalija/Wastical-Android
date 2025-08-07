@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
+import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 
 sealed interface CompanyReportEvent {
@@ -27,6 +28,12 @@ sealed interface CompanyReportEvent {
       data object Close : MonthDialog
       data object Proceed : MonthDialog
       data class PickMonth(val monthYear: MonthYear) : MonthDialog
+    }
+
+    sealed interface LocationDialog : CompanyReportEvent {
+      data object Close : LocationDialog
+      data object Proceed : LocationDialog
+      data class Pick(val item: DemographicItem) : LocationDialog
     }
   }
 }
