@@ -12,14 +12,15 @@ sealed interface CompanyReportEvent {
 
   sealed interface Button : CompanyReportEvent {
 
-    sealed interface Export : Button {
-      data object Client : Export
-      data object Outstanding : Export
-      data object Collected : Export
-      data object Plan : Export
-      data object Coverage : Export
-      data object Geographic : Export
-      data object NewAccount : Export
+    sealed interface Report : Button {
+      data object ActiveClient : Report
+      data object MissedPayment : Report
+      data object PaidPayment : Report
+      data object NewClient : Report
+      data object Overpayment : Report
+      data object LocationBased : Report
+      data object ClientDisengagement : Report
+      data object PaymentCoverage : Report
     }
 
     sealed interface MonthDialog : CompanyReportEvent {

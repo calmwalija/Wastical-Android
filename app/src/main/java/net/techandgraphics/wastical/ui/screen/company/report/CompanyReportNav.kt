@@ -13,7 +13,7 @@ fun NavGraphBuilder.CompanyReportNav(navController: NavHostController) {
   composable<CompanyRoute.CompanyReport> {
     with(hiltViewModel<CompanyReportViewModel>()) {
       val state = state.collectAsState().value
-      CompanyReportScreen(state) { event ->
+      CompanyReportScreen(state, channel) { event ->
         when (event) {
           CompanyReportEvent.Goto.BackHandler -> navController.navigateUp()
           CompanyReportEvent.Load -> Unit
