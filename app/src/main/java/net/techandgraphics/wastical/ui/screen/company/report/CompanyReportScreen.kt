@@ -172,10 +172,19 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                       showMonthDialog = true
                     }
 
-                    CompanyReportEvent.Button.Report.PaidPayment -> onEvent(event)
+                    CompanyReportEvent.Button.Report.PaidPayment -> {
+                      isAccPay = false
+                      showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.MissedPayment -> {
+                      isAccPay = false
+                      showMonthDialog = true
+                    }
+
+
                     CompanyReportEvent.Button.Report.PaymentCoverage -> onEvent(event)
                     CompanyReportEvent.Button.Report.LocationBased -> onEvent(event)
-                    CompanyReportEvent.Button.Report.MissedPayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
                   }

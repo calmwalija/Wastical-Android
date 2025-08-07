@@ -50,7 +50,9 @@ fun CompanyReportMonthFilterView(
 
       FlowRow(
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(horizontal = 8.dp)
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 8.dp)
       ) {
 
         (items).forEach { item ->

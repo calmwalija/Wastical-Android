@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Query
 import androidx.room.RoomWarnings
 import kotlinx.coroutines.flow.Flow
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
 
@@ -186,16 +187,23 @@ interface PaymentIndicatorDao {
       LEFT JOIN company_location as location ON account.company_location_id = location.id
       LEFT JOIN demographic_street as street ON location.demographic_street_id = street.id
       LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
-      AND month_covered.month = :month
-      AND month_covered.year = :year
+      AND month_covered.month IN (:months)
+      AND month_covered.year IN (:years)
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
+      AND account.created_at < payment.created_at
     WHERE
-      hasPaid = :hasPaid
-    GROUP BY
-      account.id
+      (CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END) = :hasPaid
+      AND account.status = :status
+      GROUP BY account.id
+    ORDER BY street.name, payment.created_at
 """,
   )
-  suspend fun qAccounts(month: Int, year: Int, hasPaid: Boolean): List<UnPaidAccount>
+  suspend fun qRange(
+    months: List<Int>,
+    years: List<Int>,
+    hasPaid: Boolean,
+    status: String = Status.Active.name,
+  ): List<UnPaidAccount>
 
   @Query(
     """

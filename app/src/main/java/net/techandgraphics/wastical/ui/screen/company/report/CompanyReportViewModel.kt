@@ -66,6 +66,11 @@ class CompanyReportViewModel @Inject constructor(
 
   private fun Float.padding() = plus(24)
 
+  private fun toFullname(title: String, name: String) =
+    title.getAccountTitle().plus(" ${name.trim()}")
+
+  private fun String.toContact() = if (isDigitsOnly()) this else ""
+
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
     val accounts = database.accountDao.query().map { it.toAccountUiModel() }
@@ -263,26 +268,39 @@ class CompanyReportViewModel @Inject constructor(
   private fun onReportMissedPayment() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
 
-      val pdfWidths = listOf(40f, fullNameWidth, 70f, 60f, 60f, 20f, 20f)
+      val dataset = database.paymentIndicatorDao.qRange(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+        hasPaid = false,
+      )
+
+      println("🔥🔥🔥🔥🔥🔥🔥🔥🔥 $dataset")
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 60f, 20f, 20f)
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
-        listOf(40f, fullNameWidth, 70f, 60f, pdfMaxWidth.minus(pdfWidths.sum()), 60f, 20f, 20f)
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 60f, 20f, 20f)
+
+      val filename = "Missed Payment Report - ${state.filters.first().month.toMonthName()}"
 
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
           company = state.company,
-          columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Location", "", "", ""),
+          columnHeaders = listOf("#", "Full Name", "Contact", "Amount", "Location", "", "", ""),
           columnWidths = columnWidths,
-          filename = "MissedPayment Payment Clients for ${month.toMonthName()}",
-          pageTitle = "MissedPayment Payment Clients For ${month.toMonthName()}",
-          items = database.paymentIndicatorDao.qAccounts(month, year, false),
+          filename = filename,
+          pageTitle = filename,
+          items = dataset,
           valueExtractor = { account ->
             listOf(
-              account.title.getAccountTitle().plus(" ${account.lastname.trim()}"),
-              if (account.contact.isDigitsOnly()) account.contact else "",
+              toFullname(account.title, account.lastname),
+              account.contact.toContact(),
               account.amount.toAmount(),
               account.demographicStreet,
+              "",
+              "",
+              "",
             )
           },
           onEvent = ::onEventPdf,
@@ -293,27 +311,33 @@ class CompanyReportViewModel @Inject constructor(
   private fun onReportPaidPayment() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
 
-      val dataset = database.paymentIndicatorDao.qAccounts(month, year, true)
-      val paidOnWidth = paint.measureText(ZonedDateTime.now().defaultDateTime()).plus(32)
-      val countWidth = paint.measureText(dataset.size.toString()).plus(24)
-      val pdfWidths = listOf(countWidth, fullNameWidth, paidOnWidth, 70f, 60f)
+      val dataset = database.paymentIndicatorDao.qRange(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+        hasPaid = true,
+      )
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(countWidth, fullNameWidth, createdAtWidth, contactWidth, amountWidth)
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
-        listOf(countWidth, fullNameWidth, 70f, 60f, paidOnWidth, pdfMaxWidth.minus(pdfWidths.sum()))
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, createdAtWidth, locationWidth)
+
+      val filename = "Paid Payment Report - ${state.filters.first().month.toMonthName()}"
 
       BaseExportKlass<UnPaidAccount>(application)
         .toPdf(
           company = state.company,
-          columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Paid On", "Location"),
+          columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Paid", "Location"),
           columnWidths = columnWidths,
-          filename = "PaidPayment Payment Clients in ${month.toMonthName()}",
-          pageTitle = "PaidPayment Payment Clients For ${month.toMonthName()}",
+          filename = filename,
+          pageTitle = filename,
           items = dataset,
           valueExtractor = { account ->
             listOf(
-              account.title.getAccountTitle().plus(" ${account.lastname.trim()}"),
-              if (account.contact.isDigitsOnly()) account.contact else "",
+              toFullname(account.title, account.lastname),
+              account.contact.toContact(),
               account.amount.toAmount(),
               account.paidOn.toZonedDateTime().defaultDateTime(),
               account.demographicStreet,
