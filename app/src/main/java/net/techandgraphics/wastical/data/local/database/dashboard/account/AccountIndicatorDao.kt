@@ -63,7 +63,7 @@ import net.techandgraphics.wastical.data.local.database.account.ReportAccountIte
     $ACCOUNT_QUERY_EXPORT
     WHERE a.status = :status
     AND a.role = :role
-    ORDER BY ds.name, a.lastname, createdAt
+    ORDER BY ds.name, a.lastname, a.updated_at
   """,
   )
   suspend fun qActiveAccounts(

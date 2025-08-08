@@ -72,13 +72,13 @@ import javax.inject.Inject
       }
   }
 
-  private fun Float.padding() = plus(24f)
+  private fun Float.padding() = plus(16f)
   private fun String.mills() = this + " - " + System.currentTimeMillis().toString().drop(5)
 
   private fun toFullname(title: String, name: String) =
     title.getAccountTitle().plus(" ${name.trim()}")
 
-  private fun String.toContact() = if (isDigitsOnly()) this else ""
+  private fun String.toContact() = if (isDigitsOnly()) this.takeLast(8) else ""
   private fun ZonedDateTime.toDate() = month.value.toMonthName().plus(" ${this.year}")
 
   private fun onLoad() = viewModelScope.launch {
@@ -537,7 +537,6 @@ import javax.inject.Inject
         fullNameWidth,
         contactWidth,
         createdAtWidth,
-        createdAtWidth,
       )
 
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
@@ -545,7 +544,6 @@ import javax.inject.Inject
         countWidth,
         fullNameWidth,
         contactWidth,
-        createdAtWidth,
         createdAtWidth,
         locationWidth,
       )
@@ -558,7 +556,6 @@ import javax.inject.Inject
           "#",
           "Name",
           "Phone",
-          "Paid",
           "Balance",
           "Location",
         ),
@@ -576,7 +573,6 @@ import javax.inject.Inject
           listOf(
             item.account.toAccountUiModel().toFullName(),
             item.account.username.toContact(),
-            item.totalPaid.toAmount(),
             duration.times(item.feePlan)
               .minus(item.monthCovered.times(item.feePlan))
               .toAmount(),

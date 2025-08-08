@@ -249,7 +249,7 @@ interface PaymentIndicatorDao {
     GROUP BY
       p.id
     HAVING
-      maxMonth >= :month
+      maxMonth > :month
       AND maxYear >= :year
       AND months > 1
     ORDER BY

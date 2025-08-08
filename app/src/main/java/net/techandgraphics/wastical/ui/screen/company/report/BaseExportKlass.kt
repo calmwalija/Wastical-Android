@@ -21,7 +21,7 @@ import java.io.IOException
 class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
 
   companion object {
-    const val PDF_TEXT_SIZE = 8f
+    const val PDF_TEXT_SIZE = 9f
   }
 
   private val pdfDocument = PdfDocument()
@@ -58,7 +58,7 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
     textAlign = Paint.Align.CENTER
   }
 
-  private val lineHeight = 18f
+  private val lineHeight = 22f
   private val margin = 32f
 
   fun toPdf(
@@ -74,8 +74,8 @@ class BaseExportKlass<T>(context: Context) : ContextWrapper(context) {
     require(columnHeaders.size == columnWidths.size) {
       "Column headers and widths must have the same size"
     }
-    val pageWidth = 600
-    val pageHeight = 920
+    val pageWidth = 595
+    val pageHeight = 842
 
     val startYHeader = 64
     var currentY = startYHeader + lineHeight
