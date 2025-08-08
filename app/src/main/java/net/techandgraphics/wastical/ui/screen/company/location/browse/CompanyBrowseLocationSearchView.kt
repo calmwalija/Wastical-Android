@@ -43,7 +43,7 @@ fun CompanyPaymentPerLocationSearchView(
     Card(
       modifier = Modifier
         .weight(1f)
-        .padding(8.dp),
+        .padding(vertical = 8.dp),
       colors = CardDefaults.elevatedCardColors(),
     ) {
       BasicTextField(
@@ -113,7 +113,6 @@ fun CompanyPaymentPerLocationSearchView(
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
       )
     }
-    Spacer(modifier = Modifier.width(8.dp))
   }
 }
 

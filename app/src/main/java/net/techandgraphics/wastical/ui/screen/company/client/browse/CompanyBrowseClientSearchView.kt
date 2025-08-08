@@ -46,10 +46,7 @@ fun CompanyBrowseClientSearchView(
   state: CompanyBrowseClientState.Success,
   onEvent: (CompanyBrowseClientListEvent) -> Unit,
 ) {
-  Row(
-    verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier.padding(horizontal = 16.dp)
-  ) {
+  Row(verticalAlignment = Alignment.CenterVertically) {
     Card(
       modifier = Modifier
         .weight(1f)
