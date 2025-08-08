@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -28,6 +28,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +70,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
+import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
@@ -76,6 +80,7 @@ import net.techandgraphics.wastical.ui.screen.company.client.create.CompanyCreat
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.Muted
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
@@ -93,6 +98,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
       val context = LocalContext.current
       var isUnique by remember { mutableStateOf(true) }
+      val accounts = remember { mutableStateListOf<AccountInfoUiModel>() }
       val hapticFeedback = LocalHapticFeedback.current
       val snackbarHostState = remember { SnackbarHostState() }
       val scope = rememberCoroutineScope()
@@ -119,9 +125,28 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               is CompanyCreateClientChannel.Success ->
                 onEvent(CompanyCreateClientEvent.Goto.BackHandler)
 
-              CompanyCreateClientChannel.Input.Unique.Conflict -> isUnique = false
+              is CompanyCreateClientChannel.Input.Unique.Conflict -> {
+                accounts.clear()
+                accounts.addAll(event.accounts)
+                isUnique = false
+              }
+
               CompanyCreateClientChannel.Input.Unique.Ok -> isUnique = true
             }
+          }
+        }
+      }
+
+
+      if (isUnique.not()) {
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+        ModalBottomSheet(onDismissRequest = {
+          isUnique = true
+          onEvent(Input.Info("", Input.Type.Contact))
+        }) {
+          CompanyCreateClientConflictDialog(accounts) {
+            isUnique = true
+            onEvent(Input.Info("", Input.Type.Contact))
           }
         }
       }
@@ -187,19 +212,23 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     }
                   }
                 },
-                placeholder = { Text(text = state.firstname) },
+                placeholder = { Text(text = state.firstname.trim().ifEmpty { "Input Firstname" }) },
                 shape = RoundedCornerShape(8),
                 maxLines = 1,
                 value = state.firstname,
                 onValueChange = { newValue ->
-                  if (newValue.length < 62)
+                  if (newValue.length < 25)
                     onEvent(Input.Info(newValue, Input.Type.FirstName))
+                  else hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
                 },
                 colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                keyboardOptions = KeyboardOptions(
+                  capitalization = KeyboardCapitalization.Words,
+                  imeAction = ImeAction.Next
+                ),
                 trailingIcon = {
                   Text(
-                    text = "$fSize/62",
+                    text = "$fSize/24",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(end = 24.dp, start = 8.dp)
                   )
@@ -226,27 +255,29 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               TextField(
                 leadingIcon = {
                   Icon(
-                    imageVector = if (lSize < 4) Icons.Rounded.Warning else Icons.Rounded.CheckCircle,
+                    imageVector = if (lSize < 3) Icons.Rounded.Close else Icons.Rounded.Check,
                     contentDescription = null,
-                    tint = if (lSize < 4) MaterialTheme.colorScheme.error else {
-                      MaterialTheme.colorScheme.secondary
-                    }
+                    tint = if (lSize < 3) Color.Red else Green
                   )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.lastname) },
+                placeholder = { Text(text = state.lastname.trim().ifEmpty { "Input Lastname" }) },
                 shape = RoundedCornerShape(8),
                 maxLines = 1,
                 value = state.lastname,
                 onValueChange = { newValue ->
-                  if (newValue.length < 62)
+                  if (newValue.length < 25)
                     onEvent(Input.Info(newValue, Input.Type.Lastname))
+                  else hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
                 },
                 colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                keyboardOptions = KeyboardOptions(
+                  capitalization = KeyboardCapitalization.Words,
+                  imeAction = ImeAction.Next
+                ),
                 trailingIcon = {
                   Text(
-                    text = "$lSize/62",
+                    text = "$lSize/24",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(end = 24.dp, start = 8.dp)
                   )
@@ -265,28 +296,27 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                 cSize = state.contact.length
               }
               Text(
-                text = "Phone Number",
+                text = "Contact",
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 8.dp)
               )
               TextField(
                 leadingIcon = {
                   Icon(
-                    imageVector = if (isUnique && cSize > 8) Icons.Rounded.CheckCircle else Icons.Rounded.Warning,
+                    imageVector = if (isUnique && cSize > 8) Icons.Rounded.Check else Icons.Rounded.Close,
                     contentDescription = null,
-                    tint = if (isUnique && cSize > 8) MaterialTheme.colorScheme.secondary else {
-                      MaterialTheme.colorScheme.error
-                    }
+                    tint = if (isUnique && cSize > 8) Green else Color.Red
                   )
                 },
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.contact) },
+                placeholder = { Text(text = state.contact.trim().ifEmpty { "Input Contact" }) },
                 shape = RoundedCornerShape(8),
                 value = state.contact,
                 onValueChange = { newValue ->
                   if (newValue.length <= 10)
                     onEvent(Input.Info(newValue.trim(), Input.Type.Contact))
+                  else hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
                 },
                 colors = textFieldDefaults,
                 trailingIcon = {
@@ -296,7 +326,10 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     modifier = Modifier.padding(end = 24.dp, start = 8.dp)
                   )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(
+                  keyboardType = KeyboardType.Number,
+                  imeAction = ImeAction.Done
+                )
               )
             }
           }
@@ -422,7 +455,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               horizontalArrangement = Arrangement.Center
             ) {
               Button(
-                enabled = state.lastname.trim().isNotEmpty() && isUnique,
+                enabled = state.lastname.trim().length > 2 && isUnique,
                 modifier = Modifier.weight(1f),
                 onClick = {
                   scope.launch {

@@ -8,6 +8,7 @@ import net.techandgraphics.wastical.data.local.database.account.AccountTitle
 import net.techandgraphics.wastical.data.local.database.toCompanyEntity
 import net.techandgraphics.wastical.data.local.database.toCompanyLocationWithDemographicEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentPlanEntity
+import net.techandgraphics.wastical.ui.screen.accountInfo4Preview
 import net.techandgraphics.wastical.ui.screen.company.client.create.CompanyCreateClientEvent.Input
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
@@ -40,10 +41,11 @@ class CompanyCreateClientViewModelTest : BaseUnitTest() {
     viewModel.onEvent(CompanyCreateClientEvent.Load(1))
 
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
+    coEvery { mockDatabase.accountDao.qByUname("999003244") } returns listOf(accountInfo4Preview)
     coEvery { mockDatabase.paymentPlanDao.query() } returns listOf(paymentPlan4Preview.toPaymentPlanEntity())
     coEvery { mockDatabase.companyLocationDao.getById(1) } returns
       companyLocationWithDemographic4Preview.toCompanyLocationWithDemographicEntity()
-    coEvery { mockDatabase.accountContactDao.getByContact("99900324") } returns listOf()
+    coEvery { mockDatabase.accountContactDao.getByContact("999003244") } returns listOf()
 
     viewModel.state.test {
       assertTrue { awaitItem() is CompanyCreateClientState.Loading }
@@ -62,13 +64,13 @@ class CompanyCreateClientViewModelTest : BaseUnitTest() {
       state = awaitItem() as CompanyCreateClientState.Success
       assertTrue { state.lastname == "Doe" }
 
-      viewModel.onEvent(Input.Info("99900324", Input.Type.Contact))
+      viewModel.onEvent(Input.Info("999003244", Input.Type.Contact))
       state = awaitItem() as CompanyCreateClientState.Success
-      assertTrue { state.contact == "99900324" }
+      assertTrue { state.contact == "999003244" }
 
-      viewModel.onEvent(Input.Info("8837234", Input.Type.AltContact))
+      viewModel.onEvent(Input.Info("999003244", Input.Type.AltContact))
       state = awaitItem() as CompanyCreateClientState.Success
-      assertTrue { state.altContact == "8837234" }
+      assertTrue { state.altContact == "999003244" }
 
       viewModel.onEvent(Input.Info(3L, Input.Type.Plan))
       state = awaitItem() as CompanyCreateClientState.Success

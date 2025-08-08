@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "474b8a996b17824c465ef1b42a0a9ec9",
+    "identityHash": "06983cc00fa58ccf9c0c0649addf2b1f",
     "entities": [
       {
         "tableName": "account",
@@ -2100,6 +2100,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_notification_sender_id` ON `${TABLE_NAME}` (`sender_id`)"
+          },
+          {
+            "name": "index_notification_payment_id",
+            "unique": false,
+            "columnNames": [
+              "payment_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_notification_payment_id` ON `${TABLE_NAME}` (`payment_id`)"
           }
         ],
         "foreignKeys": [
@@ -2131,7 +2140,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '474b8a996b17824c465ef1b42a0a9ec9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '06983cc00fa58ccf9c0c0649addf2b1f')"
     ]
   }
 }

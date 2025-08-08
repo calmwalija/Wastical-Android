@@ -28,6 +28,7 @@ import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntit
   ],
   indices = [
     Index("sender_id"),
+    Index("payment_id"),
   ],
 )
 data class NotificationEntity(

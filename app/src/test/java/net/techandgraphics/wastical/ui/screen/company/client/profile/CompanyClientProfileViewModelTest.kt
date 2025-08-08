@@ -12,6 +12,7 @@ import net.techandgraphics.wastical.data.local.database.toCompanyLocationWithDem
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentRequestWithAccountEntity
 import net.techandgraphics.wastical.ui.screen.account4Preview
+import net.techandgraphics.wastical.ui.screen.accountRequest4Preview
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
 import net.techandgraphics.wastical.ui.screen.payment4Preview
@@ -36,6 +37,7 @@ class CompanyClientProfileViewModelTest : BaseUnitTest() {
     viewModel.onEvent(CompanyClientProfileEvent.Load(1))
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.accountDao.get(1) } returns account4Preview.toAccountEntity()
+    coEvery { mockDatabase.accountRequestDao.query() } returns listOf(accountRequest4Preview)
     every { mockDatabase.paymentRequestDao.qWithAccountByAccountId(1) } returns
       flowOf(listOf(paymentRequestWithAccount4Preview.toPaymentRequestWithAccountEntity()))
     every { mockDatabase.paymentDao.flowOfByAccountId(1) } returns

@@ -66,35 +66,42 @@ fun CompanyClientProfileScreen(
   channel: Flow<CompanyClientProfileChannel>,
   onEvent: (CompanyClientProfileEvent) -> Unit,
 ) {
+
+  val context = LocalContext.current
+  val hapticFeedback = LocalHapticFeedback.current
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(key1 = channel) {
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+      channel.collect { event ->
+        when (event) {
+
+          is CompanyClientProfileChannel.Revoke.Error ->
+            context.toast(event.error.message)
+
+          CompanyClientProfileChannel.Revoke.Success -> {
+            context.toast("Your request was submitted")
+            onEvent(CompanyClientProfileEvent.Goto.BackHandler)
+          }
+
+          CompanyClientProfileChannel.NewAccount -> {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+            context.toast("Opening New Account Before Sync Is Prohibited")
+            onEvent(CompanyClientProfileEvent.Goto.BackHandler)
+          }
+        }
+      }
+    }
+  }
+
   when (state) {
     CompanyClientProfileState.Loading -> LoadingIndicatorView()
     is CompanyClientProfileState.Success -> {
 
-      val context = LocalContext.current
-      val hapticFeedback = LocalHapticFeedback.current
+
       val snackbarHostState = remember { SnackbarHostState() }
       val scope = rememberCoroutineScope()
       var showWarning by remember { mutableStateOf(false) }
-
-
-      val lifecycleOwner = LocalLifecycleOwner.current
-      LaunchedEffect(key1 = channel) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-          channel.collect { event ->
-            when (event) {
-
-              is CompanyClientProfileChannel.Revoke.Error ->
-                context.toast(event.error.message)
-
-              CompanyClientProfileChannel.Revoke.Success -> {
-                context.toast("Your request was submitted")
-                onEvent(CompanyClientProfileEvent.Goto.BackHandler)
-              }
-
-            }
-          }
-        }
-      }
 
 
       if (showWarning) {

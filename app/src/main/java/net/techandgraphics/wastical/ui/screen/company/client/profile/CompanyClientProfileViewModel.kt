@@ -45,6 +45,16 @@ class CompanyClientProfileViewModel @Inject constructor(
       _state.value = CompanyClientProfileState.Loading
       val company = database.companyDao.query().first().toCompanyUiModel()
       val account = database.accountDao.get(event.id).toAccountUiModel()
+
+      if (database.accountRequestDao
+          .query()
+          .filter { it.httpOperation == HttpOperation.Post.name }
+          .map { it.id }
+          .contains(account.id)
+      ) {
+        _channel.send(CompanyClientProfileChannel.NewAccount)
+      }
+
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
       combine(
