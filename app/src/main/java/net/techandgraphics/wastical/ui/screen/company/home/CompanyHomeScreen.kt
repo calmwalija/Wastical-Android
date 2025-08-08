@@ -192,16 +192,27 @@ private val quickOption = listOf(
                 }
               }
 
-              IconButton(
-                enabled = isFetching.not(),
-                onClick = { onEvent(CompanyHomeEvent.Fetch) }) {
-                if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
+              if (state.accountRequests.isEmpty() && state.paymentRequests.isEmpty()) {
+                IconButton(
+                  enabled = isFetching.not(),
+                  onClick = { onEvent(CompanyHomeEvent.Fetch) }) {
+                  if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
+                    Icon(
+                      painter = painterResource(R.drawable.ic_cloud_download),
+                      contentDescription = null
+                    )
+                  }
+                }
+              } else {
+                IconButton(
+                  onClick = { onEvent(CompanyHomeEvent.Button.Workers) }) {
                   Icon(
-                    painter = painterResource(R.drawable.ic_cloud_download),
+                    painter = painterResource(R.drawable.ic_cloud_sync),
                     contentDescription = null
                   )
                 }
               }
+
 
               IconButton(onClick = { showMenuItems = true }) {
                 Icon(Icons.Default.MoreVert, null)

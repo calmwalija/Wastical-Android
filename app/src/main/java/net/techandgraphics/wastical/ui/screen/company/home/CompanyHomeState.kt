@@ -6,9 +6,11 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthY
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.PaymentPlanAgainstAccounts
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentDao
+import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastical.domain.model.payment.PaymentRequestUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 
 sealed interface CompanyHomeState {
@@ -22,6 +24,8 @@ sealed interface CompanyHomeState {
     val account: AccountUiModel,
     val accountsSize: Int,
     val upfrontPayments: List<PaymentDao.UpfrontPayment> = listOf(),
+    val accountRequests: List<AccountRequestUiModel> = listOf(),
+    val paymentRequests: List<PaymentRequestUiModel> = listOf(),
     val monthYear: MonthYear,
     val proofOfPayments: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
     val expectedAmountToCollect: Int,

@@ -27,20 +27,23 @@ import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.data.remote.toAccountPaymentPlanResponse
 import net.techandgraphics.wastical.data.remote.toPaymentResponse
+import net.techandgraphics.wastical.domain.toAccountRequestUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
+import net.techandgraphics.wastical.domain.toPaymentRequestUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.hash
+import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
+import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.write
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-@HiltViewModel
-class CompanyHomeViewModel @Inject constructor(
+@HiltViewModel class CompanyHomeViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
   private val accountSession: AccountSessionRepository,
@@ -63,19 +66,17 @@ class CompanyHomeViewModel @Inject constructor(
   private fun onFetchChanges() = viewModelScope.launch {
     val account = authenticatorHelper.getAccount(accountManager) ?: return@launch
     _channel.send(CompanyHomeChannel.Fetch.Fetching)
-    runCatching { accountSession.fetch(account.id) }
-      .onSuccess { data ->
-        try {
-          database.withTransaction {
-            database.clearAllTables()
-            accountSession.purseData(data) { _, _ -> }
-          }
-          _channel.send(CompanyHomeChannel.Fetch.Success)
-        } catch (e: Exception) {
-          _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(e)))
+    runCatching { accountSession.fetch(account.id) }.onSuccess { data ->
+      try {
+        database.withTransaction {
+          database.clearAllTables()
+          accountSession.purseData(data) { _, _ -> }
         }
+        _channel.send(CompanyHomeChannel.Fetch.Success)
+      } catch (e: Exception) {
+        _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(e)))
       }
-      .onFailure { _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(it))) }
+    }.onFailure { _channel.send(CompanyHomeChannel.Fetch.Error(mapApiError(it))) }
   }
 
   fun dateFormat(timestamp: Long, patten: String = "d-MMMM-yyyy"): String {
@@ -89,10 +90,9 @@ class CompanyHomeViewModel @Inject constructor(
       val state = (_state.value as CompanyHomeState.Success)
       val currentTimeMillis = System.currentTimeMillis()
       val fileName = "${state.company.name}-BackUp-${dateFormat(currentTimeMillis)}.json"
-      val payments = database.paymentRequestDao.query()
-        .map { it.toPaymentResponse() }
-      val plans = database.accountPaymentPlanRequestDao.query()
-        .map { it.toAccountPaymentPlanResponse() }
+      val payments = database.paymentRequestDao.query().map { it.toPaymentResponse() }
+      val plans =
+        database.accountPaymentPlanRequestDao.query().map { it.toAccountPaymentPlanResponse() }
       val toExportData = CompanyMetaData(
         payments = payments,
         plans = plans,
@@ -105,73 +105,73 @@ class CompanyHomeViewModel @Inject constructor(
   }
 
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {
-    authenticatorHelper.getAccount(accountManager)
-      ?.let { account ->
-        val (_, month, year) = getToday()
-        val default = Gson().toJson(MonthYear(month, year))
-        combine(
-          database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4),
-          preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
-          database.paymentDao
-            .qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
-            .map { fromDb ->
-              fromDb.map {
-                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
-              }
-            },
-        ) { timeline, jsonString, proofOfPayments ->
-          val theTimeline = timeline.map {
-            it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
-          }
-          val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
-          val payment4CurrentLocationMonth =
-            database.streetIndicatorDao.getPayment4CurrentLocationMonth(
-              month = monthYear.month,
-              year = monthYear.year,
-            )
-          val upfrontPayments =
-            database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
-          if (database.companyDao.query().isEmpty()) {
-            _channel.send(CompanyHomeChannel.Goto.Reload)
-            return@combine
-          }
-          val company = database.companyDao.query().first().toCompanyUiModel()
-          val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
-          val accountsSize = database.accountDao.getSize()
-          val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
-          val paymentPlanAgainstAccounts =
-            database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
-          val allMonthsPayments = database.paymentIndicatorDao
-            .getAllMonthsPayments()
-            .map {
-              MonthYearPayment4Month(
-                monthYear = it,
-                payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
-                  it.month,
-                  it.year,
-                ),
-              )
-            }.sortedWith(
-              compareByDescending<MonthYearPayment4Month> { it.monthYear.year }
-                .thenByDescending { it.monthYear.month },
-            )
-          _state.value = CompanyHomeState.Success(
-            payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
-            proofOfPayments = proofOfPayments,
-            accountsSize = accountsSize,
-            payment4CurrentLocationMonth = payment4CurrentLocationMonth,
-            company = company,
-            account = account,
-            companyContact = companyContact,
-            expectedAmountToCollect = expectedAmountToCollect,
-            paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
-            allMonthsPayments = allMonthsPayments,
-            monthYear = monthYear,
-            timeline = theTimeline,
-            upfrontPayments = upfrontPayments,
+    authenticatorHelper.getAccount(accountManager)?.let { account ->
+      val (_, month, year) = getToday()
+      val default = Gson().toJson(MonthYear(month, year))
+      combine(
+        database.paymentDao.qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4),
+        preferences.flowOf<String>(Preferences.CURRENT_WORKING_MONTH, default),
+        database.paymentDao.qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
+          .map { fromDb ->
+            fromDb.map {
+              it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+            }
+          },
+        database.accountRequestDao.flowOf().map { p0 -> p0.map { it.toAccountRequestUiModel() } },
+        database.paymentRequestDao.flowOf()
+          .map { p0 -> p0.map { it.toPaymentRequestUiModel() } },
+      ) { timeline, jsonString, proofOfPayments, accountRequests, paymentRequests ->
+        val theTimeline = timeline.map {
+          it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+        }
+        val monthYear = Gson().fromJson(jsonString, MonthYear::class.java)
+        val payment4CurrentLocationMonth =
+          database.streetIndicatorDao.getPayment4CurrentLocationMonth(
+            month = monthYear.month,
+            year = monthYear.year,
           )
-        }.launchIn(this)
-      } ?: _channel.send(CompanyHomeChannel.Goto.Reload)
+        val upfrontPayments =
+          database.paymentDao.qUpfrontPayments(monthYear.month, monthYear.year)
+        if (database.companyDao.query().isEmpty()) {
+          _channel.send(CompanyHomeChannel.Goto.Reload)
+          return@combine
+        }
+        val company = database.companyDao.query().first().toCompanyUiModel()
+        val companyContact = database.companyContactDao.query().first().toCompanyContactUiModel()
+        val accountsSize = database.accountDao.getSize()
+        val expectedAmountToCollect = database.paymentIndicatorDao.getExpectedAmountToCollect()
+        val paymentPlanAgainstAccounts =
+          database.paymentIndicatorDao.getPaymentPlanAgainstAccounts()
+        val allMonthsPayments = database.paymentIndicatorDao.getAllMonthsPayments().map {
+          MonthYearPayment4Month(
+            monthYear = it,
+            payment4CurrentMonth = database.accountIndicatorDao.getPayment4CurrentMonth(
+              it.month,
+              it.year,
+            ),
+          )
+        }.sortedWith(
+          compareByDescending<MonthYearPayment4Month> { it.monthYear.year }.thenByDescending { it.monthYear.month },
+        )
+        _state.value = CompanyHomeState.Success(
+          payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
+          proofOfPayments = proofOfPayments,
+          accountsSize = accountsSize,
+          payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+          company = company,
+          account = account,
+          companyContact = companyContact,
+          expectedAmountToCollect = expectedAmountToCollect,
+          paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
+          allMonthsPayments = allMonthsPayments,
+          monthYear = monthYear,
+          timeline = theTimeline,
+          upfrontPayments = upfrontPayments,
+          accountRequests = accountRequests,
+          paymentRequests = paymentRequests,
+        )
+      }.launchIn(this)
+    } ?: _channel.send(CompanyHomeChannel.Goto.Reload)
   }
 
   private fun onButtonWorkingMonth(event: CompanyHomeEvent.Button.WorkingMonth) =
@@ -184,9 +184,15 @@ class CompanyHomeViewModel @Inject constructor(
     accountHelper.deleteAccounts()
   }
 
+  private fun onButtonWorkers() = viewModelScope.launch {
+    application.scheduleCompanyAccountRequestWorker()
+    application.scheduleClientPaymentRequestWorker()
+  }
+
   fun onEvent(event: CompanyHomeEvent) {
     when (event) {
       CompanyHomeEvent.Fetch -> onFetchChanges()
+      CompanyHomeEvent.Button.Workers -> onButtonWorkers()
       is CompanyHomeEvent.Load -> onLoad()
       CompanyHomeEvent.Button.Logout -> onLogout()
       is CompanyHomeEvent.Button.WorkingMonth -> onButtonWorkingMonth(event)
