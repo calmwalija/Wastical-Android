@@ -3,6 +3,7 @@ package net.techandgraphics.wastical.ui.screen.company.location.overview
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.AccountSortOrder
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastical.domain.model.demographic.DemographicAreaUiModel
@@ -19,6 +20,7 @@ sealed interface CompanyPaymentLocationOverviewState {
     val accounts: List<AccountWithPaymentStatusUiModel> = listOf(),
     val expectedAmountToCollect: Int,
     val companyLocation: CompanyLocationUiModel,
+    val accountRequests: List<AccountRequestUiModel> = listOf(),
     val sortBy: AccountSortOrder = AccountSortOrder.Unpaid,
     val monthYear: MonthYear,
   ) : CompanyPaymentLocationOverviewState

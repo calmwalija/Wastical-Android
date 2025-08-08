@@ -52,7 +52,7 @@ class CompanyCreateClientViewModel @Inject constructor(
         title = theState.title,
         firstname = theState.firstname.trim(),
         lastname = theState.lastname.trim(),
-        contact = theState.contact.ifEmpty {
+        contact = theState.contact.takeLast(8).ifEmpty {
           System.currentTimeMillis().toString().drop(6)
             .plus("-")
             .plus(
@@ -116,9 +116,9 @@ class CompanyCreateClientViewModel @Inject constructor(
     contactAvailableJob?.cancel()
     contactAvailableJob = viewModelScope.launch {
       delay(1_000)
-      val ifContactAvailable = database.accountContactDao.getByContact(contact)
-      if (ifContactAvailable.isNotEmpty()) {
-        _channel.send(CompanyCreateClientChannel.Input.Unique.Conflict)
+      val accounts = database.accountDao.qByUname(contact)
+      if (accounts.isNotEmpty()) {
+        _channel.send(CompanyCreateClientChannel.Input.Unique.Conflict(accounts))
       } else {
         _channel.send(CompanyCreateClientChannel.Input.Unique.Ok)
       }

@@ -15,7 +15,11 @@ fun AccountUiModel.toFullName() =
 
 fun toFullName(title: String, firstname: String, lastname: String): String {
   val accountTitle = AccountTitle.valueOf(title)
-  return "${if (accountTitle == AccountTitle.Na) "" else accountTitle.title} $firstname $lastname"
+  return (
+    (if (accountTitle == AccountTitle.Na) "" else accountTitle.title) +
+      (" $firstname").trim() +
+      " $lastname"
+    )
     .trim()
 }
 

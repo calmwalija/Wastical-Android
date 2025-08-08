@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -34,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
+import net.techandgraphics.wastical.data.remote.account.HttpOperation
+import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountWithPaymentStatusUiModel
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
@@ -48,8 +51,13 @@ fun CompanyPaymentLocationClientItem(
   entity: AccountWithPaymentStatusUiModel,
   modifier: Modifier = Modifier,
   onEvent: (CompanyPaymentLocationOverviewEvent) -> Unit,
+  accountRequest: List<AccountRequestUiModel>,
 ) {
   val account = entity.account
+  val newAccount = accountRequest
+    .filter { it.httpOperation == HttpOperation.Post.name }
+    .map { it.accountId }.contains(account.id)
+
   Card(
     modifier = modifier.padding(vertical = 4.dp),
     shape = CircleShape,
@@ -126,6 +134,8 @@ fun CompanyPaymentLocationClientItem(
       Spacer(modifier = Modifier.width(16.dp))
 
       IconButton(
+        modifier = Modifier.alpha(if (newAccount) 0f else 1f),
+        enabled = newAccount.not(),
         onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment(account.id)) },
         colors = IconButtonDefaults.iconButtonColors(containerColor = ifPaidColor.copy(.1f)),
       ) {
@@ -174,7 +184,8 @@ private fun CompanyPaymentLocationClientItemPreview() {
   WasticalTheme {
     CompanyPaymentLocationClientItem(
       entity = accountWithPaymentStatus4Preview,
-      onEvent = {}
+      accountRequest = listOf(),
+      onEvent = {},
     )
   }
 }

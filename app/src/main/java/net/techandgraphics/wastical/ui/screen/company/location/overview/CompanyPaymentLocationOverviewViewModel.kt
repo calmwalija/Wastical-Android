@@ -7,11 +7,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.domain.toAccountRequestUiModel
 import net.techandgraphics.wastical.domain.toAccountWithPaymentStatusUiModel
 import net.techandgraphics.wastical.domain.toCompanyLocationUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
@@ -58,25 +61,29 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
 
           val company = database.companyDao.query().first().toCompanyUiModel()
 
-          database.paymentIndicatorDao.flowOfAccountsWithPaymentStatusByStreetId(
-            id = companyLocation.demographicStreetId,
-            month = monthYear.month,
-            year = monthYear.year,
-          ).map { p0 -> p0.map { it.toAccountWithPaymentStatusUiModel() } }
-            .collectLatest { accounts ->
-              val expectedAmountToCollect =
-                database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
-              _state.value = CompanyPaymentLocationOverviewState.Success(
-                company = company,
-                demographicStreet = demographicStreet,
-                demographicArea = demographicArea,
-                accounts = accounts,
-                payment4CurrentMonth = payment4CurrentMonth,
-                expectedAmountToCollect = expectedAmountToCollect,
-                companyLocation = companyLocation,
-                monthYear = monthYear,
-              )
-            }
+          combine(
+            flow = database.paymentIndicatorDao.flowOfAccountsWithPaymentStatusByStreetId(
+              id = companyLocation.demographicStreetId,
+              month = monthYear.month,
+              year = monthYear.year,
+            ).map { p0 -> p0.map { it.toAccountWithPaymentStatusUiModel() } },
+            flow2 = database.accountRequestDao.flowOf()
+              .map { p0 -> p0.map { it.toAccountRequestUiModel() } },
+          ) { accounts, accountRequests ->
+            val expectedAmountToCollect =
+              database.paymentIndicatorDao.getExpectedAmountToCollectByStreetId(companyLocation.demographicStreetId)
+            _state.value = CompanyPaymentLocationOverviewState.Success(
+              company = company,
+              demographicStreet = demographicStreet,
+              demographicArea = demographicArea,
+              accounts = accounts,
+              payment4CurrentMonth = payment4CurrentMonth,
+              expectedAmountToCollect = expectedAmountToCollect,
+              companyLocation = companyLocation,
+              monthYear = monthYear,
+              accountRequests = accountRequests,
+            )
+          }.launchIn(viewModelScope)
         }
     }
 

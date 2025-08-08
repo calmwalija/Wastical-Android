@@ -198,6 +198,7 @@ fun CompanyPaymentLocationOverviewScreen(
           items(state.accounts, key = { key -> key.account.id }) { entity ->
             CompanyPaymentLocationClientItem(
               entity = entity,
+              accountRequest = state.accountRequests,
               modifier = Modifier.animateItem(),
               onEvent = onEvent
             )
