@@ -80,24 +80,23 @@ fun CompanyBrowseClientScreen(
 
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(16.dp)
+          modifier = Modifier.padding(vertical = 16.dp)
         ) {
           item {
-            Row(
-              modifier = Modifier.padding(end = 16.dp),
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Column(
+                modifier = Modifier
+                  .padding(horizontal = 16.dp)
+                  .weight(1f)
+              ) {
                 Text(
                   text = "Browse Clients",
                   style = MaterialTheme.typography.headlineMedium,
-                  modifier = Modifier.padding(top = 16.dp, start = 16.dp)
                 )
                 Text(
                   text = "Which client are you looking for ?",
                   style = MaterialTheme.typography.bodyMedium,
                   maxLines = 1,
-                  modifier = Modifier.padding(start = 16.dp),
                   overflow = TextOverflow.Ellipsis,
                   color = Muted
                 )
@@ -123,7 +122,7 @@ fun CompanyBrowseClientScreen(
               CompanyBrowseClientSearchHistoryView(state, onEvent)
           }
 
-          items(state.accounts, key = { it.accountId }) { account ->
+          items(state.accounts, key = { key -> key.accountId }) { account ->
             CompanyBrowseClientView(account, modifier = Modifier.animateItem(), onEvent)
           }
 

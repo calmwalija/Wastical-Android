@@ -45,14 +45,15 @@ fun CompanyBrowseLocationScreen(
       ) {
         LazyColumn(
           contentPadding = it,
-          modifier = Modifier.padding(16.dp)
+          modifier = Modifier.padding(vertical = 16.dp)
         ) {
           item {
-            Row(
-              modifier = Modifier.padding(start = 16.dp),
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Column(
+                modifier = Modifier
+                  .padding(horizontal = 16.dp)
+                  .weight(1f)
+              ) {
                 Text(
                   text = "Browse Location",
                   style = MaterialTheme.typography.headlineMedium,
@@ -74,7 +75,13 @@ fun CompanyBrowseLocationScreen(
 
           item { Spacer(modifier = Modifier.height(8.dp)) }
 
-          items(state.payment4CurrentLocationMonth) { CompanyBrowseLocationView(it, onEvent) }
+          items(state.payment4CurrentLocationMonth, key = { key -> key.streetId }) { location ->
+            CompanyBrowseLocationView(
+              modifier = Modifier.animateItem(),
+              location = location,
+              onEvent = onEvent
+            )
+          }
 
         }
       }

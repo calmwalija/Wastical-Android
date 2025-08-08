@@ -1,21 +1,27 @@
 package net.techandgraphics.wastical.ui.screen.company.location.overview
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -56,10 +62,44 @@ fun CompanyPaymentLocationClientItem(
         .fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      CompanyListClientLetterView(account.lastname)
+
+      val ifPaidColor = if (entity.hasPaid || entity.offlinePay) Green else Color.Red
+
+      Box(contentAlignment = Alignment.BottomEnd) {
+        CompanyListClientLetterView(account.lastname)
+        Card(
+          shape = CircleShape,
+          modifier = Modifier
+            .offset(y = -(2).dp)
+            .size(20.dp),
+          colors = CardDefaults.cardColors(
+            containerColor = Color.White
+          ),
+          elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 1.dp
+          ),
+        ) {
+          Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+          ) {
+            when {
+              entity.hasPaid -> R.drawable.ic_check
+              else -> if (entity.offlinePay) R.drawable.ic_upload_ready else R.drawable.ic_close
+            }.also {
+              Icon(
+                painterResource(it),
+                contentDescription = null,
+                tint = ifPaidColor,
+              )
+            }
+          }
+        }
+      }
+
       Column(
         modifier = Modifier
-          .padding(horizontal = 8.dp)
+          .padding(start = 8.dp, end = 16.dp)
           .weight(1f)
       ) {
         Text(
@@ -83,17 +123,20 @@ fun CompanyPaymentLocationClientItem(
         overflow = TextOverflow.MiddleEllipsis,
       )
 
-      when {
-        entity.hasPaid -> R.drawable.ic_check_circle
-        else -> if (entity.offlinePay) R.drawable.ic_upload_ready else R.drawable.ic_close
-      }.also {
+      Spacer(modifier = Modifier.width(16.dp))
+
+      IconButton(
+        onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment(account.id)) },
+        colors = IconButtonDefaults.iconButtonColors(containerColor = ifPaidColor.copy(.1f)),
+      ) {
         Icon(
-          painterResource(it),
+          imageVector = Icons.AutoMirrored.Filled.ArrowForward,
           contentDescription = null,
-          modifier = Modifier.padding(horizontal = 16.dp),
-          tint = if (entity.hasPaid || entity.offlinePay) Green else Color.Red,
+          tint = ifPaidColor,
         )
       }
+
+      Spacer(modifier = Modifier.width(8.dp))
 
     }
   }
@@ -105,13 +148,13 @@ fun CompanyPaymentLocationClientItem(
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(38.dp)
+        .size(42.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.2f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(44.dp)
+        .size(52.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Text(

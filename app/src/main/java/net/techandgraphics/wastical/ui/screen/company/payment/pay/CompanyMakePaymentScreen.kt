@@ -165,7 +165,7 @@ fun CompanyMakePaymentScreen(
 
           item {
             BasicText(
-              text = "Record Proof Of Payment",
+              text = "Proof Of Payment",
               style = MaterialTheme.typography.headlineSmall,
               color = ColorProducer { contentColor },
               modifier = Modifier

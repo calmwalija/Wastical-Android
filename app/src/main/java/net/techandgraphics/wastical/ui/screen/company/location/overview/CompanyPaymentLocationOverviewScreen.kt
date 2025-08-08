@@ -19,9 +19,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Card
@@ -29,8 +30,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +69,7 @@ import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocation4Preview
 import net.techandgraphics.wastical.ui.screen.demographicArea4Preview
 import net.techandgraphics.wastical.ui.screen.demographicStreet4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.Muted
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.Month
@@ -124,24 +127,28 @@ fun CompanyPaymentLocationOverviewScreen(
                 )
               }
 
-              FilledIconButton(
+              IconButton(
                 onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Button.ClientCreate(state.companyLocation.id)) },
-                shape = RoundedCornerShape(16),
+                shape = CircleShape,
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Green.copy(.4f)),
+                modifier = Modifier.scale(1.2f)
               ) {
                 Icon(
                   painter = painterResource(R.drawable.ic_person_add),
                   contentDescription = null,
                   modifier = Modifier
                     .size(24.dp)
-                    .padding(2.dp)
+                    .padding(2.dp),
                 )
               }
 
-              FilledIconButton(
+              Spacer(modifier = Modifier.width(4.dp))
+
+              IconButton(
                 onClick = { showSortBy = true },
-                shape = RoundedCornerShape(16),
+                shape = CircleShape,
                 colors = IconButtonDefaults.iconButtonColors(
-                  containerColor = CardDefaults.elevatedCardColors().containerColor
+                  containerColor = MaterialTheme.colorScheme.primary.copy(.5f)
                 )
               ) {
                 Icon(

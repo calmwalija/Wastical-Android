@@ -16,7 +16,7 @@ val profileItems = listOf(
     event = CompanyClientProfileEvent.Option.Info,
   ),
   ProfileItem(
-    title = "Record Proof Of Payment",
+    title = "Proof Of Payment",
     drawableRes = R.drawable.ic_payment,
     event = CompanyClientProfileEvent.Option.Payment,
   ),
