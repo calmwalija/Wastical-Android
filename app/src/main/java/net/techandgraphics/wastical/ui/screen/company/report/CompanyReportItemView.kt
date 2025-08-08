@@ -1,6 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
-import androidx.compose.foundation.Image
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +31,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 data class CompanyReportItem(
   val label: String,
   val event: CompanyReportEvent,
+  @DrawableRes val drawableRes: Int = R.drawable.ic_balance,
 )
 
 
@@ -52,12 +53,13 @@ data class CompanyReportItem(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      Image(
-        painterResource(R.drawable.ic_invoice),
+      Icon(
+        painterResource(item.drawableRes),
         contentDescription = null,
         modifier = Modifier
-          .size(24.dp)
-          .padding(2.dp)
+          .size(32.dp)
+          .padding(2.dp),
+        tint = MaterialTheme.colorScheme.secondary
       )
 
       Column(
@@ -91,8 +93,13 @@ data class CompanyReportItem(
 @Preview
 @Composable fun CompanyReportItemPreview() {
   WasticalTheme {
-//    CompanyReportItemView(
-//
-//    )
+    CompanyReportItemView(
+      showIndicator = false,
+      item = CompanyReportItem(
+        "Lorem Ipusum",
+        CompanyReportEvent.Load
+      ),
+      onEvent = { }
+    )
   }
 }

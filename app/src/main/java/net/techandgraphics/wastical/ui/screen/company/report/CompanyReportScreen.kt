@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.toast
@@ -152,34 +153,42 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         item {
           listOf(
             CompanyReportItem(
+              drawableRes = R.drawable.ic_list_active,
               label = "Active Clients Report",
               event = CompanyReportEvent.Button.Report.ActiveClient
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_person_add,
               label = "New Clients Report",
               event = CompanyReportEvent.Button.Report.NewClient
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_location,
               label = "Location-based Reports",
               event = CompanyReportEvent.Button.Report.LocationBased
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_list_active,
               label = "Client Disengagement Report",
               event = CompanyReportEvent.Button.Report.ClientDisengagement
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_payment,
               label = "Paid Payment Report",
               event = CompanyReportEvent.Button.Report.PaidPayment
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_close,
               label = "Missed Payment Report",
               event = CompanyReportEvent.Button.Report.MissedPayment
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_database_upload,
               label = "Overpayment Report",
               event = CompanyReportEvent.Button.Report.Overpayment
             ),
             CompanyReportItem(
+              drawableRes = R.drawable.ic_balance,
               label = "Outstanding Balance Report",
               event = CompanyReportEvent.Button.Report.OutstandingBalance
             )
