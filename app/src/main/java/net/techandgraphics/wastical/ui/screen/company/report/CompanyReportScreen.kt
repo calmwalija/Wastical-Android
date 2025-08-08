@@ -168,7 +168,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.LocationBased
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_list_active,
+              drawableRes = R.drawable.ic_list_inactive,
               label = "Client Disengagement Report",
               event = CompanyReportEvent.Button.Report.ClientDisengagement
             ),
