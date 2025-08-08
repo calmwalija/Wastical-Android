@@ -1,30 +1,43 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
 import android.app.Application
+import android.graphics.Paint
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
-import net.techandgraphics.wastical.data.local.database.account.AccountExport
-import net.techandgraphics.wastical.data.local.database.dashboard.payment.CoverageRaw
+import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.OutstandingBalanceItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.OverpaymentItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
+import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
-import net.techandgraphics.wastical.domain.toDemographicStreetUiModel
 import net.techandgraphics.wastical.getAccountTitle
-import net.techandgraphics.wastical.getToday
+import net.techandgraphics.wastical.lastDayOfMonth
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
+import net.techandgraphics.wastical.toShortMonthName
+import net.techandgraphics.wastical.toZonedDateTime
+import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
+import java.io.File
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
-@HiltViewModel
-class CompanyReportViewModel @Inject constructor(
+@HiltViewModel class CompanyReportViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
 ) : ViewModel() {
@@ -32,138 +45,581 @@ class CompanyReportViewModel @Inject constructor(
   private val _state = MutableStateFlow<CompanyReportState>(CompanyReportState.Loading)
   val state = _state.asStateFlow()
 
+  private val _channel = Channel<CompanyReportChannel>()
+  val channel = _channel.receiveAsFlow()
+
+  private val pdfMaxWidth = 595f - 18f - 48f
+
+  private val paint = Paint().apply {
+    textSize = PDF_TEXT_SIZE
+    typeface = light(application)
+  }
+
+  private val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
+  private val contactWidth = paint.measureText("9912345678").padding()
+  private val amountWidth = paint.measureText(100_000.toAmount()).padding()
+
   init {
     onEvent(CompanyReportEvent.Load)
+    deleteCachedPdfs()
   }
+
+  private fun deleteCachedPdfs() = viewModelScope.launch(Dispatchers.IO) {
+    application.filesDir.listFiles()
+      ?.filter { file -> file.isFile && file.name.endsWith(".pdf", ignoreCase = true) }
+      ?.forEach { file ->
+        runCatching { file.delete() }.onFailure { it.printStackTrace() }
+      }
+  }
+
+  private fun Float.padding() = plus(16f)
+  private fun String.mills() = this + " - " + System.currentTimeMillis().toString().drop(5)
+
+  private fun toFullname(title: String, name: String) =
+    title.getAccountTitle().plus(" ${name.trim()}")
+
+  private fun String.toContact() = if (isDigitsOnly()) this.takeLast(8) else ""
+  private fun ZonedDateTime.toDate() = month.value.toMonthName().plus(" ${this.year}")
 
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
     val accounts = database.accountDao.query().map { it.toAccountUiModel() }
-    val demographics = database.demographicStreetDao.query().map { it.toDemographicStreetUiModel() }
+    val demographics = database.accountIndicatorDao.qDemographics()
+
+    val monthAccountsCreated: List<MonthYear> =
+      database.accountIndicatorDao.qMonthsCreated().map { it.toZonedDateTime().toLocalDate() }
+        .map { MonthYear(it.month.value, it.year) }.toSet().sortedWith(
+          compareBy<MonthYear> { it.year }.thenBy { it.month },
+        )
+
+    val allMonthPayments: List<MonthYear> = database.paymentIndicatorDao.getAllMonthsPayments()
+      .sortedWith(
+        compareBy<MonthYear> { it.year }.thenBy { it.month },
+      )
+
     _state.value = CompanyReportState.Success(
       company = company,
       accounts = accounts,
       demographics = demographics,
+      allMonthPayments = allMonthPayments,
+      monthAccountsCreated = monthAccountsCreated,
     )
   }
 
-  private fun onButtonExportClients() = viewModelScope.launch(Dispatchers.IO) {
+  private fun onMonthDialogPickMonth(event: CompanyReportEvent.Button.MonthDialog.PickMonth) =
+    viewModelScope.launch {
+      if (_state.value is CompanyReportState.Success) {
+        val state = (_state.value as CompanyReportState.Success)
+        val updatedFilters = state.filters.toMutableSet().apply {
+          if (contains(event.monthYear)) remove(event.monthYear) else add(event.monthYear)
+        }
+        _state.value = (_state.value as CompanyReportState.Success).copy(filters = updatedFilters)
+      }
+    }
+
+  private fun onReportOverpayment() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      BaseExportKlass<AccountExport>(application)(
+
+      val dataset = database.paymentIndicatorDao.qOverpayment()
+      val zonedDateTime = ZonedDateTime.now()
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.account.toAccountUiModel().toFullName()) }
+          ?.padding()
+          ?: 120f
+
+      val createdAtWidth = paint.measureText(zonedDateTime.defaultDate()).padding()
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        createdAtWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        createdAtWidth,
+        amountWidth,
+        locationWidth,
+      )
+
+      val filename = "OverPayment Report - ${zonedDateTime.toDate()}"
+
+      BaseExportKlass<OverpaymentItem>(application).toPdf(
         company = state.company,
-        pageTitle = "Accounts Report",
-        columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Location"),
-        columnWidths = listOf(40f, 160f, 100f, 80f, 130f),
-        filename = "accounts_report",
-        items = database.accountDao.qAccountExport(),
-        valueExtractor = { account ->
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Contact",
+          "Due",
+          "Amount",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
           listOf(
-            account.title.getAccountTitle() + account.lastname.trim(),
-            if (account.username.isDigitsOnly()) account.username else "",
-            account.fee.toAmount(),
-            account.demographicStreet,
+            item.account.toAccountUiModel().toFullName(),
+            item.account.username.toContact(),
+            item.maxMonth.toShortMonthName().plus(" ${item.maxYear}"),
+            item.overpayment.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
-        onEvent = { file -> file?.preview(application) },
+        onEvent = ::onEventPdf,
       )
     }
   }
 
-  private fun onButtonExportOutstanding() = viewModelScope.launch {
+  private fun onReportNewClient() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
-      BaseExportKlass<UnPaidAccount>(application)(
+      val months = state.filters.sortedWith(compareBy<MonthYear> { it.year }.thenBy { it.month })
+      val startMonthDate = months.first().toZonedDateTime()
+      var lastDayOfMonth = startMonthDate.lastDayOfMonth()
+      if (months.size > 1) {
+        val endMonthDate = months.last().toZonedDateTime()
+        lastDayOfMonth = endMonthDate.lastDayOfMonth()
+      }
+      val start = startMonthDate.toEpochSecond()
+      val end = lastDayOfMonth.toEpochSecond()
+
+      val dataset = database.accountIndicatorDao.qRange(start = start, end = end)
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+        locationWidth,
+      )
+
+      val filename = "New Clients Report - ${startMonthDate.toDate()}"
+
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
         company = state.company,
-        pageTitle = "Outstanding Payment Clients in ${month.toMonthName()} Report",
-        columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Location"),
-        columnWidths = listOf(40f, 160f, 100f, 80f, 130f),
-        filename = "Outstanding Payment Clients in ${month.toMonthName()}",
-        items = database.paymentIndicatorDao.qAccounts(month, year, false),
-        valueExtractor = { account ->
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Contact",
+          "Amount",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
           listOf(
-            account.title.getAccountTitle().plus(" ${account.lastname.trim()}"),
-            if (account.contact.isDigitsOnly()) account.contact else "",
-            account.amount.toAmount(),
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
           )
         },
-        onEvent = { file -> file?.preview(application) },
+        onEvent = ::onEventPdf,
+      )
+      _state.value = (_state.value as CompanyReportState.Success).copy(filters = emptySet())
+    }
+  }
+
+  private fun onReportActiveClient() = viewModelScope.launch(Dispatchers.IO) {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val dataset = database.accountIndicatorDao.qActiveAccounts()
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+        locationWidth,
+      )
+
+      val filename = "Active Clients Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Amount",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
       )
     }
   }
 
-  private fun onButtonExportCollected() = viewModelScope.launch {
+  private fun onEventPdf(file: File?) = viewModelScope.launch {
+    file?.let { newFile ->
+      newFile.preview(application)
+      _channel.send(CompanyReportChannel.Pdf.Success)
+    } ?: _channel.send(CompanyReportChannel.Pdf.Error)
+  }
+
+  private fun onReportMissedPayment() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
-      BaseExportKlass<UnPaidAccount>(application)(
+
+      val dataset = database.paymentIndicatorDao.qRange(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+        hasPaid = false,
+      )
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 20f, 20f)
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths =
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 20f, 20f)
+
+      val filename = "Missed Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
+
+      BaseExportKlass<UnPaidAccount>(application).toPdf(
         company = state.company,
-        pageTitle = "Collected Payment Clients in ${month.toMonthName()} Report",
-        columnHeaders = listOf("#", "Full Name", "Phone", "Amount", "Location"),
-        columnWidths = listOf(40f, 160f, 100f, 80f, 130f),
-        filename = "Collected Payment Clients in ${month.toMonthName()}",
-        items = database.paymentIndicatorDao.qAccounts(month, year, true),
-        valueExtractor = { account ->
+        columnHeaders = listOf("#", "Name", "Contact", "Amount", "Location", "", ""),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
           listOf(
-            account.title.getAccountTitle().plus(" ${account.lastname.trim()}"),
-            if (account.contact.isDigitsOnly()) account.contact else "",
-            account.amount.toAmount(),
-            account.demographicStreet,
+            toFullname(item.title, item.lastname),
+            item.contact.toContact(),
+            item.amount.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+            "",
+            "",
           )
         },
-        onEvent = { file -> file?.preview(application) },
+        onEvent = ::onEventPdf,
       )
     }
   }
 
-  fun mapToCoverageMatrix(
-    rawList: List<CoverageRaw>,
-    months: List<Int>,
-  ): List<PaymentCoverageRow> {
-    return rawList
-      .groupBy { it.accountId }
-      .map { (_, rows) ->
-        val first = rows.first()
-        val monthsPaid = rows.mapNotNull { it.paidMonth }.toSet()
-        val monthMap = months.associateWith { it in monthsPaid }
-        PaymentCoverageRow(
-          fullName = first.fullName,
-          phoneNumber = first.phoneNumber,
-          monthStatus = monthMap,
-          title = first.title,
+  private fun onReportPaidPayment() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val dataset = database.paymentIndicatorDao.qRange(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+        hasPaid = true,
+      )
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+      val createdAtWidth = paint.measureText(ZonedDateTime.now().defaultDate()).padding()
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(countWidth, fullNameWidth, createdAtWidth, contactWidth, amountWidth)
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths =
+        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, createdAtWidth, locationWidth)
+
+      val filename = "Paid Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
+
+      BaseExportKlass<UnPaidAccount>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Name", "Phone", "Amount", "Paid", "Location"),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            toFullname(item.title, item.lastname),
+            item.contact.toContact(),
+            item.amount.toAmount(),
+            item.paidOn.toZonedDateTime().defaultDate(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportLocationBased() = viewModelScope.launch(Dispatchers.IO) {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val areas = state.demographicFilters.map { it.theAreaId }.distinct()
+      val streets = state.demographicFilters.map { it.theStreetId }.distinct()
+
+      val dataset = database.accountIndicatorDao.qLocationBased(areas, streets)
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        amountWidth,
+        locationWidth,
+      )
+
+      val filename = "Location Based Clients Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Amount",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.fee.toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportClientDisengagement() = viewModelScope.launch(Dispatchers.IO) {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+
+      val dataset = database.accountIndicatorDao.qActiveAccounts(status = Status.Inactive.name)
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }?.padding()
+          ?: 120f
+
+      val leavingReasonWidth =
+        dataset.maxOfOrNull { item -> paint.measureText(item.leavingReason ?: "") }?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        leavingReasonWidth,
+        createdAtWidth,
+      )
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        leavingReasonWidth,
+        createdAtWidth,
+        locationWidth,
+      )
+
+      val filename = "Client Disengagement Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<ReportAccountItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Reason",
+          "Date",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            toFullname(item.title, item.lastname),
+            item.username.toContact(),
+            item.leavingReason ?: "",
+            item.updatedAt.toZonedDateTime().defaultDate(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportOutstandingBalance() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qOutstandingBalance().filter { item ->
+        val duration = monthsBetween(
+          item.account.createdAt
+            .toZonedDateTime()
+            .withDayOfMonth(1)
+            .minusMonths(1),
         )
+        item.monthCovered < duration
       }
+
+      val fullNameWidth =
+        dataset.maxOfOrNull { paint.measureText(it.account.toAccountUiModel().toFullName()) }
+          ?.padding()
+          ?: 120f
+
+      val countWidth = paint.measureText(dataset.size.toString()).padding()
+      val pdfWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        createdAtWidth,
+      )
+
+      val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
+      val columnWidths = listOf(
+        countWidth,
+        fullNameWidth,
+        contactWidth,
+        createdAtWidth,
+        locationWidth,
+      )
+
+      val filename = "Outstanding Balance Report - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<OutstandingBalanceItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf(
+          "#",
+          "Name",
+          "Phone",
+          "Balance",
+          "Location",
+        ),
+        columnWidths = columnWidths,
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          val duration = monthsBetween(
+            item.account.createdAt
+              .toZonedDateTime()
+              .withDayOfMonth(1)
+              .minusMonths(1),
+          )
+          listOf(
+            item.account.toAccountUiModel().toFullName(),
+            item.account.username.toContact(),
+            duration.times(item.feePlan)
+              .minus(item.monthCovered.times(item.feePlan))
+              .toAmount(),
+            item.demographicArea.plus(", ${item.demographicStreet}"),
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
   }
 
-  private fun onButtonExportCoverage() = viewModelScope.launch {
-    if (_state.value is CompanyReportState.Success) {
-      val state = (_state.value as CompanyReportState.Success)
-      val (_, month, year) = getToday()
+  private fun monthsBetween(start: ZonedDateTime, end: ZonedDateTime = ZonedDateTime.now()): Long {
+    return ChronoUnit.MONTHS.between(start, end)
+  }
 
-      val months = database.paymentMonthCoveredDao.qGroupByMonth().map { it.month }
-
-      val theData: List<PaymentCoverageRow> =
-        mapToCoverageMatrix(database.paymentIndicatorDao.getCoverageRaw(year), months)
-
-      exportCoverageToPdf(application, theData, months) { file ->
-        file?.preview(application)
+  private fun onLocationDialogPickMonth(event: CompanyReportEvent.Button.LocationDialog.Pick) =
+    viewModelScope.launch {
+      if (_state.value is CompanyReportState.Success) {
+        val state = (_state.value as CompanyReportState.Success)
+        val updatedFilters = state.demographicFilters.toMutableSet().apply {
+          if (contains(event.item)) remove(event.item) else add(event.item)
+        }
+        _state.value =
+          (_state.value as CompanyReportState.Success).copy(demographicFilters = updatedFilters)
       }
+    }
+
+  private fun onButtonReport(event: CompanyReportEvent.Button.Report) {
+    when (event) {
+      CompanyReportEvent.Button.Report.ActiveClient -> onReportActiveClient()
+      CompanyReportEvent.Button.Report.MissedPayment -> onReportMissedPayment()
+      CompanyReportEvent.Button.Report.PaidPayment -> onReportPaidPayment()
+      CompanyReportEvent.Button.Report.NewClient -> onReportNewClient()
+
+      CompanyReportEvent.Button.Report.Overpayment -> onReportOverpayment()
+      CompanyReportEvent.Button.Report.OutstandingBalance -> onReportOutstandingBalance()
+      CompanyReportEvent.Button.Report.LocationBased -> onReportLocationBased()
+      CompanyReportEvent.Button.Report.ClientDisengagement -> onReportClientDisengagement()
     }
   }
 
   fun onEvent(event: CompanyReportEvent) {
     when (event) {
-      CompanyReportEvent.Button.Export.Client -> onButtonExportClients()
-      CompanyReportEvent.Button.Export.Outstanding -> onButtonExportOutstanding()
-      CompanyReportEvent.Button.Export.Collected -> onButtonExportCollected()
-
-      CompanyReportEvent.Button.Export.Plan -> Unit
-      CompanyReportEvent.Button.Export.Coverage -> onButtonExportCoverage()
-      CompanyReportEvent.Button.Export.Geographic -> Unit
-
+      is CompanyReportEvent.Button.Report -> onButtonReport(event)
       CompanyReportEvent.Load -> onLoad()
+      is CompanyReportEvent.Button.MonthDialog.PickMonth -> onMonthDialogPickMonth(event)
+      is CompanyReportEvent.Button.LocationDialog.Pick -> onLocationDialogPickMonth(event)
       else -> Unit
     }
   }

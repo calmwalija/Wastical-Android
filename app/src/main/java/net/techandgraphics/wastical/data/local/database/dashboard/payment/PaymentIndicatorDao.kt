@@ -5,8 +5,10 @@ import androidx.room.Embedded
 import androidx.room.Query
 import androidx.room.RoomWarnings
 import kotlinx.coroutines.flow.Flow
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
+import java.time.YearMonth
 
 @Dao
 interface PaymentIndicatorDao {
@@ -176,7 +178,9 @@ interface PaymentIndicatorDao {
       account.lastname,
       account.username as contact,
       street.name as demographicStreet,
+      area.name as demographicArea,
       plans.fee as amount,
+      month_covered.created_at as paidOn,
       CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
     FROM
       account AS account
@@ -184,17 +188,25 @@ interface PaymentIndicatorDao {
       INNER JOIN payment_plan plans ON accountplans.payment_plan_id = plans.id
       LEFT JOIN company_location as location ON account.company_location_id = location.id
       LEFT JOIN demographic_street as street ON location.demographic_street_id = street.id
+      LEFT JOIN demographic_area as area ON location.demographic_area_id = area.id
       LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
-      AND month_covered.month = :month
-      AND month_covered.year = :year
+      AND month_covered.month IN (:months)
+      AND month_covered.year IN (:years)
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
+      AND account.created_at < payment.created_at
     WHERE
-      hasPaid = :hasPaid
-    GROUP BY
-      account.id
+      (CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END) = :hasPaid
+      AND account.status = :status
+      GROUP BY account.id
+    ORDER BY street.name, payment.created_at
 """,
   )
-  suspend fun qAccounts(month: Int, year: Int, hasPaid: Boolean): List<UnPaidAccount>
+  suspend fun qRange(
+    months: List<Int>,
+    years: List<Int>,
+    hasPaid: Boolean,
+    status: String = Status.Active.name,
+  ): List<UnPaidAccount>
 
   @Query(
     """
@@ -213,7 +225,94 @@ interface PaymentIndicatorDao {
 
   @Query("SELECT month, year FROM payment_month_covered GROUP BY month, year")
   suspend fun getAllMonthsPayments(): List<MonthYear>
+
+  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+  @Query(
+    """
+    SELECT
+      SUM(pp.fee) AS overpayment,
+      COUNT(*) AS months,
+      ds.name as demographicStreet,
+      da.name as demographicArea,
+      MAX(pmc.month) AS maxMonth,
+      MAX(pmc.year) AS maxYear,
+      a.*
+    FROM
+      account a
+      INNER JOIN payment p ON a.id = p.account_id
+      INNER JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+      INNER JOIN account_payment_plan app ON a.id = app.account_id
+      INNER JOIN payment_plan pp ON pp.id = app.payment_plan_id
+      INNER JOIN company_location cl ON cl.id = a.company_location_id
+      INNER JOIN demographic_street ds ON ds.id = cl.demographic_street_id
+      INNER JOIN demographic_area da ON da.id = cl.demographic_area_id
+    GROUP BY
+      p.id
+    HAVING
+      maxMonth > :month
+      AND maxYear >= :year
+      AND months > 1
+    ORDER BY
+      maxMonth DESC
+
+  """,
+  )
+  suspend fun qOverpayment(
+    month: Int = YearMonth.now().month.value,
+    year: Int = YearMonth.now().year,
+  ): List<OverpaymentItem>
+
+  @Query(
+    """
+    SELECT
+      a.*,
+      COUNT(DISTINCT pmc.month) AS monthCovered,
+      pp.fee AS feePlan,
+      COUNT(DISTINCT pmc.month) * pp.fee AS totalPaid,
+      MAX(pmc.month) AS maxMonth,
+      MAX(pmc.year) AS maxYear,
+      street.name as demographicStreet,
+      area.name as demographicArea
+  FROM account a
+  JOIN payment p ON a.id = p.account_id
+  JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+  JOIN account_payment_plan app ON app.account_id = a.id
+  JOIN payment_plan pp ON pp.id = app.payment_plan_id
+  JOIN company_location as location ON a.company_location_id = location.id
+  JOIN demographic_street as street ON location.demographic_street_id = street.id
+  JOIN demographic_area as area ON location.demographic_area_id = area.id
+  WHERE a.status =:status
+  GROUP BY a.id
+  ORDER BY monthCovered
+  """,
+  )
+  suspend fun qOutstandingBalance(
+    status: String = Status.Active.name,
+  ): List<OutstandingBalanceItem>
 }
+
+data class OutstandingBalanceItem(
+  @Embedded
+  val account: AccountEntity,
+  val monthCovered: Int,
+  val feePlan: Int,
+  val totalPaid: Int,
+  val maxMonth: Int,
+  val maxYear: Int,
+  val demographicStreet: String,
+  val demographicArea: String,
+)
+
+data class OverpaymentItem(
+  @Embedded
+  val account: AccountEntity,
+  val months: Int,
+  val maxMonth: Int,
+  val maxYear: Int,
+  val overpayment: Int,
+  val demographicStreet: String,
+  val demographicArea: String,
+)
 
 data class CoverageRaw(
   val accountId: Long,
@@ -252,8 +351,10 @@ data class UnPaidAccount(
   val firstname: String,
   val lastname: String,
   val demographicStreet: String,
+  val demographicArea: String,
   val contact: String,
   val amount: Int,
+  val paidOn: Long,
 )
 
 enum class AccountSortOrder { Unpaid, Paid, Title, Lastname, Contact }

@@ -1,53 +1,72 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
+import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
-import net.techandgraphics.wastical.ui.screen.demographicStreet4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyReportScreen(
   state: CompanyReportState,
+  channel: Flow<CompanyReportChannel>,
   onEvent: (CompanyReportEvent) -> Unit,
 ) {
 
   var contentHeight by remember { mutableIntStateOf(0) }
+  var showMonthDialog by remember { mutableStateOf(false) }
+  var showLocationDialog by remember { mutableStateOf(false) }
+  var eventToProceedWith by remember { mutableStateOf<CompanyReportEvent.Button.Report?>(null) }
+  val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+  val months4AccPay = remember { mutableStateListOf<MonthYear?>(null) }
+  var isAccPay by remember { mutableStateOf(false) }
+  val context = LocalContext.current
+  val indicators = remember { mutableStateMapOf<CompanyReportEvent.Button.Report, Boolean>() }
+
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(key1 = channel) {
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+      channel.collect { event ->
+        indicators.forEach { indicators[it.key] = false }
+        when (event) {
+          CompanyReportChannel.Pdf.Error -> context.toast("Failed to create PDF, please try again")
+          CompanyReportChannel.Pdf.Success -> Unit
+        }
+      }
+    }
+  }
 
   when (state) {
     CompanyReportState.Loading -> LoadingIndicatorView()
@@ -58,9 +77,69 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         }
       },
     ) {
+
+      if (showMonthDialog) {
+        ModalBottomSheet(
+          onDismissRequest = {
+            eventToProceedWith?.let { event -> indicators[event] = false }
+            showMonthDialog = false
+          }, sheetState = modalBottomSheetState
+        ) {
+          months4AccPay.clear()
+          months4AccPay.addAll(if (isAccPay) state.monthAccountsCreated else state.allMonthPayments)
+          CompanyReportMonthFilterView(
+            filters = state.filters,
+            items = months4AccPay.toList().mapNotNull { items -> items }) { event ->
+            when (event) {
+              CompanyReportEvent.Button.MonthDialog.Close -> {
+                eventToProceedWith?.let { event -> indicators[event] = false }
+                showMonthDialog = false
+              }
+
+              CompanyReportEvent.Button.MonthDialog.Proceed -> eventToProceedWith?.let { withEvent ->
+                showMonthDialog = false
+                onEvent(withEvent)
+              }
+
+              is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
+            }
+          }
+        }
+      }
+
+      if (showLocationDialog) {
+        ModalBottomSheet(
+          onDismissRequest = {
+            eventToProceedWith?.let { event -> indicators[event] = false }
+            showLocationDialog = false
+          }, sheetState = modalBottomSheetState,
+          dragHandle = {},
+          sheetGesturesEnabled = false
+        ) {
+          CompanyReportLocationFilterView(
+            filters = state.demographicFilters,
+            demographicItems = state.demographics,
+          ) { event ->
+            when (event) {
+              CompanyReportEvent.Button.LocationDialog.Close -> {
+                eventToProceedWith?.let { event -> indicators[event] = false }
+                showLocationDialog = false
+              }
+
+              CompanyReportEvent.Button.LocationDialog.Proceed -> eventToProceedWith?.let { withEvent ->
+                showLocationDialog = false
+                onEvent(withEvent)
+              }
+
+
+              is CompanyReportEvent.Button.LocationDialog.Pick -> onEvent(event)
+            }
+          }
+        }
+      }
+
       LazyColumn(
-        contentPadding = it,
-        modifier = Modifier.padding(16.dp)
+        contentPadding = it, modifier = Modifier.padding(16.dp)
       ) {
         item {
           Text(
@@ -70,174 +149,96 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           )
         }
 
-        item {
-          Row(modifier = Modifier.fillMaxWidth()) {
-            Column(
-              modifier = Modifier
-                .height(with(LocalDensity.current) { contentHeight.toDp() })
-                .weight(1f)
-            ) {
-              Card(
-                modifier = Modifier
-                  .padding(8.dp)
-                  .fillMaxSize(),
-              ) {
-                Column(
-                  modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                  horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                  Icon(
-                    painterResource(R.drawable.ic_bar_chart),
-                    contentDescription = null,
-                    modifier = Modifier.size(72.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                  )
-                  Text(text = "Activity")
-                }
-              }
-            }
-
-            Column(
-              modifier = Modifier
-                .onGloballyPositioned { layoutCoordinates ->
-                  contentHeight = layoutCoordinates.size.height
-                }
-                .weight(1f)) {
-              Column {
-                OutlinedCard(modifier = Modifier.padding(8.dp)) {
-                  Column(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                  ) {
-                    Icon(
-                      painterResource(R.drawable.ic_account),
-                      contentDescription = null,
-                      modifier = Modifier.size(32.dp),
-                      tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(text = "Clients")
-                    Text(
-                      text = state.accounts.size.toString(),
-                      style = MaterialTheme.typography.bodyMedium
-                    )
-                  }
-                }
-
-                OutlinedCard(modifier = Modifier.padding(8.dp)) {
-                  Column(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                  ) {
-                    Icon(
-                      painterResource(R.drawable.ic_house),
-                      contentDescription = null,
-                      modifier = Modifier.size(32.dp),
-                      tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(text = "Locations")
-                    Text(
-                      text = state.demographics.size.toString(),
-                      style = MaterialTheme.typography.bodyMedium
-                    )
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        item {
-          Text(
-            text = "Export Information",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(vertical = 16.dp)
-          )
-        }
 
         item {
           listOf(
-            ExportInformationItem(
-              label = "Clients Report",
-              event = CompanyReportEvent.Button.Export.Client
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_list_active,
+              label = "Active Clients Report",
+              event = CompanyReportEvent.Button.Report.ActiveClient
             ),
-            ExportInformationItem(
-              label = "Collected Payments",
-              event = CompanyReportEvent.Button.Export.Collected
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_person_add,
+              label = "New Clients Report",
+              event = CompanyReportEvent.Button.Report.NewClient
             ),
-            ExportInformationItem(
-              label = "Outstanding Payments",
-              event = CompanyReportEvent.Button.Export.Outstanding
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_location,
+              label = "Location-based Reports",
+              event = CompanyReportEvent.Button.Report.LocationBased
             ),
-            ExportInformationItem(
-              label = "Payment Coverage",
-              event = CompanyReportEvent.Button.Export.Coverage
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_list_inactive,
+              label = "Client Disengagement Report",
+              event = CompanyReportEvent.Button.Report.ClientDisengagement
             ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_payment,
+              label = "Paid Payment Report",
+              event = CompanyReportEvent.Button.Report.PaidPayment
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_close,
+              label = "Missed Payment Report",
+              event = CompanyReportEvent.Button.Report.MissedPayment
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_database_upload,
+              label = "Overpayment Report",
+              event = CompanyReportEvent.Button.Report.Overpayment
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_balance,
+              label = "Outstanding Balance Report",
+              event = CompanyReportEvent.Button.Report.OutstandingBalance
+            )
           ).forEach { item ->
-            ExportInformationItem(item) { onEvent(item.event) }
+            CompanyReportItemView(
+              showIndicator = indicators[item.event] ?: false,
+              item = item
+            ) { event ->
+
+              when (event) {
+                is CompanyReportEvent.Button.Report -> {
+
+                  indicators[event] = true
+                  eventToProceedWith = event
+
+                  when (event) {
+
+                    CompanyReportEvent.Button.Report.ActiveClient -> onEvent(event)
+
+                    CompanyReportEvent.Button.Report.NewClient -> {
+                      isAccPay = true
+                      showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.PaidPayment -> {
+                      isAccPay = false
+                      showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.MissedPayment -> {
+                      isAccPay = false
+                      showMonthDialog = true
+                    }
+
+
+                    CompanyReportEvent.Button.Report.OutstandingBalance -> onEvent(event)
+                    CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
+                    CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
+                    CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
+                  }
+                }
+
+                CompanyReportEvent.Button.MonthDialog.Proceed -> onEvent(event)
+                is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
+                else -> onEvent(event)
+              }
+            }
           }
         }
       }
-    }
-  }
-
-}
-
-data class ExportInformationItem(
-  val label: String,
-  val event: CompanyReportEvent,
-)
-
-
-@Composable
-fun ExportInformationItem(
-  item: ExportInformationItem,
-  onEvent: (CompanyReportEvent) -> Unit,
-) {
-  Card(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(horizontal = 8.dp, vertical = 4.dp),
-    shape = CircleShape,
-    colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(item.event) }) {
-    Row(
-      modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-
-      Image(
-        painterResource(R.drawable.ic_invoice),
-        contentDescription = null,
-        modifier = Modifier
-          .size(24.dp)
-          .padding(2.dp)
-      )
-
-      Column(
-        modifier = Modifier
-          .weight(1f)
-          .padding(horizontal = 8.dp)
-      ) {
-        Text(
-          text = item.label,
-          style = MaterialTheme.typography.bodyMedium
-        )
-      }
-
-      Icon(
-        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-        contentDescription = null,
-        modifier = Modifier.size(20.dp),
-        tint = MaterialTheme.colorScheme.primary
-      )
-      Spacer(modifier = Modifier.width(8.dp))
-
     }
   }
 }
@@ -247,12 +248,25 @@ fun ExportInformationItem(
 @Composable private fun CompanyReportScreenPreview() {
   WasticalTheme {
     CompanyReportScreen(
-      state = companyReportStateSuccess(), onEvent = {})
+      state = companyReportStateSuccess(),
+      channel = flow { }
+    ) {}
   }
 }
 
 fun companyReportStateSuccess() = CompanyReportState.Success(
   company = company4Preview,
   accounts = (1..5).map { account4Preview },
-  demographics = (1..7).map { demographicStreet4Preview }
-)
+  demographics = (1L..7).map {
+    DemographicItem(
+      theStreet = "Ipsum",
+      locationId = it,
+      theArea = "Lorem",
+      theAreaId = 1L,
+      theStreetId = 1L
+    )
+  },
+  allMonthPayments = (1..10).mapIndexed { index, _ ->
+    val cIndex = index.plus(1)
+    MonthYear(cIndex, 2025)
+  })

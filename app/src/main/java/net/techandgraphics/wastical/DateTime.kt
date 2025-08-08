@@ -70,6 +70,9 @@ fun PaymentMonthCoveredUiModel.toZonedDateTime(): ZonedDateTime =
 fun MonthYear.toZonedDateTime(): ZonedDateTime =
   ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.systemDefault())
 
+fun ZonedDateTime.lastDayOfMonth(): ZonedDateTime =
+  plusMonths(1).withDayOfMonth(1).minusDays(1)
+
 fun MonthYear.toDateTime(): ZonedDateTime = YearMonth.of(year, month)
   .atDay(1)
   .atStartOfDay(ZoneId.systemDefault())
