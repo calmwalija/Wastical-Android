@@ -9,6 +9,7 @@ sealed interface CompanyHomeEvent {
 
   sealed interface Button : CompanyHomeEvent {
     data object Export : Button
+    data object Workers : Button
     data object Logout : Button
     data class WorkingMonth(val param: MonthYear) : Button
   }

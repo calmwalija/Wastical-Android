@@ -13,6 +13,9 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
   @Query("SELECT * FROM payment_request")
   suspend fun query(): List<PaymentRequestEntity>
 
+  @Query("SELECT * FROM payment_request")
+  fun flowOf(): Flow<List<PaymentRequestEntity>>
+
   @Query("SELECT * FROM payment_request WHERE account_id=:id AND payment_status=:status")
   fun qByAccountId(
     id: Long,
