@@ -183,7 +183,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.MissedPayment
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_database_upload,
+              drawableRes = R.drawable.ic_fast_forward,
               label = "Overpayment Report",
               event = CompanyReportEvent.Button.Report.Overpayment
             ),
@@ -193,41 +193,36 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.OutstandingBalance
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_list_active,
+              drawableRes = R.drawable.ic_bar_chart,
               label = "Revenue Summary Report",
               event = CompanyReportEvent.Button.Report.RevenueSummary
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_payment,
+              drawableRes = R.drawable.ic_method,
               label = "Payment Method Breakdown",
               event = CompanyReportEvent.Button.Report.PaymentMethodBreakdown
-                        ),
+            ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_payment,
-              label = "Plan Performance",
+              drawableRes = R.drawable.ic_compare_arrows,
+              label = "Plan Performance Report",
               event = CompanyReportEvent.Button.Report.PlanPerformance
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_location,
-              label = "Area Collection",
+              drawableRes = R.drawable.ic_house,
+              label = "Area Collection Report",
               event = CompanyReportEvent.Button.Report.AreaCollection
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_payment,
-              label = "Gateway Success Rate",
-              event = CompanyReportEvent.Button.Report.GatewaySuccess
-            ),
-            CompanyReportItem(
               drawableRes = R.drawable.ic_database_upload,
-              label = "Upfront Payments Detail",
+              label = "Upfront Payments Report",
               event = CompanyReportEvent.Button.Report.UpfrontPaymentsDetail
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_balance,
-              label = "Aging (Raw)",
-              event = CompanyReportEvent.Button.Report.AgingRaw
+              drawableRes = R.drawable.ic_list,
+              label = "Payment Aging Report",
+              event = CompanyReportEvent.Button.Report.PaymentAging
             )
-            ).forEach { item ->
+          ).forEach { item ->
             CompanyReportItemView(
               showIndicator = indicators[item.event] ?: false,
               item = item
@@ -263,13 +258,31 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
                     CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
-                    CompanyReportEvent.Button.Report.RevenueSummary -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.PlanPerformance -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.AreaCollection -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.GatewaySuccess -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> { isAccPay = false; showMonthDialog = true }
-                    CompanyReportEvent.Button.Report.AgingRaw -> onEvent(event)
+                    CompanyReportEvent.Button.Report.RevenueSummary -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.PlanPerformance -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.AreaCollection -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.GatewaySuccess -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> {
+                      isAccPay = false; showMonthDialog = true
+                    }
+
+                    CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
                   }
                 }
 

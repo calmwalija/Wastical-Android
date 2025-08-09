@@ -630,7 +630,7 @@ import javax.inject.Inject
       CompanyReportEvent.Button.Report.AreaCollection -> onReportAreaCollection()
       CompanyReportEvent.Button.Report.GatewaySuccess -> onReportGatewaySuccess()
       CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> onReportUpfrontPaymentsDetail()
-      CompanyReportEvent.Button.Report.AgingRaw -> onReportAgingRaw()
+      CompanyReportEvent.Button.Report.PaymentAging -> onReportAgingRaw()
     }
   }
 

@@ -28,7 +28,7 @@ sealed interface CompanyReportEvent {
       data object AreaCollection : Report
       data object GatewaySuccess : Report
       data object UpfrontPaymentsDetail : Report
-      data object AgingRaw : Report
+      data object PaymentAging : Report
     }
 
     sealed interface MonthDialog : CompanyReportEvent {
