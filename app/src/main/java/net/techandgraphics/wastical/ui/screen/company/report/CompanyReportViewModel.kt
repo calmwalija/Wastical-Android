@@ -313,6 +313,9 @@ import javax.inject.Inject
         months = state.filters.map { it.month },
         years = state.filters.map { it.year }.distinct(),
         hasPaid = false,
+        maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
+          String.format("%04d-%02d", it.year, it.month)
+        } ?: "9999-12",
       )
 
       val fullNameWidth =
@@ -358,6 +361,9 @@ import javax.inject.Inject
         months = state.filters.map { it.month },
         years = state.filters.map { it.year }.distinct(),
         hasPaid = true,
+        maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
+          String.format("%04d-%02d", it.year, it.month)
+        } ?: "9999-12",
       )
 
       val fullNameWidth =
