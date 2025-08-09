@@ -272,24 +272,24 @@ interface PaymentIndicatorDao {
     """
     SELECT
       a.*,
-      COUNT(DISTINCT pmc.month) AS monthCovered,
+      COALESCE(COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)), 0) AS monthCovered,
       pp.fee AS feePlan,
-      COUNT(DISTINCT pmc.month) * pp.fee AS totalPaid,
-      MAX(pmc.month) AS maxMonth,
-      MAX(pmc.year) AS maxYear,
+      COALESCE(COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)), 0) * pp.fee AS totalPaid,
+      COALESCE(MAX(pmc.month), 0) AS maxMonth,
+      COALESCE(MAX(pmc.year), 0) AS maxYear,
       street.name as demographicStreet,
       area.name as demographicArea
   FROM account a
-  JOIN payment p ON a.id = p.account_id
-  JOIN payment_month_covered pmc ON p.id = pmc.payment_id
   JOIN account_payment_plan app ON app.account_id = a.id
   JOIN payment_plan pp ON pp.id = app.payment_plan_id
   JOIN company_location as location ON a.company_location_id = location.id
   JOIN demographic_street as street ON location.demographic_street_id = street.id
   JOIN demographic_area as area ON location.demographic_area_id = area.id
-  WHERE a.status =:status
+  LEFT JOIN payment p ON a.id = p.account_id AND p.payment_status = 'Approved'
+  LEFT JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+  WHERE a.status = :status
   GROUP BY a.id
-  ORDER BY monthCovered
+  ORDER BY monthCovered ASC
   """,
   )
   suspend fun qOutstandingBalance(
