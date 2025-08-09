@@ -180,7 +180,7 @@ interface PaymentIndicatorDao {
       street.name as demographicStreet,
       area.name as demographicArea,
       plans.fee as amount,
-      month_covered.created_at as paidOn,
+      COALESCE(month_covered.created_at, 0) as paidOn,
       CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
     FROM
       account AS account
@@ -193,10 +193,15 @@ interface PaymentIndicatorDao {
       AND month_covered.month IN (:months)
       AND month_covered.year IN (:years)
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
-      AND account.created_at < payment.created_at
+      AND payment.payment_status = 'Approved'
     WHERE
-      (CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END) = :hasPaid
+      (CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END) = CASE WHEN :hasPaid THEN 1 ELSE 0 END
       AND account.status = :status
+      AND (
+        -- Filter accounts based on creation date relative to queried months
+        -- Only include accounts that should have been charged during the queried periods
+        strftime('%Y-%m', datetime(account.created_at / 1000, 'unixepoch')) <= :maxYearMonth
+      )
       GROUP BY account.id
     ORDER BY street.name, payment.created_at
 """,
@@ -205,6 +210,7 @@ interface PaymentIndicatorDao {
     months: List<Int>,
     years: List<Int>,
     hasPaid: Boolean,
+    maxYearMonth: String,
     status: String = Status.Active.name,
   ): List<UnPaidAccount>
 
