@@ -647,16 +647,15 @@ import javax.inject.Inject
       BaseExportKlass<RevenueSummaryItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Month", "Expected", "Collected"),
-        columnWidths = listOf(24f, 120f, 120f, 120f, pdfMaxWidth - (24f + 120f + 120f + 120f)),
+        columnWidths = listOf(24f, createdAtWidth, 120f, pdfMaxWidth - (24f + 120f + 120f + 120f)),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
         valueExtractor = { item ->
           listOf(
-            "${item.month}-${item.year}",
+            MonthYear(item.month, item.year).toZonedDateTime().toDate(),
             item.expectedTotal.toAmount(),
             item.collectedTotal.toAmount(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -677,7 +676,13 @@ import javax.inject.Inject
       BaseExportKlass<PaymentMethodBreakdownItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Gateway", "Payments", "Months", "Total"),
-        columnWidths = listOf(24f, 160f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 80f + 120f)),
+        columnWidths = listOf(
+          160f,
+          80f,
+          80f,
+          120f,
+          pdfMaxWidth - (24f + 160f + 80f + 80f + 120f),
+        ),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -687,7 +692,6 @@ import javax.inject.Inject
             item.payments.toString(),
             item.monthsCovered.toString(),
             item.totalAmount.toAmount(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -706,7 +710,13 @@ import javax.inject.Inject
       BaseExportKlass<PlanPerformanceItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Plan", "Fee", "Accounts", "Collected"),
-        columnWidths = listOf(24f, 160f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 80f + 120f)),
+        columnWidths = listOf(
+          160f,
+          80f,
+          80f,
+          120f,
+          pdfMaxWidth - (24f + 160f + 80f + 80f + 120f),
+        ),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -716,7 +726,6 @@ import javax.inject.Inject
             item.fee.toAmount(),
             item.accounts.toString(),
             item.collectedTotal.toAmount(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -735,7 +744,7 @@ import javax.inject.Inject
       BaseExportKlass<AreaCollectionItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Area", "Accounts", "Collected"),
-        columnWidths = listOf(24f, 160f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 120f)),
+        columnWidths = listOf(160f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 120f)),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -744,7 +753,6 @@ import javax.inject.Inject
             item.areaName,
             item.totalAccounts.toString(),
             item.collectedTotal.toAmount(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -763,7 +771,7 @@ import javax.inject.Inject
       BaseExportKlass<GatewaySuccessItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Gateway", "Approved", "Total"),
-        columnWidths = listOf(24f, 160f, 80f, 80f, pdfMaxWidth - (24f + 160f + 80f + 80f)),
+        columnWidths = listOf(160f, 80f, 80f, pdfMaxWidth - (24f + 160f + 80f + 80f)),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -772,7 +780,6 @@ import javax.inject.Inject
             item.gatewayName,
             item.approvedCount.toString(),
             item.totalCount.toString(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -791,7 +798,14 @@ import javax.inject.Inject
       BaseExportKlass<UpfrontPaymentDetailItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Name", "Phone", "From", "To", "Months"),
-        columnWidths = listOf(24f, 160f, 120f, 80f, 80f, 80f, pdfMaxWidth - (24f + 160f + 120f + 80f + 80f + 80f)),
+        columnWidths = listOf(
+          60f,
+          120f,
+          80f,
+          80f,
+          80f,
+          pdfMaxWidth - (60f + 120f + 80f + 80f + 80f),
+        ),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -802,7 +816,6 @@ import javax.inject.Inject
             item.minMonth.toShortMonthName().plus(" ${item.minYear}"),
             item.maxMonth.toShortMonthName().plus(" ${item.maxYear}"),
             item.monthsCoveredThisPayment.toString(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
@@ -818,7 +831,14 @@ import javax.inject.Inject
       BaseExportKlass<AgingRawItem>(application).toPdf(
         company = state.company,
         columnHeaders = listOf("#", "Name", "Phone", "Months", "Fee", "Created"),
-        columnWidths = listOf(24f, 160f, 120f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 120f + 80f + 80f + 120f)),
+        columnWidths = listOf(
+          60f,
+          120f,
+          80f,
+          80f,
+          120f,
+          pdfMaxWidth - (60f + 120f + 80f + 80f + 120f),
+        ),
         filename = filename.mills(),
         pageTitle = filename,
         items = dataset,
@@ -829,7 +849,6 @@ import javax.inject.Inject
             item.monthCovered.toString(),
             item.feePlan.toAmount(),
             item.createdAt.toZonedDateTime().defaultDate(),
-            "",
           )
         },
         onEvent = ::onEventPdf,
