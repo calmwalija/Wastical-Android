@@ -294,6 +294,151 @@ interface PaymentIndicatorDao {
   suspend fun qOutstandingBalance(
     status: String = Status.Active.name,
   ): List<OutstandingBalanceItem>
+
+  @Query(
+    """
+    SELECT
+      pmc.month AS month,
+      pmc.year AS year,
+      -- collected total for the month
+      IFNULL(SUM(pp.fee), 0) AS collectedTotal,
+      -- expected total for the month (all active accounts as of that month end)
+      (
+        SELECT IFNULL(SUM(pp2.fee), 0)
+        FROM account a2
+        JOIN account_payment_plan app2 ON app2.account_id = a2.id
+        JOIN payment_plan pp2 ON pp2.id = app2.payment_plan_id
+        WHERE a2.status = 'Active'
+          AND strftime('%Y-%m', datetime(a2.created_at / 1000, 'unixepoch')) <= printf('%04d-%02d', pmc.year, pmc.month)
+      ) AS expectedTotal
+    FROM payment_month_covered pmc
+    JOIN payment p ON p.id = pmc.payment_id AND p.payment_status = 'Approved'
+    JOIN account_payment_plan app ON app.account_id = pmc.account_id
+    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    WHERE pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY pmc.year, pmc.month
+    ORDER BY pmc.year, pmc.month
+    """,
+  )
+  suspend fun qRevenueSummary(months: List<Int>, years: List<Int>): List<RevenueSummaryItem>
+
+  @Query(
+    """
+    SELECT
+      gateway.name AS gatewayName,
+      COUNT(DISTINCT p.id) AS payments,
+      COUNT(pmc.id) AS monthsCovered,
+      IFNULL(SUM(pp.fee), 0) AS totalAmount
+    FROM payment p
+    JOIN payment_method method ON method.id = p.payment_method_id
+    JOIN payment_gateway gateway ON gateway.id = method.payment_gateway_id
+    JOIN payment_month_covered pmc ON pmc.payment_id = p.id
+    JOIN account_payment_plan app ON app.account_id = p.account_id
+    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    WHERE p.payment_status = 'Approved'
+      AND pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY gateway.name
+    ORDER BY totalAmount DESC
+    """,
+  )
+  suspend fun qPaymentMethodBreakdown(months: List<Int>, years: List<Int>): List<PaymentMethodBreakdownItem>
+
+  @Query(
+    """
+    SELECT
+      pp.id AS planId,
+      pp.name AS planName,
+      pp.fee AS fee,
+      COUNT(DISTINCT app.account_id) AS accounts,
+      IFNULL(SUM(CASE WHEN pmc.id IS NOT NULL THEN pp.fee ELSE 0 END), 0) AS collectedTotal
+    FROM payment_plan pp
+    LEFT JOIN account_payment_plan app ON app.payment_plan_id = pp.id
+    LEFT JOIN account a ON a.id = app.account_id AND a.status = 'Active'
+    LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
+    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY pp.id, pp.name, pp.fee
+    ORDER BY collectedTotal DESC
+    """,
+  )
+  suspend fun qPlanPerformance(months: List<Int>, years: List<Int>): List<PlanPerformanceItem>
+
+  @Query(
+    """
+    SELECT
+      da.id AS areaId,
+      da.name AS areaName,
+      COUNT(DISTINCT a.id) AS totalAccounts,
+      IFNULL(SUM(CASE WHEN pmc.id IS NOT NULL THEN pp.fee ELSE 0 END), 0) AS collectedTotal
+    FROM demographic_area da
+    JOIN company_location cl ON cl.demographic_area_id = da.id
+    JOIN account a ON a.company_location_id = cl.id AND a.status = 'Active'
+    JOIN account_payment_plan app ON app.account_id = a.id
+    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
+    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY da.id, da.name
+    ORDER BY collectedTotal DESC
+    """,
+  )
+  suspend fun qAreaCollection(months: List<Int>, years: List<Int>): List<AreaCollectionItem>
+
+  @Query(
+    """
+    SELECT
+      gateway.name AS gatewayName,
+      SUM(CASE WHEN p.payment_status = 'Approved' THEN 1 ELSE 0 END) AS approvedCount,
+      COUNT(*) AS totalCount
+    FROM payment p
+    JOIN payment_method method ON method.id = p.payment_method_id
+    JOIN payment_gateway gateway ON gateway.id = method.payment_gateway_id
+    JOIN payment_month_covered pmc ON pmc.payment_id = p.id
+    WHERE pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY gateway.name
+    ORDER BY approvedCount DESC
+    """,
+  )
+  suspend fun qGatewaySuccess(months: List<Int>, years: List<Int>): List<GatewaySuccessItem>
+
+  @Query(
+    """
+    SELECT
+      a.*,
+      p.id AS paymentId,
+      COUNT(pmc.id) AS monthsCoveredThisPayment,
+      MIN(pmc.month) AS minMonth,
+      MIN(pmc.year) AS minYear,
+      MAX(pmc.month) AS maxMonth,
+      MAX(pmc.year) AS maxYear
+    FROM payment p
+    JOIN account a ON a.id = p.account_id
+    JOIN payment_month_covered pmc ON pmc.payment_id = p.id
+    WHERE p.payment_status = 'Approved'
+      AND pmc.month IN (:months) AND pmc.year IN (:years)
+    GROUP BY p.id
+    HAVING monthsCoveredThisPayment > 1
+    ORDER BY maxYear DESC, maxMonth DESC
+    """,
+  )
+  suspend fun qUpfrontPaymentsDetail(months: List<Int>, years: List<Int>): List<UpfrontPaymentDetailItem>
+
+  @Query(
+    """
+    SELECT
+      a.*,
+      COALESCE(COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)), 0) AS monthCovered,
+      pp.fee AS feePlan,
+      a.created_at AS createdAt
+    FROM account a
+    JOIN account_payment_plan app ON app.account_id = a.id
+    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    LEFT JOIN payment p ON a.id = p.account_id AND p.payment_status = 'Approved'
+    LEFT JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    WHERE a.status = 'Active'
+    GROUP BY a.id
+    ORDER BY monthCovered ASC
+    """,
+  )
+  suspend fun qAgingRaw(): List<AgingRawItem>
 }
 
 data class OutstandingBalanceItem(
@@ -360,6 +505,58 @@ data class UnPaidAccount(
   val contact: String,
   val amount: Int,
   val paidOn: Long,
+)
+
+data class RevenueSummaryItem(
+  val month: Int,
+  val year: Int,
+  val expectedTotal: Int,
+  val collectedTotal: Int,
+)
+
+data class PaymentMethodBreakdownItem(
+  val gatewayName: String,
+  val payments: Int,
+  val monthsCovered: Int,
+  val totalAmount: Int,
+)
+
+data class PlanPerformanceItem(
+  val planId: Long,
+  val planName: String,
+  val fee: Int,
+  val accounts: Int,
+  val collectedTotal: Int,
+)
+
+data class AreaCollectionItem(
+  val areaId: Long,
+  val areaName: String,
+  val totalAccounts: Int,
+  val collectedTotal: Int,
+)
+
+data class GatewaySuccessItem(
+  val gatewayName: String,
+  val approvedCount: Int,
+  val totalCount: Int,
+)
+
+data class UpfrontPaymentDetailItem(
+  @Embedded val account: AccountEntity,
+  val paymentId: Long,
+  val monthsCoveredThisPayment: Int,
+  val minMonth: Int,
+  val minYear: Int,
+  val maxMonth: Int,
+  val maxYear: Int,
+)
+
+data class AgingRawItem(
+  @Embedded val account: AccountEntity,
+  val monthCovered: Int,
+  val feePlan: Int,
+  val createdAt: Long,
 )
 
 enum class AccountSortOrder { Unpaid, Paid, Title, Lastname, Contact }

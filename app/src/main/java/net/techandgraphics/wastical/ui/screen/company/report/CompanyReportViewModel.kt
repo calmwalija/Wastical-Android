@@ -15,10 +15,17 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.AgingRawItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.AreaCollectionItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.GatewaySuccessItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.OutstandingBalanceItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.OverpaymentItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.PaymentMethodBreakdownItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.PlanPerformanceItem
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.RevenueSummaryItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.UpfrontPaymentDetailItem
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
@@ -617,6 +624,216 @@ import javax.inject.Inject
       CompanyReportEvent.Button.Report.OutstandingBalance -> onReportOutstandingBalance()
       CompanyReportEvent.Button.Report.LocationBased -> onReportLocationBased()
       CompanyReportEvent.Button.Report.ClientDisengagement -> onReportClientDisengagement()
+      CompanyReportEvent.Button.Report.RevenueSummary -> onReportRevenueSummary()
+      CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> onReportPaymentMethodBreakdown()
+      CompanyReportEvent.Button.Report.PlanPerformance -> onReportPlanPerformance()
+      CompanyReportEvent.Button.Report.AreaCollection -> onReportAreaCollection()
+      CompanyReportEvent.Button.Report.GatewaySuccess -> onReportGatewaySuccess()
+      CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> onReportUpfrontPaymentsDetail()
+      CompanyReportEvent.Button.Report.AgingRaw -> onReportAgingRaw()
+    }
+  }
+
+  private fun onReportRevenueSummary() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qRevenueSummary(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+
+      val filename = "Revenue Summary - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<RevenueSummaryItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Month", "Expected", "Collected"),
+        columnWidths = listOf(24f, 120f, 120f, 120f, pdfMaxWidth - (24f + 120f + 120f + 120f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            "${item.month}-${item.year}",
+            item.expectedTotal.toAmount(),
+            item.collectedTotal.toAmount(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportPaymentMethodBreakdown() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qPaymentMethodBreakdown(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+
+      val filename = "Payment Method Breakdown - ${ZonedDateTime.now().toDate()}"
+
+      BaseExportKlass<PaymentMethodBreakdownItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Gateway", "Payments", "Months", "Total"),
+        columnWidths = listOf(24f, 160f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 80f + 120f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.gatewayName,
+            item.payments.toString(),
+            item.monthsCovered.toString(),
+            item.totalAmount.toAmount(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportPlanPerformance() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qPlanPerformance(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+      val filename = "Plan Performance - ${ZonedDateTime.now().toDate()}"
+      BaseExportKlass<PlanPerformanceItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Plan", "Fee", "Accounts", "Collected"),
+        columnWidths = listOf(24f, 160f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 80f + 120f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.planName,
+            item.fee.toAmount(),
+            item.accounts.toString(),
+            item.collectedTotal.toAmount(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportAreaCollection() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qAreaCollection(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+      val filename = "Area Collection - ${ZonedDateTime.now().toDate()}"
+      BaseExportKlass<AreaCollectionItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Area", "Accounts", "Collected"),
+        columnWidths = listOf(24f, 160f, 80f, 120f, pdfMaxWidth - (24f + 160f + 80f + 120f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.areaName,
+            item.totalAccounts.toString(),
+            item.collectedTotal.toAmount(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportGatewaySuccess() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qGatewaySuccess(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+      val filename = "Gateway Success - ${ZonedDateTime.now().toDate()}"
+      BaseExportKlass<GatewaySuccessItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Gateway", "Approved", "Total"),
+        columnWidths = listOf(24f, 160f, 80f, 80f, pdfMaxWidth - (24f + 160f + 80f + 80f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.gatewayName,
+            item.approvedCount.toString(),
+            item.totalCount.toString(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportUpfrontPaymentsDetail() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qUpfrontPaymentsDetail(
+        months = state.filters.map { it.month },
+        years = state.filters.map { it.year }.distinct(),
+      )
+      val filename = "Upfront Payments - ${ZonedDateTime.now().toDate()}"
+      BaseExportKlass<UpfrontPaymentDetailItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Name", "Phone", "From", "To", "Months"),
+        columnWidths = listOf(24f, 160f, 120f, 80f, 80f, 80f, pdfMaxWidth - (24f + 160f + 120f + 80f + 80f + 80f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.account.toAccountUiModel().toFullName(),
+            item.account.username.toContact(),
+            item.minMonth.toShortMonthName().plus(" ${item.minYear}"),
+            item.maxMonth.toShortMonthName().plus(" ${item.maxYear}"),
+            item.monthsCoveredThisPayment.toString(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
+    }
+  }
+
+  private fun onReportAgingRaw() = viewModelScope.launch {
+    if (_state.value is CompanyReportState.Success) {
+      val state = (_state.value as CompanyReportState.Success)
+      val dataset = database.paymentIndicatorDao.qAgingRaw()
+      val filename = "Aging Raw - ${ZonedDateTime.now().toDate()}"
+      BaseExportKlass<AgingRawItem>(application).toPdf(
+        company = state.company,
+        columnHeaders = listOf("#", "Name", "Phone", "Months", "Fee", "Created"),
+        columnWidths = listOf(24f, 160f, 120f, 80f, 80f, 120f, pdfMaxWidth - (24f + 160f + 120f + 80f + 80f + 120f)),
+        filename = filename.mills(),
+        pageTitle = filename,
+        items = dataset,
+        valueExtractor = { item ->
+          listOf(
+            item.account.toAccountUiModel().toFullName(),
+            item.account.username.toContact(),
+            item.monthCovered.toString(),
+            item.feePlan.toAmount(),
+            item.createdAt.toZonedDateTime().defaultDate(),
+            "",
+          )
+        },
+        onEvent = ::onEventPdf,
+      )
     }
   }
 

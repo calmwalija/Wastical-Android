@@ -191,8 +191,43 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               drawableRes = R.drawable.ic_balance,
               label = "Outstanding Balance Report",
               event = CompanyReportEvent.Button.Report.OutstandingBalance
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_list_active,
+              label = "Revenue Summary Report",
+              event = CompanyReportEvent.Button.Report.RevenueSummary
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_payment,
+              label = "Payment Method Breakdown",
+              event = CompanyReportEvent.Button.Report.PaymentMethodBreakdown
+                        ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_payment,
+              label = "Plan Performance",
+              event = CompanyReportEvent.Button.Report.PlanPerformance
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_location,
+              label = "Area Collection",
+              event = CompanyReportEvent.Button.Report.AreaCollection
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_payment,
+              label = "Gateway Success Rate",
+              event = CompanyReportEvent.Button.Report.GatewaySuccess
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_database_upload,
+              label = "Upfront Payments Detail",
+              event = CompanyReportEvent.Button.Report.UpfrontPaymentsDetail
+            ),
+            CompanyReportItem(
+              drawableRes = R.drawable.ic_balance,
+              label = "Aging (Raw)",
+              event = CompanyReportEvent.Button.Report.AgingRaw
             )
-          ).forEach { item ->
+            ).forEach { item ->
             CompanyReportItemView(
               showIndicator = indicators[item.event] ?: false,
               item = item
@@ -228,6 +263,13 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
                     CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
                     CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
+                    CompanyReportEvent.Button.Report.RevenueSummary -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.PlanPerformance -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.AreaCollection -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.GatewaySuccess -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> { isAccPay = false; showMonthDialog = true }
+                    CompanyReportEvent.Button.Report.AgingRaw -> onEvent(event)
                   }
                 }
 

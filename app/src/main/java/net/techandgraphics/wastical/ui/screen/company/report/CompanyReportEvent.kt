@@ -22,6 +22,13 @@ sealed interface CompanyReportEvent {
       data object LocationBased : Report
       data object ClientDisengagement : Report
       data object OutstandingBalance : Report
+      data object RevenueSummary : Report
+      data object PaymentMethodBreakdown : Report
+      data object PlanPerformance : Report
+      data object AreaCollection : Report
+      data object GatewaySuccess : Report
+      data object UpfrontPaymentsDetail : Report
+      data object AgingRaw : Report
     }
 
     sealed interface MonthDialog : CompanyReportEvent {
