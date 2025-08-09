@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
+import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import java.time.YearMonth
 
 @Dao
@@ -236,16 +237,16 @@ interface PaymentIndicatorDao {
   @Query(
     """
     SELECT
-      SUM(pp.fee) AS overpayment,
-      COUNT(*) AS months,
+      a.*,
+      COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)) AS months,
       ds.name as demographicStreet,
       da.name as demographicArea,
       MAX(pmc.month) AS maxMonth,
       MAX(pmc.year) AS maxYear,
-      a.*
+      COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)) * pp.fee AS overpayment
     FROM
       account a
-      INNER JOIN payment p ON a.id = p.account_id
+      INNER JOIN payment p ON a.id = p.account_id AND p.payment_status = 'Approved'
       INNER JOIN payment_month_covered pmc ON p.id = pmc.payment_id
       INNER JOIN account_payment_plan app ON a.id = app.account_id
       INNER JOIN payment_plan pp ON pp.id = app.payment_plan_id
@@ -253,13 +254,12 @@ interface PaymentIndicatorDao {
       INNER JOIN demographic_street ds ON ds.id = cl.demographic_street_id
       INNER JOIN demographic_area da ON da.id = cl.demographic_area_id
     GROUP BY
-      p.id
+      a.id
     HAVING
-      maxMonth > :month
-      AND maxYear >= :year
+      (maxYear > :year OR (maxYear = :year AND maxMonth > :month))
       AND months > 1
     ORDER BY
-      maxMonth DESC
+      maxYear DESC, maxMonth DESC
 
   """,
   )
