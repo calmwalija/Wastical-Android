@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.ui.screen.company.payment.timeline
 
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,9 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastical.asGatewayIcon
 import net.techandgraphics.wastical.defaultTime
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.toAmount
@@ -62,7 +66,7 @@ fun PaymentTimelineItem(
       modifier = Modifier
         .padding(start = 24.dp)
         .height(with(LocalDensity.current) { contentHeight.toDp() })
-        .width(24.dp),
+        .size(32.dp),
       contentAlignment = Alignment.Center
     ) {
 
@@ -72,41 +76,67 @@ fun PaymentTimelineItem(
           .fillMaxHeight()
           .background(Color.Gray)
       )
-      Box(
+      Image(
+        painter = painterResource(p0.gateway.id.asGatewayIcon()),
+        contentDescription = null,
         modifier = Modifier
-          .size(16.dp)
           .clip(CircleShape)
-          .background(MaterialTheme.colorScheme.primary)
-          .border(2.dp, Color.White, CircleShape)
+          .size(32.dp)
+          .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
       )
     }
 
-    Column(
+    Row(
       modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
         .clickable { onEvent(PaymentTimelineEvent.Goto.Profile(account.id)) }
-        .padding(start = 24.dp)
+        .padding(start = 16.dp)
         .onGloballyPositioned { layoutCoordinates ->
           contentHeight = layoutCoordinates.size.height
         }
-        .padding(vertical = 8.dp)
+        .padding(vertical = 12.dp)
+        .padding(end = 8.dp)
         .weight(1f),
-      verticalArrangement = Arrangement.Center
+      verticalAlignment = Alignment.CenterVertically
     ) {
+      Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.Center
+      ) {
+        Text(
+          text = account.toFullName(),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+        Row {
+          Text(
+            text = p0.gateway.name,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+          )
+          Text(
+            text = " • ",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          Text(
+            text = payment.createdAt.toZonedDateTime().defaultTime(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+          )
+        }
+      }
+
       Text(
-        text = account.toFullName(),
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        text = plan.fee.toAmount(),
+        style = MaterialTheme.typography.bodyMedium,
       )
-      Text(
-        text = plan.fee.times(p0.coveredSize).toAmount(),
-        style = MaterialTheme.typography.bodyLarge
-      )
-      Text(
-        text = payment.createdAt.toZonedDateTime().defaultTime(),
-        style = MaterialTheme.typography.labelLarge,
-      )
+
+      Spacer(modifier = Modifier.width(8.dp))
+
     }
 
   }
