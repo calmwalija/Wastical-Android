@@ -1,8 +1,18 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
@@ -23,7 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -40,6 +53,8 @@ import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
+import net.techandgraphics.wastical.defaultDateTime
+import net.techandgraphics.wastical.toZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyReportScreen(
@@ -212,6 +227,24 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       LazyColumn(
         contentPadding = it, modifier = Modifier.padding(16.dp)
       ) {
+        item {
+          Text(
+            text = "Overview",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+          )
+        }
+
+        item {
+          KpiGridSection(state = state)
+        }
+
+        item { Spacer(modifier = Modifier.height(16.dp)) }
+
+        item { RecentPaymentsAndTimelineSection(state = state, onEvent = onEvent) }
+
+        item { Spacer(modifier = Modifier.height(32.dp)) }
+
         item {
           Text(
             text = "Reports",
@@ -427,3 +460,199 @@ fun companyReportStateSuccess() = CompanyReportState.Success(
     val cIndex = index.plus(1)
     MonthYear(cIndex, 2025)
   })
+
+@Composable private fun KpiGridSection(state: CompanyReportState) {
+  if (state !is CompanyReportState.Success) return
+  val kpis = listOf(
+    KpiItem(
+      iconRes = R.drawable.ic_list,
+      title = "Total Accounts",
+      value = state.totalAccounts.toString(),
+      accentColor = MaterialTheme.colorScheme.primary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_list_active,
+      title = "Active Accounts",
+      value = state.activeAccounts.toString(),
+      accentColor = MaterialTheme.colorScheme.tertiary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_list_inactive,
+      title = "Inactive Accounts",
+      value = state.inactiveAccounts.toString(),
+      accentColor = MaterialTheme.colorScheme.error
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_person_add,
+      title = "New This Month",
+      value = state.newAccountsThisMonth.toString(),
+      accentColor = MaterialTheme.colorScheme.secondary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_payment,
+      title = "Paid Accounts",
+      value = state.paidAccountsThisMonth.toString(),
+      caption = "Collected ${state.paidAmountThisMonth}",
+      accentColor = MaterialTheme.colorScheme.primary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_balance,
+      title = "Expected (Mo)",
+      value = state.expectedAmountThisMonth.toString(),
+      accentColor = MaterialTheme.colorScheme.secondary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_close,
+      title = "Unpaid (Mo)",
+      value = state.unpaidAccountsThisMonth.toString(),
+      accentColor = MaterialTheme.colorScheme.error
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_database_upload,
+      title = "All-time Collected",
+      value = state.totalAmountReceivedAllTime.toString(),
+      accentColor = MaterialTheme.colorScheme.primary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_fast_forward,
+      title = "Overpayments",
+      value = state.overpaymentCount.toString(),
+      accentColor = MaterialTheme.colorScheme.tertiary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_balance,
+      title = "Outstanding Balances",
+      value = state.outstandingBalanceCount.toString(),
+      accentColor = MaterialTheme.colorScheme.secondary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_bar_chart,
+      title = "Collection Rate",
+      value = if (state.expectedAmountThisMonth > 0) {
+        val rate = (state.paidAmountThisMonth.toDouble() / state.expectedAmountThisMonth.toDouble()) * 100
+        "${rate.toInt()}%"
+      } else "0%",
+      accentColor = MaterialTheme.colorScheme.tertiary
+    ),
+  )
+
+  Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    kpis.chunked(2).forEach { rowItems ->
+      Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+        rowItems.forEach { item ->
+          KpiCard(item = item, modifier = Modifier.weight(1f))
+        }
+        if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
+      }
+    }
+  }
+}
+
+private data class KpiItem(
+  val iconRes: Int,
+  val title: String,
+  val value: String,
+  val caption: String? = null,
+  val accentColor: androidx.compose.ui.graphics.Color,
+)
+
+@Composable private fun KpiCard(item: KpiItem, modifier: Modifier = Modifier) {
+  Card(modifier = modifier) {
+    Row(
+      modifier = Modifier
+        .padding(16.dp),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Box(
+        modifier = Modifier
+          .size(40.dp)
+          .clip(MaterialTheme.shapes.small)
+          .background(item.accentColor.copy(alpha = 0.15f)),
+        contentAlignment = Alignment.Center
+      ) {
+        Image(
+          painter = painterResource(id = item.iconRes),
+          contentDescription = item.title,
+          modifier = Modifier.size(22.dp)
+        )
+      }
+      Spacer(modifier = Modifier.size(12.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text(text = item.title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = item.value, style = MaterialTheme.typography.titleLarge)
+        item.caption?.let { cap ->
+          Text(text = cap, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+      }
+    }
+  }
+}
+
+@Composable private fun RecentPaymentsAndTimelineSection(
+  state: CompanyReportState,
+  onEvent: (CompanyReportEvent) -> Unit,
+) {
+  if (state !is CompanyReportState.Success) return
+  if (state.recentPayments.isEmpty()) return
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Text(
+      text = "Recent Activity",
+      style = MaterialTheme.typography.titleMedium,
+      modifier = Modifier.padding(bottom = 16.dp),
+      color = MaterialTheme.colorScheme.primary
+    )
+    Card {
+      state.recentPayments.forEachIndexed { index, item ->
+        RecentPaymentRow(item)
+        if (index < minOf(2, state.recentPayments.lastIndex)) HorizontalDivider()
+      }
+      HorizontalDivider()
+      Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "Open Timeline", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Text(
+          text = "View",
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.primary,
+          modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable { onEvent(CompanyReportEvent.Goto.BackHandler) } // reuse navigation back if needed
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+      }
+    }
+  }
+}
+
+@Composable private fun RecentPaymentRow(item: net.techandgraphics.wastical.data.local.database.query.PaymentWithAccountAndMethodWithGatewayQuery) {
+  Row(modifier = Modifier
+    .fillMaxWidth()
+    .padding(16.dp),
+    verticalAlignment = Alignment.CenterVertically) {
+    Box(
+      modifier = Modifier
+        .size(36.dp)
+        .clip(MaterialTheme.shapes.small)
+        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)),
+      contentAlignment = Alignment.Center
+    ) {
+      Image(
+        painter = painterResource(id = R.drawable.ic_payment),
+        contentDescription = "Payment",
+        modifier = Modifier.size(20.dp)
+      )
+    }
+    Spacer(modifier = Modifier.size(12.dp))
+    Column(modifier = Modifier.weight(1f)) {
+      Text(
+        text = "${item.title} ${item.firstname} ${item.lastname}",
+        style = MaterialTheme.typography.bodyMedium
+      )
+      Text(
+        text = "${item.gatewayName} • ${item.paymentCreatedAt.toZonedDateTime().defaultDateTime()}",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+    }
+    Text(text = item.planFee.toString(), style = MaterialTheme.typography.titleSmall)
+  }
+}
