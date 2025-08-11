@@ -198,19 +198,14 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               event = CompanyReportEvent.Button.Report.RevenueSummary
             ),
             CompanyReportItem(
-              drawableRes = R.drawable.ic_method,
-              label = "Payment Method Breakdown",
-              event = CompanyReportEvent.Button.Report.PaymentMethodBreakdown
-            ),
-            CompanyReportItem(
               drawableRes = R.drawable.ic_compare_arrows,
               label = "Plan Performance Report",
               event = CompanyReportEvent.Button.Report.PlanPerformance
             ),
             CompanyReportItem(
               drawableRes = R.drawable.ic_house,
-              label = "Area Collection Report",
-              event = CompanyReportEvent.Button.Report.AreaCollection
+              label = "Location Collection Report",
+              event = CompanyReportEvent.Button.Report.LocationCollection
             ),
             CompanyReportItem(
               drawableRes = R.drawable.ic_database_upload,
@@ -270,7 +265,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                       isAccPay = false; showMonthDialog = true
                     }
 
-                    CompanyReportEvent.Button.Report.AreaCollection -> {
+                    CompanyReportEvent.Button.Report.LocationCollection -> {
                       isAccPay = false; showMonthDialog = true
                     }
 

@@ -25,7 +25,7 @@ sealed interface CompanyReportEvent {
       data object RevenueSummary : Report
       data object PaymentMethodBreakdown : Report
       data object PlanPerformance : Report
-      data object AreaCollection : Report
+      data object LocationCollection : Report
       data object GatewaySuccess : Report
       data object UpfrontPaymentsDetail : Report
       data object PaymentAging : Report
