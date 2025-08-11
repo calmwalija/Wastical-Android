@@ -165,3 +165,5 @@ suspend fun AppDatabase.theAmount(payment: PaymentEntity): Int {
   val monthCovered = paymentMonthCoveredDao.getByPaymentId(payment.id)
   return monthCovered.size.times(plan.fee)
 }
+
+fun Long.asGatewayIcon() = gatewayDrawableRes[this.minus(1).toInt()]

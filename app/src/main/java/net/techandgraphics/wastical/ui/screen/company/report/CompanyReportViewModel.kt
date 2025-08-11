@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.Status
@@ -28,10 +29,12 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.PlanPe
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.RevenueSummaryItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UnPaidAccount
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.UpfrontPaymentDetailItem
+import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
+import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.getAccountTitle
 import net.techandgraphics.wastical.lastDayOfMonth
 import net.techandgraphics.wastical.preview
@@ -110,7 +113,6 @@ import javax.inject.Inject
 
     // Dashboard metrics
     val activeAccounts = accounts.count { it.status == Status.Active }
-    val inactiveAccounts = accounts.count { it.status == Status.Inactive }
     val totalAccounts = accounts.size
     val now = ZonedDateTime.now()
     val currentMonth = now.month.value
@@ -129,13 +131,13 @@ import javax.inject.Inject
     val totalAmountReceivedAllTime = database.accountIndicatorDao.getTotalAmountReceived() ?: 0
     val unpaidAccountsThisMonth = database.accountIndicatorDao.getTotalUnpaidAccountsThisMonth()
 
-    // counts using indicator queries
-    val overpaymentCount = database.paymentIndicatorDao.qOverpayment().size
-    val outstandingBalanceCount = database.paymentIndicatorDao.qOutstandingBalance().size
-
     val recentPayments = database.paymentDao
       .qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4)
-      .first()
+      .map { p0 ->
+        p0.map {
+          it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+        }
+      }.first()
 
     _state.value = CompanyReportState.Success(
       company = company,
@@ -145,15 +147,11 @@ import javax.inject.Inject
       monthAccountsCreated = monthAccountsCreated,
       totalAccounts = totalAccounts,
       activeAccounts = activeAccounts,
-      inactiveAccounts = inactiveAccounts,
       newAccountsThisMonth = newAccountsThisMonth,
       expectedAmountThisMonth = expectedAmountThisMonth,
       paidAccountsThisMonth = payment4CurrentMonth.totalPaidAccounts,
       paidAmountThisMonth = payment4CurrentMonth.totalPaidAmount,
       unpaidAccountsThisMonth = unpaidAccountsThisMonth,
-      totalAmountReceivedAllTime = totalAmountReceivedAllTime,
-      overpaymentCount = overpaymentCount,
-      outstandingBalanceCount = outstandingBalanceCount,
       recentPayments = recentPayments,
     )
   }
