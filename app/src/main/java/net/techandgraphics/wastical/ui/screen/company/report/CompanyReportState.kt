@@ -19,10 +19,15 @@ sealed interface CompanyReportState {
     // Dashboard metrics
     val totalAccounts: Int = 0,
     val activeAccounts: Int = 0,
+    val inactiveAccounts: Int = 0,
     val newAccountsThisMonth: Int = 0,
     val expectedAmountThisMonth: Int = 0,
     val paidAccountsThisMonth: Int = 0,
     val paidAmountThisMonth: Int = 0,
+    val unpaidAccountsThisMonth: Int = 0,
+    val totalAmountReceivedAllTime: Int = 0,
+    val overpaymentCount: Int = 0,
+    val outstandingBalanceCount: Int = 0,
     val recentPayments: List<PaymentWithAccountAndMethodWithGatewayQuery> = listOf(),
   ) : CompanyReportState
 }

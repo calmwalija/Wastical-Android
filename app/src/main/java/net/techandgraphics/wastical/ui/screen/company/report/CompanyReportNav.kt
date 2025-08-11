@@ -16,6 +16,7 @@ fun NavGraphBuilder.CompanyReportNav(navController: NavHostController) {
       CompanyReportScreen(state, channel) { event ->
         when (event) {
           CompanyReportEvent.Goto.BackHandler -> navController.navigateUp()
+          CompanyReportEvent.Goto.Timeline -> navController.navigate(CompanyRoute.PaymentTimeline)
           CompanyReportEvent.Load -> Unit
           else -> onEvent(event)
         }

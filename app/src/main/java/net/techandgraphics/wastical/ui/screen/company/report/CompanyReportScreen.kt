@@ -3,6 +3,7 @@ package net.techandgraphics.wastical.ui.screen.company.report
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
@@ -240,9 +241,7 @@ import net.techandgraphics.wastical.toZonedDateTime
 
         item { Spacer(modifier = Modifier.height(16.dp)) }
 
-        item {
-          RecentPaymentsSection(state = state)
-        }
+        item { RecentPaymentsAndTimelineSection(state = state, onEvent = onEvent) }
 
         item { Spacer(modifier = Modifier.height(32.dp)) }
 
@@ -478,6 +477,12 @@ fun companyReportStateSuccess() = CompanyReportState.Success(
       accentColor = MaterialTheme.colorScheme.tertiary
     ),
     KpiItem(
+      iconRes = R.drawable.ic_list_inactive,
+      title = "Inactive Accounts",
+      value = state.inactiveAccounts.toString(),
+      accentColor = MaterialTheme.colorScheme.error
+    ),
+    KpiItem(
       iconRes = R.drawable.ic_person_add,
       title = "New This Month",
       value = state.newAccountsThisMonth.toString(),
@@ -494,6 +499,30 @@ fun companyReportStateSuccess() = CompanyReportState.Success(
       iconRes = R.drawable.ic_balance,
       title = "Expected (Mo)",
       value = state.expectedAmountThisMonth.toString(),
+      accentColor = MaterialTheme.colorScheme.secondary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_close,
+      title = "Unpaid (Mo)",
+      value = state.unpaidAccountsThisMonth.toString(),
+      accentColor = MaterialTheme.colorScheme.error
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_database_upload,
+      title = "All-time Collected",
+      value = state.totalAmountReceivedAllTime.toString(),
+      accentColor = MaterialTheme.colorScheme.primary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_fast_forward,
+      title = "Overpayments",
+      value = state.overpaymentCount.toString(),
+      accentColor = MaterialTheme.colorScheme.tertiary
+    ),
+    KpiItem(
+      iconRes = R.drawable.ic_balance,
+      title = "Outstanding Balances",
+      value = state.outstandingBalanceCount.toString(),
       accentColor = MaterialTheme.colorScheme.secondary
     ),
     KpiItem(
@@ -559,12 +588,15 @@ private data class KpiItem(
   }
 }
 
-@Composable private fun RecentPaymentsSection(state: CompanyReportState) {
+@Composable private fun RecentPaymentsAndTimelineSection(
+  state: CompanyReportState,
+  onEvent: (CompanyReportEvent) -> Unit,
+) {
   if (state !is CompanyReportState.Success) return
   if (state.recentPayments.isEmpty()) return
   Column(modifier = Modifier.fillMaxWidth()) {
     Text(
-      text = "Recent Payments",
+      text = "Recent Activity",
       style = MaterialTheme.typography.titleMedium,
       modifier = Modifier.padding(bottom = 16.dp),
       color = MaterialTheme.colorScheme.primary
@@ -572,7 +604,20 @@ private data class KpiItem(
     Card {
       state.recentPayments.forEachIndexed { index, item ->
         RecentPaymentRow(item)
-        if (index < state.recentPayments.lastIndex) HorizontalDivider()
+        if (index < minOf(2, state.recentPayments.lastIndex)) HorizontalDivider()
+      }
+      HorizontalDivider()
+      Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "Open Timeline", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Text(
+          text = "View",
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.primary,
+          modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable { onEvent(CompanyReportEvent.Goto.BackHandler) } // reuse navigation back if needed
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        )
       }
     }
   }

@@ -110,6 +110,7 @@ import javax.inject.Inject
 
     // Dashboard metrics
     val activeAccounts = accounts.count { it.status == Status.Active }
+    val inactiveAccounts = accounts.count { it.status == Status.Inactive }
     val totalAccounts = accounts.size
     val now = ZonedDateTime.now()
     val currentMonth = now.month.value
@@ -125,6 +126,12 @@ import javax.inject.Inject
       database.accountIndicatorDao.getPayment4CurrentMonth(currentMonth, currentYear)
 
     val expectedAmountThisMonth = database.paymentIndicatorDao.getExpectedAmountToCollect()
+    val totalAmountReceivedAllTime = database.accountIndicatorDao.getTotalAmountReceived() ?: 0
+    val unpaidAccountsThisMonth = database.accountIndicatorDao.getTotalUnpaidAccountsThisMonth()
+
+    // counts using indicator queries
+    val overpaymentCount = database.paymentIndicatorDao.qOverpayment().size
+    val outstandingBalanceCount = database.paymentIndicatorDao.qOutstandingBalance().size
 
     val recentPayments = database.paymentDao
       .qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4)
@@ -138,10 +145,15 @@ import javax.inject.Inject
       monthAccountsCreated = monthAccountsCreated,
       totalAccounts = totalAccounts,
       activeAccounts = activeAccounts,
+      inactiveAccounts = inactiveAccounts,
       newAccountsThisMonth = newAccountsThisMonth,
       expectedAmountThisMonth = expectedAmountThisMonth,
       paidAccountsThisMonth = payment4CurrentMonth.totalPaidAccounts,
       paidAmountThisMonth = payment4CurrentMonth.totalPaidAmount,
+      unpaidAccountsThisMonth = unpaidAccountsThisMonth,
+      totalAmountReceivedAllTime = totalAmountReceivedAllTime,
+      overpaymentCount = overpaymentCount,
+      outstandingBalanceCount = outstandingBalanceCount,
       recentPayments = recentPayments,
     )
   }
