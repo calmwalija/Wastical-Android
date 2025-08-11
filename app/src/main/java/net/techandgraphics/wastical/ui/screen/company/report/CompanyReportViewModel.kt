@@ -10,11 +10,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.ReportAccountItem
+import net.techandgraphics.wastical.data.local.database.dashboard.account.Payment4CurrentMonth
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.AgingRawItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.GatewaySuccessItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.LocationCollectionItem
@@ -106,12 +108,41 @@ import javax.inject.Inject
         compareBy<MonthYear> { it.year }.thenBy { it.month },
       )
 
+    // Dashboard metrics
+    val activeAccounts = accounts.count { it.status == Status.Active }
+    val totalAccounts = accounts.size
+    val now = ZonedDateTime.now()
+    val currentMonth = now.month.value
+    val currentYear = now.year
+    val startOfMonth = now.withDayOfMonth(1).toEpochSecond()
+    val endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).toEpochSecond()
+    val newAccountsThisMonth = database.accountIndicatorDao.qRange(
+      start = startOfMonth,
+      end = endOfMonth,
+    ).size
+
+    val payment4CurrentMonth: Payment4CurrentMonth =
+      database.accountIndicatorDao.getPayment4CurrentMonth(currentMonth, currentYear)
+
+    val expectedAmountThisMonth = database.paymentIndicatorDao.getExpectedAmountToCollect()
+
+    val recentPayments = database.paymentDao
+      .qPaymentWithAccountAndMethodWithGatewayLimit(limit = 4)
+      .first()
+
     _state.value = CompanyReportState.Success(
       company = company,
       accounts = accounts,
       demographics = demographics,
       allMonthPayments = allMonthPayments,
       monthAccountsCreated = monthAccountsCreated,
+      totalAccounts = totalAccounts,
+      activeAccounts = activeAccounts,
+      newAccountsThisMonth = newAccountsThisMonth,
+      expectedAmountThisMonth = expectedAmountThisMonth,
+      paidAccountsThisMonth = payment4CurrentMonth.totalPaidAccounts,
+      paidAmountThisMonth = payment4CurrentMonth.totalPaidAmount,
+      recentPayments = recentPayments,
     )
   }
 

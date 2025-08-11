@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.ui.screen.company.report
 
 import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.data.local.database.query.PaymentWithAccountAndMethodWithGatewayQuery
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 
@@ -15,5 +16,13 @@ sealed interface CompanyReportState {
     val allMonthPayments: List<MonthYear> = listOf(),
     val filters: Set<MonthYear> = setOf(),
     val demographicFilters: Set<DemographicItem> = setOf(),
+    // Dashboard metrics
+    val totalAccounts: Int = 0,
+    val activeAccounts: Int = 0,
+    val newAccountsThisMonth: Int = 0,
+    val expectedAmountThisMonth: Int = 0,
+    val paidAccountsThisMonth: Int = 0,
+    val paidAmountThisMonth: Int = 0,
+    val recentPayments: List<PaymentWithAccountAndMethodWithGatewayQuery> = listOf(),
   ) : CompanyReportState
 }
