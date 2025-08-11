@@ -1,19 +1,16 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,66 +37,55 @@ data class CompanyReportItem(
   item: CompanyReportItem,
   onEvent: (CompanyReportEvent) -> Unit,
 ) {
-  Card(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(horizontal = 8.dp, vertical = 4.dp),
-    shape = CircleShape,
-    colors = CardDefaults.elevatedCardColors(),
-    enabled = showIndicator.not(),
-    onClick = { onEvent(item.event) }) {
-    Row(
-      modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-      verticalAlignment = Alignment.CenterVertically
+  Column {
+
+    Column(
+      modifier = Modifier
+        .clickable(enabled = showIndicator.not()) { onEvent(item.event) }
+        .padding(16.dp),
     ) {
-
-      Icon(
-        painterResource(item.drawableRes),
-        contentDescription = null,
-        modifier = Modifier
-          .size(32.dp)
-          .padding(2.dp),
-        tint = MaterialTheme.colorScheme.secondary
-      )
-
-      Column(
-        modifier = Modifier
-          .weight(1f)
-          .padding(horizontal = 8.dp)
-      ) {
-        Text(
-          text = item.label, style = MaterialTheme.typography.bodyMedium
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+          painterResource(item.drawableRes),
+          contentDescription = null,
+          modifier = Modifier
+            .size(32.dp)
+            .padding(2.dp),
+          tint = MaterialTheme.colorScheme.secondary
         )
-      }
 
-      Box(contentAlignment = Alignment.Center) {
-        if (showIndicator)
-          CircularProgressIndicator(modifier = Modifier.size(24.dp))
-        else
-          Icon(
+        Column(
+          modifier = Modifier
+            .weight(1f)
+            .padding(horizontal = 8.dp)
+        ) {
+          Text(
+            text = item.label, style = MaterialTheme.typography.bodyMedium
+          )
+        }
+
+        Box(contentAlignment = Alignment.Center) {
+          if (showIndicator) CircularProgressIndicator(modifier = Modifier.size(24.dp))
+          else Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.primary
           )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
       }
-
-      Spacer(modifier = Modifier.width(8.dp))
-
     }
   }
 }
 
-@Preview
-@Composable fun CompanyReportItemPreview() {
+@Preview @Composable fun CompanyReportItemPreview() {
   WasticalTheme {
     CompanyReportItemView(
-      showIndicator = false,
-      item = CompanyReportItem(
-        "Lorem Ipusum",
-        CompanyReportEvent.Load
-      ),
-      onEvent = { }
-    )
+      showIndicator = false, item = CompanyReportItem(
+        "Lorem Ipusum", CompanyReportEvent.Load
+      ), onEvent = { })
   }
 }
