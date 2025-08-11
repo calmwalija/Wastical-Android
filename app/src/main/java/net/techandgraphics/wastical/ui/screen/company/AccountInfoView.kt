@@ -1,25 +1,31 @@
 package net.techandgraphics.wastical.ui.screen.company
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,65 +41,81 @@ import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Pre
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
-@Composable
-fun AccountInfoView(
+@Composable fun AccountInfoView(
   account: AccountUiModel,
   demographic: CompanyLocationWithDemographicUiModel,
   onEvent: (AccountInfoEvent) -> Unit,
 ) {
 
-  Row(verticalAlignment = Alignment.CenterVertically) {
-    Column(modifier = Modifier.weight(1f)) {
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        ProfileLetterView(account)
-        Column(
+  Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = Modifier.fillMaxWidth()
+  ) {
+
+    Box(contentAlignment = Alignment.BottomEnd) {
+      ProfileLetterView(account)
+      if (account.username.trim().isNotEmpty() && account.username.isDigitsOnly())
+        Card(
+          shape = CircleShape,
           modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .weight(1f)
+            .offset(y = -(2).dp)
+            .size(48.dp),
+          colors = CardDefaults.cardColors(
+            containerColor = Color.White
+          ),
+          elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 1.dp
+          ),
+          onClick = { onEvent(AccountInfoEvent.Phone(account.username)) }
         ) {
-          Text(
-            text = account.toFullName(),
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis,
-          )
-          Row(verticalAlignment = Alignment.CenterVertically) {
+          Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+          ) {
             Icon(
-              Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null,
-              modifier = Modifier.size(16.dp)
-            )
-            Text(
-              text = demographic.toLocation(),
-              maxLines = 1,
-              overflow = TextOverflow.StartEllipsis,
-              color = MaterialTheme.colorScheme.primary,
+              imageVector = Icons.Default.Phone,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier
-                .clip(CircleShape)
-                .clickable { onEvent(AccountInfoEvent.Location(demographic.demographicStreet.id)) }
-                .padding(vertical = 4.dp, horizontal = 8.dp),
-              style = MaterialTheme.typography.bodyMedium
+                .size(32.dp)
+                .padding(4.dp)
             )
           }
         }
-      }
+
     }
 
-    if (account.username.trim().isNotEmpty() && account.username.isDigitsOnly())
-      Box(modifier = Modifier.padding(horizontal = 8.dp)) {
-        IconButton(
-          enabled = account.username.isDigitsOnly(),
-          onClick = { onEvent(AccountInfoEvent.Phone(account.username)) }) {
-          Icon(Icons.Default.Phone, null)
-        }
-      }
+    Spacer(modifier = Modifier.height(24.dp))
+
+    Text(
+      text = account.username,
+      style = MaterialTheme.typography.bodyLarge,
+    )
+    Text(
+      text = account.toFullName(),
+      style = MaterialTheme.typography.titleLarge,
+      overflow = TextOverflow.MiddleEllipsis,
+      modifier = Modifier.padding(vertical = 4.dp)
+    )
+
+    TextButton(
+      modifier = Modifier.fillMaxWidth(.7f),
+      colors = ButtonDefaults.elevatedButtonColors(),
+      onClick = { onEvent(AccountInfoEvent.Location(demographic.demographicStreet.id)) }
+    ) {
+      Text(text = demographic.toLocation())
+    }
+
   }
 }
 
 
 @Composable private fun ProfileLetterView(account: AccountUiModel) {
+
   val brush = Brush.horizontalGradient(
     listOf(
-      MaterialTheme.colorScheme.primary.copy(.7f),
-      MaterialTheme.colorScheme.primary.copy(.8f),
+      MaterialTheme.colorScheme.primary.copy(.4f),
+      MaterialTheme.colorScheme.primary.copy(.6f),
       MaterialTheme.colorScheme.primary
     )
   )
@@ -102,42 +124,33 @@ fun AccountInfoView(
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(64.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.2f))
-    )
-    Box(
-      modifier = Modifier
-        .clip(CircleShape)
-        .size(70.dp)
+        .size(160.dp)
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Box(
       modifier = Modifier
         .clip(CircleShape)
-        .size(54.dp)
-        .background(
-          brush = brush
-        )
+        .size(140.dp)
+        .background(brush = brush)
     )
     Text(
       text = account.toInitials(),
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,
+      style = MaterialTheme.typography.headlineSmall
     )
   }
 
 }
 
 
-@Preview(showBackground = true)
-@Composable fun AccountInfoViewPreview() {
+@Preview(showBackground = true) @Composable fun AccountInfoViewPreview() {
   WasticalTheme {
     Box(modifier = Modifier.padding(32.dp)) {
       AccountInfoView(
         account = account4Preview,
         demographic = companyLocationWithDemographic4Preview,
-        onEvent = {}
-      )
+        onEvent = {})
     }
   }
 }
