@@ -1,9 +1,13 @@
 package net.techandgraphics.wastical.ui.screen.company.report
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -54,6 +58,73 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
   val context = LocalContext.current
   val indicators = remember { mutableStateMapOf<CompanyReportEvent.Button.Report, Boolean>() }
 
+  val companyReportItems = listOf(
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_list_active,
+      label = "Active Clients Report",
+      event = CompanyReportEvent.Button.Report.ActiveClient
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_person_add,
+      label = "New Clients Report",
+      event = CompanyReportEvent.Button.Report.NewClient
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_location,
+      label = "Location-based Reports",
+      event = CompanyReportEvent.Button.Report.LocationBased
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_list_inactive,
+      label = "Client Disengagement Report",
+      event = CompanyReportEvent.Button.Report.ClientDisengagement
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_payment,
+      label = "Paid Payment Report",
+      event = CompanyReportEvent.Button.Report.PaidPayment
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_close,
+      label = "Missed Payment Report",
+      event = CompanyReportEvent.Button.Report.MissedPayment
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_fast_forward,
+      label = "Overpayment Report",
+      event = CompanyReportEvent.Button.Report.Overpayment
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_balance,
+      label = "Outstanding Balance Report",
+      event = CompanyReportEvent.Button.Report.OutstandingBalance
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_bar_chart,
+      label = "Revenue Summary Report",
+      event = CompanyReportEvent.Button.Report.RevenueSummary
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_compare_arrows,
+      label = "Plan Performance Report",
+      event = CompanyReportEvent.Button.Report.PlanPerformance
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_house,
+      label = "Location Collection Report",
+      event = CompanyReportEvent.Button.Report.LocationCollection
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_database_upload,
+      label = "Upfront Payments Report",
+      event = CompanyReportEvent.Button.Report.UpfrontPaymentsDetail
+    ),
+    CompanyReportItem(
+      drawableRes = R.drawable.ic_list,
+      label = "Payment Aging Report",
+      event = CompanyReportEvent.Button.Report.PaymentAging
+    )
+  )
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(key1 = channel) {
@@ -151,146 +222,177 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
         item {
-          listOf(
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_list_active,
-              label = "Active Clients Report",
-              event = CompanyReportEvent.Button.Report.ActiveClient
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_person_add,
-              label = "New Clients Report",
-              event = CompanyReportEvent.Button.Report.NewClient
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_location,
-              label = "Location-based Reports",
-              event = CompanyReportEvent.Button.Report.LocationBased
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_list_inactive,
-              label = "Client Disengagement Report",
-              event = CompanyReportEvent.Button.Report.ClientDisengagement
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_payment,
-              label = "Paid Payment Report",
-              event = CompanyReportEvent.Button.Report.PaidPayment
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_close,
-              label = "Missed Payment Report",
-              event = CompanyReportEvent.Button.Report.MissedPayment
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_fast_forward,
-              label = "Overpayment Report",
-              event = CompanyReportEvent.Button.Report.Overpayment
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_balance,
-              label = "Outstanding Balance Report",
-              event = CompanyReportEvent.Button.Report.OutstandingBalance
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_bar_chart,
-              label = "Revenue Summary Report",
-              event = CompanyReportEvent.Button.Report.RevenueSummary
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_method,
-              label = "Payment Method Breakdown",
-              event = CompanyReportEvent.Button.Report.PaymentMethodBreakdown
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_compare_arrows,
-              label = "Plan Performance Report",
-              event = CompanyReportEvent.Button.Report.PlanPerformance
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_house,
-              label = "Area Collection Report",
-              event = CompanyReportEvent.Button.Report.AreaCollection
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_database_upload,
-              label = "Upfront Payments Report",
-              event = CompanyReportEvent.Button.Report.UpfrontPaymentsDetail
-            ),
-            CompanyReportItem(
-              drawableRes = R.drawable.ic_list,
-              label = "Payment Aging Report",
-              event = CompanyReportEvent.Button.Report.PaymentAging
-            )
-          ).forEach { item ->
-            CompanyReportItemView(
-              showIndicator = indicators[item.event] ?: false,
-              item = item
-            ) { event ->
+          Text(
+            text = "Reports for Accounts",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
 
-              when (event) {
-                is CompanyReportEvent.Button.Report -> {
-
-                  indicators[event] = true
-                  eventToProceedWith = event
-
+        item {
+          Card {
+            companyReportItems
+              .subList(0, 4)
+              .forEachIndexed { index, item ->
+                CompanyReportItemView(
+                  showIndicator = indicators[item.event] ?: false,
+                  item = item
+                ) { event ->
                   when (event) {
+                    is CompanyReportEvent.Button.Report -> {
 
-                    CompanyReportEvent.Button.Report.ActiveClient -> onEvent(event)
+                      indicators[event] = true
+                      eventToProceedWith = event
 
-                    CompanyReportEvent.Button.Report.NewClient -> {
-                      isAccPay = true
-                      showMonthDialog = true
+                      when (event) {
+
+                        CompanyReportEvent.Button.Report.ActiveClient -> onEvent(event)
+
+                        CompanyReportEvent.Button.Report.NewClient -> {
+                          isAccPay = true
+                          showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaidPayment -> {
+                          isAccPay = false
+                          showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.MissedPayment -> {
+                          isAccPay = false
+                          showMonthDialog = true
+                        }
+
+
+                        CompanyReportEvent.Button.Report.OutstandingBalance -> onEvent(event)
+                        CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
+                        CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
+                        CompanyReportEvent.Button.Report.RevenueSummary -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PlanPerformance -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.LocationCollection -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.GatewaySuccess -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
+                      }
                     }
 
-                    CompanyReportEvent.Button.Report.PaidPayment -> {
-                      isAccPay = false
-                      showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.MissedPayment -> {
-                      isAccPay = false
-                      showMonthDialog = true
-                    }
-
-
-                    CompanyReportEvent.Button.Report.OutstandingBalance -> onEvent(event)
-                    CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
-                    CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
-                    CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
-                    CompanyReportEvent.Button.Report.RevenueSummary -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.PlanPerformance -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.AreaCollection -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.GatewaySuccess -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> {
-                      isAccPay = false; showMonthDialog = true
-                    }
-
-                    CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
+                    CompanyReportEvent.Button.MonthDialog.Proceed -> onEvent(event)
+                    is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
+                    else -> onEvent(event)
                   }
                 }
-
-                CompanyReportEvent.Button.MonthDialog.Proceed -> onEvent(event)
-                is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
-                else -> onEvent(event)
+                if (index < 3) HorizontalDivider()
               }
-            }
+          }
+        }
+
+        item { Spacer(modifier = Modifier.height(48.dp)) }
+
+
+        item {
+          Text(
+            text = "Reports for Payments",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
+
+        item {
+          Card {
+            companyReportItems
+              .subList(4, companyReportItems.size)
+              .forEachIndexed { index, item ->
+                CompanyReportItemView(
+                  showIndicator = indicators[item.event] ?: false,
+                  item = item
+                ) { event ->
+                  when (event) {
+                    is CompanyReportEvent.Button.Report -> {
+
+                      indicators[event] = true
+                      eventToProceedWith = event
+
+                      when (event) {
+
+                        CompanyReportEvent.Button.Report.ActiveClient -> onEvent(event)
+
+                        CompanyReportEvent.Button.Report.NewClient -> {
+                          isAccPay = true
+                          showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaidPayment -> {
+                          isAccPay = false
+                          showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.MissedPayment -> {
+                          isAccPay = false
+                          showMonthDialog = true
+                        }
+
+
+                        CompanyReportEvent.Button.Report.OutstandingBalance -> onEvent(event)
+                        CompanyReportEvent.Button.Report.LocationBased -> showLocationDialog = true
+                        CompanyReportEvent.Button.Report.Overpayment -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ClientDisengagement -> onEvent(event)
+                        CompanyReportEvent.Button.Report.RevenueSummary -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaymentMethodBreakdown -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PlanPerformance -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.LocationCollection -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.GatewaySuccess -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> {
+                          isAccPay = false; showMonthDialog = true
+                        }
+
+                        CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
+                      }
+                    }
+
+                    CompanyReportEvent.Button.MonthDialog.Proceed -> onEvent(event)
+                    is CompanyReportEvent.Button.MonthDialog.PickMonth -> onEvent(event)
+                    else -> onEvent(event)
+                  }
+                }
+                if (index < 8) HorizontalDivider()
+              }
           }
         }
       }

@@ -52,7 +52,7 @@ class CompanyCreateClientViewModel @Inject constructor(
         title = theState.title,
         firstname = theState.firstname.trim(),
         lastname = theState.lastname.trim(),
-        contact = theState.contact.takeLast(8).ifEmpty {
+        contact = theState.contact.takeLast(9).ifEmpty {
           System.currentTimeMillis().toString().drop(6)
             .plus("-")
             .plus(

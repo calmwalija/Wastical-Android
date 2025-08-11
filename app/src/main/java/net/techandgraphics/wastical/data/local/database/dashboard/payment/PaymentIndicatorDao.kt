@@ -341,7 +341,10 @@ interface PaymentIndicatorDao {
     ORDER BY totalAmount DESC
     """,
   )
-  suspend fun qPaymentMethodBreakdown(months: List<Int>, years: List<Int>): List<PaymentMethodBreakdownItem>
+  suspend fun qPaymentMethodBreakdown(
+    months: List<Int>,
+    years: List<Int>,
+  ): List<PaymentMethodBreakdownItem>
 
   @Query(
     """
@@ -357,7 +360,7 @@ interface PaymentIndicatorDao {
     LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
     LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
     GROUP BY pp.id, pp.name, pp.fee
-    ORDER BY collectedTotal DESC
+    ORDER BY fee ASC
     """,
   )
   suspend fun qPlanPerformance(months: List<Int>, years: List<Int>): List<PlanPerformanceItem>
@@ -366,21 +369,23 @@ interface PaymentIndicatorDao {
     """
     SELECT
       da.id AS areaId,
-      da.name AS areaName,
+      da.name AS demographicArea,
+      ds.name AS demographicStreet,
       COUNT(DISTINCT a.id) AS totalAccounts,
       IFNULL(SUM(CASE WHEN pmc.id IS NOT NULL THEN pp.fee ELSE 0 END), 0) AS collectedTotal
     FROM demographic_area da
     JOIN company_location cl ON cl.demographic_area_id = da.id
+    JOIN demographic_area ds ON cl.demographic_street_id = ds.id
     JOIN account a ON a.company_location_id = cl.id AND a.status = 'Active'
     JOIN account_payment_plan app ON app.account_id = a.id
     JOIN payment_plan pp ON pp.id = app.payment_plan_id
     LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
     LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
-    GROUP BY da.id, da.name
+    GROUP BY ds.name
     ORDER BY collectedTotal DESC
     """,
   )
-  suspend fun qAreaCollection(months: List<Int>, years: List<Int>): List<AreaCollectionItem>
+  suspend fun qLocationCollection(months: List<Int>, years: List<Int>): List<LocationCollectionItem>
 
   @Query(
     """
@@ -419,7 +424,10 @@ interface PaymentIndicatorDao {
     ORDER BY maxYear DESC, maxMonth DESC
     """,
   )
-  suspend fun qUpfrontPaymentsDetail(months: List<Int>, years: List<Int>): List<UpfrontPaymentDetailItem>
+  suspend fun qUpfrontPaymentsDetail(
+    months: List<Int>,
+    years: List<Int>,
+  ): List<UpfrontPaymentDetailItem>
 
   @Query(
     """
@@ -529,9 +537,10 @@ data class PlanPerformanceItem(
   val collectedTotal: Int,
 )
 
-data class AreaCollectionItem(
+data class LocationCollectionItem(
   val areaId: Long,
-  val areaName: String,
+  val demographicArea: String,
+  val demographicStreet: String,
   val totalAccounts: Int,
   val collectedTotal: Int,
 )
