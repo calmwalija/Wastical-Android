@@ -10,6 +10,7 @@ sealed interface CompanyReportEvent {
   sealed interface Goto : CompanyReportEvent {
     data object BackHandler : Goto
     data object Timeline : Goto
+    data class Profile(val id: Long) : Goto
   }
 
   sealed interface Button : CompanyReportEvent {

@@ -17,6 +17,10 @@ fun NavGraphBuilder.CompanyReportNav(navController: NavHostController) {
         when (event) {
           CompanyReportEvent.Goto.BackHandler -> navController.navigateUp()
           CompanyReportEvent.Goto.Timeline -> navController.navigate(CompanyRoute.PaymentTimeline)
+
+          is CompanyReportEvent.Goto.Profile ->
+            navController.navigate(CompanyRoute.ClientProfile(event.id))
+
           CompanyReportEvent.Load -> Unit
           else -> onEvent(event)
         }
