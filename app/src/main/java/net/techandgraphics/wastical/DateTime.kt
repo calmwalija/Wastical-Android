@@ -8,6 +8,8 @@ import java.text.DateFormat.getDateTimeInstance
 import java.text.DateFormat.getTimeInstance
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -26,6 +28,18 @@ fun Long.dateTime(pattern: String = Pattern.TIME_HH_MM): String =
 fun ZonedDateTime.withPatten(pattern: String = Pattern.DATE_MMM_YYYY): String {
   val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
   return this.format(formatter)
+}
+
+fun defaultDateTimeMediumFormatter() = DateTimeFormatter
+  .ofLocalizedDate(FormatStyle.MEDIUM)
+  .withLocale(Locale.getDefault())
+
+fun String.toZonedDateTime(locale: Locale = Locale.getDefault()): ZonedDateTime {
+  val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+    .withLocale(locale)
+
+  val localDate = LocalDate.parse(this, formatter)
+  return ZonedDateTime.of(localDate, LocalTime.MIDNIGHT, ZoneId.systemDefault())
 }
 
 fun Long.toZonedDateTime(): ZonedDateTime =

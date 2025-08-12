@@ -37,13 +37,38 @@ class PaymentTimelineViewModel @Inject constructor(
       .collectLatest { p0 ->
         val payments = groupPaymentsByDate(p0)
         val company = database.companyDao.query().first().toCompanyUiModel()
-        _state.value = PaymentTimelineState.Success(payments = payments, company = company)
+        val filters = payments.map { it.key }.take(2).toSet()
+        val filteredPayments = payments.filter { it.key in filters }
+        _state.value = PaymentTimelineState.Success(
+          payments = payments,
+          company = company,
+          filters = filters,
+          filteredPayments = filteredPayments,
+        )
       }
   }
+
+  fun newState() = (_state.value as PaymentTimelineState.Success)
+
+  private fun onButtonFilter(event: PaymentTimelineEvent.Button.Filter) =
+    viewModelScope.launch {
+      if (_state.value is PaymentTimelineState.Success) {
+        val updatedFilters = newState().filters
+          .toMutableSet()
+          .apply {
+            if (contains(event.item)) remove(event.item) else add(event.item)
+          }
+        if (updatedFilters.isEmpty()) return@launch
+        _state.value = newState().copy(filters = updatedFilters)
+        val filteredPayments = newState().payments.filter { it.key in newState().filters }
+        _state.value = newState().copy(filteredPayments = filteredPayments)
+      }
+    }
 
   fun onEvent(event: PaymentTimelineEvent) {
     when (event) {
       PaymentTimelineEvent.Load -> onLoad()
+      is PaymentTimelineEvent.Button.Filter -> onButtonFilter(event)
       else -> Unit
     }
   }
