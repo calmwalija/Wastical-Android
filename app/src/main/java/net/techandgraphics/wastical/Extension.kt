@@ -25,6 +25,7 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentDateTime
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import java.io.File
 import java.security.SecureRandom
@@ -87,10 +88,18 @@ fun getToday(): Today {
 
 fun groupPaymentsByDate(
   payments: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
-): Map<String, List<PaymentWithAccountAndMethodWithGatewayUiModel>> {
-  return payments
+): Map<PaymentDateTime, List<PaymentWithAccountAndMethodWithGatewayUiModel>> {
+  val intermediateMap = payments
     .sortedByDescending { it.payment.createdAt }
-    .groupBy { it.payment.createdAt.toZonedDateTime().defaultDate() }
+    .groupBy { payment ->
+      payment.payment.createdAt.toZonedDateTime().toLocalDate()
+    }
+  return intermediateMap.mapKeys { (date, payments) ->
+    PaymentDateTime(
+      date = date,
+      time = payments.first().payment.createdAt,
+    )
+  }
 }
 
 fun Context.openDialer(contact: String) {

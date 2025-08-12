@@ -7,4 +7,8 @@ sealed interface PaymentTimelineEvent {
     data object BackHandler : Goto
     data class Profile(val id: Long) : Goto
   }
+
+  sealed interface Button : PaymentTimelineEvent {
+    data class Filter(val item: PaymentDateTime) : Button
+  }
 }

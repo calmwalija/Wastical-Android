@@ -3,6 +3,7 @@ package net.techandgraphics.wastical.ui.screen.company.payment.timeline
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -12,12 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastical.defaultDateTime
+import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 @Composable
@@ -46,10 +49,17 @@ fun PaymentTimelineScreen(
               modifier = Modifier.padding(bottom = 32.dp)
             )
           }
-          state.payments.forEach { (createdAt, payments) ->
+          item {
+            LazyRow {
+              items(state.payments.toList()) {
+                PaymentTimelineDateItem(it, state.filters, onEvent)
+              }
+            }
+          }
+          state.filteredPayments.forEach { (dateTime, payments) ->
             stickyHeader {
               Text(
-                text = createdAt,
+                text = dateTime.date.atStartOfDay(ZoneId.systemDefault()).defaultDate(),
                 modifier = Modifier
                   .fillMaxWidth()
                   .padding(16.dp),
@@ -57,7 +67,14 @@ fun PaymentTimelineScreen(
                 style = MaterialTheme.typography.titleMedium
               )
             }
-            items(payments) { PaymentTimelineItem(it, onEvent) }
+            items(payments, key = { key -> key.payment.id }) { item ->
+              PaymentTimelineItem(
+                modifier = Modifier.animateItem(),
+                item = item,
+                onEvent = onEvent
+              )
+            }
+
           }
         }
       }
@@ -69,13 +86,17 @@ fun PaymentTimelineScreen(
 @Composable
 private fun PaymentTimelineScreenPreview() {
   WasticalTheme {
+    val zonedDateTime = ZonedDateTime.now()
+    val payments = mapOf(
+      PaymentDateTime(LocalDate.now(), zonedDateTime.toEpochSecond()) to
+        (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
+    )
+
     PaymentTimelineScreen(
       state = PaymentTimelineState.Success(
         company = company4Preview,
-        payments = mapOf(
-          ZonedDateTime.now().defaultDateTime() to
-            (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
-        )
+        payments = payments,
+        filteredPayments = payments
       ),
       onEvent = {}
     )

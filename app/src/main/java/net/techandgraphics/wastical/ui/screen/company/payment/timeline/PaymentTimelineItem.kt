@@ -48,17 +48,18 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable
 fun PaymentTimelineItem(
-  p0: PaymentWithAccountAndMethodWithGatewayUiModel,
+  modifier: Modifier = Modifier,
+  item: PaymentWithAccountAndMethodWithGatewayUiModel,
   onEvent: (PaymentTimelineEvent) -> Unit,
 ) {
 
-  val account = p0.account
-  val payment = p0.payment
-  val plan = p0.plan
+  val account = item.account
+  val payment = item.payment
+  val plan = item.plan
 
   var contentHeight by remember { mutableIntStateOf(0) }
   Row(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(16.dp),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -77,7 +78,7 @@ fun PaymentTimelineItem(
           .background(Color.Gray)
       )
       Image(
-        painter = painterResource(p0.gateway.id.asGatewayIcon()),
+        painter = painterResource(item.gateway.id.asGatewayIcon()),
         contentDescription = null,
         modifier = Modifier
           .clip(CircleShape)
@@ -109,7 +110,7 @@ fun PaymentTimelineItem(
         )
         Row {
           Text(
-            text = p0.gateway.name,
+            text = item.gateway.name,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -147,7 +148,7 @@ fun PaymentTimelineItem(
 private fun PaymentTimelineItemPreview() {
   WasticalTheme {
     PaymentTimelineItem(
-      p0 = paymentWithAccountAndMethodWithGateway4Preview,
+      item = paymentWithAccountAndMethodWithGateway4Preview,
       onEvent = {}
     )
   }
