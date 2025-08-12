@@ -87,10 +87,13 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    Text(
-      text = account.username,
-      style = MaterialTheme.typography.bodyLarge,
-    )
+    account.username.takeIf { it.isDigitsOnly() }?.let {
+      Text(
+        text = it,
+        style = MaterialTheme.typography.bodyLarge,
+      )
+    }
+
     Text(
       text = account.toFullName(),
       style = MaterialTheme.typography.titleLarge,

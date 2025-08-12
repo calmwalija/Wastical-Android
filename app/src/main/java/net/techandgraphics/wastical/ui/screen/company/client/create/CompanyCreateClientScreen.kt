@@ -76,6 +76,7 @@ import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastical.ui.screen.company.client.CompanyClientConflictDialog
 import net.techandgraphics.wastical.ui.screen.company.client.create.CompanyCreateClientEvent.Input
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
@@ -144,7 +145,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           isUnique = true
           onEvent(Input.Info("", Input.Type.Contact))
         }) {
-          CompanyCreateClientConflictDialog(accounts) {
+          CompanyClientConflictDialog(accounts) {
             isUnique = true
             onEvent(Input.Info("", Input.Type.Contact))
           }

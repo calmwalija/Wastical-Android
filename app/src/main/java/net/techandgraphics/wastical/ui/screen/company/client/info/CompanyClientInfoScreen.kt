@@ -2,7 +2,6 @@ package net.techandgraphics.wastical.ui.screen.company.client.info
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,10 +11,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -30,13 +35,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,19 +56,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
+import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.AccountInfoView
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
+import net.techandgraphics.wastical.ui.screen.company.client.CompanyClientConflictDialog
 import net.techandgraphics.wastical.ui.screen.company.client.info.CompanyClientInfoEvent.Button
 import net.techandgraphics.wastical.ui.screen.company.client.info.CompanyClientInfoEvent.Input
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocationWithDemographic4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.Muted
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable fun CompanyClientInfoScreen(
   state: CompanyClientInfoState,
   channel: Flow<CompanyClientInfoChannel>,
@@ -72,6 +84,13 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
     is CompanyClientInfoState.Success -> {
 
       val context = LocalContext.current
+      val hapticFeedback = LocalHapticFeedback.current
+      var isUnique by remember { mutableStateOf(true) }
+      var showTitle by remember { mutableStateOf(false) }
+      val snackbarHostState = remember { SnackbarHostState() }
+      val scope = rememberCoroutineScope()
+      val accounts = remember { mutableStateListOf<AccountInfoUiModel>() }
+
 
       val lifecycleOwner = LocalLifecycleOwner.current
       LaunchedEffect(key1 = channel) {
@@ -85,6 +104,14 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                 context.toast("Your request was submitted")
                 onEvent(Button.BackHandler)
               }
+
+              is CompanyClientInfoChannel.Input.Unique.Conflict -> {
+                accounts.clear()
+                accounts.addAll(event.accounts)
+                isUnique = false
+              }
+
+              CompanyClientInfoChannel.Input.Unique.Ok -> isUnique = true
             }
           }
         }
@@ -98,9 +125,19 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         unfocusedPlaceholderColor = Muted
       )
 
-      var showTitle by remember { mutableStateOf(false) }
-      val snackbarHostState = remember { SnackbarHostState() }
-      val scope = rememberCoroutineScope()
+
+      if (isUnique.not()) {
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+        ModalBottomSheet(onDismissRequest = {
+          isUnique = true
+          onEvent(Input.Type("", Input.OfType.Contact))
+        }) {
+          CompanyClientConflictDialog(accounts) {
+            isUnique = true
+            onEvent(Input.Type("", Input.OfType.Contact))
+          }
+        }
+      }
 
 
       Scaffold(
@@ -131,191 +168,199 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-              var fSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.firstname) {
-                fSize = state.account.firstname.length
-              }
-              Text(
-                text = "First Name",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp),
-              )
+            var fSize by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.account.firstname) {
+              fSize = state.account.firstname.length
+            }
+            Text(
+              text = "First Name",
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.padding(vertical = 8.dp),
+            )
 
-              TextField(
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                  Box(modifier = Modifier.padding(start = 8.dp)) {
-                    TextButton(onClick = { showTitle = true }) {
-                      Text(
-                        text = state.account.title.title,
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.titleMedium
-                      )
+            TextField(
+              modifier = Modifier.fillMaxWidth(),
+              leadingIcon = {
+                Box(modifier = Modifier.padding(start = 8.dp)) {
+                  TextButton(onClick = { showTitle = true }) {
+                    Text(
+                      text = state.account.title.title,
+                      color = MaterialTheme.colorScheme.secondary,
+                      style = MaterialTheme.typography.titleMedium
+                    )
 
-                      DropdownMenu(expanded = showTitle, onDismissRequest = { showTitle = false }) {
-                        AccountTitle.entries.filterNot { title -> title == state.account.title }
-                          .forEach { title ->
-                            DropdownMenuItem(
-                              text = { Text(text = title.title) },
-                              onClick = {
-                                onEvent(
-                                  Input.Type(
-                                    newValue = title.name,
-                                    ofType = Input.OfType.Title
-                                  )
+                    DropdownMenu(expanded = showTitle, onDismissRequest = { showTitle = false }) {
+                      AccountTitle.entries.filterNot { title -> title == state.account.title }
+                        .forEach { title ->
+                          DropdownMenuItem(
+                            text = { Text(text = title.title) },
+                            onClick = {
+                              onEvent(
+                                Input.Type(
+                                  newValue = title.name,
+                                  ofType = Input.OfType.Title
                                 )
-                                showTitle = false
-                              },
-                            )
-                          }
-                      }
+                              )
+                              showTitle = false
+                            },
+                          )
+                        }
                     }
                   }
-                },
-                placeholder = { Text(text = state.account.firstname) },
-                shape = RoundedCornerShape(24),
-                maxLines = 1,
-                value = state.account.firstname,
-                onValueChange = { newValue ->
-                  if (newValue.length < 62)
-                    onEvent(
-                      Input.Type(
-                        newValue = newValue, ofType = Input.OfType.FName
-                      )
+                }
+              },
+              placeholder = { Text(text = state.account.firstname) },
+              shape = RoundedCornerShape(24),
+              maxLines = 1,
+              value = state.account.firstname,
+              onValueChange = { newValue ->
+                if (newValue.length < 25)
+                  onEvent(
+                    Input.Type(
+                      newValue = newValue, ofType = Input.OfType.FName
                     )
-                },
-                colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                trailingIcon = {
-                  Text(
-                    text = "$fSize/62",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
                   )
-                },
-              )
-            }
+              },
+              colors = textFieldDefaults,
+              keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+              trailingIcon = {
+                Text(
+                  text = "$fSize/24",
+                  style = MaterialTheme.typography.bodySmall,
+                  modifier = Modifier.padding(end = 24.dp, start = 8.dp)
+                )
+              },
+            )
           }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-              var lSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.lastname) {
-                lSize = state.account.lastname.length
-              }
-              Text(
-                text = "Last Name",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp),
-              )
-              TextField(
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.account.lastname) },
-                shape = RoundedCornerShape(24),
-                maxLines = 1,
-                value = state.account.lastname,
-                onValueChange = { newValue ->
-                  if (newValue.length < 62)
-                    onEvent(
-                      Input.Type(
-                        newValue = newValue, ofType = Input.OfType.LName
-                      )
-                    )
-                },
-                colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                trailingIcon = {
-                  Text(
-                    text = "$lSize/62",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
-                  )
-                },
-              )
+            var lSize by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.account.lastname) {
+              lSize = state.account.lastname.length
             }
+            Text(
+              text = "Last Name",
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.padding(vertical = 8.dp),
+            )
+            TextField(
+              leadingIcon = {
+                Icon(
+                  imageVector = if (lSize < 3) Icons.Rounded.Close else Icons.Rounded.Check,
+                  contentDescription = null,
+                  tint = if (lSize < 3) Color.Red else Green
+                )
+              },
+              modifier = Modifier.fillMaxWidth(),
+              placeholder = { Text(text = state.account.lastname) },
+              shape = RoundedCornerShape(24),
+              maxLines = 1,
+              value = state.account.lastname,
+              onValueChange = { newValue ->
+                if (newValue.length < 25)
+                  onEvent(
+                    Input.Type(
+                      newValue = newValue, ofType = Input.OfType.LName
+                    )
+                  )
+              },
+              colors = textFieldDefaults,
+              keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+              trailingIcon = {
+                Text(
+                  text = "$lSize/24",
+                  style = MaterialTheme.typography.bodySmall,
+                  modifier = Modifier.padding(end = 24.dp, start = 8.dp)
+                )
+              },
+            )
           }
+
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-              var cSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.username) {
-                cSize = state.account.username.length
-              }
-              Text(
-                text = "Phone Number",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp)
-              )
-              TextField(
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = state.account.username) },
-                shape = RoundedCornerShape(24),
-                value = state.account.username,
-                onValueChange = { newValue ->
-                  if (newValue.length <= 10)
-                    onEvent(
-                      Input.Type(
-                        newValue = newValue, ofType = Input.OfType.Contact
-                      )
-                    )
-                },
-                colors = textFieldDefaults,
-                trailingIcon = {
-                  Text(
-                    text = "$cSize/10",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
-                  )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-              )
+            var cSize by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.account.username) {
+              cSize = state.account.username.length
             }
+            Text(
+              text = "Contact",
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.padding(vertical = 8.dp)
+            )
+            TextField(
+              leadingIcon = {
+                Icon(
+                  imageVector = if (isUnique && cSize > 8) Icons.Rounded.Check else Icons.Rounded.Close,
+                  contentDescription = null,
+                  tint = if (isUnique && cSize > 8) Green else Color.Red
+                )
+              },
+              maxLines = 1,
+              modifier = Modifier.fillMaxWidth(),
+              placeholder = { Text(text = state.account.username) },
+              shape = RoundedCornerShape(24),
+              value = state.account.username,
+              onValueChange = { newValue ->
+                if (newValue.length <= 10)
+                  onEvent(
+                    Input.Type(
+                      newValue = newValue, ofType = Input.OfType.Contact
+                    )
+                  )
+              },
+              colors = textFieldDefaults,
+              trailingIcon = {
+                Text(
+                  text = "$cSize/10",
+                  style = MaterialTheme.typography.bodySmall,
+                  modifier = Modifier.padding(end = 24.dp, start = 8.dp)
+                )
+              },
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
           }
+
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
 
-              var eSize by remember { mutableIntStateOf(0) }
-              LaunchedEffect(state.account.email) { eSize = (state.account.email ?: "").length }
+            var eSize by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.account.email) { eSize = (state.account.email ?: "").length }
 
-              Text(
-                text = "Email Address",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp)
-              )
-              TextField(
-                trailingIcon = {
-                  Text(
-                    text = "$eSize/48",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(end = 24.dp, start = 8.dp)
-                  )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                placeholder = { Text(text = state.account.email ?: "") },
-                shape = RoundedCornerShape(24),
-                value = state.account.email ?: "",
-                onValueChange = { newValue ->
-                  if (newValue.length < 48)
-                    onEvent(
-                      Input.Type(
-                        newValue = newValue, ofType = Input.OfType.Email
-                      )
+            Text(
+              text = "Email Address",
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.padding(vertical = 8.dp)
+            )
+            TextField(
+              trailingIcon = {
+                Text(
+                  text = "$eSize/48",
+                  style = MaterialTheme.typography.bodySmall,
+                  modifier = Modifier.padding(end = 24.dp, start = 8.dp)
+                )
+              },
+              modifier = Modifier.fillMaxWidth(),
+              maxLines = 1,
+              placeholder = { Text(text = state.account.email ?: "") },
+              shape = RoundedCornerShape(24),
+              value = state.account.email ?: "",
+              onValueChange = { newValue ->
+                if (newValue.length < 48)
+                  onEvent(
+                    Input.Type(
+                      newValue = newValue, ofType = Input.OfType.Email
                     )
-                },
-                colors = textFieldDefaults,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-              )
-            }
+                  )
+              },
+              colors = textFieldDefaults,
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            )
           }
 
           item { Spacer(modifier = Modifier.height(48.dp)) }

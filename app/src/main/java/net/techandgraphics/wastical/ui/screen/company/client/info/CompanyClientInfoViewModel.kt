@@ -5,7 +5,9 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -33,6 +35,7 @@ class CompanyClientInfoViewModel @Inject constructor(
 
   private val _channel = Channel<CompanyClientInfoChannel>()
   val channel = _channel.receiveAsFlow()
+  private var contactAvailableJob: Job? = null
 
   private fun onLoad(event: CompanyClientInfoEvent.Load) = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
@@ -41,10 +44,28 @@ class CompanyClientInfoViewModel @Inject constructor(
       .toCompanyLocationWithDemographicUiModel()
     _state.value = CompanyClientInfoState.Success(
       company = company,
-      oldAccount = account.copy(username = "-0"),
+      oldAccount = account,
       account = account.copy(username = account.username.takeIf { it.isDigitsOnly() } ?: ""),
       demographic = demographic,
     )
+  }
+
+  private fun checkIfContactAvailable(contact: String) {
+    contactAvailableJob?.cancel()
+    contactAvailableJob = viewModelScope.launch {
+      delay(1_000)
+      if (_state.value is CompanyClientInfoState.Success) {
+        val state = (_state.value as CompanyClientInfoState.Success)
+        val accounts = database.accountDao.qByUname(contact)
+        if (accounts.map { it.accountId }.contains(state.account.id)
+            .not() && accounts.isNotEmpty()
+        ) {
+          _channel.send(CompanyClientInfoChannel.Input.Unique.Conflict(accounts))
+        } else {
+          _channel.send(CompanyClientInfoChannel.Input.Unique.Ok)
+        }
+      }
+    }
   }
 
   private fun onSubmit() = viewModelScope.launch {
@@ -52,7 +73,16 @@ class CompanyClientInfoViewModel @Inject constructor(
       val state = (_state.value as CompanyClientInfoState.Success)
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(state.account.id)
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
-      val newAccount = state.account.toAccountEntity()
+      val newUname = if (state.account.username.trim().isBlank()) {
+        state.oldAccount.username
+      } else {
+        state.account.username.trim()
+          .takeIf { it.isDigitsOnly() && it.length > 8 }
+          ?.takeLast(9)
+          ?: state.oldAccount.username
+      }
+      val newAccount = state.account.toAccountEntity().copy(username = newUname)
+
       runCatching {
         database.accountRequestDao.insert(
           newAccount
@@ -100,12 +130,14 @@ class CompanyClientInfoViewModel @Inject constructor(
           )
         }
 
-        CompanyClientInfoEvent.Input.OfType.Contact ->
+        CompanyClientInfoEvent.Input.OfType.Contact -> {
           _state.value = state.copy(
             account = state.account.copy(
               username = event.newValue,
             ),
           )
+          checkIfContactAvailable(event.newValue)
+        }
 
         CompanyClientInfoEvent.Input.OfType.AltContact -> {
           Unit
