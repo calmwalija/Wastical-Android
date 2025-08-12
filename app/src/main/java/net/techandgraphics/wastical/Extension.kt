@@ -167,3 +167,12 @@ suspend fun AppDatabase.theAmount(payment: PaymentEntity): Int {
 }
 
 fun Long.asGatewayIcon() = gatewayDrawableRes[this.minus(1).toInt()]
+
+fun generateContact() = System.currentTimeMillis().toString().drop(6)
+  .plus("-")
+  .plus(
+    UUID.randomUUID().toString()
+      .plus("-")
+      .plus(System.currentTimeMillis().toString().take(5)),
+  ).replace("-", "")
+  .take(32)

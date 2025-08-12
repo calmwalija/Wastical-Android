@@ -25,9 +25,9 @@ import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.domain.toCompanyLocationWithDemographicUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
+import net.techandgraphics.wastical.generateContact
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import java.time.ZonedDateTime
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,16 +52,7 @@ class CompanyCreateClientViewModel @Inject constructor(
         title = theState.title,
         firstname = theState.firstname.trim(),
         lastname = theState.lastname.trim(),
-        contact = theState.contact.takeLast(9).ifEmpty {
-          System.currentTimeMillis().toString().drop(6)
-            .plus("-")
-            .plus(
-              UUID.randomUUID().toString()
-                .plus("-")
-                .plus(System.currentTimeMillis().toString().take(5)),
-            ).replace("-", "")
-            .take(32)
-        },
+        contact = theState.contact.takeLast(9).ifEmpty { generateContact() },
         altContact = theState.altContact,
         paymentPlanId = theState.planId,
         companyId = theState.company.id,

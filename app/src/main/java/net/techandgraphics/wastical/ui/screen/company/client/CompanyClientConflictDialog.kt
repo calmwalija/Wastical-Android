@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.company.client.create
+package net.techandgraphics.wastical.ui.screen.company.client
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -25,11 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 import net.techandgraphics.wastical.ui.screen.accountWithStreetAndArea4Preview
+import net.techandgraphics.wastical.ui.screen.company.client.create.CompanyCreateClientConflictItem
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompanyCreateClientConflictDialog(
+fun CompanyClientConflictDialog(
   accounts: List<AccountInfoUiModel>,
   onEvent: () -> Unit,
 ) {
@@ -51,7 +52,7 @@ fun CompanyCreateClientConflictDialog(
       tint = Color.White
     )
     Text(
-      text = "Warning",
+      text = "Conflict",
       style = MaterialTheme.typography.headlineSmall,
     )
 
@@ -83,9 +84,9 @@ fun CompanyCreateClientConflictDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun CompanyCreateClientConflictDialogPreview() {
+private fun CompanyClientConflictDialogPreview() {
   WasticalTheme {
-    CompanyCreateClientConflictDialog(
+    CompanyClientConflictDialog(
       accounts = (1..3).map { accountWithStreetAndArea4Preview },
       onEvent = {}
     )
