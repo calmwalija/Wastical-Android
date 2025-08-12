@@ -17,7 +17,6 @@ sealed interface CompanyReportState {
     val filters: Set<MonthYear> = setOf(),
     val demographicFilters: Set<DemographicItem> = setOf(),
     // Dashboard metrics
-    val totalAccounts: Int = 0,
     val activeAccounts: Int = 0,
     val newAccountsThisMonth: Int = 0,
     val expectedAmountThisMonth: Int = 0,

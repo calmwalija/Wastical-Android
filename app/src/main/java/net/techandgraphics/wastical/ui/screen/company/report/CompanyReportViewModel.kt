@@ -97,7 +97,7 @@ import javax.inject.Inject
 
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
-    val accounts = database.accountDao.query().map { it.toAccountUiModel() }
+    val accounts = database.accountDao.qByRole().map { it.toAccountUiModel() }
     val demographics = database.accountIndicatorDao.qDemographics()
 
     val monthAccountsCreated: List<MonthYear> =
@@ -112,8 +112,7 @@ import javax.inject.Inject
       )
 
     // Dashboard metrics
-    val activeAccounts = accounts.count { it.status == Status.Active }
-    val totalAccounts = accounts.size
+    val activeAccounts = accounts.size
     val now = ZonedDateTime.now()
     val currentMonth = now.month.value
     val currentYear = now.year
@@ -128,7 +127,6 @@ import javax.inject.Inject
       database.accountIndicatorDao.getPayment4CurrentMonth(currentMonth, currentYear)
 
     val expectedAmountThisMonth = database.paymentIndicatorDao.getExpectedAmountToCollect()
-    val totalAmountReceivedAllTime = database.accountIndicatorDao.getTotalAmountReceived() ?: 0
     val unpaidAccountsThisMonth = database.accountIndicatorDao.getTotalUnpaidAccountsThisMonth()
 
     val recentPayments = database.paymentDao
@@ -145,7 +143,6 @@ import javax.inject.Inject
       demographics = demographics,
       allMonthPayments = allMonthPayments,
       monthAccountsCreated = monthAccountsCreated,
-      totalAccounts = totalAccounts,
       activeAccounts = activeAccounts,
       newAccountsThisMonth = newAccountsThisMonth,
       expectedAmountThisMonth = expectedAmountThisMonth,

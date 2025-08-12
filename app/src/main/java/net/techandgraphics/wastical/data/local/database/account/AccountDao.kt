@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import net.techandgraphics.wastical.data.Status
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.BaseDao
 import net.techandgraphics.wastical.domain.model.account.AccountInfoUiModel
 
@@ -15,6 +17,12 @@ interface AccountDao : BaseDao<AccountEntity> {
 
   @Query("SELECT * FROM account")
   suspend fun query(): List<AccountEntity>
+
+  @Query("SELECT * FROM account  WHERE role=:role AND status=:status")
+  suspend fun qByRole(
+    status: String = Status.Active.name,
+    role: String = AccountRole.Client.name,
+  ): List<AccountEntity>
 
   @Query("SELECT * FROM account WHERE company_location_id=:id")
   suspend fun qByCompanyLocationId(id: Long): List<AccountEntity>
