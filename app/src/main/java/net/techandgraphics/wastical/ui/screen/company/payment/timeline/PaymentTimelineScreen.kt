@@ -17,6 +17,7 @@ import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
+import net.techandgraphics.wastical.ui.screen.payment4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.LocalDate
@@ -89,7 +90,10 @@ private fun PaymentTimelineScreenPreview() {
     val zonedDateTime = ZonedDateTime.now()
     val payments = mapOf(
       PaymentDateTime(LocalDate.now(), zonedDateTime.toEpochSecond()) to
-        (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
+        (1L..3L).map { index ->
+          paymentWithAccountAndMethodWithGateway4Preview
+            .copy(payment = payment4Preview.copy(id = index))
+        }
     )
 
     PaymentTimelineScreen(
