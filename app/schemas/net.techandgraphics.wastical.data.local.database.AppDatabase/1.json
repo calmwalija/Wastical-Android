@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "06983cc00fa58ccf9c0c0649addf2b1f",
+    "identityHash": "69e59e3fe8f50950ec40c89c29523783",
     "entities": [
       {
         "tableName": "account",
@@ -1992,7 +1992,7 @@
       },
       {
         "tableName": "notification",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `big_text` TEXT NOT NULL, `is_read` INTEGER NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `payment_id` INTEGER, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `title` TEXT NOT NULL, `is_read` INTEGER NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `payment_id` INTEGER, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2013,8 +2013,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "bigText",
-            "columnName": "big_text",
+            "fieldPath": "title",
+            "columnName": "title",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -2140,7 +2140,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '06983cc00fa58ccf9c0c0649addf2b1f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '69e59e3fe8f50950ec40c89c29523783')"
     ]
   }
 }

@@ -92,7 +92,7 @@ import java.util.concurrent.TimeUnit
                 "you submitted for verification has been ${payment.status}. " +
                 "Thank you for your patience. " +
                 "Have a good ${getTimeOfDay()}"
-            val newNotification = notification.copy(bigText = bigText, body = theBody)
+            val newNotification = notification.copy(title = bigText, body = theBody)
 
             if (database.notificationDao.get(newNotification.id) == null) {
               Log.e("TAG", "invoke:newNotification  $newNotification")
@@ -115,7 +115,7 @@ import java.util.concurrent.TimeUnit
           type = theType,
           title = theType.description,
           body = notification.body,
-          style = NotificationCompat.BigTextStyle().bigText(notification.bigText),
+          style = NotificationCompat.BigTextStyle().bigText(notification.title),
           contentIntent = pendingIntent(context, GOTO_NOTIFICATION),
         )
         database.notificationDao.upsert(

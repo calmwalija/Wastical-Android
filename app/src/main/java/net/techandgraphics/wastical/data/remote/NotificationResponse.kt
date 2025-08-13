@@ -8,6 +8,8 @@ data class NotificationResponse(
   @SerializedName("is_read") val isRead: Boolean,
   @SerializedName("recipient_id") val recipientId: Long?,
   @SerializedName("recipient_role") val recipientRole: String,
+  @SerializedName("title") val title: String,
+  @SerializedName("body") val body: String,
   @SerializedName("notification_type") val type: String,
   @SerializedName("metadata") val metadata: String?,
   @SerializedName("delivered_at") val deliveredAt: Long?,

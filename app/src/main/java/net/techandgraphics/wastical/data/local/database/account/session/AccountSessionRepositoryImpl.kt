@@ -25,9 +25,7 @@ import net.techandgraphics.wastical.data.local.database.toPaymentPlanEntity
 import net.techandgraphics.wastical.data.remote.ServerResponse
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.mapApiError
-import net.techandgraphics.wastical.data.remote.payment.pay.PaymentResponse
 import net.techandgraphics.wastical.getAccount
-import net.techandgraphics.wastical.toAmount
 import javax.inject.Inject
 
 class AccountSessionRepositoryImpl @Inject constructor(
@@ -166,21 +164,9 @@ class AccountSessionRepositoryImpl @Inject constructor(
           }
 
         notifications?.map { it.toNotificationEntity() }
-          ?.forEachIndexed { index, notification ->
-            val payment = gson.fromJson(notification.metadata, PaymentResponse::class.java)
-            val monthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
-            val method = database.paymentMethodDao.get(payment.paymentMethodId)
-            val plan = database.paymentPlanDao.get(method.paymentPlanId)
-            val theAmount = monthCovered.sumOf { it.month }.times(plan.fee).toAmount()
-            val theBody = "Your payment of $theAmount has been sent for verification."
-            val bigText =
-              "$theBody We'll notify you once the verification is complete. Thank you for your patience."
-            val newNotification = notification.copy(
-              bigText = bigText,
-              body = theBody,
-            )
-            notificationDao.upsert(newNotification)
-            onProgress(totalItemCount, index.plus(1))
+          ?.also {
+            notificationDao.upsert(it)
+            onProgress(totalItemCount, it.size)
           }
       }
     }

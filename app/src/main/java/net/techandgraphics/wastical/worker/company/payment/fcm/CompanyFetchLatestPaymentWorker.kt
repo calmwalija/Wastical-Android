@@ -17,28 +17,25 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.firstOrNull
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.broadcasts.company.CompanyFcmNotificationActionReceiver
 import net.techandgraphics.wastical.data.local.database.AppDatabase
-import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntity
+import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
-import net.techandgraphics.wastical.defaultDateTime
-import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import net.techandgraphics.wastical.services.company.CompanyFcmNotificationAction
-import net.techandgraphics.wastical.theAmount
-import net.techandgraphics.wastical.toAmount
-import net.techandgraphics.wastical.toFullName
-import net.techandgraphics.wastical.toZonedDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 @HiltWorker class CompanyFetchLatestPaymentWorker @AssistedInject constructor(
   @Assisted val context: Context,
@@ -75,59 +72,64 @@ import java.util.concurrent.TimeUnit
             ?.also {
               database.paymentMonthCoveredDao.upsert(it)
             }
-          showNotification(newPayments)
+
+          newValue.notifications
+            ?.map { it.toNotificationEntity() }
+            ?.forEach { database.notificationDao.upsert(it) }
+
+          showNotification()
         }
       } ?: throw IllegalStateException()
   }
 
-  private suspend fun showNotification(newPayments: List<PaymentEntity>) {
-    newPayments.forEach { payment ->
-      val account = database.accountDao.get(payment.accountId).toAccountUiModel()
-      val method = database.paymentMethodDao.get(payment.paymentMethodId)
-      val theAmount = database.theAmount(payment).toAmount()
-      val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
-
-      val theBody = "${account.toFullName()} sent a proof of payment"
-      val bigText =
-        "${account.toFullName()} has sent a proof of payment request of $theAmount " +
-          "using ${gateway.name} " +
-          "on ${payment.updatedAt.toZonedDateTime().defaultDateTime()}"
-
-      val toNotifModel = NotificationBuilderModel(
-        type = NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY,
-        title = theBody,
-        body = bigText,
-        style = NotificationCompat.BigTextStyle().bigText(bigText),
-        contentIntent = pendingIntent(context, GOTO_VERIFY),
-      )
-
-      val intent = Intent(context, CompanyFcmNotificationActionReceiver::class.java)
-      intent.putExtra(PAYMENT_ID, payment.id)
-
-      val approveIntent = PendingIntent.getBroadcast(
-        context,
-        payment.id.toInt(),
-        intent.also { it.action = CompanyFcmNotificationAction.Approve.name },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-      )
-
-      val verifyIntent = PendingIntent.getBroadcast(
-        context,
-        payment.id.toInt(),
-        intent.also { it.action = CompanyFcmNotificationAction.Verify.name },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-      )
-
-      NotificationBuilder(context)
-        .show(
-          model = toNotifModel,
-          notificationId = payment.id,
-          actions = arrayOf(
-            NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
-            NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
+  private suspend fun showNotification() {
+    database.notificationDao
+      .flowOfSync()
+      .firstOrNull()
+      ?.forEach { notification ->
+        val theType = NotificationType.valueOf(notification.type)
+        val toNotifModel = NotificationBuilderModel(
+          type = theType,
+          title = theType.description,
+          body = notification.body,
+          style = NotificationCompat.BigTextStyle().bigText(notification.body),
+          contentIntent = pendingIntent(context, GOTO_VERIFY),
+        )
+        database.notificationDao.upsert(
+          notification.copy(
+            deliveredAt = ZonedDateTime.now().toEpochSecond(),
+            syncStatus = 2,
           ),
         )
-    }
+        val paymentId = notification.paymentId?.toInt() ?: Random.nextInt()
+
+        val intent = Intent(context, CompanyFcmNotificationActionReceiver::class.java)
+        intent.putExtra(PAYMENT_ID, paymentId)
+
+        val approveIntent = PendingIntent.getBroadcast(
+          context,
+          paymentId,
+          intent.also { it.action = CompanyFcmNotificationAction.Approve.name },
+          PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val verifyIntent = PendingIntent.getBroadcast(
+          context,
+          paymentId,
+          intent.also { it.action = CompanyFcmNotificationAction.Verify.name },
+          PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        NotificationBuilder(context)
+          .show(
+            model = toNotifModel,
+            notificationId = paymentId.toLong(),
+            actions = arrayOf(
+              NotificationCompat.Action(R.drawable.ic_check_circle, "Approve", approveIntent),
+              NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
+            ),
+          )
+      }
   }
 
   companion object {

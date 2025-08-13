@@ -34,8 +34,8 @@ import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentEntit
 data class NotificationEntity(
   @PrimaryKey(autoGenerate = false) val id: Long,
   @ColumnInfo("uuid") val uuid: String,
-  @ColumnInfo("body") val body: String = "",
-  @ColumnInfo("big_text") val bigText: String = "",
+  @ColumnInfo("body") val body: String,
+  @ColumnInfo("title") val title: String,
   @ColumnInfo("is_read") val isRead: Boolean,
   @ColumnInfo("recipient_id") val recipientId: Long?,
   @ColumnInfo("recipient_role") val recipientRole: String,
