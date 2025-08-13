@@ -8,6 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,9 +44,43 @@ fun CompanyBrowseLocationScreen(
     is CompanyBrowseLocationState.Success ->
       Scaffold(
         topBar = {
-          CompanyInfoTopAppBarView(state.company) {
-            onEvent(CompanyBrowseLocationEvent.Button.BackHandler)
-          }
+          val showSort = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+          CompanyInfoTopAppBarView(
+            company = state.company,
+            navActions = {
+              IconButton(onClick = { showSort.value = true }) {
+                Icon(imageVector = Icons.Rounded.CheckCircle, contentDescription = null)
+              }
+              DropdownMenu(expanded = showSort.value, onDismissRequest = { showSort.value = false }) {
+                LocationSortOrder.entries.forEach { sortBy ->
+                  DropdownMenuItem(
+                    text = {
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                          text = sortBy.name,
+                          modifier = Modifier.padding(end = 16.dp),
+                          color = if (state.sortBy == sortBy) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                        )
+                        if (state.sortBy == sortBy) {
+                          Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                          )
+                        }
+                      }
+                    },
+                    enabled = state.sortBy != sortBy,
+                    onClick = {
+                      onEvent(CompanyBrowseLocationEvent.SortBy(sortBy))
+                      showSort.value = false
+                    },
+                  )
+                }
+              }
+            },
+            onBackHandler = { onEvent(CompanyBrowseLocationEvent.Button.BackHandler) }
+          )
         },
       ) {
         LazyColumn(
