@@ -17,4 +17,6 @@ sealed interface CompanyBrowseLocationEvent {
   sealed interface Input : CompanyBrowseLocationEvent {
     class Search(val query: String) : Input
   }
+
+  data class SortBy(val sort: LocationSortOrder) : CompanyBrowseLocationEvent
 }

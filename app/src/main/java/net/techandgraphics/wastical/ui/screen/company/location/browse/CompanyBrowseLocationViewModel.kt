@@ -71,8 +71,9 @@ class CompanyBrowseLocationViewModel @Inject constructor(
         query = currentState.query.trim(),
       )
         .collectLatest { payment4CurrentLocationMonth ->
+          val sorted = sort(payment4CurrentLocationMonth, currentState.sortBy)
           _state.value = (_state.value as CompanyBrowseLocationState.Success).copy(
-            payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+            payment4CurrentLocationMonth = sorted,
           )
         }
     }
@@ -87,7 +88,38 @@ class CompanyBrowseLocationViewModel @Inject constructor(
       CompanyBrowseLocationEvent.Load -> onLoad()
       is CompanyBrowseLocationEvent.Input.Search -> onSearch(event)
       is CompanyBrowseLocationEvent.Button.Clear -> clearSearchQuery()
+      is CompanyBrowseLocationEvent.SortBy -> onSortBy(event)
       else -> Unit
     }
+  }
+
+  private fun onSortBy(event: CompanyBrowseLocationEvent.SortBy) = viewModelScope.launch {
+    val current = _state.value
+    if (current is CompanyBrowseLocationState.Success) {
+      val sorted = sort(current.payment4CurrentLocationMonth, event.sort)
+      _state.value = current.copy(sortBy = event.sort, payment4CurrentLocationMonth = sorted)
+    }
+  }
+
+  private fun sort(
+    list: List<net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth>,
+    order: LocationSortOrder,
+  ): List<net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth> {
+    return when (order) {
+      LocationSortOrder.NameAsc -> list.sortedBy { it.streetName.lowercase() }
+      LocationSortOrder.NameDesc -> list.sortedByDescending { it.streetName.lowercase() }
+      LocationSortOrder.ClientsDesc -> list.sortedByDescending { it.totalAccounts }
+      LocationSortOrder.ClientsAsc -> list.sortedBy { it.totalAccounts }
+      LocationSortOrder.PaidDesc -> list.sortedByDescending { it.paidAccounts }
+      LocationSortOrder.PaidAsc -> list.sortedBy { it.paidAccounts }
+      LocationSortOrder.CompletedPayDesc -> list.sortedByDescending { safeCompletion(it) }
+      LocationSortOrder.CompletedPayAsc -> list.sortedBy { safeCompletion(it) }
+    }
+  }
+
+  private fun safeCompletion(item: net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth): Float {
+    val total = item.totalAccounts
+    if (total <= 0) return 0f
+    return item.paidAccounts.toFloat() / total.toFloat()
   }
 }
