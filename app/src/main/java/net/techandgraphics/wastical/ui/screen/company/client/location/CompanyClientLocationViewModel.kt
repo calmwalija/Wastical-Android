@@ -85,10 +85,27 @@ class CompanyClientLocationViewModel @Inject constructor(
       }
     }
 
+  private fun onInputSearch(event: CompanyClientLocationEvent.Input.Search) =
+    viewModelScope.launch {
+      if (_state.value is CompanyClientLocationState.Success) {
+        val state = (_state.value as CompanyClientLocationState.Success)
+        _state.value = state.copy(query = event.query)
+      }
+    }
+
+  private fun onButtonClear() = viewModelScope.launch {
+    if (_state.value is CompanyClientLocationState.Success) {
+      val state = (_state.value as CompanyClientLocationState.Success)
+      _state.value = state.copy(query = "")
+    }
+  }
+
   fun onEvent(event: CompanyClientLocationEvent) {
     when (event) {
       is CompanyClientLocationEvent.Load -> onLoad(event)
       is CompanyClientLocationEvent.Button.Change -> onButtonChange(event)
+      is CompanyClientLocationEvent.Input.Search -> onInputSearch(event)
+      CompanyClientLocationEvent.Button.Clear -> onButtonClear()
       else -> Unit
     }
   }
