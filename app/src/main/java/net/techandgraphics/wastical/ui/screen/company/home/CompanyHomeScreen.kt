@@ -280,6 +280,7 @@ private val quickOption = listOf(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
+
           item {
             FlowRow(
               maxItemsInEachRow = 3,
@@ -320,7 +321,42 @@ private val quickOption = listOf(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
+          item {
+            var chartStyle by remember { mutableStateOf(ChartStyle.Bar) }
+            CompanyHomeMonthlyPaymentChart(
+              data = state.allMonthsPayments.reversed(),
+              showYAxis = true,
+              showBarLabels = false,
+              style = chartStyle,
+              onStyleChange = { chartStyle = it }
+            )
+          }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
           item { CompanyHomePaymentMonthlyView(state, onEvent) }
+
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          if (state.payment4CurrentLocationMonth.isNotEmpty()) {
+            item {
+              Text(
+                text = "Top locations",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+              )
+            }
+            items(state.payment4CurrentLocationMonth.take(5)) { entry ->
+              TopLocationRow(
+                title = entry.streetName,
+                subtitle = entry.areaName,
+                progress = if (entry.totalAccounts == 0) 0f else entry.paidAccounts.toFloat() / entry.totalAccounts.toFloat(),
+                trailing = entry.paidAccounts.toString().plus("/" + entry.totalAccounts)
+              )
+            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+          }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 

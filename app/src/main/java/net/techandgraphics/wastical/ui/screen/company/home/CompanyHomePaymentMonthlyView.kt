@@ -86,7 +86,7 @@ fun CompanyHomePaymentMonthlyView(
 
   Card(
     modifier = Modifier
-      .padding(8.dp)
+      .padding(vertical = 8.dp)
       .fillMaxWidth(),
     colors = CardDefaults.elevatedCardColors()
   ) {
