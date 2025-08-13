@@ -36,6 +36,7 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
               navController.navigate(LocationOverview(event.id))
 
             Goto.Timeline -> navController.navigate(CompanyRoute.PaymentTimeline)
+            Goto.Notifications -> navController.navigate(CompanyRoute.Notifications)
 
             is Goto.Profile -> navController.navigate(ClientProfile(event.id))
             Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }

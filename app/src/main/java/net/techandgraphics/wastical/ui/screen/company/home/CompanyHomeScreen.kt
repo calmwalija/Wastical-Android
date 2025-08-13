@@ -226,6 +226,13 @@ private val quickOption = listOf(
                   })
 
                   DropdownMenuItem(text = {
+                    Text(text = "Notifications")
+                  }, onClick = {
+                    showMenuItems = false
+                    onEvent(CompanyHomeEvent.Goto.Notifications)
+                  })
+
+                  DropdownMenuItem(text = {
                     Text(text = "Company")
                   }, onClick = {
                     showMenuItems = false

@@ -8,7 +8,7 @@ data class NotificationUiModel(
   val id: Long,
   val uuid: String,
   val body: String,
-  val bigText: String,
+  val title: String,
   val isRead: Boolean,
   val recipientId: Long?,
   val recipientRole: AccountRole,

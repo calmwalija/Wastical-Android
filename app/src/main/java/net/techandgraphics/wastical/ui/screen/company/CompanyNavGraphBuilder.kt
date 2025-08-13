@@ -19,6 +19,7 @@ import net.techandgraphics.wastical.ui.screen.company.info.method.CompanyInfoMet
 import net.techandgraphics.wastical.ui.screen.company.info.plan.CompanyInfoPlanNav
 import net.techandgraphics.wastical.ui.screen.company.location.browse.CompanyBrowseLocationNav
 import net.techandgraphics.wastical.ui.screen.company.location.overview.CompanyPaymentLocationOverviewNav
+import net.techandgraphics.wastical.ui.screen.company.notification.CompanyNotificationNav
 import net.techandgraphics.wastical.ui.screen.company.payment.pay.CompanyMakePaymentNav
 import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentTimelineNav
 import net.techandgraphics.wastical.ui.screen.company.payment.verify.CompanyVerifyPaymentNav
@@ -44,4 +45,5 @@ fun NavGraphBuilder.CompanyNavGraphBuilder(navController: NavHostController) {
   CompanyClientLocationNav(navController)
   CompanyPaymentInvoiceNav(navController)
   CompanyPaymentLocationOverviewNav(navController)
+  CompanyNotificationNav(navController)
 }
