@@ -97,7 +97,7 @@ import java.util.concurrent.TimeUnit
         val bigText =
           "$theBody We'll notify you once the verification is complete. Thank you for your patience."
         val newNotification = notification.copy(
-          bigText = bigText,
+          title = bigText,
           body = theBody,
         )
         database.notificationDao.insert(newNotification)
@@ -113,7 +113,7 @@ import java.util.concurrent.TimeUnit
           type = theType,
           title = theType.description,
           body = notification.body,
-          style = NotificationCompat.BigTextStyle().bigText(notification.bigText),
+          style = NotificationCompat.BigTextStyle().bigText(notification.title),
           contentIntent = pendingIntent(context, GOTO_NOTIFICATION),
         )
         database.notificationDao.upsert(

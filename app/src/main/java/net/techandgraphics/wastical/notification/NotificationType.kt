@@ -2,8 +2,6 @@ package net.techandgraphics.wastical.notification
 
 enum class NotificationType(val id: String, val description: String) {
 
-  PaymentRecorded(id = "30000", description = "Payment Recorded"),
-
   PROOF_OF_PAYMENT_SUBMITTED(
     id = "174b8ee0-64a8-4c15-86f4-c93cab824c2f",
     description = "Proof Of Payment Submitted",
@@ -27,6 +25,11 @@ enum class NotificationType(val id: String, val description: String) {
   PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY(
     id = "4e13b8c5-4076-4313-87d4-3dda81edbfe4",
     description = "Proof Of Payment Submitted By Company",
+  ),
+
+  PROOF_OF_PAYMENT_SUCCESSFUL_BY_COMPANY(
+    id = "2d3cd90e-ca20-4724-a50b-24f2a3596aed",
+    description = "Proof Of Payment Was Successful By Company",
   ),
 
   PROOF_OF_PAYMENT_COMPANY_VERIFY(

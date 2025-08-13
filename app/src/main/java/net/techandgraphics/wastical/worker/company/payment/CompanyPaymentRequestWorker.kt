@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.worker.company.payment
 
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
@@ -13,21 +14,19 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.firstOrNull
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
+import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.data.remote.toPaymentRequest
-import net.techandgraphics.wastical.defaultDateTime
-import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.toAmount
-import net.techandgraphics.wastical.toFullName
-import net.techandgraphics.wastical.toZonedDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -68,32 +67,44 @@ import java.util.concurrent.TimeUnit
         database.paymentDao.upsert(payment.toPaymentEntity())
         newValue.paymentMonthsCovered
           ?.map { it.toPaymentMonthCoveredEntity() }
-          ?.forEach { database.paymentMonthCoveredDao.insert(it) }
+          ?.forEach { database.paymentMonthCoveredDao.upsert(it) }
+
+        newValue.notifications
+          ?.map { it.toNotificationEntity() }
+          ?.forEach { database.notificationDao.upsert(it) }
 
         database.paymentRequestDao.delete(paymentRequest)
       }
     }
 
-    // Notify (can be outside transaction)
-    newValue.payments?.forEach { newPayment ->
-      val account = database.accountDao.get(newPayment.accountId).toAccountUiModel()
-      val method = database.paymentMethodDao.get(newPayment.paymentMethodId)
-      val plan = database.paymentPlanDao.get(method.paymentPlanId)
-      val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
-      val months = database.paymentMonthCoveredDao.getByPaymentId(newPayment.id)
-      val theAmount = months.size.times(plan.fee).toAmount()
+    showNotification()
+  }
 
-      val notification = NotificationBuilderModel(
-        type = NotificationType.PaymentRecorded,
-        title = "Payment Recorded",
-        body = "Payment made for ${account.toFullName()} " +
-          "of $theAmount using ${gateway.name} on ${
-            newPayment.updatedAt.toZonedDateTime().defaultDateTime()
-          } has been recorded",
-      )
-
-      NotificationBuilder(context).show(model = notification, notificationId = newPayment.id)
-    }
+  private suspend fun showNotification() {
+    database.notificationDao
+      .flowOfSync()
+      .firstOrNull()
+      ?.forEach { notification ->
+        val theType = NotificationType.valueOf(notification.type)
+        val toNotifModel = NotificationBuilderModel(
+          type = theType,
+          title = theType.description,
+          body = notification.body,
+          style = NotificationCompat.BigTextStyle().bigText(notification.body),
+          contentIntent = null,
+        )
+        database.notificationDao.upsert(
+          notification.copy(
+            deliveredAt = ZonedDateTime.now().toEpochSecond(),
+            syncStatus = 2,
+          ),
+        )
+        NotificationBuilder(context)
+          .show(
+            model = toNotifModel,
+            notificationId = notification.id,
+          )
+      }
   }
 }
 
