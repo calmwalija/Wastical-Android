@@ -14,8 +14,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,13 +28,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
-import net.techandgraphics.wastical.defaultDateTime
+import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.gatewayDrawableRes
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable fun CompanyVerifyPaymentItem(
@@ -78,12 +79,26 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
-          Text(
-            text = payment.createdAt.toZonedDateTime().defaultDateTime(),
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.MiddleEllipsis
-          )
+          Row(verticalAlignment = Alignment.CenterVertically) {
+
+            Text(
+              text = payment.createdAt.toZonedDateTime().defaultDate(),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+
+            Text(text = " • ")
+
+            Text(
+              text = model.plan.fee.times(model.coveredSize).toAmount(),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.primary,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+          }
         }
 
 
@@ -97,30 +112,30 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           }
         }
 
-        Text(
-          text = model.plan.fee.times(model.coveredSize).toAmount(),
-          style = MaterialTheme.typography.bodySmall,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-        OutlinedCard(shape = CircleShape) {
-          Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-            IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Approve(payment)) }) {
-              Icon(
-                painterResource(R.drawable.ic_check_circle),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-              )
-            }
-            IconButton(onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Deny(payment)) }) {
-              Icon(
-                imageVector = Icons.Rounded.Clear,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error
-              )
-            }
+        Row(modifier = Modifier) {
+          IconButton(
+            onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Approve(payment)) },
+            colors = IconButtonDefaults.iconButtonColors(
+              containerColor = Green.copy(.2f)
+            )
+          ) {
+            Icon(
+              painterResource(R.drawable.ic_check),
+              contentDescription = null,
+              tint = Green
+            )
+          }
+          IconButton(
+            onClick = { onEvent(CompanyVerifyPaymentEvent.Payment.Deny(payment)) },
+            colors = IconButtonDefaults.iconButtonColors(
+              containerColor = MaterialTheme.colorScheme.error.copy(.2f)
+            )
+          ) {
+            Icon(
+              imageVector = Icons.Rounded.Clear,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.error
+            )
           }
         }
       }
