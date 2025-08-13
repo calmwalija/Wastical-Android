@@ -8,12 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,51 +39,58 @@ fun CompanyClientLocationItem(
 
   val currentLocation = model.demographicStreet.id == location.demographicStreetId
 
-  Card(
+  ElevatedCard(
     onClick = { onEvent(CompanyClientLocationEvent.Button.Change(model.demographicStreet)) },
-    modifier = modifier.padding(4.dp),
-    shape = CircleShape,
+    modifier = modifier.padding(6.dp),
+    shape = MaterialTheme.shapes.large,
     colors = CardDefaults.elevatedCardColors()
   ) {
     Row(
       modifier = Modifier
-        .padding(horizontal = 16.dp, vertical = 8.dp)
+        .padding(horizontal = 16.dp, vertical = 12.dp)
         .fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      RadioButton(
-        selected = currentLocation,
-        onClick = { onEvent(CompanyClientLocationEvent.Button.Change(model.demographicStreet)) }
+      Icon(
+        painterResource(R.drawable.ic_house),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary
       )
 
       Column(
         modifier = Modifier
-          .padding(start = 8.dp)
+          .padding(start = 12.dp)
           .weight(1f)
       ) {
         Text(
           text = model.demographicStreet.name,
-          color = MaterialTheme.colorScheme.secondary,
           style = MaterialTheme.typography.titleMedium,
           maxLines = 1,
           overflow = TextOverflow.MiddleEllipsis
         )
         Text(
           text = model.demographicArea.name,
-          style = MaterialTheme.typography.labelLarge
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
 
-      if (currentLocation)
+      if (currentLocation) {
         Icon(
           painterResource(R.drawable.ic_check_circle),
           tint = MaterialTheme.colorScheme.primary,
           contentDescription = null
         )
+      } else {
+        Text(
+          text = "Select",
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.primary
+        )
+      }
 
-
-      Spacer(modifier = Modifier.width(16.dp))
+      Spacer(modifier = Modifier.width(4.dp))
 
     }
   }
