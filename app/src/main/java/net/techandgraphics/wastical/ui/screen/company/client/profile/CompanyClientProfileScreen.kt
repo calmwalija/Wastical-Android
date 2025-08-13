@@ -1,14 +1,17 @@
 package net.techandgraphics.wastical.ui.screen.company.client.profile
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -17,7 +20,9 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -165,65 +170,130 @@ fun CompanyClientProfileScreen(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
-
-          itemsIndexed(profileItems) { index, item ->
-            if (item.event is CompanyClientProfileEvent.Option.Pending && state.pending.isEmpty()) return@itemsIndexed
-            if (item.event is CompanyClientProfileEvent.Option.Invoice && state.payments.isEmpty()) return@itemsIndexed
+          // Billing section
+          item {
+            Text(
+              text = "Billing",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(bottom = 12.dp)
+            )
+          }
+          item {
             Card(
-              modifier = Modifier.padding(4.dp),
-              shape = CircleShape,
-              colors = CardDefaults.elevatedCardColors(),
-              onClick = {
-                when (item.event) {
-                  CompanyClientProfileEvent.Option.History -> {
-                    if (state.payments.isEmpty()) {
-                      hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                      context.toast("No payment history available")
-                    } else onEvent(item.event)
-                  }
-
-                  CompanyClientProfileEvent.Option.Pending -> {
-                    if (state.pending.isEmpty()) {
-                      hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                      context.toast("No pending payments available")
-                    } else onEvent(item.event)
-                  }
-
-                  CompanyClientProfileEvent.Option.Revoke -> showWarning = true
-
-
-                  else -> onEvent(item.event)
+              modifier = Modifier.padding(horizontal = 4.dp),
+              elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+              colors = CardDefaults.cardColors(),
+              shape = MaterialTheme.shapes.large
+            ) {
+              Column {
+                SectionRow(
+                  title = "Invoice",
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Invoice }.drawableRes
+                ) {
+                  if (state.payments.isEmpty()) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    context.toast("No invoices available")
+                  } else onEvent(CompanyClientProfileEvent.Option.Invoice)
                 }
-              }) {
-              Row(modifier = Modifier.padding(16.dp)) {
-                BadgedBox(badge = {
-                  when (item.event) {
-                    CompanyClientProfileEvent.Option.History ->
-                      Badge { Text(text = state.payments.size.toString()) }
+                HorizontalDivider()
+                SectionRow(
+                  title = "Pending Payments",
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Pending }.drawableRes,
+                  badgeCount = state.pending.size.takeIf { it > 0 }
+                ) {
+                  if (state.pending.isEmpty()) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    context.toast("No pending payments available")
+                  } else onEvent(CompanyClientProfileEvent.Option.Pending)
+                }
+                HorizontalDivider()
+                SectionRow(
+                  title = "Payment History",
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.History }.drawableRes,
+                  badgeCount = state.payments.size.takeIf { it > 0 }
+                ) {
+                  if (state.payments.isEmpty()) {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    context.toast("No payment history available")
+                  } else onEvent(CompanyClientProfileEvent.Option.History)
+                }
+              }
+            }
+          }
 
-                    CompanyClientProfileEvent.Option.Pending ->
-                      Badge { Text(text = state.pending.size.toString()) }
+          // Quick actions grid
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+          item {
+            Text(
+              text = "Actions",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(bottom = 12.dp)
+            )
+          }
+          item {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+              Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ActionTile(
+                  title = profileItems.first { it.event == CompanyClientProfileEvent.Option.Info }.title,
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Info }.drawableRes,
+                  modifier = Modifier.weight(1f)
+                ) { onEvent(CompanyClientProfileEvent.Option.Info) }
 
-                    else -> Unit
-                  }
-                }) {
+                ActionTile(
+                  title = profileItems.first { it.event == CompanyClientProfileEvent.Option.Location }.title,
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Location }.drawableRes,
+                  modifier = Modifier.weight(1f)
+                ) { onEvent(CompanyClientProfileEvent.Option.Location) }
+              }
+              Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ActionTile(
+                  title = profileItems.first { it.event == CompanyClientProfileEvent.Option.Payment }.title,
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Payment }.drawableRes,
+                  modifier = Modifier.weight(1f)
+                ) { onEvent(CompanyClientProfileEvent.Option.Payment) }
+
+                ActionTile(
+                  title = profileItems.first { it.event == CompanyClientProfileEvent.Option.Plan }.title,
+                  iconRes = profileItems.first { it.event == CompanyClientProfileEvent.Option.Plan }.drawableRes,
+                  modifier = Modifier.weight(1f)
+                ) { onEvent(CompanyClientProfileEvent.Option.Plan) }
+              }
+            }
+          }
+
+          // Danger zone
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+          item {
+            OutlinedCard(
+              modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .clickable { showWarning = true },
+              shape = MaterialTheme.shapes.large
+            ) {
+              Row(
+                modifier = Modifier
+                  .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+              ) {
+                Row {
                   Icon(
-                    painterResource(item.drawableRes),
+                    painter = painterResource(profileItems.first { it.event == CompanyClientProfileEvent.Option.Revoke }.drawableRes),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(24.dp)
                   )
+                  Text(
+                    text = profileItems.first { it.event == CompanyClientProfileEvent.Option.Revoke }.title,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = 16.dp)
+                  )
                 }
-                Text(
-                  text = item.title,
-                  modifier = Modifier
-                    .padding(start = 16.dp)
-                    .weight(1f)
+                Icon(
+                  Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.error
                 )
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-                Spacer(modifier = Modifier.width(8.dp))
               }
-
             }
           }
         }
@@ -232,6 +302,98 @@ fun CompanyClientProfileScreen(
   }
 }
 
+
+@Composable
+private fun SectionRow(
+  title: String,
+  iconRes: Int,
+  badgeCount: Int? = null,
+  onClick: () -> Unit,
+) {
+  Row(
+    modifier = Modifier
+      .padding(horizontal = 16.dp, vertical = 14.dp)
+      .clickable { onClick() }
+  ) {
+    BadgedBox(badge = {
+      if ((badgeCount ?: 0) > 0) Badge { Text(text = badgeCount.toString()) }
+    }) {
+      Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(24.dp)
+      )
+    }
+    Text(
+      text = title,
+      modifier = Modifier
+        .padding(start = 16.dp)
+        .weight(1f)
+    )
+    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+    Spacer(modifier = Modifier.width(8.dp))
+  }
+}
+
+@Composable
+private fun ActionTile(
+  title: String,
+  iconRes: Int,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+) {
+  Card(
+    onClick = onClick,
+    modifier = modifier,
+    colors = CardDefaults.elevatedCardColors(),
+    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    shape = MaterialTheme.shapes.large
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(24.dp)
+      )
+      Spacer(modifier = Modifier.height(12.dp))
+      Text(text = title, style = MaterialTheme.typography.bodyMedium)
+    }
+  }
+}
+
+@Composable
+private fun StatCard(
+  title: String,
+  value: String,
+  iconRes: Int,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+) {
+  Card(
+    onClick = onClick,
+    modifier = modifier,
+    colors = CardDefaults.cardColors(),
+    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    shape = MaterialTheme.shapes.large
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      Row {
+        Icon(
+          painter = painterResource(iconRes),
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.primary,
+          modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = title, style = MaterialTheme.typography.labelLarge)
+      }
+      Spacer(modifier = Modifier.height(6.dp))
+      Text(text = value, style = MaterialTheme.typography.headlineSmall)
+    }
+  }
+}
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
