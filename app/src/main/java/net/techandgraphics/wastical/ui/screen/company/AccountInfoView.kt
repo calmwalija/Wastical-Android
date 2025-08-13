@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.company
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,77 +47,88 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
   onEvent: (AccountInfoEvent) -> Unit,
 ) {
 
-  Column(
-    horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier.fillMaxWidth()
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surface
+    ),
+    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    shape = MaterialTheme.shapes.large
   ) {
-
-    Box(contentAlignment = Alignment.BottomEnd) {
-      ProfileLetterView(account)
-      if (account.username.trim().isNotEmpty() && account.username.isDigitsOnly())
-        Card(
-          shape = CircleShape,
-          modifier = Modifier
-            .offset(y = -(2).dp)
-            .size(48.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = Color.White
-          ),
-          elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 1.dp
-          ),
-          onClick = { onEvent(AccountInfoEvent.Phone(account.username)) }
-        ) {
-          Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-          ) {
-            Icon(
-              imageVector = Icons.Default.Phone,
-              contentDescription = null,
-              tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier
-                .size(32.dp)
-                .padding(4.dp)
-            )
-          }
-        }
-
-    }
-
-    Spacer(modifier = Modifier.height(24.dp))
-
-    account.username.takeIf { it.isDigitsOnly() }?.let {
-      Text(
-        text = it,
-        style = MaterialTheme.typography.bodyLarge,
-      )
-    }
-
-    Text(
-      text = account.toFullName(),
-      style = MaterialTheme.typography.titleLarge,
-      overflow = TextOverflow.MiddleEllipsis,
-      modifier = Modifier.padding(vertical = 4.dp)
-    )
-
-    TextButton(
-      modifier = Modifier.fillMaxWidth(.7f),
-      colors = ButtonDefaults.elevatedButtonColors(),
-      onClick = { onEvent(AccountInfoEvent.Location(demographic.demographicStreet.id)) }
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
-      Text(text = demographic.toLocation())
-    }
 
+      Box(contentAlignment = Alignment.BottomEnd) {
+        ProfileLetterView(account)
+        if (account.username.trim().isNotEmpty() && account.username.isDigitsOnly())
+          Card(
+            shape = CircleShape,
+            modifier = Modifier
+              .offset(y = -(2).dp)
+              .size(48.dp),
+            colors = CardDefaults.cardColors(
+              containerColor = Color.White
+            ),
+            elevation = CardDefaults.elevatedCardElevation(
+              defaultElevation = 1.dp
+            ),
+            onClick = { onEvent(AccountInfoEvent.Phone(account.username)) }
+          ) {
+            Box(
+              modifier = Modifier.fillMaxSize(),
+              contentAlignment = Alignment.Center
+            ) {
+              Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                  .size(28.dp)
+                  .padding(4.dp)
+              )
+            }
+          }
+      }
+
+      Spacer(modifier = Modifier.height(20.dp))
+
+      Text(
+        text = account.toFullName(),
+        style = MaterialTheme.typography.titleLarge,
+        overflow = TextOverflow.MiddleEllipsis,
+      )
+
+      account.username.takeIf { it.isDigitsOnly() }?.let { phone ->
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+          text = phone,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      OutlinedButton(
+        modifier = Modifier.fillMaxWidth(.8f),
+        onClick = { onEvent(AccountInfoEvent.Location(demographic.demographicStreet.id)) }
+      ) {
+        Text(text = demographic.toLocation())
+      }
+    }
   }
 }
 
 
 @Composable private fun ProfileLetterView(account: AccountUiModel) {
 
-  val brush = Brush.horizontalGradient(
+  val ringBrush = Brush.sweepGradient(
     listOf(
-      MaterialTheme.colorScheme.primary.copy(.4f),
+      MaterialTheme.colorScheme.primary.copy(.2f),
       MaterialTheme.colorScheme.primary.copy(.6f),
       MaterialTheme.colorScheme.primary
     )
@@ -126,22 +137,28 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
   Box(contentAlignment = Alignment.Center) {
     Box(
       modifier = Modifier
-        .clip(CircleShape)
         .size(160.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.1f))
-    )
-    Box(
-      modifier = Modifier
         .clip(CircleShape)
-        .size(140.dp)
-        .background(brush = brush)
-    )
-    Text(
-      text = account.toInitials(),
-      modifier = Modifier.padding(4.dp),
-      fontWeight = FontWeight.Bold,
-      style = MaterialTheme.typography.headlineSmall
-    )
+        .background(MaterialTheme.colorScheme.primary.copy(.06f))
+        .border(width = 6.dp, brush = ringBrush, shape = CircleShape),
+      contentAlignment = Alignment.Center
+    ) {
+      Box(
+        modifier = Modifier
+          .size(128.dp)
+          .clip(CircleShape)
+          .background(MaterialTheme.colorScheme.primary.copy(.85f)),
+        contentAlignment = Alignment.Center
+      ) {
+        Text(
+          text = account.toInitials(),
+          modifier = Modifier.padding(4.dp),
+          fontWeight = FontWeight.Bold,
+          style = MaterialTheme.typography.headlineSmall,
+          color = Color.White
+        )
+      }
+    }
   }
 
 }
