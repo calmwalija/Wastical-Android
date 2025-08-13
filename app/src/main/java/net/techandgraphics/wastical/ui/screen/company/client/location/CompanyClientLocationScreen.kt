@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -68,7 +70,7 @@ fun CompanyClientLocationScreen(
     is CompanyClientLocationState.Success -> {
       val currentId: Long = state.companyLocation.demographicStreetId
       val selectedIdState = remember { mutableStateOf(currentId) }
-      val sameAreaOnlyState = remember { mutableStateOf(false) }
+      val selectedAreaIdState = remember { mutableStateOf<Long?>(null) }
       Scaffold(
         snackbarHost = {
           SnackbarHost(hostState = snackbarHostState) { SnackbarThemed(it) }
@@ -183,20 +185,37 @@ fun CompanyClientLocationScreen(
             CompanyClientLocationSearchView(state) { onEvent(it) }
           }
 
-          // Filters
+          // Area chips
           item {
-            Row(
-              modifier = Modifier.padding(top = 8.dp),
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Switch(
-                checked = sameAreaOnlyState.value,
-                onCheckedChange = { sameAreaOnlyState.value = it })
-              Spacer(modifier = Modifier.width(8.dp))
-              Text(text = "Same area only", style = MaterialTheme.typography.bodyMedium)
-              Spacer(modifier = Modifier.weight(1f))
-              if (sameAreaOnlyState.value) {
-                TextButton(onClick = { sameAreaOnlyState.value = false }) { Text("Reset") }
+            val areas = state.demographics.map { it.demographicArea }.distinctBy { it.id }
+            LazyRow(modifier = Modifier.padding(top = 8.dp)) {
+              item {
+                OutlinedCard(
+                  shape = MaterialTheme.shapes.small,
+                  modifier = Modifier
+                    .padding(end = 8.dp)
+                    .clickable { selectedAreaIdState.value = null }
+                ) {
+                  Text(
+                    text = "All",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    color = if (selectedAreaIdState.value == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                  )
+                }
+              }
+              items(areas) { area ->
+                OutlinedCard(
+                  shape = MaterialTheme.shapes.small,
+                  modifier = Modifier
+                    .padding(end = 8.dp)
+                    .clickable { selectedAreaIdState.value = area.id }
+                ) {
+                  Text(
+                    text = area.name,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    color = if (selectedAreaIdState.value == area.id) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                  )
+                }
               }
             }
           }
@@ -230,14 +249,13 @@ fun CompanyClientLocationScreen(
 
 
           item {
-            // Compute filtered list using query and area toggle
+            // Compute filtered list using query and area chips
             Text(
               text = "Available Locations (" + state.demographics.filter { model ->
                 val matchesQuery = state.query.isBlank() ||
                   model.demographicStreet.name.contains(state.query, ignoreCase = true) ||
                   model.demographicArea.name.contains(state.query, ignoreCase = true)
-                val matchesArea =
-                  if (sameAreaOnlyState.value) model.demographicArea.id == state.accountDemographicArea.id else true
+                val matchesArea = selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
                 matchesQuery && matchesArea
               }.size + ")",
               style = MaterialTheme.typography.titleMedium,
@@ -250,8 +268,7 @@ fun CompanyClientLocationScreen(
             val matchesQuery = state.query.isBlank() ||
               model.demographicStreet.name.contains(state.query, ignoreCase = true) ||
               model.demographicArea.name.contains(state.query, ignoreCase = true)
-            val matchesArea =
-              if (sameAreaOnlyState.value) model.demographicArea.id == state.accountDemographicArea.id else true
+            val matchesArea = selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
             matchesQuery && matchesArea
           }
           if (filtered.isEmpty()) {
