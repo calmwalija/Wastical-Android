@@ -1,7 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.client.plan
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -36,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -105,105 +102,8 @@ fun CompanyClientPlanScreen(
             onEvent(CompanyClientPlanEvent.Goto.BackHandler)
           }
         },
-      ) {
-
-        LazyColumn(
-          contentPadding = it,
-          modifier = Modifier.padding(16.dp)
-        ) {
-          item {
-            Text(
-              text = "Payment Plan",
-              style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 32.dp)
-            )
-          }
-
-
-          item {
-            AccountInfoView(state.account, state.demographic) { event ->
-              when (event) {
-                is AccountInfoEvent.Location ->
-                  onEvent(CompanyClientPlanEvent.Goto.Location(event.id))
-
-                is AccountInfoEvent.Phone ->
-                  onEvent(CompanyClientPlanEvent.Button.Phone(event.contact))
-              }
-            }
-          }
-          item { Spacer(modifier = Modifier.height(16.dp)) }
-
-          itemsIndexed(state.paymentPlans) { index, paymentPlan ->
-            OutlinedCard(
-              modifier = Modifier.padding(vertical = 5.dp, horizontal = 16.dp),
-              colors = if (paymentPlan.active) CardDefaults.outlinedCardColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(.1f)
-              ) else {
-                CardDefaults.elevatedCardColors()
-              }
-            ) {
-              Row(
-                modifier = Modifier
-                  .clickable { onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan)) }
-                  .fillMaxWidth()
-                  .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-
-                RadioButton(selected = paymentPlan.active, onClick = {
-                  onEvent(CompanyClientPlanEvent.Button.ChangePlan(paymentPlan))
-                })
-
-                Column(
-                  modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .weight(1f)
-                ) {
-
-                  Text(
-                    text = "Payment Plan ${index.plus(1)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.MiddleEllipsis
-                  )
-
-                  Text(
-                    text = paymentPlan.name,
-                    style = MaterialTheme.typography.titleMedium
-                  )
-
-                }
-
-                Box(
-                  modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .background(MaterialTheme.colorScheme.secondary.copy(.1f))
-                    .fillMaxHeight(.05f)
-                    .width(1.dp)
-                )
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text(
-                    text = paymentPlan.fee.toAmount(),
-                    color = MaterialTheme.colorScheme.primary
-                  )
-
-                  Text(
-                    text = paymentPlan.period.name,
-                    style = MaterialTheme.typography.bodySmall
-                  )
-                }
-
-
-              }
-
-            }
-          }
-
-
-          item { Spacer(modifier = Modifier.height(48.dp)) }
-
-          item {
+        bottomBar = {
+          BottomAppBar {
             Row(
               modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -226,21 +126,96 @@ fun CompanyClientPlanScreen(
                     }
                   }
                 }) {
-                Box {
-                  Text(text = "Change Payment Plan")
-                }
+                Box { Text(text = "Change Payment Plan") }
               }
 
               Spacer(modifier = Modifier.width(8.dp))
 
-              OutlinedButton(
-                onClick = { onEvent(CompanyClientPlanEvent.Goto.BackHandler) }) {
-                Box {
-                  Text(text = "Cancel")
+              OutlinedButton(onClick = { onEvent(CompanyClientPlanEvent.Goto.BackHandler) }) {
+                Box { Text(text = "Cancel") }
+              }
+            }
+          }
+        }
+      ) {
+
+        LazyColumn(
+          contentPadding = it,
+          modifier = Modifier.padding(16.dp)
+        ) {
+          item {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+              Text(
+                text = "Choose a plan",
+                style = MaterialTheme.typography.headlineSmall,
+              )
+              Spacer(modifier = Modifier.height(4.dp))
+              Text(
+                text = "Select a billing plan for this client account.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+              )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+          }
+
+
+          item {
+            AccountInfoView(state.account, state.demographic) { event ->
+              when (event) {
+                is AccountInfoEvent.Location ->
+                  onEvent(CompanyClientPlanEvent.Goto.Location(event.id))
+
+                is AccountInfoEvent.Phone ->
+                  onEvent(CompanyClientPlanEvent.Button.Phone(event.contact))
+              }
+            }
+          }
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
+          item {
+            ElevatedCard(
+              modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+              shape = MaterialTheme.shapes.large
+            ) {
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(text = "Current plan", style = MaterialTheme.typography.labelLarge)
+                  Text(text = state.plan.name, style = MaterialTheme.typography.titleMedium)
+                }
+                Box(
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .background(MaterialTheme.colorScheme.secondary.copy(.12f))
+                    .fillMaxHeight(.16f)
+                    .width(1.dp)
+                )
+                Column(horizontalAlignment = Alignment.End) {
+                  Text(
+                    text = state.plan.fee.toAmount(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                  )
+                  Text(text = state.plan.period.name, style = MaterialTheme.typography.bodySmall)
                 }
               }
-
             }
+          }
+
+          item { Spacer(modifier = Modifier.height(12.dp)) }
+
+          itemsIndexed(state.paymentPlans) { index, paymentPlan ->
+            CompanyClientPlanItem(
+              plan = paymentPlan,
+              onClick = { onEvent(CompanyClientPlanEvent.Button.ChangePlan(it)) }
+            )
           }
 
         }
