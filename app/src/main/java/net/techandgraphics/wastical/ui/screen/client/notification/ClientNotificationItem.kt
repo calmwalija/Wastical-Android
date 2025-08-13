@@ -103,7 +103,7 @@ fun ClientNotificationItem(
         style = MaterialTheme.typography.bodyMedium
       )
       Text(
-        text = notification.bigText,
+        text = notification.title,
         style = MaterialTheme.typography.bodySmall,
         color = Muted
       )
