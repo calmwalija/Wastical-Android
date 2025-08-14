@@ -24,8 +24,6 @@ import net.techandgraphics.wastical.data.remote.account.AccountRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
-import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentDateTime
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import java.io.File
 import java.security.SecureRandom
@@ -82,22 +80,6 @@ fun getToday(): Today {
       get(Calendar.DAY_OF_MONTH),
       get(Calendar.MONTH).plus(1),
       get(Calendar.YEAR),
-    )
-  }
-}
-
-fun groupPaymentsByDate(
-  payments: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
-): Map<PaymentDateTime, List<PaymentWithAccountAndMethodWithGatewayUiModel>> {
-  val intermediateMap = payments
-    .sortedByDescending { it.payment.createdAt }
-    .groupBy { payment ->
-      payment.payment.createdAt.toZonedDateTime().toLocalDate()
-    }
-  return intermediateMap.mapKeys { (date, payments) ->
-    PaymentDateTime(
-      date = date,
-      time = payments.first().payment.createdAt,
     )
   }
 }

@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.data.local.database.payment.pay
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
@@ -71,6 +72,9 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
   """,
   )
   fun qPaymentWithAccountAndMethodWithGateway(status: String = Approved.name): Flow<List<PaymentWithAccountAndMethodWithGatewayQuery>>
+
+  @Query("SELECT created_at FROM payment ORDER BY created_at DESC")
+  suspend fun qAsCreatedAt(): List<Long>
 
   @Query(
     """
@@ -161,6 +165,86 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
     query: String = "",
   ): Flow<List<Payment4CurrentLocationMonth>>
 
+  @androidx.paging.ExperimentalPagingApi
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE (account.firstname LIKE '%' || :query || '%'
+        OR account.username LIKE '%' || :query || '%'
+        OR account.title LIKE '%' || :query || '%'
+        OR gateway.name LIKE '%' || :query || '%'
+        OR plans.fee LIKE '%' || :query || '%'
+        OR account.lastname LIKE '%' || :query || '%')
+      AND account.status = 'Active'
+    ORDER BY payment.created_at DESC
+  """,
+  )
+  fun pagingAllPaymentWithAccountAndMethodWithGateway(
+    query: String,
+  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
+
+  @androidx.paging.ExperimentalPagingApi
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE (account.firstname LIKE '%' || :query || '%'
+        OR account.username LIKE '%' || :query || '%'
+        OR account.title LIKE '%' || :query || '%'
+        OR gateway.name LIKE '%' || :query || '%'
+        OR plans.fee LIKE '%' || :query || '%'
+        OR account.lastname LIKE '%' || :query || '%')
+      AND payment.payment_status = :status AND account.status = 'Active'
+    ORDER BY payment.created_at DESC
+  """,
+  )
+  fun pagingApprovedPaymentWithAccountAndMethodWithGateway(
+    query: String,
+    status: String = Approved.name,
+  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
+
+  @androidx.paging.ExperimentalPagingApi
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE (account.firstname LIKE '%' || :query || '%'
+        OR account.username LIKE '%' || :query || '%'
+        OR account.title LIKE '%' || :query || '%'
+        OR gateway.name LIKE '%' || :query || '%'
+        OR plans.fee LIKE '%' || :query || '%'
+        OR account.lastname LIKE '%' || :query || '%')
+      AND payment.payment_status != :status AND account.status = 'Active'
+    ORDER BY payment.created_at DESC
+  """,
+  )
+  fun pagingNonApprovedPaymentWithAccountAndMethodWithGateway(
+    query: String,
+    status: String = Approved.name,
+  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
+
+  @androidx.paging.ExperimentalPagingApi
+  @Query(
+    """
+    $PAYMENT_QUERY_BASE
+    WHERE (account.firstname LIKE '%' || :query || '%'
+        OR account.username LIKE '%' || :query || '%'
+        OR account.title LIKE '%' || :query || '%'
+        OR gateway.name LIKE '%' || :query || '%'
+        OR plans.fee LIKE '%' || :query || '%'
+        OR account.lastname LIKE '%' || :query || '%')
+      AND (:fromTs IS NULL OR payment.created_at >= :fromTs)
+      AND (:toTs IS NULL OR payment.created_at <= :toTs)
+      AND account.status = 'Active'
+    ORDER BY CASE WHEN :sortDesc THEN payment.created_at END DESC,
+             CASE WHEN :sortDesc = 0 THEN payment.created_at END ASC
+  """,
+  )
+  fun pagingAllWithFilters(
+    query: String = "",
+    fromTs: Long?,
+    toTs: Long?,
+    sortDesc: Boolean = true,
+  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
+
   @Query(
     """
     SELECT
@@ -195,4 +279,20 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
 
   @Query("SELECT * FROM payment GROUP BY payment_status")
   fun qPaymentStatus(): Flow<List<PaymentEntity>>
+
+  @Query("SELECT COUNT(*) FROM payment WHERE payment_status = :status")
+  fun countByStatus(status: String): Flow<Int>
+
+  @Query("SELECT COUNT(*) FROM payment WHERE payment_status != :status")
+  fun countNotStatus(status: String): Flow<Int>
+
+  @Query(
+    """
+    SELECT COALESCE(SUM(plans.fee), 0) FROM payment AS payment
+    JOIN payment_method AS method ON method.id = payment.payment_method_id
+    JOIN payment_plan AS plans ON plans.id = method.payment_plan_id
+    WHERE payment.payment_status = :status AND payment.created_at >= :since
+    """,
+  )
+  fun sumFeeSince(status: String, since: Long): Flow<Long>
 }

@@ -2,29 +2,36 @@
 
 package net.techandgraphics.wastical.ui.screen.company.location.overview
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
-import net.techandgraphics.wastical.ui.screen.company.CompanyRoute.ClientProfile
-import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentTimelineEvent
-import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentTimelineScreen
-import net.techandgraphics.wastical.ui.screen.company.payment.timeline.PaymentTimelineViewModel
 
 fun NavGraphBuilder.CompanyPaymentLocationOverviewNav(navController: NavHostController) {
-  composable<CompanyRoute.PaymentTimeline> {
-    with(hiltViewModel<PaymentTimelineViewModel>()) {
+  composable<CompanyRoute.LocationOverview> {
+    with(hiltViewModel<CompanyPaymentLocationOverviewViewModel>()) {
+      val id = it.toRoute<CompanyRoute.LocationOverview>().id
       val state = state.collectAsState().value
-      PaymentTimelineScreen(state) { event ->
+      LaunchedEffect(id) { onEvent(CompanyPaymentLocationOverviewEvent.Load(id)) }
+      CompanyPaymentLocationOverviewScreen(state) { event ->
         when (event) {
-          PaymentTimelineEvent.Goto.BackHandler -> navController.navigateUp()
-          PaymentTimelineEvent.Load -> Unit
-          is PaymentTimelineEvent.Goto.Profile ->
-            navController.navigate(ClientProfile(event.id))
+          CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
 
-          is PaymentTimelineEvent.Button.Filter -> onEvent(event)
+          is CompanyPaymentLocationOverviewEvent.Button.ClientCreate ->
+            navController.navigate(CompanyRoute.ClientCreate(event.locationId))
+
+          is CompanyPaymentLocationOverviewEvent.Goto.Profile ->
+            navController.navigate(CompanyRoute.ClientProfile(event.id))
+
+          is CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment ->
+            navController.navigate(CompanyRoute.MakePayment(event.id))
+
+          is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
+          else -> Unit
         }
       }
     }

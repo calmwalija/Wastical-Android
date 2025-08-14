@@ -30,9 +30,16 @@ fun ZonedDateTime.withPatten(pattern: String = Pattern.DATE_MMM_YYYY): String {
   return this.format(formatter)
 }
 
-fun defaultDateTimeMediumFormatter() = DateTimeFormatter
-  .ofLocalizedDate(FormatStyle.MEDIUM)
-  .withLocale(Locale.getDefault())
+fun Long.toPattern(patten: String = Pattern.DATE_EEE_MMM_D): String {
+  val date = Instant.ofEpochSecond(this).atZone(ZoneId.systemDefault()).toLocalDate()
+  val today = LocalDate.now()
+  val formatter = DateTimeFormatter.ofPattern(patten)
+  return when (date) {
+    today -> "Today"
+    today.minusDays(1) -> "Yesterday"
+    else -> formatter.format(date)
+  }
+}
 
 fun String.toZonedDateTime(locale: Locale = Locale.getDefault()): ZonedDateTime {
   val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
