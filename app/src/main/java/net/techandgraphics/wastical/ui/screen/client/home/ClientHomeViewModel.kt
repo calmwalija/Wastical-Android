@@ -4,6 +4,7 @@ import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
@@ -51,6 +53,7 @@ import javax.inject.Inject
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
   private val workManager: WorkManager,
+  private val accountSession: AccountSessionRepository,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<ClientHomeState>(ClientHomeState.Loading)
@@ -183,6 +186,21 @@ import javax.inject.Inject
           }
         }
     }
+  }
+
+  private fun onRefetchInfo() = viewModelScope.launch {
+    val account = authenticatorHelper.getAccount(accountManager) ?: return@launch
+    runCatching { accountSession.fetch(account.id) }.onSuccess { data ->
+      try {
+        database.withTransaction {
+          database.clearAllTables()
+          accountSession.purseData(data) { _, _ -> }
+        }
+        _channel.send(ClientHomeChannel.Fetch.Success)
+      } catch (e: Exception) {
+        e.printStackTrace()
+      }
+    }.onFailure { it.printStackTrace() }
   }
 
   private fun onPaymentShare(event: ClientHomeEvent.Button.Payment.Share) {

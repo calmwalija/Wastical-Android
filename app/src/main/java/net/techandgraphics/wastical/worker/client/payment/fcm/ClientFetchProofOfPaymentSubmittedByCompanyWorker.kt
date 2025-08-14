@@ -23,17 +23,11 @@ import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
-import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.getAccount
-import net.techandgraphics.wastical.getTimeOfDay
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
-import net.techandgraphics.wastical.theAmount
-import net.techandgraphics.wastical.toAmount
-import net.techandgraphics.wastical.toFullName
-import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.worker.client.payment.GOTO_NOTIFICATION
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -74,26 +68,7 @@ import java.util.concurrent.TimeUnit
 
           newValue.notifications?.map { notificationResponse ->
             notificationResponse.toNotificationEntity()
-          }?.forEach { notification ->
-            val payment = database.paymentDao.get(notification.paymentId!!)
-            val method = database.paymentMethodDao.get(payment.paymentMethodId)
-            val theAmount = database.theAmount(payment).toAmount()
-            val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
-            val theBody =
-              "Proof of payment of $theAmount has been submitted on your behalf by the company."
-            val bigText =
-              "Greetings ${account.toFullName()}, a new proof of payment of $theAmount " +
-                "using ${gateway.name} " +
-                "on ${payment.updatedAt.toZonedDateTime().defaultDateTime()} " +
-                "has been submitted and ${payment.status}. " +
-                "Have a good ${getTimeOfDay()}"
-
-            val newNotification = notification.copy(title = bigText, body = theBody)
-
-            if (database.notificationDao.get(newNotification.id) == null) {
-              database.notificationDao.upsert(newNotification)
-            }
-          }
+          }?.also { database.notificationDao.upsert(it) }
         }
         showNotification()
       } ?: throw IllegalStateException()
@@ -109,7 +84,7 @@ import java.util.concurrent.TimeUnit
           type = theType,
           title = theType.description,
           body = notification.body,
-          style = NotificationCompat.BigTextStyle().bigText(notification.title),
+          style = NotificationCompat.BigTextStyle().bigText(notification.body),
           contentIntent = pendingIntent(context, GOTO_NOTIFICATION),
         )
         database.notificationDao.upsert(
