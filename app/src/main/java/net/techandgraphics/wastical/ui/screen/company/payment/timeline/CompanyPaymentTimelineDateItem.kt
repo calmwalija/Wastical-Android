@@ -15,26 +15,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.defaultDate
-import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
-import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.ZonedDateTime
 
 
 @Composable
-fun PaymentTimelineDateItem(
-  item: Pair<PaymentDateTime, List<PaymentWithAccountAndMethodWithGatewayUiModel>>,
+fun CompanyPaymentTimelineDateItem(
+  item: PaymentDateTime,
   filters: Set<PaymentDateTime>,
-  onEvent: (PaymentTimelineEvent) -> Unit,
+  onEvent: (CompanyPaymentTimelineEvent) -> Unit,
 ) {
   OutlinedCard(
     modifier = Modifier.padding(8.dp),
-    onClick = { onEvent(PaymentTimelineEvent.Button.Filter(item.first)) },
+    onClick = { onEvent(CompanyPaymentTimelineEvent.Button.DateTime(item)) },
     border = BorderStroke(
       CardDefaults.outlinedCardBorder().width,
-      if (filters.contains(item.first).not())
+      if (filters.contains(item).not())
         CardDefaults.cardColors().containerColor else MaterialTheme.colorScheme.primary
     )
   ) {
@@ -43,11 +40,11 @@ fun PaymentTimelineDateItem(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Text(
-        text = item.second.size.toString(),
+        text = item.time.size.toString(),
         style = MaterialTheme.typography.titleLarge
       )
       Text(
-        text = item.first.date.atStartOfDay(ZoneId.systemDefault()).defaultDate(),
+        text = item.date.atStartOfDay(ZoneId.systemDefault()).defaultDate(),
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
       )
@@ -57,14 +54,10 @@ fun PaymentTimelineDateItem(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PaymentTimelineDateItemPreview() {
+private fun CompanyPaymentTimelineDateItemPreview() {
   WasticalTheme {
-    val zonedDateTime = ZonedDateTime.now()
-    PaymentTimelineDateItem(
-      item = Pair(
-        PaymentDateTime(LocalDate.now(), zonedDateTime.toEpochSecond()),
-        (1..3).map { paymentWithAccountAndMethodWithGateway4Preview }
-      ),
+    CompanyPaymentTimelineDateItem(
+      item = PaymentDateTime(LocalDate.now(), listOf(2, 3, 4)),
       filters = setOf(),
       onEvent = {}
     )

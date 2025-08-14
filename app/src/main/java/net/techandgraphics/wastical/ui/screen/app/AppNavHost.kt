@@ -41,7 +41,7 @@ fun AppNavHost(
 ) {
   NavHost(
     navController = navController,
-    startDestination = Route.Load(false)
+    startDestination = CompanyRoute.PaymentTimeline
   ) {
 
     composable<Route.Load> {

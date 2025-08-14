@@ -47,10 +47,10 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
 @Composable
-fun PaymentTimelineItem(
+fun CompanyPaymentTimelineItem(
   modifier: Modifier = Modifier,
   item: PaymentWithAccountAndMethodWithGatewayUiModel,
-  onEvent: (PaymentTimelineEvent) -> Unit,
+  onEvent: (CompanyPaymentTimelineEvent) -> Unit,
 ) {
 
   val account = item.account
@@ -90,7 +90,7 @@ fun PaymentTimelineItem(
     Row(
       modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
-        .clickable { onEvent(PaymentTimelineEvent.Goto.Profile(account.id)) }
+        .clickable { onEvent(CompanyPaymentTimelineEvent.GotoInvoice(payment.id)) }
         .padding(start = 16.dp)
         .onGloballyPositioned { layoutCoordinates ->
           contentHeight = layoutCoordinates.size.height
@@ -145,9 +145,9 @@ fun PaymentTimelineItem(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PaymentTimelineItemPreview() {
+private fun CompanyPaymentTimelineItemPreview() {
   WasticalTheme {
-    PaymentTimelineItem(
+    CompanyPaymentTimelineItem(
       item = paymentWithAccountAndMethodWithGateway4Preview,
       onEvent = {}
     )
