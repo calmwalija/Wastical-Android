@@ -34,6 +34,7 @@ import net.techandgraphics.wastical.domain.model.NotificationUiModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.notification4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable
@@ -113,12 +114,13 @@ fun CompanyNotificationItem(
 
 @Composable
 private fun colorForType(type: NotificationType): Color = when (type) {
-  NotificationType.PROOF_OF_PAYMENT_APPROVED -> MaterialTheme.colorScheme.primary
+  NotificationType.PROOF_OF_PAYMENT_APPROVED -> Green
+  NotificationType.PROOF_OF_PAYMENT_SUCCESSFUL_BY_COMPANY -> Green
   NotificationType.PROOF_OF_PAYMENT_DECLINED -> MaterialTheme.colorScheme.error
   NotificationType.PROOF_OF_PAYMENT_SUBMITTED -> MaterialTheme.colorScheme.secondary
   NotificationType.PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY -> MaterialTheme.colorScheme.primary
-  NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY -> MaterialTheme.colorScheme.primary
-  else -> MaterialTheme.colorScheme.primary
+  NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY -> MaterialTheme.colorScheme.onSurfaceVariant
+  else -> MaterialTheme.colorScheme.secondary
 }
 
 private fun iconForType(type: NotificationType) = when (type) {

@@ -9,7 +9,7 @@ enum class NotificationType(val id: String, val description: String) {
 
   PROOF_OF_PAYMENT_RECEIVED(
     id = "1f0ea987-171d-493d-8fe0-873772d6bf66",
-    description = "Company received proof of payment",
+    description = "Received Proof Of Payment",
   ),
 
   PROOF_OF_PAYMENT_APPROVED(

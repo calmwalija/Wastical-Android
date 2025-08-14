@@ -1,11 +1,11 @@
 package net.techandgraphics.wastical.ui.screen.client.notification
 
-import android.content.res.Configuration
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,31 +13,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.model.NotificationUiModel
+import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.toZonedDateTime
-import net.techandgraphics.wastical.ui.theme.Muted
+import net.techandgraphics.wastical.ui.screen.notification4Preview
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 
@@ -47,81 +44,96 @@ fun ClientNotificationItem(
   notification: NotificationUiModel,
 ) {
 
-  var contentHeight by remember { mutableIntStateOf(0) }
-
-  Row(
-    modifier = modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.spacedBy(16.dp),
-    verticalAlignment = Alignment.CenterVertically
+  ElevatedCard(
+    modifier = modifier
+      .padding(vertical = 8.dp)
+      .fillMaxWidth(),
   ) {
-    Box(
+    Row(
       modifier = Modifier
-        .height(with(LocalDensity.current) { contentHeight.toDp() })
-        .width(38.dp),
-      contentAlignment = Alignment.Center
+        .fillMaxWidth()
+        .height(IntrinsicSize.Min)
+        .padding(12.dp),
+      horizontalArrangement = Arrangement.spacedBy(12.dp),
+      verticalAlignment = Alignment.CenterVertically
     ) {
-
       Box(
         modifier = Modifier
-          .width(2.dp)
+          .width(5.dp)
           .fillMaxHeight()
-          .background(Color.Gray)
+          .clip(RoundedCornerShape(12.dp))
+          .background(colorForType(notification.type))
       )
 
-      Icon(
-        imageVector = Icons.Outlined.Notifications,
-        contentDescription = null,
-        modifier = Modifier
-          .size(38.dp)
-          .clip(CircleShape)
-          .background(MaterialTheme.colorScheme.primary)
-          .border(2.dp, Color.White, CircleShape)
-          .padding(8.dp),
-        tint = Color.White
-      )
+      Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Box(
+            modifier = Modifier
+              .size(28.dp)
+              .clip(RoundedCornerShape(8.dp))
+              .background(colorForType(notification.type).copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(
+              imageVector = iconForType(notification.type),
+              contentDescription = null,
+              tint = colorForType(notification.type),
+            )
+          }
+          Text(
+            text = notification.type.description,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 8.dp)
+          )
 
-    }
-
-    Column(
-      modifier = Modifier
-        .clip(RoundedCornerShape(16.dp))
-        .onGloballyPositioned { layoutCoordinates ->
-          contentHeight = layoutCoordinates.size.height
         }
-        .padding(vertical = 8.dp)
-        .weight(1f),
-      verticalArrangement = Arrangement.Center
-    ) {
-      Text(
-        text = notification.type.description,
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-      )
-      Text(
-        notification.body,
-        style = MaterialTheme.typography.bodyMedium
-      )
-      Text(
-        text = notification.title,
-        style = MaterialTheme.typography.bodySmall,
-        color = Muted
-      )
-      Text(
-        text = notification.createdAt.toZonedDateTime().defaultDateTime(),
-        style = MaterialTheme.typography.labelLarge,
-      )
-    }
 
+        Text(
+          text = notification.body,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Text(
+          text = notification.createdAt.toZonedDateTime().defaultDateTime(),
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+      }
+    }
   }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun colorForType(type: NotificationType): Color = when (type) {
+  NotificationType.PROOF_OF_PAYMENT_APPROVED -> Green
+  NotificationType.PROOF_OF_PAYMENT_DECLINED -> MaterialTheme.colorScheme.error
+  NotificationType.PROOF_OF_PAYMENT_SUBMITTED -> MaterialTheme.colorScheme.secondary
+  NotificationType.PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY -> MaterialTheme.colorScheme.primary
+  NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY -> MaterialTheme.colorScheme.onSurfaceVariant
+  else -> MaterialTheme.colorScheme.secondary
+}
+
+private fun iconForType(type: NotificationType) = when (type) {
+  NotificationType.PROOF_OF_PAYMENT_APPROVED -> Icons.Outlined.CheckCircle
+  NotificationType.PROOF_OF_PAYMENT_DECLINED -> Icons.Outlined.Close
+  else -> Icons.Outlined.Notifications
+}
+
+@Preview(showBackground = true)
 @Composable
 private fun ClientNotificationItemPreview() {
   WasticalTheme {
-    ClientNotificationItem(
-      notification = notificationStateSuccess().notifications.first()
-    )
+    Box(modifier = Modifier.padding(24.dp)) {
+      ClientNotificationItem(
+        notification = notification4Preview
+      )
+    }
   }
 }
