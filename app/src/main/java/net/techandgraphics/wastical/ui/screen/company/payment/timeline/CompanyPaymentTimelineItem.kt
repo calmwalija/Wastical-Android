@@ -90,7 +90,7 @@ fun CompanyPaymentTimelineItem(
     Row(
       modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
-        .clickable { onEvent(CompanyPaymentTimelineEvent.GotoInvoice(payment.id)) }
+        .clickable { onEvent(CompanyPaymentTimelineEvent.GotoInvoice(account.id)) }
         .padding(start = 16.dp)
         .onGloballyPositioned { layoutCoordinates ->
           contentHeight = layoutCoordinates.size.height
