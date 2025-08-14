@@ -151,7 +151,10 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
           item { Spacer(Modifier.height(16.dp)) }
 
-          items(pagingItems.itemCount) { index ->
+          items(
+            count = pagingItems.itemCount,
+            key = { index -> pagingItems.peek(index)?.payment?.id ?: index }
+          ) { index ->
 
             val model = pagingItems[index] ?: return@items
             val label = model.payment.createdAt.toZonedDateTime().defaultDate()
