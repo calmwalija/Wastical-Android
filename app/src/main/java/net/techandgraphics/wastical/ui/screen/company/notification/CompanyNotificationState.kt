@@ -8,5 +8,7 @@ sealed interface CompanyNotificationState {
   data class Success(
     val company: CompanyUiModel,
     val notifications: List<NotificationUiModel>,
+    val query: String = "",
+    val sortDesc: Boolean = true,
   ) : CompanyNotificationState
 }

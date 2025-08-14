@@ -14,9 +14,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,11 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.domain.model.NotificationUiModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.notification4Preview
@@ -79,21 +89,77 @@ fun CompanyNotificationScreen(
         modifier = Modifier.padding(16.dp)
       ) {
 
+
         item {
-          Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(
-              text = "Notifications",
-              style = MaterialTheme.typography.headlineSmall,
-            )
+          Text(
+            text = "Notifications",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 32.dp)
+          )
+        }
 
-            KpiHeader(notifications = state.notifications)
+        item {
+          SearchInputItemView(
+            query = state.query,
+            trailingView = {
+              var showSortBy by remember { mutableStateOf(false) }
 
-            FilterChipsRow(selected = selectedFilter, onSelect = { selectedFilter = it })
+              Row {
+                IconButton(
+                  onClick = { showSortBy = true },
+                  colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
+                  ),
+                ) {
+                  Icon(
+                    painter = painterResource(id = R.drawable.ic_sort),
+                    contentDescription = null,
+                  )
+                  DropdownMenu(
+                    expanded = showSortBy,
+                    onDismissRequest = { showSortBy = false }) {
+                    DropdownMenuItem(
+                      text = { Text("Newest") },
+                      enabled = !state.sortDesc,
+                      trailingIcon = {
+                        if (state.sortDesc)
+                          Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                          )
+                      },
+                      onClick = {
+                        showSortBy = false
+                      })
 
-            Trend7Days(notifications = state.notifications)
+                    DropdownMenuItem(
+                      text = { Text("Oldest") },
+                      trailingIcon = {
+                        if (!state.sortDesc)
+                          Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                          )
+                      },
+                      enabled = state.sortDesc,
+                      onClick = {
+                        showSortBy = false
+                      })
+                  }
+                }
+              }
 
-            Divider(modifier = Modifier.padding(top = 8.dp))
-          }
+            },
+            onEvent = { event ->
+              when (event) {
+                is SearchInputItemViewEvent.InputSearch -> {
+
+                }
+              }
+            }
+          )
         }
 
         grouped.forEach { (section, itemsInSection) ->
