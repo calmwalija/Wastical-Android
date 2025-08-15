@@ -93,7 +93,9 @@ fun SearchInputItemView(
         decorationBox = { innerTextField ->
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            modifier = Modifier
+              .padding(start = 16.dp, end = 4.dp)
+              .padding(vertical = 4.dp)
           ) {
             Box(modifier = Modifier.size(24.dp)) {
               if (showLoading) LoadingIndicator(modifier = Modifier.scale(1.4f)) else {
