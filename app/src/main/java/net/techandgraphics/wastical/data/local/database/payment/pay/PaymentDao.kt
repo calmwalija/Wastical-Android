@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.BaseDao
 import net.techandgraphics.wastical.data.local.database.TimestampedDao
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
@@ -165,7 +166,6 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
     query: String = "",
   ): Flow<List<Payment4CurrentLocationMonth>>
 
-  @androidx.paging.ExperimentalPagingApi
   @Query(
     """
     $PAYMENT_QUERY_BASE
@@ -175,74 +175,15 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
         OR gateway.name LIKE '%' || :query || '%'
         OR plans.fee LIKE '%' || :query || '%'
         OR account.lastname LIKE '%' || :query || '%')
-      AND account.status = 'Active'
-    ORDER BY payment.created_at DESC
+      AND account.status = :status
+    ORDER BY CASE WHEN :sort THEN payment.created_at END DESC,
+             CASE WHEN :sort = 0 THEN payment.created_at END ASC
   """,
   )
-  fun pagingAllPaymentWithAccountAndMethodWithGateway(
-    query: String,
-  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
-
-  @androidx.paging.ExperimentalPagingApi
-  @Query(
-    """
-    $PAYMENT_QUERY_BASE
-    WHERE (account.firstname LIKE '%' || :query || '%'
-        OR account.username LIKE '%' || :query || '%'
-        OR account.title LIKE '%' || :query || '%'
-        OR gateway.name LIKE '%' || :query || '%'
-        OR plans.fee LIKE '%' || :query || '%'
-        OR account.lastname LIKE '%' || :query || '%')
-      AND payment.payment_status = :status AND account.status = 'Active'
-    ORDER BY payment.created_at DESC
-  """,
-  )
-  fun pagingApprovedPaymentWithAccountAndMethodWithGateway(
-    query: String,
-    status: String = Approved.name,
-  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
-
-  @androidx.paging.ExperimentalPagingApi
-  @Query(
-    """
-    $PAYMENT_QUERY_BASE
-    WHERE (account.firstname LIKE '%' || :query || '%'
-        OR account.username LIKE '%' || :query || '%'
-        OR account.title LIKE '%' || :query || '%'
-        OR gateway.name LIKE '%' || :query || '%'
-        OR plans.fee LIKE '%' || :query || '%'
-        OR account.lastname LIKE '%' || :query || '%')
-      AND payment.payment_status != :status AND account.status = 'Active'
-    ORDER BY payment.created_at DESC
-  """,
-  )
-  fun pagingNonApprovedPaymentWithAccountAndMethodWithGateway(
-    query: String,
-    status: String = Approved.name,
-  ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
-
-  @androidx.paging.ExperimentalPagingApi
-  @Query(
-    """
-    $PAYMENT_QUERY_BASE
-    WHERE (account.firstname LIKE '%' || :query || '%'
-        OR account.username LIKE '%' || :query || '%'
-        OR account.title LIKE '%' || :query || '%'
-        OR gateway.name LIKE '%' || :query || '%'
-        OR plans.fee LIKE '%' || :query || '%'
-        OR account.lastname LIKE '%' || :query || '%')
-      AND (:fromTs IS NULL OR payment.created_at >= :fromTs)
-      AND (:toTs IS NULL OR payment.created_at <= :toTs)
-      AND account.status = 'Active'
-    ORDER BY CASE WHEN :sortDesc THEN payment.created_at END DESC,
-             CASE WHEN :sortDesc = 0 THEN payment.created_at END ASC
-  """,
-  )
-  fun pagingAllWithFilters(
+  fun flowOfPaging(
     query: String = "",
-    fromTs: Long?,
-    toTs: Long?,
-    sortDesc: Boolean = true,
+    sort: Boolean = true,
+    status: String = Status.Active.name,
   ): PagingSource<Int, PaymentWithAccountAndMethodWithGatewayQuery>
 
   @Query(
