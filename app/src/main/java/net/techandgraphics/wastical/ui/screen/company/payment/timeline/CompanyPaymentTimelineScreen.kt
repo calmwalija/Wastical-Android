@@ -105,9 +105,9 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                       onDismissRequest = { showSortBy = false }) {
                       DropdownMenuItem(
                         text = { Text("Newest") },
-                        enabled = !state.sortDesc,
+                        enabled = !state.sort,
                         trailingIcon = {
-                          if (state.sortDesc)
+                          if (state.sort)
                             Icon(
                               imageVector = Icons.Rounded.CheckCircle,
                               contentDescription = null,
@@ -116,23 +116,23 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                         },
                         onClick = {
                           showSortBy = false
-                          onEvent(CompanyPaymentTimelineEvent.SortDesc(true))
+                          onEvent(CompanyPaymentTimelineEvent.Button.Sort(true))
                         })
 
                       DropdownMenuItem(
                         text = { Text("Oldest") },
                         trailingIcon = {
-                          if (!state.sortDesc)
+                          if (!state.sort)
                             Icon(
                               imageVector = Icons.Rounded.CheckCircle,
                               contentDescription = null,
                               tint = MaterialTheme.colorScheme.primary
                             )
                         },
-                        enabled = state.sortDesc,
+                        enabled = state.sort,
                         onClick = {
                           showSortBy = false
-                          onEvent(CompanyPaymentTimelineEvent.SortDesc(false))
+                          onEvent(CompanyPaymentTimelineEvent.Button.Sort(false))
                         })
                     }
                   }
@@ -142,7 +142,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
               onEvent = { event ->
                 when (event) {
                   is SearchInputItemViewEvent.InputSearch -> {
-                    onEvent(CompanyPaymentTimelineEvent.InputQuery(event.query))
+                    onEvent(CompanyPaymentTimelineEvent.Input.Query(event.query))
                   }
                 }
               }
