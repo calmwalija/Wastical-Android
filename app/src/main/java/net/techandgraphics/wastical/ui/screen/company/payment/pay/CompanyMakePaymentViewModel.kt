@@ -27,8 +27,8 @@ import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.image2Text
-import net.techandgraphics.wastical.paymentReference
 import net.techandgraphics.wastical.toBitmap
 import net.techandgraphics.wastical.toSoftwareBitmap
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
@@ -94,7 +94,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
           executedById = executedBy.id,
           status = PaymentStatus.Approved,
           httpOperation = HttpOperation.Post.name,
-          paymentReference = paymentReference(),
+          paymentReference = getReference(),
         ).toPaymentRequestEntity()
         database.paymentRequestDao.upsert(cachedPayment)
         _channel.send(CompanyMakePaymentChannel.Pay.Success)

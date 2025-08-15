@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.domain.model.payment
 
 data class CompanyLocationUiModel(
   val id: Long,
+  val uuid: String,
   val status: String,
   val companyId: Long,
   val demographicStreetId: Long,

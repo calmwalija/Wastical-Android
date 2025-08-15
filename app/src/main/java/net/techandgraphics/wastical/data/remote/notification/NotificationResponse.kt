@@ -1,15 +1,17 @@
-package net.techandgraphics.wastical.data.remote
+package net.techandgraphics.wastical.data.remote.notification
 
 import com.google.gson.annotations.SerializedName
 
 data class NotificationResponse(
   val id: Long,
+  @SerializedName("topic") val topic: String?,
   @SerializedName("uuid") val uuid: String,
   @SerializedName("is_read") val isRead: Boolean,
   @SerializedName("recipient_id") val recipientId: Long?,
   @SerializedName("recipient_role") val recipientRole: String,
   @SerializedName("title") val title: String,
   @SerializedName("body") val body: String,
+  @SerializedName("reference") val reference: String,
   @SerializedName("notification_type") val type: String,
   @SerializedName("metadata") val metadata: String?,
   @SerializedName("delivered_at") val deliveredAt: Long?,

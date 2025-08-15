@@ -11,6 +11,7 @@ sealed interface CompanyClientProfileEvent {
     data object Pending : Option
     data object Location : Option
     data object Info : Option
+    data object Message : Option
     data object Revoke : Option
   }
 

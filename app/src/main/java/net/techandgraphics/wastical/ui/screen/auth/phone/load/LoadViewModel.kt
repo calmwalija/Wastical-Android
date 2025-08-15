@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.worker.SESSION_WORKER_UUID
@@ -66,11 +68,30 @@ class LoadViewModel @Inject constructor(
         .mapNotNull { workInfoList -> workInfoList.firstOrNull() }
         .collect { workInfo ->
           when (workInfo.state) {
-            WorkInfo.State.SUCCEEDED -> _channel.send(LoadChannel.Success)
+            WorkInfo.State.SUCCEEDED -> onSuccess()
             else -> Unit
           }
         }
     }
+  }
+
+  private suspend fun onSuccess() {
+    authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
+        when (AccountRole.valueOf(account.role)) {
+          AccountRole.Client -> runCatching {
+            val companyUuid = database.companyDao.query().first().uuid
+            val locationUui = database.companyLocationDao.query().first().uuid
+            with(FirebaseMessaging.getInstance()) {
+              subscribeToTopic(companyUuid)
+              subscribeToTopic(locationUui)
+              subscribeToTopic(account.uuid)
+            }
+          }.onSuccess { _channel.send(LoadChannel.Success) }
+
+          AccountRole.Company -> _channel.send(LoadChannel.Success)
+        }
+      }
   }
 
   fun onEvent(event: LoadEvent) {

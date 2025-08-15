@@ -52,6 +52,7 @@ import net.techandgraphics.wastical.data.local.database.demographic.street.Demog
 data class CompanyLocationEntity(
   @PrimaryKey val id: Long,
   val status: String,
+  val uuid: String,
   @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("demographic_street_id") val demographicStreetId: Long,
   @ColumnInfo("demographic_area_id") val demographicAreaId: Long,

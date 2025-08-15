@@ -42,6 +42,7 @@ import java.time.DayOfWeek
 fun CompanyEntity.toCompanyResponse() =
   CompanyResponse(
     id = id,
+    uuid = uuid,
     name = name,
     latitude = latitude,
     email = email,
@@ -225,6 +226,7 @@ fun PaymentMonthCoveredEntity.toPaymentMonthCoveredResponse() =
 fun CompanyLocationEntity.toCompanyLocationResponse() =
   CompanyLocationResponse(
     id = id,
+    uuid = uuid,
     status = Status.valueOf(status),
     companyId = companyId,
     demographicStreetId = demographicStreetId,

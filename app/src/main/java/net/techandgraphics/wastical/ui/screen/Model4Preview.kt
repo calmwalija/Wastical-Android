@@ -33,8 +33,8 @@ import net.techandgraphics.wastical.domain.model.relations.PaymentMethodWithGate
 import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
+import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.paymentReference
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import kotlin.random.Random
@@ -106,6 +106,7 @@ internal val paymentGateway4Preview = PaymentGatewayUiModel(
 
 internal val company4Preview = CompanyUiModel(
   id = 1L,
+  uuid = "uuid",
   name = "Tech And Graphics TAG, Inc.",
   email = "example@email.com",
   slogan = "Lorem Ipsum",
@@ -135,7 +136,7 @@ internal val payment4Preview = PaymentUiModel(
   updatedAt = ZonedDateTime.now().toEpochSecond(),
   companyId = account4Preview.companyId,
   executedById = account4Preview.id,
-  paymentReference = paymentReference(),
+  paymentReference = getReference(),
 )
 
 internal val demographicStreet4Preview = DemographicStreetUiModel(
@@ -158,6 +159,7 @@ internal val demographicDistrict4Preview = DemographicDistrictUiModel(
 
 internal val companyLocation4Preview = CompanyLocationUiModel(
   id = 1,
+  uuid = "uuid",
   status = Status.Active.name,
   companyId = 1,
   demographicStreetId = 1,
@@ -245,7 +247,7 @@ internal val paymentRequest4Preview = PaymentRequestUiModel(
   executedById = 1,
   status = PaymentStatus.Waiting.name,
   createdAt = ZonedDateTime.now().toEpochSecond(),
-  paymentReference = paymentReference(),
+  paymentReference = getReference(),
 )
 
 internal val paymentRequestWithAccount4Preview = PaymentRequestWithAccountUiModel(
@@ -296,8 +298,8 @@ internal val accountRequest4Preview = AccountRequestEntity(
 internal val notification4Preview = NotificationUiModel(
   id = 1,
   uuid = "uuid",
-  body = "Too Much Work in a Single Transaction",
-  title = "The UI freezing you're experiencing may be due to heavy operations running on the main thread",
+  title = "Too Much Work in a Single Transaction",
+  body = "The UI freezing you're experiencing may be due to heavy operations running on the main thread",
   isRead = Random.nextBoolean(),
   recipientId = 1,
   recipientRole = AccountRole.Client,

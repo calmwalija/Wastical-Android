@@ -24,8 +24,8 @@ import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
+import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getUCropFile
-import net.techandgraphics.wastical.paymentReference
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
 import javax.inject.Inject
 
@@ -77,7 +77,7 @@ import javax.inject.Inject
           executedById = state.account.id,
           status = PaymentStatus.Waiting,
           httpOperation = HttpOperation.Post.name,
-          paymentReference = paymentReference(),
+          paymentReference = getReference(),
         ).toPaymentRequestEntity()
         database.paymentRequestDao.upsert(cachedPayment)
         val newPayment = database.paymentRequestDao.getLast()

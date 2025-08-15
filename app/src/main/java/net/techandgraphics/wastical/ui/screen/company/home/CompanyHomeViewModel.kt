@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -180,8 +181,19 @@ import javax.inject.Inject
     }
 
   private fun onLogout() = viewModelScope.launch {
-    _channel.send(CompanyHomeChannel.Goto.Login)
-    accountHelper.deleteAccounts()
+    runCatching {
+      val companyUuid = database.companyDao.query().first().uuid
+      val locationUui = database.companyLocationDao.query().first().uuid
+      val accountUuid = accountHelper.getAccount(accountManager)?.uuid ?: ""
+      database.withTransaction { database.clearAllTables() }
+      with(FirebaseMessaging.getInstance()) {
+        unsubscribeFromTopic(companyUuid)
+        unsubscribeFromTopic(locationUui)
+        subscribeToTopic(accountUuid)
+        deleteToken()
+      }
+      accountHelper.deleteAccounts()
+    }.onSuccess { _channel.send(CompanyHomeChannel.Goto.Login) }
   }
 
   private fun onButtonWorkers() = viewModelScope.launch {

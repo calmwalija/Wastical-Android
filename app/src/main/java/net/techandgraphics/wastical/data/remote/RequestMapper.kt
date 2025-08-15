@@ -5,10 +5,12 @@ import net.techandgraphics.wastical.data.local.database.account.plan.AccountPaym
 import net.techandgraphics.wastical.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.wastical.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
+import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
 import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastical.data.remote.account.AccountRequest
 import net.techandgraphics.wastical.data.remote.account.plan.AccountPaymentPlanRequest
 import net.techandgraphics.wastical.data.remote.account.token.AccountFcmTokenRequest
+import net.techandgraphics.wastical.data.remote.notification.NotificationRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
@@ -78,4 +80,24 @@ fun AccountPaymentPlanEntity.toAccountPaymentPlanRequest() =
     paymentPlanId = paymentPlanId,
     updatedAt = updatedAt,
     createdAt = createdAt,
+  )
+
+fun NotificationRequestEntity.toNotificationRequest() =
+  NotificationRequest(
+    title = title,
+    body = body,
+    senderId = senderId,
+    companyId = companyId,
+    topic = topic,
+    reference = reference,
+    type = type,
+    recipientRole = recipientRole,
+    paymentId = paymentId,
+    isRead = isRead,
+    recipientId = recipientId,
+    metadata = metadata,
+    deliveredAt = deliveredAt,
+    uuid = uuid,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
   )

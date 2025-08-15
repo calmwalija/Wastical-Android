@@ -31,6 +31,30 @@ class ClientFcmEvent(
       remoteMessage.data["event"]
         ?.contains(NotificationType.PROOF_OF_PAYMENT_DECLINED.name) == true
       -> context.scheduleClientFetchProofOfPaymentWorker()
+
+      remoteMessage.data["type"]
+        ?.contains(NotificationType.COMPANY_BROADCAST_NOTIFICATION.name) == true
+      -> {
+        println(remoteMessage.data["title"])
+        println(remoteMessage.data["body"])
+        println(remoteMessage.data["type"])
+      }
+
+      remoteMessage.data["type"]
+        ?.contains(NotificationType.ACCOUNT_BASED_NOTIFICATION.name) == true
+      -> {
+        println(remoteMessage.data["title"])
+        println(remoteMessage.data["body"])
+        println(remoteMessage.data["type"])
+      }
+
+      remoteMessage.data["type"]
+        ?.contains(NotificationType.LOCATION_BASED_NOTIFICATION.name) == true
+      -> {
+        println(remoteMessage.data["title"])
+        println(remoteMessage.data["body"])
+        println(remoteMessage.data["type"])
+      }
     }
   }
 }

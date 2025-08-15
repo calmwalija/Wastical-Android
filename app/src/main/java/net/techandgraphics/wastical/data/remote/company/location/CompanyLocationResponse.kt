@@ -5,6 +5,7 @@ import net.techandgraphics.wastical.data.Status
 
 data class CompanyLocationResponse(
   val id: Long,
+  val uuid: String,
   val status: Status,
   @SerializedName("company_id") val companyId: Long,
   @SerializedName("demographic_street_id") val demographicStreetId: Long,

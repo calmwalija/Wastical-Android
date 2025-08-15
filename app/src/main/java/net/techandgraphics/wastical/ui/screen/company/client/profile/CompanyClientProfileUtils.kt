@@ -39,6 +39,11 @@ val actionItems = listOf(
     event = CompanyClientProfileEvent.Option.Payment,
   ),
   ProfileItem(
+    title = "Send a Message",
+    drawableRes = R.drawable.ic_send,
+    event = CompanyClientProfileEvent.Option.Message,
+  ),
+  ProfileItem(
     title = "Payment Plan",
     drawableRes = R.drawable.ic_payments,
     event = CompanyClientProfileEvent.Option.Plan,
