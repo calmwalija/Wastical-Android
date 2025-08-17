@@ -12,6 +12,7 @@ import net.techandgraphics.wastical.data.remote.company.location.CompanyLocation
 import net.techandgraphics.wastical.data.remote.demographic.DemographicAreaResponse
 import net.techandgraphics.wastical.data.remote.demographic.DemographicDistrictResponse
 import net.techandgraphics.wastical.data.remote.demographic.DemographicStreetResponse
+import net.techandgraphics.wastical.data.remote.notification.NotificationResponse
 import net.techandgraphics.wastical.data.remote.payment.collection.PaymentCollectionDayResponse
 import net.techandgraphics.wastical.data.remote.payment.gateway.PaymentGatewayResponse
 import net.techandgraphics.wastical.data.remote.payment.method.PaymentMethodResponse

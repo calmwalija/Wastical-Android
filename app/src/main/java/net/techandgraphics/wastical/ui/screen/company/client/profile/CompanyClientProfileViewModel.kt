@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.client.profile
 
+import android.accounts.AccountManager
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,8 +13,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.Status
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.mapApiError
@@ -23,7 +27,12 @@ import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.toPaymentUiModel
+import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.getReference
+import net.techandgraphics.wastical.notification.NotificationType
+import net.techandgraphics.wastical.ui.screen.notification4Preview
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
+import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -31,6 +40,8 @@ import javax.inject.Inject
 class CompanyClientProfileViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
+  private val accountManager: AccountManager,
+  private val authenticatorHelper: AuthenticatorHelper,
 ) : ViewModel() {
 
   private val _state =
@@ -105,9 +116,30 @@ class CompanyClientProfileViewModel @Inject constructor(
     }
   }
 
+  private fun onOptionMessage() = viewModelScope.launch {
+    if (_state.value is CompanyClientProfileState.Success) {
+      val state = (_state.value as CompanyClientProfileState.Success)
+      val localAccount = authenticatorHelper.getAccount(accountManager)!!
+      val newNotification = NotificationRequestEntity(
+        title = notification4Preview.title,
+        body = notification4Preview.body,
+        senderId = localAccount.id,
+        topic = state.account.uuid,
+        companyId = state.account.companyId,
+        type = NotificationType.ACCOUNT_BASED_NOTIFICATION.name,
+        recipientRole = AccountRole.Client.name,
+        recipientId = state.account.id,
+        reference = getReference(),
+      )
+      database.notificationRequestDao.upsert(newNotification)
+      application.scheduleCompanyNotificationRequestWorker()
+    }
+  }
+
   fun onEvent(event: CompanyClientProfileEvent) {
     when (event) {
       is CompanyClientProfileEvent.Load -> onLoad(event)
+      CompanyClientProfileEvent.Option.Message -> onOptionMessage()
       is CompanyClientProfileEvent.Option.Revoke -> onOptionRevoke()
       else -> Unit
     }

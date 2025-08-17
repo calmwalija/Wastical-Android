@@ -11,6 +11,7 @@ import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastical.data.remote.LastUpdatedApi
 import net.techandgraphics.wastical.data.remote.account.AccountApi
+import net.techandgraphics.wastical.data.remote.notification.NotificationApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentSubmittedByCompanyWorker
@@ -18,6 +19,7 @@ import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOf
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountRequestWorker
+import net.techandgraphics.wastical.worker.company.notification.CompanyNotificationRequestWorker
 import net.techandgraphics.wastical.worker.company.payment.CompanyPaymentRequestWorker
 import net.techandgraphics.wastical.worker.company.payment.CompanyPaymentWorker
 import net.techandgraphics.wastical.worker.company.payment.fcm.CompanyFetchLatestPaymentWorker
@@ -27,6 +29,7 @@ class WorkerFactory @Inject constructor(
   private val appDatabase: AppDatabase,
   private val paymentApi: PaymentApi,
   private val accountApi: AccountApi,
+  private val notificationApi: NotificationApi,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
   private val accountSessionRepository: AccountSessionRepository,
@@ -150,6 +153,14 @@ class WorkerFactory @Inject constructor(
         accountManager = accountManager,
         accountSessionRepository = accountSessionRepository,
         preferences = preferences,
+      )
+
+    CompanyNotificationRequestWorker::class.java.name ->
+      CompanyNotificationRequestWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        notificationApi = notificationApi,
       )
 
     else -> null

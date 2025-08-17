@@ -113,6 +113,7 @@ fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
 
 fun CompanyEntity.toCompanyUiModel() = CompanyUiModel(
   id = id,
+  uuid = uuid,
   name = name,
   email = email,
   address = address,
@@ -224,6 +225,7 @@ fun AccountWithPaymentStatusEntity.toAccountWithPaymentStatusUiModel() =
 
 fun CompanyLocationEntity.toCompanyLocationUiModel() = CompanyLocationUiModel(
   id = id,
+  uuid = uuid,
   status = status,
   companyId = companyId,
   demographicStreetId = demographicStreetId,

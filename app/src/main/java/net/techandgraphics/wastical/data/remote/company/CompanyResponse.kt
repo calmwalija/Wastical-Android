@@ -5,6 +5,7 @@ import net.techandgraphics.wastical.data.Status
 
 data class CompanyResponse(
   val id: Long,
+  val uuid: String,
   val name: String,
   val latitude: Float,
   val email: String,

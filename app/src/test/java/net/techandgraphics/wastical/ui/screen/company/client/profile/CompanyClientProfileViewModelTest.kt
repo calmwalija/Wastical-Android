@@ -24,7 +24,12 @@ class CompanyClientProfileViewModelTest : BaseUnitTest() {
 
   @Test
   fun `test if initial state is Loading`() = runTest {
-    val viewModel = CompanyClientProfileViewModel(mockDatabase, mockApplication)
+    val viewModel = CompanyClientProfileViewModel(
+      mockDatabase,
+      mockApplication,
+      accountManager,
+      authenticatorHelper,
+    )
     viewModel.state.test {
       assert(awaitItem() is CompanyClientProfileState.Loading)
       cancelAndIgnoreRemainingEvents()
@@ -33,7 +38,12 @@ class CompanyClientProfileViewModelTest : BaseUnitTest() {
 
   @Test
   fun `test if onLoad sets all the fields as expected`() = runTest {
-    val viewModel = CompanyClientProfileViewModel(mockDatabase, mockApplication)
+    val viewModel = CompanyClientProfileViewModel(
+      mockDatabase,
+      mockApplication,
+      accountManager,
+      authenticatorHelper,
+    )
     viewModel.onEvent(CompanyClientProfileEvent.Load(1))
     coEvery { mockDatabase.companyDao.query() } returns listOf(company4Preview.toCompanyEntity())
     coEvery { mockDatabase.accountDao.get(1) } returns account4Preview.toAccountEntity()

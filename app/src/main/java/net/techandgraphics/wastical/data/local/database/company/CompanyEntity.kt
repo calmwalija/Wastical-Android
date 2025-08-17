@@ -12,6 +12,7 @@ data class CompanyEntity(
   val email: String,
   val address: String,
   val slogan: String,
+  val uuid: String,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
   val status: Status = Status.Active,

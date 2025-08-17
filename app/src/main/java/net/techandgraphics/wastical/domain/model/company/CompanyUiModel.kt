@@ -5,6 +5,7 @@ import net.techandgraphics.wastical.data.Status
 data class CompanyUiModel(
   val id: Long,
   val name: String,
+  val uuid: String,
   val email: String,
   val address: String,
   val slogan: String,

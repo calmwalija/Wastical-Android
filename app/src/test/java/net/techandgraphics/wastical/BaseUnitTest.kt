@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical
 
+import android.accounts.AccountManager
 import android.app.Application
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -8,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import org.junit.Before
@@ -24,6 +26,12 @@ abstract class BaseUnitTest {
   lateinit var mockApplication: Application
 
   @MockK
+  lateinit var accountManager: AccountManager
+
+  @MockK
+  lateinit var authenticatorHelper: AuthenticatorHelper
+
+  @MockK
   lateinit var preferences: Preferences
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -34,6 +42,8 @@ abstract class BaseUnitTest {
   fun baseSetup() {
     populateStaticTestData()
     preferences = mockk()
+    accountManager = mockk()
+    authenticatorHelper = mockk()
     mockDatabase = mockk()
     mockApplication = mockk<Application>(relaxed = true)
   }

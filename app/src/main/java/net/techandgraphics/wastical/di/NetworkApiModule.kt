@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import net.techandgraphics.wastical.data.remote.LastUpdatedApi
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.account.otp.AccountOtpApi
+import net.techandgraphics.wastical.data.remote.notification.NotificationApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.di.NetworkModule.api
 import net.techandgraphics.wastical.keycloak.KeycloakApi
@@ -36,4 +37,8 @@ object NetworkApiModule {
   @Provides
   @Singleton
   fun providesLastUpdatedApi(okHttpClient: OkHttpClient) = api<LastUpdatedApi>(okHttpClient)
+
+  @Provides
+  @Singleton
+  fun providesNotificationApi(okHttpClient: OkHttpClient) = api<NotificationApi>(okHttpClient)
 }

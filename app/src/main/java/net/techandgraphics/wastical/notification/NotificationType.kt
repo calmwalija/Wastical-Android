@@ -37,38 +37,33 @@ enum class NotificationType(val id: String, val description: String) {
     description = "Proof Of Payment Company Verification",
   ),
 
+  ACCOUNT_BASED_NOTIFICATION(
+    id = "638c651b-6339-4da1-9aae-be12096595c6",
+    description = "New message received",
+  ),
+
+  COMPANY_BROADCAST_NOTIFICATION(
+    id = "d5d7d9f3-5b32-4098-abad-e95a511621a0",
+    description = "Company Broadcast Notification",
+  ),
+
+  LOCATION_BASED_NOTIFICATION(
+    id = "3a0da5dd-2c15-4971-811d-45153fadf3c8",
+    description = "Location-based notification",
+  ),
+
   WASTE_COLLECTION_REMINDER(
     id = "7541db40-3e46-4bd4-8bc3-5b9362c9cdc8",
     description = "Upcoming waste collection reminder",
   ),
 
-  SERVICE_DELAY(
-    id = "abb05ebd-bcd2-4c28-be1f-0df46a971a70",
-    description = "Service delay or disruption",
-  ),
-
-  NEW_MESSAGE(
-    id = "638c651b-6339-4da1-9aae-be12096595c6",
-    description = "New message received",
-  ),
-
-  ACCOUNT_SUSPENDED(
-    id = "663d67ac-f4ed-496d-9bd9-5abcf51d3d72",
-    description = "Your account has been suspended",
-  ),
-
-  LOGIN_ALERT(
-    id = "bd0a0924-09b8-42ad-863e-d14bbc3fdc1e",
-    description = "New login detected",
-  ),
-
-  GROUP_ALERT(
+  COMPANY_NOTIFICATION_SUCCESSFUL(
     id = "3a0da5dd-2c15-4971-811d-45153fadf3c8",
-    description = "Alert for a specific group or location",
+    description = "Notification Was Successful",
   ),
 
-//  companion object {
-//    fun fromString(type: String): NotificationType? =
-//      NotificationType.entries.find { it.name.equals(type, ignoreCase = true) }
-//  }
+  PAYMENT_DUE_REMINDER(
+    id = "663d67ac-f4ed-496d-9bd9-5abcf51d3d72",
+    description = "Payment is due",
+  ),
 }

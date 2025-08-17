@@ -26,7 +26,6 @@ import net.techandgraphics.wastical.data.local.database.payment.plan.PaymentPlan
 import net.techandgraphics.wastical.data.local.database.relations.CompanyLocationWithDemographicEntity
 import net.techandgraphics.wastical.data.local.database.relations.PaymentRequestWithAccountEntity
 import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEntity
-import net.techandgraphics.wastical.data.remote.NotificationResponse
 import net.techandgraphics.wastical.data.remote.account.AccountResponse
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.account.contact.AccountContactResponse
@@ -41,6 +40,7 @@ import net.techandgraphics.wastical.data.remote.company.location.CompanyLocation
 import net.techandgraphics.wastical.data.remote.demographic.DemographicAreaResponse
 import net.techandgraphics.wastical.data.remote.demographic.DemographicDistrictResponse
 import net.techandgraphics.wastical.data.remote.demographic.DemographicStreetResponse
+import net.techandgraphics.wastical.data.remote.notification.NotificationResponse
 import net.techandgraphics.wastical.data.remote.payment.PaymentRequest
 import net.techandgraphics.wastical.data.remote.payment.collection.PaymentCollectionDayResponse
 import net.techandgraphics.wastical.data.remote.payment.gateway.PaymentGatewayResponse
@@ -66,6 +66,7 @@ import java.time.ZonedDateTime
 
 fun CompanyResponse.toCompanyEntity() = CompanyEntity(
   id = id,
+  uuid = uuid,
   name = name,
   latitude = latitude,
   email = email,
@@ -263,6 +264,7 @@ fun PaymentMonthCoveredResponse.toPaymentMonthCoveredEntity() =
 
 fun CompanyLocationResponse.toCompanyLocationRequest() = CompanyLocationEntity(
   id = id,
+  uuid = uuid,
   status = status.name,
   companyId = companyId,
   demographicStreetId = demographicStreetId,
@@ -280,6 +282,7 @@ fun SearchTagUiModel.toSearchTagEntity() = SearchTagEntity(
 
 fun CompanyUiModel.toCompanyEntity() = CompanyEntity(
   id = id,
+  uuid = uuid,
   name = name,
   latitude = latitude,
   email = email,
@@ -361,6 +364,7 @@ fun DemographicStreetUiModel.toDemographicStreetEntity() = DemographicStreetEnti
 
 fun CompanyLocationUiModel.toCompanyLocationEntity() = CompanyLocationEntity(
   id = id,
+  uuid = uuid,
   status = status,
   companyId = companyId,
   demographicStreetId = demographicStreetId,
@@ -509,6 +513,8 @@ fun AccountOtpResponse.toAccountOtpEntity(contact: String) =
 fun NotificationResponse.toNotificationEntity() =
   NotificationEntity(
     id = id,
+    topic = topic,
+    reference = reference,
     uuid = uuid,
     isRead = isRead,
     recipientId = recipientId,

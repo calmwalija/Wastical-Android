@@ -8,6 +8,7 @@ import net.techandgraphics.wastical.domain.model.relations.CompanyLocationWithDe
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.UUID
 
 fun AccountUiModel.toFullName() =
   "${if (this.title == AccountTitle.Na) "" else this.title} ${this.firstname} ${this.lastname}"
@@ -65,3 +66,6 @@ fun CompanyLocationWithDemographicUiModel.toLocation() =
 fun String.getAccountTitle(): String {
   return AccountTitle.valueOf(this).title.let { if (it == AccountTitle.Na.title) "" else it.plus(" ") }
 }
+
+fun String.toUUID(): UUID =
+  UUID.nameUUIDFromBytes("${UUID.randomUUID()}$this".toByteArray())
