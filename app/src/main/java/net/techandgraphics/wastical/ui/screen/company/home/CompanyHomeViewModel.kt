@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -25,6 +26,7 @@ import net.techandgraphics.wastical.data.local.database.account.session.AccountS
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
+import net.techandgraphics.wastical.data.local.database.notification.template.NotificationTemplateScope
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
@@ -40,7 +42,6 @@ import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.ui.screen.notification4Preview
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
@@ -65,6 +66,10 @@ import javax.inject.Inject
 
   private val _channel = Channel<CompanyHomeChannel>()
   val channel = _channel.receiveAsFlow()
+
+  val templates: Flow<List<Pair<String, String>>> =
+    database.notificationTemplateDao.flowOf(NotificationTemplateScope.COMPANY.name)
+      .map { list -> list.map { it.title to it.body } }
 
   init {
     onEvent(CompanyHomeEvent.Load)
@@ -207,13 +212,13 @@ import javax.inject.Inject
     application.scheduleClientPaymentRequestWorker()
   }
 
-  private fun onButtonBroadcast() = viewModelScope.launch {
+  private fun onBroadcastSend(title: String, body: String) = viewModelScope.launch {
     if (_state.value is CompanyHomeState.Success) {
       val state = (_state.value as CompanyHomeState.Success)
       val localAccount = authenticatorHelper.getAccount(accountManager)!!
       val newNotification = NotificationRequestEntity(
-        title = notification4Preview.title,
-        body = notification4Preview.body,
+        title = title,
+        body = body,
         senderId = localAccount.id,
         topic = state.company.uuid,
         companyId = state.company.id,
@@ -233,7 +238,8 @@ import javax.inject.Inject
       is CompanyHomeEvent.Load -> onLoad()
       CompanyHomeEvent.Button.Logout -> onLogout()
       is CompanyHomeEvent.Button.WorkingMonth -> onButtonWorkingMonth(event)
-      CompanyHomeEvent.Button.Broadcast -> onButtonBroadcast()
+      CompanyHomeEvent.Button.Broadcast -> Unit
+      is CompanyHomeEvent.Broadcast.Send -> onBroadcastSend(event.title, event.body)
       else -> Unit
     }
   }

@@ -34,9 +34,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -105,12 +109,16 @@ private val quickOption = listOf(
 ) @Composable fun CompanyHomeScreen(
   state: CompanyHomeState,
   channel: Flow<CompanyHomeChannel>,
+  templates: Flow<List<Pair<String, String>>>,
   onEvent: (CompanyHomeEvent) -> Unit,
 ) {
 
   var showMenuItems by remember { mutableStateOf(false) }
   var isFetching by remember { mutableStateOf(false) }
   val context = LocalContext.current
+  var showBroadcast by remember { mutableStateOf(false) }
+  var customTitle by remember { mutableStateOf("") }
+  var customBody by remember { mutableStateOf("") }
 
   when (state) {
     CompanyHomeState.Loading -> LoadingIndicatorView()
@@ -227,7 +235,7 @@ private val quickOption = listOf(
                       Text(text = "Broadcast")
                     }, onClick = {
                       showMenuItems = false
-                      onEvent(CompanyHomeEvent.Button.Broadcast)
+                      showBroadcast = true
                     })
 
 
@@ -382,6 +390,77 @@ private val quickOption = listOf(
 
         }
       }
+
+      if (showBroadcast) {
+        ModalBottomSheet(onDismissRequest = { showBroadcast = false }) {
+          Text(
+            text = "Select a template or create custom",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(16.dp)
+          )
+          val templatePairs = templates.collectAsState(initial = emptyList()).value
+          val theTemplates = if (templatePairs.isEmpty()) listOf(
+            "Service Interruption" to "Dear customer, there will be a temporary service interruption today.",
+            "Payment Reminder" to "Kind reminder to complete your monthly payment."
+          ) else templatePairs
+          theTemplates.forEach { (t, b) ->
+            Card(
+              onClick = {
+                onEvent(CompanyHomeEvent.Broadcast.Send(t, b))
+                showBroadcast = false
+              },
+              modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .fillMaxWidth(),
+              colors = CardDefaults.elevatedCardColors()
+            ) {
+              Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = t, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(text = b, maxLines = 2, overflow = TextOverflow.Ellipsis)
+              }
+            }
+          }
+          Spacer(Modifier.height(16.dp))
+          Text(
+            text = "Custom message",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+          )
+          OutlinedTextField(
+            value = customTitle,
+            onValueChange = { customTitle = it },
+            label = { Text("Title") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp, vertical = 8.dp)
+              .fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = customBody,
+            onValueChange = { customBody = it },
+            label = { Text("Body") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .fillMaxWidth()
+          )
+          Row(
+            modifier = Modifier
+              .padding(16.dp)
+              .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+          ) {
+            Button(
+              enabled = customTitle.isNotBlank() && customBody.isNotBlank(),
+              onClick = {
+                onEvent(CompanyHomeEvent.Broadcast.Send(customTitle, customBody))
+                showBroadcast = false
+                customTitle = ""
+                customBody = ""
+              }
+            ) { Text("Send") }
+          }
+        }
+      }
     }
   }
 
@@ -393,7 +472,8 @@ private val quickOption = listOf(
   WasticalTheme {
     CompanyHomeScreen(
       state = companyHomeStateSuccess(),
-      channel = flowOf()
+      channel = flowOf(),
+      templates = flowOf(listOf("Payment Reminder" to "Please pay."))
     ) {}
   }
 }

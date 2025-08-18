@@ -26,7 +26,7 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
       val state = state.collectAsState().value
       val context = LocalContext.current
       LaunchedEffect(id) { onEvent(Load(id)) }
-      CompanyClientProfileScreen(state, channel) { event ->
+      CompanyClientProfileScreen(state, channel, templates) { event ->
         when (event) {
           Option.History -> navController.navigate(CompanyRoute.ClientHistory(id))
           Option.Location -> navController.navigate(CompanyRoute.ClientLocation(id))

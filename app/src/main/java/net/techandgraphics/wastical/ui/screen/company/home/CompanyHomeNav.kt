@@ -19,7 +19,7 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
   composable<CompanyRoute.Home> {
     with(hiltViewModel<CompanyHomeViewModel>()) {
       val state = state.collectAsState().value
-      CompanyHomeScreen(state, channel) { event ->
+      CompanyHomeScreen(state, channel, templates) { event ->
         when (event) {
           is Goto -> when (event) {
             Goto.Report -> navController.navigate(CompanyRoute.CompanyReport)

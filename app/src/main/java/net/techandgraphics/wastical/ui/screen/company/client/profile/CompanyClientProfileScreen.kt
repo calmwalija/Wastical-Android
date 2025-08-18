@@ -3,11 +3,13 @@ package net.techandgraphics.wastical.ui.screen.company.client.profile
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -34,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,6 +75,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 fun CompanyClientProfileScreen(
   state: CompanyClientProfileState,
   channel: Flow<CompanyClientProfileChannel>,
+  templates: Flow<List<Pair<String, String>>> = flow { emit(emptyList()) },
   onEvent: (CompanyClientProfileEvent) -> Unit,
 ) {
 
@@ -109,6 +115,9 @@ fun CompanyClientProfileScreen(
       val scope = rememberCoroutineScope()
       var showWarning by remember { mutableStateOf(false) }
       var showMenuOptions by remember { mutableStateOf(false) }
+      var showBroadcast by remember { mutableStateOf(false) }
+      var customTitle by remember { mutableStateOf("") }
+      var customBody by remember { mutableStateOf("") }
 
 
       if (showWarning) {
@@ -152,6 +161,10 @@ fun CompanyClientProfileScreen(
                   DropdownMenuItem(
                     text = { Text(text = "Remove Client") },
                     onClick = { showWarning = true; showMenuOptions = false }
+                  )
+                  DropdownMenuItem(
+                    text = { Text(text = "Send Notification") },
+                    onClick = { showBroadcast = true; showMenuOptions = false }
                   )
                 }
               }
@@ -323,6 +336,77 @@ fun CompanyClientProfileScreen(
             }
           }
 
+        }
+      }
+
+      if (showBroadcast) {
+        ModalBottomSheet(onDismissRequest = { showBroadcast = false }) {
+          Text(
+            text = "Select a template or create custom",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(16.dp)
+          )
+          val templatePairs = templates.collectAsState(initial = emptyList()).value
+          val theTemplates = if (templatePairs.isEmpty()) listOf(
+            "Welcome" to "Welcome to our service! We're glad to have you onboard.",
+            "Outstanding Balance" to "You have an outstanding balance. Please make a payment at your earliest convenience."
+          ) else templatePairs
+          theTemplates.forEach { (t, b) ->
+            androidx.compose.material3.Card(
+              onClick = {
+                onEvent(CompanyClientProfileEvent.Broadcast.Send(t, b))
+                showBroadcast = false
+              },
+              modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .fillMaxWidth(),
+              colors = CardDefaults.elevatedCardColors()
+            ) {
+              Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = t)
+                Spacer(Modifier.height(4.dp))
+                Text(text = b)
+              }
+            }
+          }
+          Spacer(Modifier.height(16.dp))
+          Text(
+            text = "Custom message",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+          )
+          OutlinedTextField(
+            value = customTitle,
+            onValueChange = { customTitle = it },
+            label = { Text("Title") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp, vertical = 8.dp)
+              .fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = customBody,
+            onValueChange = { customBody = it },
+            label = { Text("Body") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .fillMaxWidth()
+          )
+          Row(
+            modifier = Modifier
+              .padding(16.dp)
+              .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+          ) {
+            androidx.compose.material3.Button(
+              enabled = customTitle.isNotBlank() && customBody.isNotBlank(),
+              onClick = {
+                onEvent(CompanyClientProfileEvent.Broadcast.Send(customTitle, customBody))
+                showBroadcast = false
+                customTitle = ""
+                customBody = ""
+              }
+            ) { Text("Send") }
+          }
         }
       }
     }
