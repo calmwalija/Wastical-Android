@@ -15,6 +15,7 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.Accoun
 import net.techandgraphics.wastical.data.local.database.demographic.area.DemographicAreaEntity
 import net.techandgraphics.wastical.data.local.database.demographic.district.DemographicDistrictEntity
 import net.techandgraphics.wastical.data.local.database.demographic.street.DemographicStreetEntity
+import net.techandgraphics.wastical.data.local.database.expense.ExpenseEntity
 import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
 import net.techandgraphics.wastical.data.local.database.notification.NotificationSyncStatus
 import net.techandgraphics.wastical.data.local.database.payment.gateway.PaymentGatewayEntity
@@ -30,6 +31,7 @@ import net.techandgraphics.wastical.data.local.database.relations.PaymentWithAcc
 import net.techandgraphics.wastical.data.local.database.relations.PaymentWithMonthsCoveredEntity
 import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
+import net.techandgraphics.wastical.domain.model.ExpenseUiModel
 import net.techandgraphics.wastical.domain.model.NotificationUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
@@ -315,3 +317,17 @@ fun NotificationEntity.toNotificationUiModel() =
     updatedAt = updatedAt,
     syncStatus = NotificationSyncStatus.entries.first { it.ordinal == syncStatus },
   )
+
+fun ExpenseEntity.toExpenseUiModel() = ExpenseUiModel(
+  id = id,
+  title = title,
+  amount = amount,
+  category = category,
+  period = period,
+  intervalDays = intervalDays,
+  quantity = quantity,
+  expenseDate = expenseDate,
+  companyId = companyId,
+  createdAt = createdAt,
+  updatedAt = updatedAt,
+)
