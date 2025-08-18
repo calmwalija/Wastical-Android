@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,11 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
 import net.techandgraphics.wastical.toInitials
+import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CompanyBrowseLocationView(
+@OptIn(ExperimentalMaterial3Api::class) @Composable fun CompanyBrowseLocationView(
   modifier: Modifier = Modifier,
   location: Payment4CurrentLocationMonth,
   onEvent: (CompanyBrowseLocationEvent) -> Unit,
@@ -47,28 +48,34 @@ fun CompanyBrowseLocationView(
 
   Row(
     modifier = modifier
-      .clickable { onEvent(CompanyBrowseLocationEvent.Goto.LocationOverview(location.streetId)) }
+      .clickable {
+        onEvent(
+          CompanyBrowseLocationEvent.Goto.LocationOverview(
+            location.streetId
+          )
+        )
+      }
       .padding(16.dp)
-      .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
-  ) {
+      .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
 
     val displayText = location.totalAccounts.takeIf { it <= 100 }?.toString() ?: "99+"
-
+    val paidIn = (location.paidAccounts == location.totalAccounts)
     Box(contentAlignment = Alignment.BottomEnd) {
-      CompanyLocationLetterView(location.streetName)
+      CompanyLocationLetterView(location)
       Card(
         shape = CircleShape,
         modifier = Modifier
           .offset(x = (1).dp)
           .size(28.dp),
         colors = CardDefaults.cardColors(
-          containerColor = Color.White
+          containerColor = if (paidIn) Green.copy(.9f) else Color.White
         ),
         elevation = CardDefaults.elevatedCardElevation(
           defaultElevation = 1.dp
         ),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(.5f))
+        border = BorderStroke(
+          2.dp, if (paidIn) Color.White else MaterialTheme.colorScheme.primary.copy(.5f)
+        )
       ) {
         Box(
           modifier = Modifier.fillMaxSize(),
@@ -78,7 +85,7 @@ fun CompanyBrowseLocationView(
             text = displayText,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
             textAlign = TextAlign.Center,
-            color = Color.DarkGray,
+            color = if (location.paidAccounts == location.totalAccounts) Color.White else Color.DarkGray,
             maxLines = 1,
           )
         }
@@ -108,11 +115,34 @@ fun CompanyBrowseLocationView(
       )
     }
 
-    Icon(
-      Icons.AutoMirrored.Filled.KeyboardArrowRight,
-      contentDescription = null,
-      tint = MaterialTheme.colorScheme.primary
+    Text(
+      text = "${location.paidAccounts} of ${location.totalAccounts}",
+      style = MaterialTheme.typography.labelSmall
     )
+
+    Box(
+      modifier = Modifier
+        .padding(start = 16.dp)
+        .size(32.dp),
+      contentAlignment = Alignment.Center
+    ) {
+      CircularProgressIndicator(
+        progress = { location.paidAccounts.toFloat().div(location.totalAccounts) },
+        modifier = Modifier.fillMaxSize(),
+        color = if (paidIn) Green else ProgressIndicatorDefaults.circularColor,
+        strokeWidth = 4.dp
+      )
+      if (paidIn) {
+        Icon(
+          imageVector = Icons.Rounded.Check,
+          contentDescription = null,
+          tint = Green,
+          modifier = Modifier
+            .size(22.dp)
+            .padding(1.dp)
+        )
+      }
+    }
 
     Spacer(modifier = Modifier.width(8.dp))
 
@@ -122,15 +152,22 @@ fun CompanyBrowseLocationView(
 }
 
 
-@Composable private fun CompanyLocationLetterView(location: String) {
+@Composable private fun CompanyLocationLetterView(location: Payment4CurrentLocationMonth) {
+
+  val paidIn = (location.paidAccounts == location.totalAccounts)
 
   Box(contentAlignment = Alignment.Center) {
     Box(
       modifier = Modifier
         .clip(CircleShape)
         .size(58.dp)
-        .background(MaterialTheme.colorScheme.primary.copy(.2f))
+        .background(
+          if (paidIn) Green.copy(.8f) else {
+            MaterialTheme.colorScheme.primary.copy(.4f)
+          }
+        )
     )
+
     Box(
       modifier = Modifier
         .clip(CircleShape)
@@ -138,18 +175,17 @@ fun CompanyBrowseLocationView(
         .background(MaterialTheme.colorScheme.primary.copy(.1f))
     )
     Text(
-      text = location.toInitials(),
+      text = location.streetName.toInitials(),
       modifier = Modifier.padding(4.dp),
       fontWeight = FontWeight.Bold,
-      style = MaterialTheme.typography.bodyLarge
+      style = MaterialTheme.typography.bodyLarge,
+      color = if (paidIn) Color.White else MaterialTheme.colorScheme.secondary
     )
   }
 
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun CompanyBrowseLocationPreview() {
+@Preview(showBackground = true) @Composable private fun CompanyBrowseLocationPreview() {
   WasticalTheme {
     CompanyBrowseLocationView(
       location = companyBrowseLocationStateSuccess().payment4CurrentLocationMonth.first(),
