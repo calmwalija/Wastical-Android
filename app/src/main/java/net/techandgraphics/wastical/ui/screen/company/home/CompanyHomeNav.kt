@@ -8,7 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
-import net.techandgraphics.wastical.ui.Route
+import net.techandgraphics.wastical.ui.Route.Load
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute.ClientProfile
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute.LocationOverview
@@ -39,8 +39,9 @@ fun NavGraphBuilder.CompanyHomeNav(navController: NavHostController) {
             Goto.Notifications -> navController.navigate(CompanyRoute.Notifications)
 
             is Goto.Profile -> navController.navigate(ClientProfile(event.id))
-            Goto.Login -> navController.navigate(Route.Load(true)) { popUpTo(0) }
-            Goto.Reload -> navController.navigate(Route.Load(false)) { popUpTo(0) }
+            Goto.Login -> navController.navigate(Load(true)) { popUpTo(0) }
+            Goto.Reload -> navController.navigate(Load(false)) { popUpTo(0) }
+            CompanyHomeEvent.Button.Broadcast -> onEvent(event)
           }
 
           else -> onEvent(event)

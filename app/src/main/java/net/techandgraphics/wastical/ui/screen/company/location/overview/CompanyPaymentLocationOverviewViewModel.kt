@@ -1,5 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.company.location.overview
 
+import android.accounts.AccountManager
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -11,22 +13,33 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.Preferences
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
 import net.techandgraphics.wastical.domain.toAccountRequestUiModel
 import net.techandgraphics.wastical.domain.toAccountWithPaymentStatusUiModel
 import net.techandgraphics.wastical.domain.toCompanyLocationUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toDemographicAreaUiModel
 import net.techandgraphics.wastical.domain.toDemographicStreetUiModel
+import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
+import net.techandgraphics.wastical.notification.NotificationType
+import net.techandgraphics.wastical.ui.screen.notification4Preview
+import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import javax.inject.Inject
 
 @HiltViewModel
 class CompanyPaymentLocationOverviewViewModel @Inject constructor(
   private val database: AppDatabase,
   private val preferences: Preferences,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state =
@@ -104,9 +117,29 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
       }
     }
 
+  private fun onButtonBroadcast() = viewModelScope.launch {
+    if (_state.value is CompanyPaymentLocationOverviewState.Success) {
+      val state = (_state.value as CompanyPaymentLocationOverviewState.Success)
+      val localAccount = authenticatorHelper.getAccount(accountManager)!!
+      val newNotification = NotificationRequestEntity(
+        title = notification4Preview.title,
+        body = notification4Preview.body,
+        senderId = localAccount.id,
+        topic = state.companyLocation.uuid,
+        companyId = state.company.id,
+        type = NotificationType.LOCATION_BASED_NOTIFICATION.name,
+        recipientRole = AccountRole.Client.name,
+        reference = getReference(),
+      )
+      database.notificationRequestDao.upsert(newNotification)
+      application.scheduleCompanyNotificationRequestWorker()
+    }
+  }
+
   fun onEvent(event: CompanyPaymentLocationOverviewEvent) {
     when (event) {
       is CompanyPaymentLocationOverviewEvent.Load -> onLoad(event)
+      is CompanyPaymentLocationOverviewEvent.Button.Broadcast -> onButtonBroadcast()
       is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onSortBy(event)
       else -> Unit
     }

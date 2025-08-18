@@ -126,7 +126,7 @@ fun CompanyNotificationScreen(
             onEvent = { event ->
               when (event) {
                 is SearchInputItemViewEvent.InputSearch -> {
-
+                  onEvent(CompanyNotificationEvent.Input.Query(event.query))
                 }
               }
             }

@@ -69,7 +69,6 @@ import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyLocation4Preview
 import net.techandgraphics.wastical.ui.screen.demographicArea4Preview
 import net.techandgraphics.wastical.ui.screen.demographicStreet4Preview
-import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.Muted
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.Month
@@ -127,10 +126,31 @@ fun CompanyPaymentLocationOverviewScreen(
                 )
               }
 
+
+              IconButton(
+                onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Button.Broadcast) },
+                shape = CircleShape,
+                colors = IconButtonDefaults.iconButtonColors(
+                  containerColor = MaterialTheme.colorScheme.inverseOnSurface
+                )
+              ) {
+                Icon(
+                  painterResource(R.drawable.ic_megaphone),
+                  contentDescription = null,
+                  modifier = Modifier
+                    .size(24.dp)
+                    .padding(3.dp)
+                )
+              }
+
+              Spacer(modifier = Modifier.width(4.dp))
+
               IconButton(
                 onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Button.ClientCreate(state.companyLocation.id)) },
                 shape = CircleShape,
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Green.copy(.4f)),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                  containerColor = MaterialTheme.colorScheme.primary.copy(.4f)
+                ),
                 modifier = Modifier.scale(1.2f)
               ) {
                 Icon(
@@ -148,7 +168,7 @@ fun CompanyPaymentLocationOverviewScreen(
                 onClick = { showSortBy = true },
                 shape = CircleShape,
                 colors = IconButtonDefaults.iconButtonColors(
-                  containerColor = MaterialTheme.colorScheme.primary.copy(.5f)
+                  containerColor = MaterialTheme.colorScheme.inverseOnSurface
                 )
               ) {
                 Icon(
@@ -156,7 +176,7 @@ fun CompanyPaymentLocationOverviewScreen(
                   contentDescription = null,
                   modifier = Modifier
                     .size(24.dp)
-                    .padding(4.dp)
+                    .padding(2.dp)
                 )
                 DropdownMenu(showSortBy, onDismissRequest = { showSortBy = false }) {
                   AccountSortOrder.entries.forEach { sortBy ->
@@ -219,7 +239,6 @@ fun CompanyLocationOverviewItem(
 
   var targetValue by remember { mutableFloatStateOf(0f) }
   val monthName = Month.of(state.monthYear.month).name.capitalize()
-  var showMenuItems by remember { mutableStateOf(false) }
 
   val animateAsFloat by animateFloatAsState(
     targetValue = targetValue,
@@ -227,7 +246,6 @@ fun CompanyLocationOverviewItem(
   )
 
   LaunchedEffect(state.payment4CurrentMonth.totalPaidAccounts) {
-    showMenuItems = false
     targetValue = state.payment4CurrentMonth.totalPaidAccounts
       .toFloat()
       .div(state.accounts.size)

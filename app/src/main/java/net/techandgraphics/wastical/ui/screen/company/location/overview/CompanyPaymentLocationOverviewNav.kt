@@ -31,7 +31,8 @@ fun NavGraphBuilder.CompanyPaymentLocationOverviewNav(navController: NavHostCont
             navController.navigate(CompanyRoute.MakePayment(event.id))
 
           is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onEvent(event)
-          else -> Unit
+
+          else -> onEvent(event)
         }
       }
     }
