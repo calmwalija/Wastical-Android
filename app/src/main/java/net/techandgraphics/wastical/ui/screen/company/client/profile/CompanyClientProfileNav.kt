@@ -11,6 +11,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import net.techandgraphics.wastical.openDialer
+import net.techandgraphics.wastical.openWhatsApp
+import net.techandgraphics.wastical.toPhone265
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
 import net.techandgraphics.wastical.ui.screen.company.client.profile.CompanyClientProfileEvent.Button
 import net.techandgraphics.wastical.ui.screen.company.client.profile.CompanyClientProfileEvent.Goto
@@ -46,6 +48,8 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
           }
 
           is Button.Phone -> context.openDialer(event.contact)
+          is Goto.WhatsApp -> context.openWhatsApp(event.contact.toPhone265())
+          is Goto.Call -> context.openDialer(event.contact)
 
           else -> onEvent(event)
         }

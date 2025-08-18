@@ -11,13 +11,17 @@ sealed interface CompanyClientProfileEvent {
     data object Pending : Option
     data object Location : Option
     data object Info : Option
-    data object Message : Option
+    data object Notification : Option
     data object Revoke : Option
+    data object WhatsApp : Option
+    data object Call : Option
   }
 
   sealed interface Goto : CompanyClientProfileEvent {
     data object BackHandler : Goto
     data class Location(val id: Long) : Goto
+    data class WhatsApp(val contact: String) : Goto
+    data class Call(val contact: String) : Goto
   }
 
   sealed interface Button : CompanyClientProfileEvent {

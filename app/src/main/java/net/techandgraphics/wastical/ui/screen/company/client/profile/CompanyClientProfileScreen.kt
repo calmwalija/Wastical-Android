@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
@@ -43,6 +46,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -104,6 +108,7 @@ fun CompanyClientProfileScreen(
       val snackbarHostState = remember { SnackbarHostState() }
       val scope = rememberCoroutineScope()
       var showWarning by remember { mutableStateOf(false) }
+      var showMenuOptions by remember { mutableStateOf(false) }
 
 
       if (showWarning) {
@@ -133,7 +138,24 @@ fun CompanyClientProfileScreen(
       Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) { SnackbarThemed(it) } },
         topBar = {
-          CompanyInfoTopAppBarView(state.company) {
+          CompanyInfoTopAppBarView(
+            state.company,
+            navActions = {
+              IconButton(onClick = { showMenuOptions = true }) {
+                Icon(
+                  imageVector = Icons.Rounded.MoreVert,
+                  contentDescription = null
+                )
+                DropdownMenu(
+                  expanded = showMenuOptions,
+                  onDismissRequest = { showMenuOptions = false }) {
+                  DropdownMenuItem(
+                    text = { Text(text = "Remove Client") },
+                    onClick = { showWarning = true; showMenuOptions = false }
+                  )
+                }
+              }
+            }) {
             onEvent(CompanyClientProfileEvent.Goto.BackHandler)
           }
         },
@@ -190,6 +212,52 @@ fun CompanyClientProfileScreen(
                       else -> onEvent(item.event)
                     }
                   }
+                  HorizontalDivider()
+                }
+              }
+            }
+          }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item {
+            Text(
+              text = "Connect",
+              style = MaterialTheme.typography.titleMedium,
+              modifier = Modifier.padding(bottom = 12.dp)
+            )
+          }
+
+          item {
+            OutlinedCard(
+              modifier = Modifier.padding(horizontal = 4.dp),
+              elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            ) {
+              Column {
+                connectItems.forEach { item ->
+                  when (item.event) {
+                    CompanyClientProfileEvent.Option.Call,
+                    CompanyClientProfileEvent.Option.WhatsApp,
+                      ->
+                      if (state.account.username.isDigitsOnly().not()) return@forEach
+
+                    else -> Unit
+                  }
+                  SectionRow(
+                    title = item.title,
+                    iconRes = item.drawableRes,
+                    onClick = {
+                      when (item.event) {
+                        CompanyClientProfileEvent.Option.WhatsApp ->
+                          onEvent(CompanyClientProfileEvent.Goto.WhatsApp(state.account.username))
+
+                        CompanyClientProfileEvent.Option.Call ->
+                          onEvent(CompanyClientProfileEvent.Goto.Call(state.account.username))
+
+                        else -> onEvent(item.event)
+                      }
+                    }
+                  )
                   HorizontalDivider()
                 }
               }
