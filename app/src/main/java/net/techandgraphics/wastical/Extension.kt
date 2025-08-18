@@ -5,7 +5,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.graphics.Bitmap
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -167,3 +169,16 @@ fun generateContact() = System.currentTimeMillis().toString().drop(6)
       .plus(System.currentTimeMillis().toString().take(5)),
   ).replace("-", "")
   .take(32)
+
+fun Context.openWhatsApp(contact: String, defaultMessage: String = "") {
+  try {
+    val cleanContact = contact.replace(Regex("[^0-9+]"), "")
+    val whatsappUrl = buildString {
+      append("https://wa.me/$cleanContact")
+      if (defaultMessage.isNotEmpty()) append("?text=${Uri.encode(defaultMessage)}")
+    }
+    startActivity(Intent(Intent(ACTION_VIEW).setData(whatsappUrl.toUri())))
+  } catch (_: Exception) {
+    toast("Unable to open WhatsApp. Please install WhatsApp or check the contact number.")
+  }
+}

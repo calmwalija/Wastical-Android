@@ -139,7 +139,7 @@ class CompanyClientProfileViewModel @Inject constructor(
   fun onEvent(event: CompanyClientProfileEvent) {
     when (event) {
       is CompanyClientProfileEvent.Load -> onLoad(event)
-      CompanyClientProfileEvent.Option.Message -> onOptionMessage()
+      CompanyClientProfileEvent.Option.Notification -> onOptionMessage()
       is CompanyClientProfileEvent.Option.Revoke -> onOptionRevoke()
       else -> Unit
     }

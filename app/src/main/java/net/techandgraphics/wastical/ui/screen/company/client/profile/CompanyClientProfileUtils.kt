@@ -39,11 +39,6 @@ val actionItems = listOf(
     event = CompanyClientProfileEvent.Option.Payment,
   ),
   ProfileItem(
-    title = "Send a Message",
-    drawableRes = R.drawable.ic_send,
-    event = CompanyClientProfileEvent.Option.Message,
-  ),
-  ProfileItem(
     title = "Payment Plan",
     drawableRes = R.drawable.ic_payments,
     event = CompanyClientProfileEvent.Option.Plan,
@@ -53,9 +48,23 @@ val actionItems = listOf(
     drawableRes = R.drawable.ic_house,
     event = CompanyClientProfileEvent.Option.Location,
   ),
+)
+
+val connectItems = listOf(
   ProfileItem(
-    title = "Remove Client",
-    drawableRes = R.drawable.ic_person_cancel,
-    event = CompanyClientProfileEvent.Option.Revoke,
+    title = "Make a Phone Call",
+    drawableRes = R.drawable.ic_alt_phone,
+    event = CompanyClientProfileEvent.Option.Call,
   ),
+  ProfileItem(
+    title = "Send a Notification",
+    drawableRes = R.drawable.ic_send_notification,
+    event = CompanyClientProfileEvent.Option.Notification,
+  ),
+  ProfileItem(
+    title = "Chat on WhatsApp",
+    drawableRes = R.drawable.ic_whatsapp,
+    event = CompanyClientProfileEvent.Option.WhatsApp,
+  ),
+
 )
