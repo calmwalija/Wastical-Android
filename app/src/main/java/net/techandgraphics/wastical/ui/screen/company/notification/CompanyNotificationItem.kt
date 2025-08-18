@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,9 +46,6 @@ fun CompanyNotificationItem(
     modifier = modifier
       .padding(vertical = 8.dp)
       .fillMaxWidth(),
-    colors = CardDefaults.elevatedCardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-    )
   ) {
     Row(
       modifier = Modifier
@@ -114,8 +110,14 @@ fun CompanyNotificationItem(
 
 @Composable
 private fun colorForType(type: NotificationType): Color = when (type) {
-  NotificationType.PROOF_OF_PAYMENT_APPROVED -> Green
-  NotificationType.PROOF_OF_PAYMENT_SUCCESSFUL_BY_COMPANY -> Green
+  NotificationType.PROOF_OF_PAYMENT_APPROVED,
+  NotificationType.PROOF_OF_PAYMENT_SUCCESSFUL_BY_COMPANY,
+  NotificationType.COMPANY_BROADCAST_NOTIFICATION,
+  NotificationType.ACCOUNT_BASED_NOTIFICATION,
+  NotificationType.COMPANY_NOTIFICATION_SUCCESSFUL,
+  NotificationType.LOCATION_BASED_NOTIFICATION,
+    -> Green
+
   NotificationType.PROOF_OF_PAYMENT_DECLINED -> MaterialTheme.colorScheme.error
   NotificationType.PROOF_OF_PAYMENT_SUBMITTED -> MaterialTheme.colorScheme.secondary
   NotificationType.PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY -> MaterialTheme.colorScheme.primary

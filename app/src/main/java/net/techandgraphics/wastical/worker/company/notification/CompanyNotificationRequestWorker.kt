@@ -15,6 +15,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
 import net.techandgraphics.wastical.data.local.database.toNotificationEntity
@@ -70,7 +71,7 @@ import java.util.concurrent.TimeUnit
 
   private suspend fun showNotification() {
     database.notificationDao
-      .flowOfSync()
+      .flowOfSync(AccountRole.Company.name)
       .firstOrNull()
       ?.forEach { notification ->
         val theType = NotificationType.valueOf(notification.type)

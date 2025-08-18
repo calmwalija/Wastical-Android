@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -110,7 +110,6 @@ private val quickOption = listOf(
 
   var showMenuItems by remember { mutableStateOf(false) }
   var isFetching by remember { mutableStateOf(false) }
-  var showNotification by remember { mutableStateOf(false) }
   val context = LocalContext.current
 
   when (state) {
@@ -158,40 +157,6 @@ private val quickOption = listOf(
               }
             },
             actions = {
-
-              val badgeCount = state.proofOfPayments.size
-
-              if (state.proofOfPayments.isNotEmpty()) {
-                IconButton(onClick = { showNotification = !showNotification }) {
-                  BadgedBox(badge = { Badge { Text(text = "$badgeCount") } }) {
-                    Icon(Icons.Outlined.Notifications, null)
-                  }
-
-                  DropdownMenu(
-                    expanded = showNotification,
-                    onDismissRequest = { showNotification = false }) {
-                    DropdownMenuItem(
-                      text = {
-                        Row {
-                          Badge(containerColor = MaterialTheme.colorScheme.primary) {
-                            Text(
-                              text = state.proofOfPayments.size.toString(),
-                              style = MaterialTheme.typography.labelSmall
-                            )
-                          }
-                          Spacer(modifier = Modifier.width(4.dp))
-                          Text(text = "Verify Payments")
-                        }
-                      },
-                      onClick = {
-                        showNotification = false
-                        onEvent(CompanyHomeEvent.Goto.Payments)
-                      },
-                    )
-                  }
-                }
-              }
-
               if (state.accountRequests.isEmpty() && state.paymentRequests.isEmpty()) {
                 IconButton(
                   enabled = isFetching.not(),
@@ -218,26 +183,62 @@ private val quickOption = listOf(
                 Icon(Icons.Default.MoreVert, null)
                 DropdownMenu(showMenuItems, onDismissRequest = { showMenuItems = false }) {
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Timeline")
-                  }, onClick = {
-                    showMenuItems = false
-                    onEvent(CompanyHomeEvent.Goto.Timeline)
-                  })
+                  if (state.proofOfPayments.isNotEmpty()) {
+                    DropdownMenuItem(
+                      leadingIcon = {
+                        BadgedBox(badge = {
+                          Badge(containerColor = MaterialTheme.colorScheme.primary) {
+                            Text(
+                              text = state.proofOfPayments.size.toString(),
+                              style = MaterialTheme.typography.labelSmall
+                            )
+                          }
+                        }) {
+                          Icon(painterResource(R.drawable.ic_list), null)
+                        }
+                      },
+                      text = {
+                        Text(text = "Verify Payments")
+                      }, onClick = {
+                        showMenuItems = false
+                        onEvent(CompanyHomeEvent.Goto.Payments)
+                      })
+                  }
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Notifications")
-                  }, onClick = {
-                    showMenuItems = false
-                    onEvent(CompanyHomeEvent.Goto.Notifications)
-                  })
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Company")
-                  }, onClick = {
-                    showMenuItems = false
-                    onEvent(CompanyHomeEvent.Goto.Company)
-                  })
+                  DropdownMenuItem(
+                    leadingIcon = { Icon(Icons.Outlined.Notifications, null) },
+                    text = {
+                      Text(text = "Notifications")
+                    }, onClick = {
+                      showMenuItems = false
+                      onEvent(CompanyHomeEvent.Goto.Notifications)
+                    })
+
+                  DropdownMenuItem(
+                    leadingIcon = {
+                      Icon(
+                        painter = painterResource(R.drawable.ic_megaphone),
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp)
+                      )
+                    },
+                    text = {
+                      Text(text = "Broadcast")
+                    }, onClick = {
+                      showMenuItems = false
+                      onEvent(CompanyHomeEvent.Button.Broadcast)
+                    })
+
+
+                  DropdownMenuItem(
+                    leadingIcon = { Icon(Icons.Outlined.Info, null) },
+                    text = {
+                      Text(text = "Company")
+                    }, onClick = {
+                      showMenuItems = false
+                      onEvent(CompanyHomeEvent.Goto.Company)
+                    })
 
                   HorizontalDivider()
 
