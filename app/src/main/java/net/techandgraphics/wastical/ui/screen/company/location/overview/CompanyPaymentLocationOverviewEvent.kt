@@ -17,4 +17,8 @@ sealed interface CompanyPaymentLocationOverviewEvent {
     data class Profile(val id: Long) : Goto
     data class RecordProofOfPayment(val id: Long) : Goto
   }
+
+  sealed interface Broadcast : CompanyPaymentLocationOverviewEvent {
+    data class Send(val title: String, val body: String) : Broadcast
+  }
 }

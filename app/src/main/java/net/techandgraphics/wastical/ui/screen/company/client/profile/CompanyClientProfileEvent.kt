@@ -27,4 +27,8 @@ sealed interface CompanyClientProfileEvent {
   sealed interface Button : CompanyClientProfileEvent {
     data class Phone(val contact: String) : Button
   }
+
+  sealed interface Broadcast : CompanyClientProfileEvent {
+    data class Send(val title: String, val body: String) : Broadcast
+  }
 }

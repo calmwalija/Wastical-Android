@@ -36,4 +36,8 @@ sealed interface CompanyHomeEvent {
     data class Success(val payments: List<PaymentEntity>) : Payment
     data class Failure(val error: ApiResult.Error) : Payment
   }
+
+  sealed interface Broadcast : CompanyHomeEvent {
+    data class Send(val title: String, val body: String) : Broadcast
+  }
 }

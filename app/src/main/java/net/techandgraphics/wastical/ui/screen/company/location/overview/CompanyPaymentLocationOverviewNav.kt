@@ -17,7 +17,7 @@ fun NavGraphBuilder.CompanyPaymentLocationOverviewNav(navController: NavHostCont
       val id = it.toRoute<CompanyRoute.LocationOverview>().id
       val state = state.collectAsState().value
       LaunchedEffect(id) { onEvent(CompanyPaymentLocationOverviewEvent.Load(id)) }
-      CompanyPaymentLocationOverviewScreen(state) { event ->
+      CompanyPaymentLocationOverviewScreen(state, templates) { event ->
         when (event) {
           CompanyPaymentLocationOverviewEvent.Button.BackHandler -> navController.navigateUp()
 

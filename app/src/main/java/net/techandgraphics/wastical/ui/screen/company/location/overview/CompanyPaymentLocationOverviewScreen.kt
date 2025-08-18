@@ -27,6 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +82,7 @@ import java.time.Month
 @Composable
 fun CompanyPaymentLocationOverviewScreen(
   state: CompanyPaymentLocationOverviewState,
+  templates: kotlinx.coroutines.flow.Flow<List<Pair<String, String>>> = kotlinx.coroutines.flow.flowOf(),
   onEvent: (CompanyPaymentLocationOverviewEvent) -> Unit,
 ) {
 
@@ -86,6 +91,9 @@ fun CompanyPaymentLocationOverviewScreen(
     is CompanyPaymentLocationOverviewState.Success -> {
 
       var showSortBy by remember { mutableStateOf(false) }
+      var showBroadcast by remember { mutableStateOf(false) }
+      var customTitle by remember { mutableStateOf("") }
+      var customBody by remember { mutableStateOf("") }
 
       Scaffold(
         topBar = {
@@ -128,7 +136,7 @@ fun CompanyPaymentLocationOverviewScreen(
 
 
               IconButton(
-                onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Button.Broadcast) },
+                onClick = { showBroadcast = true },
                 shape = CircleShape,
                 colors = IconButtonDefaults.iconButtonColors(
                   containerColor = MaterialTheme.colorScheme.inverseOnSurface
@@ -225,6 +233,76 @@ fun CompanyPaymentLocationOverviewScreen(
           }
         }
 
+      }
+
+      if (showBroadcast) {
+        ModalBottomSheet(onDismissRequest = { showBroadcast = false }) {
+          Text(
+            text = "Select a template or create custom",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(16.dp)
+          )
+          val templatePairs = templates.collectAsState(initial = emptyList()).value
+          val theTemplates = if (templatePairs.isEmpty()) listOf(
+            "Collection Notice" to "Our team will collect waste in your area tomorrow. Please place your bins outside by 7:00 AM."
+          ) else templatePairs
+          theTemplates.forEach { (t, b) ->
+            Card(
+              onClick = {
+                onEvent(CompanyPaymentLocationOverviewEvent.Broadcast.Send(t, b))
+                showBroadcast = false
+              },
+              modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .fillMaxWidth(),
+              colors = CardDefaults.elevatedCardColors()
+            ) {
+              Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = t, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(text = b, maxLines = 2, overflow = TextOverflow.Ellipsis)
+              }
+            }
+          }
+          Spacer(Modifier.height(16.dp))
+          Text(
+            text = "Custom message",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+          )
+          OutlinedTextField(
+            value = customTitle,
+            onValueChange = { customTitle = it },
+            label = { Text("Title") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp, vertical = 8.dp)
+              .fillMaxWidth()
+          )
+          OutlinedTextField(
+            value = customBody,
+            onValueChange = { customBody = it },
+            label = { Text("Body") },
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .fillMaxWidth()
+          )
+          Row(
+            modifier = Modifier
+              .padding(16.dp)
+              .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+          ) {
+            Button(
+              enabled = customTitle.isNotBlank() && customBody.isNotBlank(),
+              onClick = {
+                onEvent(CompanyPaymentLocationOverviewEvent.Broadcast.Send(customTitle, customBody))
+                showBroadcast = false
+                customTitle = ""
+                customBody = ""
+              }
+            ) { Text("Send") }
+          }
+        }
       }
     }
   }

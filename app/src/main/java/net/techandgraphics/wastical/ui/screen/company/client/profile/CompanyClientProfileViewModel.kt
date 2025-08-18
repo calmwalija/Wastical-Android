@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,6 +19,7 @@ import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
+import net.techandgraphics.wastical.data.local.database.notification.template.NotificationTemplateScope
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.data.remote.mapApiError
@@ -30,7 +32,6 @@ import net.techandgraphics.wastical.domain.toPaymentUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.ui.screen.notification4Preview
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import java.time.ZonedDateTime
@@ -50,6 +51,10 @@ class CompanyClientProfileViewModel @Inject constructor(
 
   private val _channel = Channel<CompanyClientProfileChannel>()
   val channel = _channel.receiveAsFlow()
+
+  val templates: Flow<List<Pair<String, String>>> =
+    database.notificationTemplateDao.flowOf(NotificationTemplateScope.ACCOUNT.name)
+      .map { list -> list.map { it.title to it.body } }
 
   private fun onLoad(event: CompanyClientProfileEvent.Load) =
     viewModelScope.launch {
@@ -116,13 +121,13 @@ class CompanyClientProfileViewModel @Inject constructor(
     }
   }
 
-  private fun onOptionMessage() = viewModelScope.launch {
+  private fun onBroadcastSend(title: String, body: String) = viewModelScope.launch {
     if (_state.value is CompanyClientProfileState.Success) {
       val state = (_state.value as CompanyClientProfileState.Success)
       val localAccount = authenticatorHelper.getAccount(accountManager)!!
       val newNotification = NotificationRequestEntity(
-        title = notification4Preview.title,
-        body = notification4Preview.body,
+        title = title,
+        body = body,
         senderId = localAccount.id,
         topic = state.account.uuid,
         companyId = state.account.companyId,
@@ -139,7 +144,8 @@ class CompanyClientProfileViewModel @Inject constructor(
   fun onEvent(event: CompanyClientProfileEvent) {
     when (event) {
       is CompanyClientProfileEvent.Load -> onLoad(event)
-      CompanyClientProfileEvent.Option.Notification -> onOptionMessage()
+      CompanyClientProfileEvent.Option.Notification -> Unit
+      is CompanyClientProfileEvent.Broadcast.Send -> onBroadcastSend(event.title, event.body)
       is CompanyClientProfileEvent.Option.Revoke -> onOptionRevoke()
       else -> Unit
     }

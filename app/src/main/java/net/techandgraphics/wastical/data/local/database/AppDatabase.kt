@@ -38,6 +38,8 @@ import net.techandgraphics.wastical.data.local.database.notification.Notificatio
 import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestDao
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
+import net.techandgraphics.wastical.data.local.database.notification.template.NotificationTemplateDao
+import net.techandgraphics.wastical.data.local.database.notification.template.NotificationTemplateEntity
 import net.techandgraphics.wastical.data.local.database.payment.collection.PaymentCollectionDayDao
 import net.techandgraphics.wastical.data.local.database.payment.collection.PaymentCollectionDayEntity
 import net.techandgraphics.wastical.data.local.database.payment.gateway.PaymentGatewayDao
@@ -82,6 +84,7 @@ import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEnti
     AccountOtpEntity::class,
     NotificationEntity::class,
     NotificationRequestEntity::class,
+    NotificationTemplateEntity::class,
   ],
   version = 1,
   exportSchema = true,
@@ -118,6 +121,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract val accountOtpDao: AccountOtpDao
   abstract val notificationDao: NotificationDao
   abstract val notificationRequestDao: NotificationRequestDao
+  abstract val notificationTemplateDao: NotificationTemplateDao
 
   companion object {
     const val NAME = "wastical_db"

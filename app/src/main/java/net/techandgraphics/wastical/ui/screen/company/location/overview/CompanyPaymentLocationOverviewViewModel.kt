@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,6 +20,7 @@ import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
+import net.techandgraphics.wastical.data.local.database.notification.template.NotificationTemplateScope
 import net.techandgraphics.wastical.domain.toAccountRequestUiModel
 import net.techandgraphics.wastical.domain.toAccountWithPaymentStatusUiModel
 import net.techandgraphics.wastical.domain.toCompanyLocationUiModel
@@ -29,7 +31,6 @@ import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.ui.screen.notification4Preview
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import javax.inject.Inject
 
@@ -45,6 +46,10 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
   private val _state =
     MutableStateFlow<CompanyPaymentLocationOverviewState>(CompanyPaymentLocationOverviewState.Loading)
   val state = _state.asStateFlow()
+
+  val templates: Flow<List<Pair<String, String>>> =
+    database.notificationTemplateDao.flowOf(NotificationTemplateScope.LOCATION.name)
+      .map { list -> list.map { it.title to it.body } }
 
   private fun onLoad(event: CompanyPaymentLocationOverviewEvent.Load) =
     viewModelScope.launch {
@@ -117,13 +122,13 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
       }
     }
 
-  private fun onButtonBroadcast() = viewModelScope.launch {
+  private fun onBroadcastSend(title: String, body: String) = viewModelScope.launch {
     if (_state.value is CompanyPaymentLocationOverviewState.Success) {
       val state = (_state.value as CompanyPaymentLocationOverviewState.Success)
       val localAccount = authenticatorHelper.getAccount(accountManager)!!
       val newNotification = NotificationRequestEntity(
-        title = notification4Preview.title,
-        body = notification4Preview.body,
+        title = title,
+        body = body,
         senderId = localAccount.id,
         topic = state.companyLocation.uuid,
         companyId = state.company.id,
@@ -139,7 +144,8 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
   fun onEvent(event: CompanyPaymentLocationOverviewEvent) {
     when (event) {
       is CompanyPaymentLocationOverviewEvent.Load -> onLoad(event)
-      is CompanyPaymentLocationOverviewEvent.Button.Broadcast -> onButtonBroadcast()
+      is CompanyPaymentLocationOverviewEvent.Button.Broadcast -> Unit
+      is CompanyPaymentLocationOverviewEvent.Broadcast.Send -> onBroadcastSend(event.title, event.body)
       is CompanyPaymentLocationOverviewEvent.Button.SortBy -> onSortBy(event)
       else -> Unit
     }
