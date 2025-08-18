@@ -47,9 +47,10 @@ class CompanyPaymentLocationOverviewViewModel @Inject constructor(
     MutableStateFlow<CompanyPaymentLocationOverviewState>(CompanyPaymentLocationOverviewState.Loading)
   val state = _state.asStateFlow()
 
-  val templates: Flow<List<Pair<String, String>>> =
+  val templates: Flow<List<Pair<String, String>>> by lazy {
     database.notificationTemplateDao.flowOf(NotificationTemplateScope.LOCATION.name)
       .map { list -> list.map { it.title to it.body } }
+  }
 
   private fun onLoad(event: CompanyPaymentLocationOverviewEvent.Load) =
     viewModelScope.launch {

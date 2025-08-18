@@ -52,9 +52,10 @@ class CompanyClientProfileViewModel @Inject constructor(
   private val _channel = Channel<CompanyClientProfileChannel>()
   val channel = _channel.receiveAsFlow()
 
-  val templates: Flow<List<Pair<String, String>>> =
+  val templates: Flow<List<Pair<String, String>>> by lazy {
     database.notificationTemplateDao.flowOf(NotificationTemplateScope.ACCOUNT.name)
       .map { list -> list.map { it.title to it.body } }
+  }
 
   private fun onLoad(event: CompanyClientProfileEvent.Load) =
     viewModelScope.launch {
