@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,8 +62,13 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         )
       )
     }) {
-    Column(modifier = Modifier.padding(16.dp)) {
-      Row(verticalAlignment = Alignment.CenterVertically) {
+    Column {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+          .padding(horizontal = 16.dp)
+          .padding(top = 8.dp)
+      ) {
         Box(
           modifier = Modifier
             .size(36.dp)
@@ -115,6 +121,9 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         }
       }
 
+
+      HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+
       val preview = 3
       val monthHead = covered.take(preview)
       val monthSummary = monthHead.joinToString(", ") { it.month.toMonthName() }
@@ -126,7 +135,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           text = summaryText,
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(top = 12.dp),
+          modifier = Modifier.padding(16.dp),
           overflow = TextOverflow.Ellipsis,
           maxLines = 1,
         )
