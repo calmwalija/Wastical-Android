@@ -89,7 +89,7 @@ import net.techandgraphics.wastical.data.local.database.search.tag.SearchTagEnti
     NotificationTemplateEntity::class,
     ExpenseEntity::class,
   ],
-  version = 2,
+  version = 1,
   exportSchema = true,
 )
 @TypeConverters()

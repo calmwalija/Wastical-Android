@@ -191,7 +191,6 @@ dependencies {
 
 
   implementation("com.google.accompanist:accompanist-drawablepainter:0.37.2")
-  implementation("com.github.yalantis:ucrop:2.2.10")
 
   implementation("androidx.work:work-runtime-ktx:2.10.0")
   implementation("androidx.hilt:hilt-work:1.0.0")

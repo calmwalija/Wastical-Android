@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b778ce0573889481896951f11f180a2a",
+    "identityHash": "1575982495dde9af2053339ea3a9945c",
     "entities": [
       {
         "tableName": "account",
@@ -2370,7 +2370,7 @@
       },
       {
         "tableName": "expense",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `amount` INTEGER NOT NULL, `category` TEXT NOT NULL, `period` TEXT NOT NULL, `expense_date` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `amount` INTEGER NOT NULL, `category` TEXT NOT NULL, `period` TEXT NOT NULL, `interval_days` INTEGER, `quantity` INTEGER, `expense_date` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -2401,6 +2401,18 @@
             "columnName": "period",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "intervalDays",
+            "columnName": "interval_days",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "expenseDate",
@@ -2440,7 +2452,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b778ce0573889481896951f11f180a2a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1575982495dde9af2053339ea3a9945c')"
     ]
   }
 }
