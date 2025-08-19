@@ -1,12 +1,10 @@
 package net.techandgraphics.wastical.ui.screen.company.client.plan
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -29,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -43,7 +39,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
@@ -103,7 +98,7 @@ fun CompanyClientPlanScreen(
           }
         },
         bottomBar = {
-          BottomAppBar {
+          BottomAppBar(containerColor = MaterialTheme.colorScheme.surface) {
             Row(
               modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -171,45 +166,8 @@ fun CompanyClientPlanScreen(
               }
             }
           }
-          item { Spacer(modifier = Modifier.height(16.dp)) }
 
-          item {
-            ElevatedCard(
-              modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-              shape = MaterialTheme.shapes.large
-            ) {
-              Row(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-                Column(modifier = Modifier.weight(1f)) {
-                  Text(text = "Current plan", style = MaterialTheme.typography.labelLarge)
-                  Text(text = state.plan.name, style = MaterialTheme.typography.titleMedium)
-                }
-                Box(
-                  modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .background(MaterialTheme.colorScheme.secondary.copy(.12f))
-                    .fillMaxHeight(.16f)
-                    .width(1.dp)
-                )
-                Column(horizontalAlignment = Alignment.End) {
-                  Text(
-                    text = state.plan.fee.toAmount(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                  )
-                  Text(text = state.plan.period.name, style = MaterialTheme.typography.bodySmall)
-                }
-              }
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(12.dp)) }
+          item { Spacer(modifier = Modifier.height(8.dp)) }
 
           itemsIndexed(state.paymentPlans) { index, paymentPlan ->
             CompanyClientPlanItem(

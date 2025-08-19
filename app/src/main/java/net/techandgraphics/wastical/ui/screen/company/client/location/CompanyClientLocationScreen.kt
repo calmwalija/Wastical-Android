@@ -1,24 +1,26 @@
 package net.techandgraphics.wastical.ui.screen.company.client.location
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -27,7 +29,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,15 +37,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.toLocation
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
@@ -125,7 +128,6 @@ fun CompanyClientLocationScreen(
             )
           }
 
-          // Current location hero card (reimagined)
           item {
             ElevatedCard(
               modifier = Modifier.padding(bottom = 16.dp),
@@ -134,20 +136,26 @@ fun CompanyClientLocationScreen(
               Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                   Icon(
-                    painter = painterResource(R.drawable.ic_house),
+                    painter = painterResource(R.drawable.ic_check_circle),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
                   )
                   Column(
                     modifier = Modifier
-                      .padding(start = 12.dp)
+                      .padding(horizontal = 16.dp)
                       .weight(1f)
                   ) {
-                    Text(text = "Current Location", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                      text = "Current Location",
+                      style = MaterialTheme.typography.labelLarge
+                    )
                     Text(
                       text = state.demographic.toLocation(),
                       style = MaterialTheme.typography.bodyMedium,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant
+                      color = MaterialTheme.colorScheme.onSurfaceVariant,
+                      maxLines = 1,
+                      overflow = TextOverflow.Ellipsis
                     )
                   }
                   OutlinedCard(shape = CircleShape) {
@@ -159,86 +167,101 @@ fun CompanyClientLocationScreen(
                     )
                   }
                 }
-
-
-                Box(
-                  modifier = Modifier
-                    .padding(top = 12.dp)
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(
-                      Brush.horizontalGradient(
-                        listOf(
-                          MaterialTheme.colorScheme.primary.copy(alpha = .5f),
-                          MaterialTheme.colorScheme.primary
-                        )
-                      )
-                    )
-                )
               }
             }
           }
 
-          // Search
           item {
-            CompanyClientLocationSearchView(state) { onEvent(it) }
+            SearchInputItemView(state.query, trailingView = {
+              IconButton(
+                onClick = { },
+                enabled = false,
+                modifier = Modifier.alpha(0f)
+              ) {
+                Icon(
+                  painter = painterResource(id = R.drawable.ic_sort),
+                  contentDescription = null,
+                )
+              }
+            }) { event ->
+              when (event) {
+                is SearchInputItemViewEvent.InputSearch ->
+                  onEvent(CompanyClientLocationEvent.Input.Search(event.query))
+              }
+            }
           }
 
-          // Area chips
+          item { Spacer(modifier = Modifier.height(8.dp)) }
+
           item {
-            val areas = state.demographics.map { it.demographicArea }.distinctBy { it.id }
+            val areas =
+              state.demographics.map { item -> item.demographicArea }.distinctBy { item -> item.id }
             LazyRow(modifier = Modifier.padding(top = 8.dp)) {
               item {
                 OutlinedCard(
-                  shape = MaterialTheme.shapes.small,
+                  shape = CircleShape,
                   modifier = Modifier
                     .padding(end = 8.dp)
                     .clickable { selectedAreaIdState.value = null }
                 ) {
                   Text(
                     text = "All",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    color = if (selectedAreaIdState.value == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = if (selectedAreaIdState.value == null) MaterialTheme.colorScheme.primary else {
+                      MaterialTheme.colorScheme.onSurface
+                    },
+                    style = MaterialTheme.typography.labelLarge
                   )
                 }
               }
               items(areas) { area ->
                 OutlinedCard(
-                  shape = MaterialTheme.shapes.small,
+                  shape = CircleShape,
                   modifier = Modifier
                     .padding(end = 8.dp)
                     .clickable { selectedAreaIdState.value = area.id }
                 ) {
                   Text(
                     text = area.name,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    color = if (selectedAreaIdState.value == area.id) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = if (selectedAreaIdState.value == area.id) MaterialTheme.colorScheme.primary else {
+                      MaterialTheme.colorScheme.onSurface
+                    },
+                    style = MaterialTheme.typography.labelLarge
                   )
                 }
               }
             }
           }
 
-          // Selected summary
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
           item {
             if (selectedIdState.value != currentId) {
-              ElevatedCard(
+              Card(
                 modifier = Modifier.padding(top = 12.dp),
-                shape = MaterialTheme.shapes.large
+                colors = CardDefaults.cardColors(
+                  containerColor = MaterialTheme.colorScheme.primary.copy(.1f)
+                )
               ) {
-                Row(modifier = Modifier.padding(16.dp)) {
+                Row(
+                  modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                  verticalAlignment = Alignment.CenterVertically
+                ) {
                   Text(
                     text = "Selected:",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.secondary
                   )
                   Spacer(modifier = Modifier.width(8.dp))
+
                   val selected =
-                    state.demographics.firstOrNull { it.demographicStreet.id == selectedIdState.value }
+                    state.demographics
+                      .firstOrNull { item -> item.demographicStreet.id == selectedIdState.value }
                   Text(
                     text = selected?.toLocation() ?: "",
                     style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
                   )
                   Spacer(modifier = Modifier.weight(1f))
                   TextButton(onClick = { selectedIdState.value = currentId }) { Text("Clear") }
@@ -247,15 +270,17 @@ fun CompanyClientLocationScreen(
             }
           }
 
+          item { Spacer(modifier = Modifier.height(16.dp)) }
+
 
           item {
-            // Compute filtered list using query and area chips
             Text(
               text = "Available Locations (" + state.demographics.filter { model ->
                 val matchesQuery = state.query.isBlank() ||
                   model.demographicStreet.name.contains(state.query, ignoreCase = true) ||
                   model.demographicArea.name.contains(state.query, ignoreCase = true)
-                val matchesArea = selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
+                val matchesArea =
+                  selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
                 matchesQuery && matchesArea
               }.size + ")",
               style = MaterialTheme.typography.titleMedium,
@@ -268,7 +293,8 @@ fun CompanyClientLocationScreen(
             val matchesQuery = state.query.isBlank() ||
               model.demographicStreet.name.contains(state.query, ignoreCase = true) ||
               model.demographicArea.name.contains(state.query, ignoreCase = true)
-            val matchesArea = selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
+            val matchesArea =
+              selectedAreaIdState.value?.let { model.demographicArea.id == it } ?: true
             matchesQuery && matchesArea
           }
           if (filtered.isEmpty()) {
@@ -282,7 +308,7 @@ fun CompanyClientLocationScreen(
             }
           }
 
-          items(filtered) { model ->
+          items(filtered, key = { item -> item.demographicStreet.id }) { model ->
             CompanyClientLocationItem(
               modifier = Modifier.animateItem(),
               location = state.companyLocation,

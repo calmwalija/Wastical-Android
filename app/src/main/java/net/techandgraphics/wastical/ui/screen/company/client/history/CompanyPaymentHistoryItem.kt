@@ -1,8 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.client.history
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +16,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.capitalize
@@ -69,12 +67,11 @@ import java.time.Month
             text = plan.fee.times(entity.covered.size).toAmount(),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(1f)
           )
           StatusPill(text = payment.status.name)
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
           Text(
             text = payment.createdAt.toZonedDateTime().defaultDateTime(),
@@ -99,7 +96,6 @@ import java.time.Month
 
       HorizontalDivider()
 
-      // Months covered section
       Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         val previewCount = 3
         val totalMonths = entity.covered.size
@@ -113,25 +109,16 @@ import java.time.Month
         }
 
         if (shouldCollapse) {
-          Text(
-            text = if (showMonths == 0) "Show all (" + (totalMonths - previewCount) + ")" else "Hide",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier
-              .padding(top = 4.dp)
-              .clip(MaterialTheme.shapes.small)
-              .border(
-                1.dp,
-                MaterialTheme.colorScheme.primary.copy(alpha = .4f),
-                MaterialTheme.shapes.small
-              )
-              .padding(horizontal = 10.dp, vertical = 6.dp)
-              .clickable { showMonths = if (showMonths == 0) 1 else 0 }
-          )
+          TextButton(onClick = { showMonths = if (showMonths == 0) 1 else 0 }) {
+            Text(
+              text = if (showMonths == 0) "Show all (" + (totalMonths - previewCount) + ")" else "Hide",
+              color = MaterialTheme.colorScheme.primary,
+              style = MaterialTheme.typography.labelLarge,
+            )
+          }
         }
       }
 
-      // Status info strip (no actions)
       when (payment.status) {
         PaymentStatus.Verifying -> {
           Row(
