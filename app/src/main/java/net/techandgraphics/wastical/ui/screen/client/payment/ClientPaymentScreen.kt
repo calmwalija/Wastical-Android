@@ -1,7 +1,5 @@
 package net.techandgraphics.wastical.ui.screen.client.payment
 
-import android.app.Activity
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
@@ -78,6 +75,7 @@ fun ClientPaymentScreen(
       var loading by remember { mutableStateOf(false) }
       var paymentItem by remember { mutableStateOf<PaymentMethodWithGatewayAndPlanUiModel?>(null) }
       var showPaymentScreenshotDialog by remember { mutableStateOf(false) }
+      var showImageCropper by remember { mutableStateOf(false) }
 
       val isPaymentMethodCash = state.paymentMethods
         .filter { PaymentType.Cash == PaymentType.valueOf(it.gateway.type) }
@@ -90,44 +88,9 @@ fun ClientPaymentScreen(
           ActivityResultContracts.PickVisualMedia()
         ) { uri ->
           if (uri == null) return@rememberLauncherForActivityResult
-          onEvent(ClientPaymentEvent.Button.ShowCropView(true))
+          showImageCropper = true
           onEvent(ClientPaymentEvent.Button.ImageUri(uri))
         }
-
-      val uCropLauncher =
-        rememberLauncherForActivityResult(
-          ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-          when (result.resultCode) {
-            Activity.RESULT_OK -> {
-              val resultUri = UCrop.getOutput(result.data!!)
-              resultUri?.let { uri ->
-                onEvent(ClientPaymentEvent.Button.ShowCropView(false))
-                onEvent(ClientPaymentEvent.Button.ImageUri(uri))
-                onEvent(ClientPaymentEvent.Button.ScreenshotAttached)
-                showPaymentScreenshotDialog = false
-                paymentItem = null
-              }
-            }
-
-            Activity.RESULT_CANCELED -> onEvent(ClientPaymentEvent.Button.ShowCropView(false))
-
-            else -> onEvent(ClientPaymentEvent.Button.ShowCropView(false))
-          }
-        }
-
-      fun cropImageView(sourceUri: Uri) {
-        val destinationUri = Uri.fromFile(File(context.cacheDir, "${state.timestamp}.jpg"))
-        val uCropIntent = UCrop.of(sourceUri, destinationUri)
-          .withMaxResultSize(720, 1080)
-          .useSourceImageAspectRatio()
-          .getIntent(context)
-        uCropLauncher.launch(uCropIntent)
-      }
-
-      LaunchedEffect(state.showCropView) {
-        if (state.showCropView) state.imageUri?.let { cropImageView(it) }
-      }
 
 
       if (showPaymentScreenshotDialog && paymentItem != null) {
@@ -140,6 +103,22 @@ fun ClientPaymentScreen(
             onProceed = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
           )
         }
+      }
+
+      if (showImageCropper) {
+        ImageCropperScreen(
+          imageUri = state.imageUri,
+          onCropComplete = { croppedUri ->
+            onEvent(ClientPaymentEvent.Button.ImageUri(croppedUri))
+            onEvent(ClientPaymentEvent.Button.ScreenshotAttached)
+            showImageCropper = false
+            showPaymentScreenshotDialog = false
+            paymentItem = null
+          },
+          onDismiss = {
+            showImageCropper = false
+          }
+        )
       }
 
       val lifecycleOwner = LocalLifecycleOwner.current

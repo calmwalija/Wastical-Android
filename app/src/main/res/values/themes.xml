@@ -3,9 +3,4 @@
 
   <style name="Theme.Wastical" parent="android:Theme.Material.Light.NoActionBar" />
 
-  <style name="Theme.UCrop" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-    <item name="android:statusBarColor">@android:color/transparent</item>
-    <item name="android:fitsSystemWindows">true</item>
-  </style>
 </resources>
