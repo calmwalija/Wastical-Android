@@ -198,8 +198,6 @@ interface PaymentIndicatorDao {
       (CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END) = CASE WHEN :hasPaid THEN 1 ELSE 0 END
       AND account.status = :status
       AND (
-        -- Filter accounts based on creation date relative to queried months
-        -- Only include accounts that should have been charged during the queried periods
         strftime('%Y-%m', datetime(account.created_at / 1000, 'unixepoch')) <= :maxYearMonth
       )
       GROUP BY account.id
@@ -372,10 +370,10 @@ interface PaymentIndicatorDao {
       IFNULL(SUM(CASE WHEN pmc.id IS NOT NULL THEN pp.fee ELSE 0 END), 0) AS collectedTotal
     FROM demographic_area da
     JOIN company_location cl ON cl.demographic_area_id = da.id
-    JOIN demographic_area ds ON cl.demographic_street_id = ds.id
-    JOIN account a ON a.company_location_id = cl.id AND a.status = 'Active'
-    JOIN account_payment_plan app ON app.account_id = a.id
-    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
+    LEFT JOIN account a ON a.company_location_id = cl.id AND a.status = 'Active'
+    LEFT JOIN account_payment_plan app ON app.account_id = a.id
+    LEFT JOIN payment_plan pp ON pp.id = app.payment_plan_id
     LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
     LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
     GROUP BY ds.name

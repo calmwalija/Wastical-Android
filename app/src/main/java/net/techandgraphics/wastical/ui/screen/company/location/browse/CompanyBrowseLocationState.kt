@@ -12,6 +12,6 @@ sealed interface CompanyBrowseLocationState {
     val query: String = "",
     val filters: Set<Long> = setOf(),
     val monthYear: MonthYear,
-    val sortBy: LocationSortOrder = LocationSortOrder.NameAsc,
+    val sortBy: LocationSortOrder = LocationSortOrder.Name,
   ) : CompanyBrowseLocationState
 }

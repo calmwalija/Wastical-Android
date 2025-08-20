@@ -7,6 +7,7 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.Status
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.BaseDao
 import net.techandgraphics.wastical.data.local.database.TimestampedDao
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
@@ -155,7 +156,7 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
     ) p ON p.account_id = a.id
         WHERE (street.name LIKE '%' || :query || '%'
         OR area.name LIKE '%' || :query || '%')
-        AND a.status = 'Active'
+        AND a.status = 'Active' AND a.role = :role
     GROUP BY street.id, street.name, area.name
     ORDER BY streetName ASC
     """,
@@ -164,6 +165,7 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
     month: Int,
     year: Int,
     query: String = "",
+    role: String = AccountRole.Client.name,
   ): Flow<List<Payment4CurrentLocationMonth>>
 
   @Query(

@@ -2,14 +2,14 @@ package net.techandgraphics.wastical.ui.screen.company.client.profile
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -26,9 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -162,10 +161,6 @@ fun CompanyClientProfileScreen(
                     text = { Text(text = "Remove Client") },
                     onClick = { showWarning = true; showMenuOptions = false }
                   )
-                  DropdownMenuItem(
-                    text = { Text(text = "Send Notification") },
-                    onClick = { showBroadcast = true; showMenuOptions = false }
-                  )
                 }
               }
             }) {
@@ -266,6 +261,9 @@ fun CompanyClientProfileScreen(
 
                         CompanyClientProfileEvent.Option.Call ->
                           onEvent(CompanyClientProfileEvent.Goto.Call(state.account.username))
+
+                        CompanyClientProfileEvent.Option.Notification ->
+                          showBroadcast = true
 
                         else -> onEvent(item.event)
                       }
@@ -438,6 +436,7 @@ private fun SectionRow(
     }
     Text(
       text = title,
+      style = MaterialTheme.typography.labelLarge,
       modifier = Modifier
         .padding(start = 16.dp)
         .weight(1f)

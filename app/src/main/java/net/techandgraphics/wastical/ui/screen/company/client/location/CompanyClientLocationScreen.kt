@@ -1,7 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.company.client.location
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -200,9 +199,9 @@ fun CompanyClientLocationScreen(
               item {
                 OutlinedCard(
                   shape = CircleShape,
-                  modifier = Modifier
-                    .padding(end = 8.dp)
-                    .clickable { selectedAreaIdState.value = null }
+                  modifier = Modifier.padding(end = 8.dp),
+                  enabled = selectedAreaIdState.value != null,
+                  onClick = { selectedAreaIdState.value = null }
                 ) {
                   Text(
                     text = "All",
@@ -217,9 +216,9 @@ fun CompanyClientLocationScreen(
               items(areas) { area ->
                 OutlinedCard(
                   shape = CircleShape,
-                  modifier = Modifier
-                    .padding(end = 8.dp)
-                    .clickable { selectedAreaIdState.value = area.id }
+                  modifier = Modifier.padding(end = 8.dp),
+                  enabled = selectedAreaIdState.value != area.id,
+                  onClick = { selectedAreaIdState.value = area.id }
                 ) {
                   Text(
                     text = area.name,
