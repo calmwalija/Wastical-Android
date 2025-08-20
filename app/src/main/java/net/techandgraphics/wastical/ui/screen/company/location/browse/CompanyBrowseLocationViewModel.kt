@@ -107,9 +107,9 @@ class CompanyBrowseLocationViewModel @Inject constructor(
     order: LocationSortOrder,
   ): List<Payment4CurrentLocationMonth> {
     return when (order) {
-      LocationSortOrder.NameAsc -> list.sortedBy { it.streetName.lowercase() }
-      LocationSortOrder.CompletedPayDesc -> list.sortedByDescending { safeCompletion(it) }
-      LocationSortOrder.CompletedPayAsc -> list.sortedBy { safeCompletion(it) }
+      LocationSortOrder.Name -> list.sortedBy { it.streetName.lowercase() }
+      LocationSortOrder.Paid -> list.sortedByDescending { safeCompletion(it) }
+      LocationSortOrder.UnPaid -> list.sortedBy { safeCompletion(it) }
     }
   }
 
