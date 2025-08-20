@@ -9,14 +9,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -48,10 +47,7 @@ import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@OptIn(
-  ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
-) @Composable fun CompanyPaymentTimelineScreen(
+@OptIn(ExperimentalMaterial3Api::class) @Composable fun CompanyPaymentTimelineScreen(
   state: CompanyPaymentTimelineState,
   onEvent: (CompanyPaymentTimelineEvent) -> Unit,
 ) {
@@ -190,7 +186,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                 )
               }
 
-            is LoadState.Loading -> item { LoadingIndicator() }
+            is LoadState.Loading -> item { CircularProgressIndicator() }
 
             else -> Unit
           }

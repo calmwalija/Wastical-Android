@@ -13,10 +13,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -49,7 +47,7 @@ sealed interface SearchInputItemViewEvent {
   data class InputSearch(val query: String) : SearchInputItemViewEvent
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchInputItemView(
   query: String,
@@ -98,7 +96,7 @@ fun SearchInputItemView(
               .padding(vertical = 4.dp)
           ) {
             Box(modifier = Modifier.size(24.dp)) {
-              if (showLoading) LoadingIndicator(modifier = Modifier.scale(1.4f)) else {
+              if (showLoading) CircularProgressIndicator() else {
                 Icon(
                   painter = painterResource(R.drawable.ic_outline_search),
                   contentDescription = null,

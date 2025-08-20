@@ -145,8 +145,7 @@ dependencies {
   implementation(libs.androidx.ui)
   implementation(libs.androidx.ui.graphics)
   implementation(libs.androidx.ui.tooling.preview)
-  implementation("androidx.compose.material3:material3-android:1.4.0-alpha18")
-  implementation("androidx.compose.material:material-icons-core")
+  implementation(libs.androidx.material3)
   implementation(libs.firebase.messaging)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
@@ -190,30 +189,30 @@ dependencies {
   implementation(libs.okhttp)
 
 
-  implementation("com.google.accompanist:accompanist-drawablepainter:0.37.2")
+  implementation(libs.accompanist.drawablepainter)
 
-  implementation("androidx.work:work-runtime-ktx:2.10.0")
-  implementation("androidx.hilt:hilt-work:1.0.0")
-  ksp("androidx.hilt:hilt-compiler:1.0.0")
+  implementation(libs.androidx.work.runtime.ktx)
+  implementation(libs.androidx.hilt.work)
+  ksp(libs.androidx.hilt.compiler)
 
   implementation(libs.firebase.analytics.ktx)
 
   testImplementation(libs.androidx.room.testing)
 
-  androidTestImplementation("com.google.dagger:hilt-android-testing:2.51")
-  kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
+  androidTestImplementation(libs.hilt.android.testing)
+  kspAndroidTest(libs.hilt.compiler)
   testImplementation(kotlin("test"))
 
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-  testImplementation("org.slf4j:slf4j-simple:2.0.9")
-  testImplementation("io.mockk:mockk:1.13.10")
-  testImplementation("net.bytebuddy:byte-buddy:1.14.13")
+  testImplementation(libs.kotlinx.coroutines.test)
+  testImplementation(libs.slf4j.simple)
+  testImplementation(libs.mockk)
+  testImplementation(libs.byte.buddy)
 
-  implementation("com.auth0:java-jwt:4.4.0")
+  implementation(libs.java.jwt)
 
   implementation(libs.accompanist.systemuicontroller)
 
 
-  implementation("com.google.android.gms:play-services-auth:19.0.0")
+  implementation(libs.play.services.auth)
 
 }
