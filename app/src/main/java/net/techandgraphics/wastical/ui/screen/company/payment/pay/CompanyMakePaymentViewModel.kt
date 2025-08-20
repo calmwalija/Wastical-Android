@@ -100,23 +100,35 @@ class CompanyMakePaymentViewModel @Inject constructor(
           val aging = database.paymentIndicatorDao.qAgingRawByAccountId(account.id)
 
           val monthsOutstanding = if (aging != null) {
-            val monthsCovered = aging.monthCovered
-            val monthsSinceCreated = ChronoUnit.MONTHS.between(
-              aging.createdAt.toZonedDateTime().withDayOfMonth(1),
-              ZonedDateTime.now().withDayOfMonth(1),
-            ).toInt().coerceAtLeast(0)
-            (monthsSinceCreated - monthsCovered).coerceAtLeast(0)
+            val createdZdt = aging.createdAt.toZonedDateTime()
+            val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+            val billingYm = if (today.dayOfMonth >= 25) {
+              YearMonth.of(today.year, today.month)
+            } else {
+              YearMonth.of(today.year, today.month).minusMonths(1)
+            }
+            val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm
+            if (firstDueYm.isAfter(billingYm)) {
+              0
+            } else {
+              (
+                ChronoUnit.MONTHS.between(
+                  firstDueYm.atDay(1), billingYm.atDay(1),
+                ).toInt() + 1
+                ).coerceAtLeast(0)
+            }
           } else {
             0
           }
 
           val outstandingMonths: List<MonthYear> = if (aging != null && monthsOutstanding > 0) {
-            val createdYm = aging.createdAt.toZonedDateTime()
-              .toLocalDate()
-              .withDayOfMonth(1)
-            val startYm = YearMonth.from(createdYm).plusMonths(aging.monthCovered.toLong())
+            val createdZdt = aging.createdAt.toZonedDateTime()
+            val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+            val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm
             (0 until monthsOutstanding).map { idx ->
-              val ym = startYm.plusMonths(idx.toLong())
+              val ym = firstDueYm.plusMonths(idx.toLong())
               MonthYear(ym.month.value, ym.year)
             }
           } else {
