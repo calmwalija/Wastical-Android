@@ -41,4 +41,20 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
   """,
   )
   suspend fun getLast(status: String = PaymentStatus.Approved.name): PaymentMonthCoveredEntity?
+
+  @Query(
+    """
+    SELECT
+      pmc.*
+    FROM payment p
+    JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    WHERE p.payment_status = :status AND pmc.account_id = :accountId
+    ORDER BY pmc.year DESC, pmc.month DESC
+    LIMIT 1
+    """,
+  )
+  suspend fun getLastByAccount(
+    accountId: Long,
+    status: String = PaymentStatus.Approved.name,
+  ): PaymentMonthCoveredEntity?
 }

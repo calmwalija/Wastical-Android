@@ -3,7 +3,10 @@ package net.techandgraphics.wastical.ui.screen.company.payment.pay
 import android.content.Context
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,11 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -41,8 +48,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.toPluralMonth
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
@@ -53,6 +62,9 @@ import net.techandgraphics.wastical.ui.screen.imageLoader
 import net.techandgraphics.wastical.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,7 +106,7 @@ fun CompanyMakePaymentScreen(
           }
         },
         bottomBar = {
-          BottomAppBar {
+          BottomAppBar(containerColor = MaterialTheme.colorScheme.surface) {
 
             val isPaymentMethodCash = state.paymentMethods
               .filter { it.gateway.type == PaymentType.Cash.name }
@@ -180,7 +192,104 @@ fun CompanyMakePaymentScreen(
 
           item { CompanyMakePaymentClientView(state.demographic, state.account, onEvent) }
           item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          if (state.monthsOutstanding > 0) {
+
+            item {
+              val remainingAfterPayment =
+                (state.monthsOutstanding - state.numberOfMonths).coerceAtLeast(0)
+              val quantity = context.toPluralMonth(remainingAfterPayment)
+              val due = context.toPluralMonth(state.monthsOutstanding)
+              Card(
+                colors = CardDefaults.cardColors(
+                  containerColor = MaterialTheme.colorScheme.errorContainer,
+                  contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+              ) {
+                Row(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                  verticalAlignment = Alignment.CenterVertically
+                ) {
+                  Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                      text = "Outstanding balance",
+                      style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                      text = "$due due",
+                      style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (state.outstandingMonths.isNotEmpty()) {
+                      Spacer(modifier = Modifier.height(8.dp))
+                      FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                      ) {
+                        state.outstandingMonths.forEach { ym ->
+                          Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                              .clip(RoundedCornerShape(16.dp))
+                              .background(MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.1f))
+                              .padding(horizontal = 10.dp, vertical = 4.dp)
+                          ) {
+                            Text(
+                              text = java.time.Month.of(ym.month)
+                                .getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                                .plus(" ${ym.year}"),
+                              style = MaterialTheme.typography.labelSmall,
+                            )
+                          }
+                        }
+                      }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (remainingAfterPayment > 0) {
+                      Text(
+                        text = "Remaining after this payment: $quantity",
+                        style = MaterialTheme.typography.labelLarge,
+                      )
+                    } else {
+                      Text(
+                        text = "Fully covered with this payment",
+                        style = MaterialTheme.typography.labelLarge,
+                      )
+                    }
+                  }
+                }
+              }
+            }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+          }
+
           item { CompanyMakePaymentPlanView(state, onEvent) }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item {
+            Text(
+              text = "Months Covered",
+              modifier = Modifier.padding(8.dp)
+            )
+          }
+
+          item {
+            Card(colors = CardDefaults.elevatedCardColors()) {
+              Column(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(16.dp)
+              ) {
+                MonthsCoveredPreview(
+                  base = YearMonth.of(state.workingMonthYear.year, state.workingMonthYear.month),
+                  count = state.numberOfMonths
+                )
+              }
+            }
+          }
+
           item { Spacer(modifier = Modifier.height(24.dp)) }
           item { CompanyMakePaymentMethodView(state, onEvent) }
           item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -219,5 +328,55 @@ fun companySuccessState(context: Context) = CompanyMakePaymentState.Success(
   imageLoader = imageLoader(context),
   company = company4Preview,
   demographic = companyLocationWithDemographic4Preview,
-  executedBy = account4Preview
+  executedBy = account4Preview,
+  workingMonthYear = MonthYear(9, 2025)
 )
+
+@Composable
+private fun MonthsCoveredPreview(base: YearMonth, count: Int) {
+  val months = (0 until count).map { idx -> base.plusMonths(idx.toLong()) }
+  val first = months.firstOrNull()
+  val last = months.lastOrNull()
+
+  Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+    if (first != null && last != null) {
+      val headerText = if (count > 1) {
+        first.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+          .plus(" ${first.year} - ")
+          .plus(last.month.getDisplayName(TextStyle.FULL, Locale.getDefault()))
+          .plus(" ${last.year}")
+      } else {
+        first.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+          .plus(" ${first.year}")
+      }
+      Text(
+        text = headerText,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 8.dp)
+      )
+    }
+
+    FlowRow(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      months.forEach { ym ->
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+          Text(
+            text = ym.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+              .plus(" ${ym.year}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+          )
+        }
+      }
+    }
+  }
+}
