@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -14,7 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
@@ -31,7 +34,11 @@ import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.image2Text
 import net.techandgraphics.wastical.toBitmap
 import net.techandgraphics.wastical.toSoftwareBitmap
+import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
+import java.time.YearMonth
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +48,8 @@ class CompanyMakePaymentViewModel @Inject constructor(
   private val application: Application,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val preferences: Preferences,
+  private val gson: Gson,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyMakePaymentState>(CompanyMakePaymentState.Loading)
@@ -67,6 +76,53 @@ class CompanyMakePaymentViewModel @Inject constructor(
           val demographic =
             database.companyLocationDao.getWithDemographic(account.companyLocationId)
               .toCompanyLocationWithDemographicUiModel()
+
+          val today = ZonedDateTime.now()
+          val default = gson.toJson(MonthYear(today.month.value, today.year))
+
+          val monthYearJson = preferences.get<String>(
+            key = Preferences.CURRENT_WORKING_MONTH,
+            default = default,
+          )
+
+          val monthYear = gson.fromJson(monthYearJson, MonthYear::class.java)
+
+          val lastCovered = database.paymentMonthCoveredDao.getLastByAccount(account.id)
+
+          val candidateBase = if (lastCovered != null) {
+            val lastYm = YearMonth.of(lastCovered.year, lastCovered.month)
+            lastYm.plusMonths(1)
+          } else {
+            account.createdAt.toZonedDateTime()
+              .let { zdt -> YearMonth.of(zdt.year, zdt.month) }
+          }
+
+          val aging = database.paymentIndicatorDao.qAgingRawByAccountId(account.id)
+
+          val monthsOutstanding = if (aging != null) {
+            val monthsCovered = aging.monthCovered
+            val monthsSinceCreated = ChronoUnit.MONTHS.between(
+              aging.createdAt.toZonedDateTime().withDayOfMonth(1),
+              ZonedDateTime.now().withDayOfMonth(1),
+            ).toInt().coerceAtLeast(0)
+            (monthsSinceCreated - monthsCovered).coerceAtLeast(0)
+          } else {
+            0
+          }
+
+          val outstandingMonths: List<MonthYear> = if (aging != null && monthsOutstanding > 0) {
+            val createdYm = aging.createdAt.toZonedDateTime()
+              .toLocalDate()
+              .withDayOfMonth(1)
+            val startYm = YearMonth.from(createdYm).plusMonths(aging.monthCovered.toLong())
+            (0 until monthsOutstanding).map { idx ->
+              val ym = startYm.plusMonths(idx.toLong())
+              MonthYear(ym.month.value, ym.year)
+            }
+          } else {
+            emptyList()
+          }
+
           _state.value = CompanyMakePaymentState.Success(
             company = company,
             account = account,
@@ -75,6 +131,12 @@ class CompanyMakePaymentViewModel @Inject constructor(
             imageLoader = imageLoader,
             demographic = demographic,
             executedBy = executedBy,
+            workingMonthYear = monthYear,
+            monthsOutstanding = monthsOutstanding,
+            outstandingMonths = outstandingMonths,
+          )
+          _state.value = (_state.value as CompanyMakePaymentState.Success).copy(
+            workingMonthYear = MonthYear(candidateBase.month.value, candidateBase.year),
           )
         }
     }

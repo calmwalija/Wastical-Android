@@ -442,6 +442,24 @@ interface PaymentIndicatorDao {
     """,
   )
   suspend fun qAgingRaw(): List<AgingRawItem>
+
+  @Query(
+    """
+    SELECT
+      a.*,
+      COALESCE(COUNT(DISTINCT pmc.year || '-' || printf('%02d', pmc.month)), 0) AS monthCovered,
+      pp.fee AS feePlan,
+      a.created_at AS createdAt
+    FROM account a
+    JOIN account_payment_plan app ON app.account_id = a.id
+    JOIN payment_plan pp ON pp.id = app.payment_plan_id
+    LEFT JOIN payment p ON a.id = p.account_id AND p.payment_status = 'Approved'
+    LEFT JOIN payment_month_covered pmc ON p.id = pmc.payment_id
+    WHERE a.id = :accountId
+    GROUP BY a.id
+    """,
+  )
+  suspend fun qAgingRawByAccountId(accountId: Long): AgingRawItem?
 }
 
 data class OutstandingBalanceItem(

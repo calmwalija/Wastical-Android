@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.ui.screen.company.payment.pay
 
 import android.net.Uri
 import coil.ImageLoader
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
@@ -25,5 +26,8 @@ sealed interface CompanyMakePaymentState {
     val lastPaymentId: Long = 1L,
     val screenshotText: String = "",
     val demographic: CompanyLocationWithDemographicUiModel,
+    val workingMonthYear: MonthYear,
+    val monthsOutstanding: Int = 0,
+    val outstandingMonths: List<MonthYear> = listOf(),
   ) : CompanyMakePaymentState
 }

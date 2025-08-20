@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical
 
+import android.content.Context
 import net.techandgraphics.wastical.data.local.database.account.AccountTitle
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
@@ -69,3 +70,8 @@ fun String.getAccountTitle(): String {
 
 fun String.toUUID(): UUID =
   UUID.nameUUIDFromBytes("${UUID.randomUUID()}$this".toByteArray())
+
+fun Context.toPlural(id: Int, quantity: Int) =
+  resources.getQuantityString(id, quantity, quantity)
+
+fun Context.toPluralMonth(quantity: Int) = toPlural(R.plurals.month_count, quantity)
