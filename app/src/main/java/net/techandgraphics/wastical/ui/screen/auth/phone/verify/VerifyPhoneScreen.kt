@@ -13,9 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,7 +53,6 @@ import net.techandgraphics.wastical.ui.screen.auth.phone.verify.VerifyPhoneEvent
 import net.techandgraphics.wastical.ui.theme.Muted
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun VerifyPhoneScreen(
   state: VerifyPhoneState,
@@ -187,7 +185,7 @@ fun VerifyPhoneScreen(
           onClick = { onEvent(VerifyPhoneEvent.Button.Verify); isProcessing = true }
         ) {
           Box {
-            if (isProcessing) LoadingIndicator(
+            if (isProcessing) CircularProgressIndicator(
               modifier = Modifier.size(24.dp),
               color = MaterialTheme.colorScheme.secondary
             ) else {

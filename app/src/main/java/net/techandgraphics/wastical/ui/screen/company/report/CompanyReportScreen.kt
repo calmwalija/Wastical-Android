@@ -190,9 +190,9 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           onDismissRequest = {
             eventToProceedWith?.let { event -> indicators[event] = false }
             showLocationDialog = false
-          }, sheetState = modalBottomSheetState,
+          },
+          sheetState = modalBottomSheetState,
           dragHandle = {},
-          sheetGesturesEnabled = false
         ) {
           CompanyReportLocationFilterView(
             filters = state.demographicFilters,

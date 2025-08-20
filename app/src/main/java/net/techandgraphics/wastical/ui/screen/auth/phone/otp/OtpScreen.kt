@@ -15,9 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -58,7 +57,6 @@ import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OtpScreen(
   state: OtpState,
@@ -167,7 +165,7 @@ fun OtpScreen(
               onClick = { onEvent(OtpEvent.Otp(opt)); isProcessing = true }
             ) {
               Box {
-                if (isProcessing) LoadingIndicator(
+                if (isProcessing) CircularProgressIndicator(
                   modifier = Modifier.size(24.dp),
                   color = MaterialTheme.colorScheme.secondary
                 ) else {
