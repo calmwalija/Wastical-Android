@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -97,7 +96,7 @@ fun SearchInputItemView(
               .padding(vertical = 4.dp)
           ) {
             Box(modifier = Modifier.size(24.dp)) {
-              if (showLoading) CircularProgressIndicator(modifier = Modifier.scale(1.4f)) else {
+              if (showLoading) CircularProgressIndicator() else {
                 Icon(
                   painter = painterResource(R.drawable.ic_outline_search),
                   contentDescription = null,

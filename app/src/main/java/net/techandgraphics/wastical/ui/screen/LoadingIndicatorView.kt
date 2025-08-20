@@ -13,6 +13,6 @@ import androidx.compose.ui.draw.scale
     modifier = Modifier.fillMaxSize(),
     contentAlignment = Alignment.Center
   ) {
-    CircularProgressIndicator(modifier = Modifier.scale(3f))
+    CircularProgressIndicator(modifier = Modifier.scale(2f))
   }
 }
