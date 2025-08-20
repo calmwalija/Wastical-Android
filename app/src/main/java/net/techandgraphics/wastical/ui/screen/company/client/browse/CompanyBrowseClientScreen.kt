@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.company.client.browse
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -21,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,7 +33,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemView
+import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
 import net.techandgraphics.wastical.ui.screen.accountWithStreetAndArea4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
@@ -105,15 +113,36 @@ fun CompanyBrowseClientScreen(
             }
           }
 
-
           item { Spacer(modifier = Modifier.height(16.dp)) }
 
           item {
-            CompanyBrowseClientSearchView(state) { event ->
-              when (event) {
-                CompanyBrowseClientListEvent.Button.Filter -> showFilters = true
-                else -> onEvent(event)
-              }
+            Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+              SearchInputItemView(
+                query = state.query,
+                trailingView = {
+                  Row {
+                    IconButton(
+                      onClick = { showFilters = true },
+                      colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
+                      ),
+                    ) {
+                      Icon(
+                        painter = painterResource(id = R.drawable.ic_sort),
+                        contentDescription = null,
+                      )
+                    }
+                  }
+
+                },
+                onEvent = { event ->
+                  when (event) {
+                    is SearchInputItemViewEvent.InputSearch -> {
+                      onEvent(CompanyBrowseClientListEvent.Input.Search(event.query))
+                    }
+                  }
+                }
+              )
             }
           }
 
