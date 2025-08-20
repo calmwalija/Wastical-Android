@@ -300,16 +300,13 @@ interface PaymentIndicatorDao {
     SELECT
       pmc.month AS month,
       pmc.year AS year,
-      -- collected total for the month
       IFNULL(SUM(pp.fee), 0) AS collectedTotal,
-      -- expected total for the month (all active accounts as of that month end)
       (
         SELECT IFNULL(SUM(pp2.fee), 0)
         FROM account a2
         JOIN account_payment_plan app2 ON app2.account_id = a2.id
         JOIN payment_plan pp2 ON pp2.id = app2.payment_plan_id
-        WHERE a2.status = 'Active'
-          AND strftime('%Y-%m', datetime(a2.created_at / 1000, 'unixepoch')) <= printf('%04d-%02d', pmc.year, pmc.month)
+          AND strftime('%Y-%m', datetime(a2.created_at, 'unixepoch')) <= printf('%04d-%02d', pmc.year, pmc.month)
       ) AS expectedTotal
     FROM payment_month_covered pmc
     JOIN payment p ON p.id = pmc.payment_id AND p.payment_status = 'Approved'

@@ -41,6 +41,7 @@ interface StreetIndicatorDao {
         FROM payment p JOIN payment_month_covered pm ON pm.payment_id = p.id
         WHERE pm.month = :month AND pm.year =:year
     ) p ON p.account_id = a.id
+    WHERE a.status = 'Active'
     GROUP BY street.id, street.name, area.name
     ORDER BY paidAccounts DESC LIMIT 3
     """,
