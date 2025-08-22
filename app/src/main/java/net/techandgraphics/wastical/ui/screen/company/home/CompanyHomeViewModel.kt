@@ -42,9 +42,9 @@ import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.notification.NotificationType
-import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
+import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
 import net.techandgraphics.wastical.write
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -209,7 +209,7 @@ import javax.inject.Inject
 
   private fun onButtonWorkers() = viewModelScope.launch {
     application.scheduleCompanyAccountRequestWorker()
-    application.scheduleClientPaymentRequestWorker()
+    application.scheduleCompanyPaymentRequestWorker()
   }
 
   private fun onBroadcastSend(title: String, body: String) = viewModelScope.launch {
