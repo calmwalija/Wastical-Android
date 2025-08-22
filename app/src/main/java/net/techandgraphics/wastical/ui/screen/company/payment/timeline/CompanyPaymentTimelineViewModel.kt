@@ -38,17 +38,20 @@ class CompanyPaymentTimelineViewModel @Inject constructor(
   private fun flowOfPaging(query: String = "") {
     if (_state.value is CompanyPaymentTimelineState.Success) {
       val state = (_state.value as CompanyPaymentTimelineState.Success)
-      val pagingSourceFactory = database.paymentDao.flowOfPaging(
-        query = query,
-        sort = state.sort,
-      )
       Pager(
         config = PagingConfig(
-          pageSize = 20,
-          initialLoadSize = 40,
+          pageSize = 40,
+          initialLoadSize = 120,
           prefetchDistance = 10,
+          maxSize = 200,
+          enablePlaceholders = false,
         ),
-        pagingSourceFactory = { pagingSourceFactory },
+        pagingSourceFactory = {
+          database.paymentDao.flowOfPaging(
+            query = query,
+            sort = state.sort,
+          )
+        },
       ).flow
         .map { p0 -> p0.map { it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel() } }
         .also { flowOfPayments ->
