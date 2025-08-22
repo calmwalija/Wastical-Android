@@ -14,6 +14,8 @@ import android.webkit.MimeTypeMap
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.security.MessageDigest
 
 @Suppress("DEPRECATION")
@@ -113,4 +115,26 @@ fun Context.getFile(uri: Uri): File {
     }
   }
   return tempFile
+}
+
+fun Bitmap.toUri(context: Context, quality: Int = 100): Uri? {
+  return try {
+    val imageFile = File.createTempFile(
+      "${System.currentTimeMillis()}",
+      ".jpg",
+      context.filesDir,
+    )
+
+    FileOutputStream(imageFile).use { outputStream ->
+      this.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+    }
+    FileProvider.getUriForFile(
+      context,
+      "${context.packageName}.provider",
+      imageFile,
+    )
+  } catch (e: IOException) {
+    e.printStackTrace()
+    null
+  }
 }
