@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastical.data.Status
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.domain.toCompanyUiModel
@@ -38,17 +39,26 @@ class CompanyPaymentTimelineViewModel @Inject constructor(
   private fun flowOfPaging(query: String = "") {
     if (_state.value is CompanyPaymentTimelineState.Success) {
       val state = (_state.value as CompanyPaymentTimelineState.Success)
-      val pagingSourceFactory = database.paymentDao.flowOfPaging(
+      database.paymentDao.flowOfPaging(
         query = query,
         sort = state.sort,
+        status = Status.Active.name,
       )
       Pager(
         config = PagingConfig(
-          pageSize = 20,
-          initialLoadSize = 40,
+          pageSize = 40,
+          initialLoadSize = 120,
           prefetchDistance = 10,
+          maxSize = 200,
+          enablePlaceholders = false,
         ),
-        pagingSourceFactory = { pagingSourceFactory },
+        pagingSourceFactory = {
+          database.paymentDao.flowOfPaging(
+            query = query,
+            sort = state.sort,
+            status = Status.Active.name,
+          )
+        },
       ).flow
         .map { p0 -> p0.map { it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel() } }
         .also { flowOfPayments ->
