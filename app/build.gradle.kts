@@ -208,6 +208,8 @@ dependencies {
   testImplementation(libs.mockk)
   testImplementation(libs.byte.buddy)
 
+  implementation(libs.cropify)
+
   implementation(libs.java.jwt)
 
   implementation(libs.accompanist.systemuicontroller)

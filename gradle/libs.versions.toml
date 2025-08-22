@@ -2,6 +2,7 @@
 accompanistDrawablepainter = "0.37.2"
 agp = "8.12.1"
 byteBuddy = "1.14.13"
+cropify = "0.5.1"
 firebaseAnalyticsKtx = "22.4.0"
 hiltAndroidTesting = "2.51"
 hiltCompilerVersion = "2.50"
@@ -61,6 +62,7 @@ androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWo
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
+cropify = { module = "com.github.moyuruaizawa:cropify", version.ref = "cropify" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version.ref = "firebaseAnalyticsKtx" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroidTesting" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompilerVersion" }

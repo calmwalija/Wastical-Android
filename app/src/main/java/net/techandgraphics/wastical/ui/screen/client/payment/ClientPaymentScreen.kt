@@ -56,7 +56,6 @@ import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
-import java.io.File
 import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,7 +114,7 @@ fun ClientPaymentScreen(
             showPaymentScreenshotDialog = false
             paymentItem = null
           },
-          onDismiss = {
+          onDismissRequest = {
             showImageCropper = false
           }
         )
@@ -231,7 +230,6 @@ fun ClientPaymentScreen(
               )
             )
           }
-
 
           item {
             Text(
