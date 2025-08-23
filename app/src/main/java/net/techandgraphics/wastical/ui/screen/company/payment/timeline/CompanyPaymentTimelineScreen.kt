@@ -1,19 +1,16 @@
 package net.techandgraphics.wastical.ui.screen.company.payment.timeline
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -25,17 +22,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,14 +40,15 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.ScrollToTopView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
 import net.techandgraphics.wastical.ui.screen.SnackbarThemed
+import net.techandgraphics.wastical.ui.screen.VerticalScrollbar
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
@@ -78,11 +75,11 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= 10 } }
 
         val pagingItems = state.payments.collectAsLazyPagingItems()
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box {
           LazyColumn(
             state = listState,
-            contentPadding = PaddingValues(bottom = 80.dp),
-            modifier = Modifier.padding(16.dp)
+            contentPadding = innerPadding,
+            modifier = Modifier.padding(horizontal = 16.dp)
           ) {
 
             item {
@@ -207,22 +204,19 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             }
           }
 
-          AnimatedVisibility(
-            visible = showScrollToTop,
-            modifier = Modifier
-              .align(Alignment.BottomEnd)
-              .padding(16.dp)
-          ) {
-            FloatingActionButton(
-              onClick = { scope.launch { listState.animateScrollToItem(0) } },
-              containerColor = MaterialTheme.colorScheme.primary
-            ) {
-              Icon(
-                imageVector = Icons.Rounded.KeyboardArrowUp,
-                contentDescription = "Scroll to top"
-              )
-            }
-          }
+
+          VerticalScrollbar(
+            listState = listState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+          )
+
+          ScrollToTopView(
+            listState = listState,
+            coroutineScope = scope,
+            showScrollToTop = showScrollToTop,
+            modifier = Modifier.align(Alignment.BottomEnd)
+          )
+
         }
       }
     }
