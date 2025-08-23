@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.data.local.database.account
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -58,17 +59,7 @@ interface AccountDao : BaseDao<AccountEntity> {
 
   @Query(
     """
-    SELECT a.firstname,
-           a.lastname,
-           a.username,
-           a.title,
-           a.id as accountId,
-           ds.name AS streetName,
-           da.name AS areaName
-    FROM account a
-    JOIN company_location cl ON a.company_location_id = cl.id
-    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
-    JOIN demographic_area da ON cl.demographic_area_id = da.id
+    $ACCOUNT_QUERY
     WHERE (a.firstname LIKE '%' || :query || '%'
         OR a.username LIKE '%' || :query || '%'
         OR a.title LIKE '%' || :query || '%'
@@ -82,17 +73,7 @@ interface AccountDao : BaseDao<AccountEntity> {
 
   @Query(
     """
-    SELECT a.firstname,
-           a.lastname,
-           a.username,
-           a.title,
-           a.id as accountId,
-           ds.name AS streetName,
-           da.name AS areaName
-    FROM account a
-    JOIN company_location cl ON a.company_location_id = cl.id
-    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
-    JOIN demographic_area da ON cl.demographic_area_id = da.id
+    $ACCOUNT_QUERY
     WHERE (a.firstname LIKE '%' || :query || '%'
         OR a.username LIKE '%' || :query || '%'
         OR a.title LIKE '%' || :query || '%'
@@ -103,6 +84,37 @@ interface AccountDao : BaseDao<AccountEntity> {
     """,
   )
   fun qAccountInfoFiltered(query: String = "", ids: Set<Long>): Flow<List<AccountInfoUiModel>>
+
+  @Query(
+    """
+    $ACCOUNT_QUERY
+    WHERE (a.firstname LIKE '%' || :query || '%'
+        OR a.username LIKE '%' || :query || '%'
+        OR a.title LIKE '%' || :query || '%'
+        OR ds.name LIKE '%' || :query || '%'
+        OR da.name LIKE '%' || :query || '%'
+        OR a.lastname LIKE '%' || :query || '%')
+        AND a.status = 'Active'
+    """,
+  )
+  fun qPagingAccountInfo(query: String = ""): PagingSource<Int, AccountInfoUiModel>
+
+  @Query(
+    """
+    $ACCOUNT_QUERY
+    WHERE (a.firstname LIKE '%' || :query || '%'
+        OR a.username LIKE '%' || :query || '%'
+        OR a.title LIKE '%' || :query || '%'
+        OR ds.name LIKE '%' || :query || '%'
+        OR da.name LIKE '%' || :query || '%'
+        OR a.lastname LIKE '%' || :query || '%')
+      AND da.id IN (:ids) AND a.status = 'Active'
+    """,
+  )
+  fun qPagingAccountInfoFiltered(query: String = "", ids: Set<Long>): PagingSource<Int, AccountInfoUiModel>
+
+  fun flowOfPaging(query: String = "", ids: Set<Long>? = null) =
+    if (ids == null) qPagingAccountInfo(query) else qPagingAccountInfoFiltered(query, ids)
 
   fun qAccountData(query: String = "", ids: Set<Long>? = null) =
     if (ids == null) qAccountInfo(query) else qAccountInfoFiltered(query, ids)
