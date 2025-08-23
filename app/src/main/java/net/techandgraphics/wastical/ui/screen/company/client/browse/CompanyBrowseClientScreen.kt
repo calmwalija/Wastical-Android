@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,9 +20,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +38,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.ScrollToTopView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
+import net.techandgraphics.wastical.ui.screen.VerticalScrollbar
 import net.techandgraphics.wastical.ui.screen.accountWithStreetAndArea4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
@@ -71,12 +76,13 @@ fun CompanyBrowseClientScreen(
     is CompanyBrowseClientState.Success -> {
 
       var showFilters by remember { mutableStateOf(false) }
-
+      val listState = rememberLazyListState()
+      val coroutineScope = rememberCoroutineScope()
+      val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= 10 } }
 
       if (showFilters) ModalBottomSheet(onDismissRequest = { showFilters = false }) {
         CompanyBrowseClientSearchFilterView(state, onEvent)
       }
-
 
       Scaffold(
         topBar = {
@@ -85,75 +91,90 @@ fun CompanyBrowseClientScreen(
           }
         },
       ) {
+        Box {
+          LazyColumn(
+            state = listState,
+            contentPadding = it,
+            modifier = Modifier.padding(vertical = 16.dp)
+          ) {
+            item {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f)
+                ) {
+                  Text(
+                    text = "Browse Clients",
+                    style = MaterialTheme.typography.headlineMedium,
+                  )
+                  Text(
+                    text = "Which client are you looking for ?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Muted
+                  )
+                }
 
-        LazyColumn(
-          contentPadding = it,
-          modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-          item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Column(
-                modifier = Modifier
-                  .padding(horizontal = 16.dp)
-                  .weight(1f)
-              ) {
-                Text(
-                  text = "Browse Clients",
-                  style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                  text = "Which client are you looking for ?",
-                  style = MaterialTheme.typography.bodyMedium,
-                  maxLines = 1,
-                  overflow = TextOverflow.Ellipsis,
-                  color = Muted
+              }
+            }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            item {
+              Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+                SearchInputItemView(
+                  query = state.query,
+                  trailingView = {
+                    Row {
+                      IconButton(
+                        onClick = { showFilters = true },
+                        colors = IconButtonDefaults.iconButtonColors(
+                          containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
+                        ),
+                      ) {
+                        Icon(
+                          painter = painterResource(id = R.drawable.ic_sort),
+                          contentDescription = null,
+                        )
+                      }
+                    }
+
+                  },
+                  onEvent = { event ->
+                    when (event) {
+                      is SearchInputItemViewEvent.InputSearch -> {
+                        onEvent(CompanyBrowseClientListEvent.Input.Search(event.query))
+                      }
+                    }
+                  }
                 )
               }
-
             }
-          }
 
-          item { Spacer(modifier = Modifier.height(16.dp)) }
-
-          item {
-            Box(modifier = Modifier.padding(horizontal = 8.dp)) {
-              SearchInputItemView(
-                query = state.query,
-                trailingView = {
-                  Row {
-                    IconButton(
-                      onClick = { showFilters = true },
-                      colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
-                      ),
-                    ) {
-                      Icon(
-                        painter = painterResource(id = R.drawable.ic_sort),
-                        contentDescription = null,
-                      )
-                    }
-                  }
-
-                },
-                onEvent = { event ->
-                  when (event) {
-                    is SearchInputItemViewEvent.InputSearch -> {
-                      onEvent(CompanyBrowseClientListEvent.Input.Search(event.query))
-                    }
-                  }
-                }
-              )
+            item {
+              if (state.searchHistoryTags.size > 3)
+                CompanyBrowseClientSearchHistoryView(state, onEvent)
             }
+
+            items(state.accounts, key = { key -> key.accountId }) { account ->
+              CompanyBrowseClientView(account, modifier = Modifier.animateItem(), onEvent)
+            }
+
           }
 
-          item {
-            if (state.searchHistoryTags.size > 3)
-              CompanyBrowseClientSearchHistoryView(state, onEvent)
-          }
+          VerticalScrollbar(
+            listState = listState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+          )
 
-          items(state.accounts, key = { key -> key.accountId }) { account ->
-            CompanyBrowseClientView(account, modifier = Modifier.animateItem(), onEvent)
-          }
+          ScrollToTopView(
+            listState = listState,
+            coroutineScope = coroutineScope,
+            showScrollToTop = showScrollToTop,
+            modifier = Modifier.align(Alignment.BottomEnd)
+          )
 
         }
       }
@@ -169,7 +190,7 @@ private fun CompanyBrowseClientScreenPreview() {
     CompanyBrowseClientScreen(
       state = CompanyBrowseClientState.Success(
         accounts = (1..6)
-          .map { listOf(accountWithStreetAndArea4Preview) }
+          .map { index -> listOf(accountWithStreetAndArea4Preview.copy(accountId = index.toLong())) }
           .toList()
           .flatten(),
         company = company4Preview

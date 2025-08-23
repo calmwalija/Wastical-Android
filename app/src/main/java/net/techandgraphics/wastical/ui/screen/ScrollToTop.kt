@@ -31,7 +31,7 @@ fun ScrollToTopView(
         colors = IconButtonDefaults.iconButtonColors(
           containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        modifier = Modifier.scale(1.2f)
+        modifier = Modifier.scale(1.3f)
       ) {
         Icon(
           imageVector = Icons.Rounded.KeyboardArrowUp,
