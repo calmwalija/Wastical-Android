@@ -4,12 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.Status
@@ -61,6 +64,8 @@ class CompanyPaymentTimelineViewModel @Inject constructor(
         },
       ).flow
         .map { p0 -> p0.map { it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel() } }
+        .flowOn(Dispatchers.Default)
+        .cachedIn(viewModelScope)
         .also { flowOfPayments ->
           _state.value = state.copy(payments = flowOfPayments)
         }
