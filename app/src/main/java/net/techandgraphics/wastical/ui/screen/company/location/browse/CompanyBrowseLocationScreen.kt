@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.DropdownMenu
@@ -20,8 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,8 +36,10 @@ import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
+import net.techandgraphics.wastical.ui.screen.ScrollToTopView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemView
 import net.techandgraphics.wastical.ui.screen.SearchInputItemViewEvent
+import net.techandgraphics.wastical.ui.screen.VerticalScrollbar
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.payment4CurrentLocationMonth4Preview
@@ -48,6 +54,9 @@ fun CompanyBrowseLocationScreen(
 ) {
 
   val showSort = remember { mutableStateOf(false) }
+  val listState = rememberLazyListState()
+  val coroutineScope = rememberCoroutineScope()
+  val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= 10 } }
 
   when (state) {
     CompanyBrowseLocationState.Loading -> LoadingIndicatorView()
@@ -60,105 +69,121 @@ fun CompanyBrowseLocationScreen(
           )
         },
       ) {
-        LazyColumn(
-          contentPadding = it,
-          modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-          item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Column(
-                modifier = Modifier
-                  .padding(horizontal = 16.dp)
-                  .weight(1f)
-              ) {
-                Text(
-                  text = "Browse Location",
-                  style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                  text = "Which location are you looking for ?",
-                  style = MaterialTheme.typography.bodyMedium,
-                  maxLines = 1,
-                  overflow = TextOverflow.Ellipsis,
-                  color = Muted
-                )
+        Box {
+          LazyColumn(
+            state = listState,
+            contentPadding = it,
+            modifier = Modifier.padding(vertical = 16.dp)
+          ) {
+            item {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f)
+                ) {
+                  Text(
+                    text = "Browse Location",
+                    style = MaterialTheme.typography.headlineMedium,
+                  )
+                  Text(
+                    text = "Which location are you looking for ?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Muted
+                  )
+                }
               }
             }
-          }
 
-          item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
 
-          item {
-            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-              SearchInputItemView(
-                query = state.query,
-                trailingView = {
-                  Row {
-                    IconButton(
-                      onClick = { showSort.value = true },
-                      colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
-                      ),
-                    ) {
-                      Icon(
-                        painter = painterResource(id = R.drawable.ic_sort),
-                        contentDescription = null,
-                      )
-                      DropdownMenu(
-                        expanded = showSort.value,
-                        onDismissRequest = { showSort.value = false }) {
-                        LocationSortOrder.entries.forEach { sortBy ->
-                          DropdownMenuItem(
-                            text = {
-                              Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                  text = sortBy.description,
-                                  modifier = Modifier.padding(end = 16.dp),
-                                  color = if (state.sortBy == sortBy) MaterialTheme.colorScheme.primary else {
-                                    MaterialTheme.colorScheme.secondary
-                                  }
-                                )
-                                if (state.sortBy == sortBy) {
-                                  Icon(
-                                    imageVector = Icons.Rounded.CheckCircle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
+            item {
+              Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                SearchInputItemView(
+                  query = state.query,
+                  trailingView = {
+                    Row {
+                      IconButton(
+                        onClick = { showSort.value = true },
+                        colors = IconButtonDefaults.iconButtonColors(
+                          containerColor = MaterialTheme.colorScheme.primary.copy(.2f)
+                        ),
+                      ) {
+                        Icon(
+                          painter = painterResource(id = R.drawable.ic_sort),
+                          contentDescription = null,
+                        )
+                        DropdownMenu(
+                          expanded = showSort.value,
+                          onDismissRequest = { showSort.value = false }) {
+                          LocationSortOrder.entries.forEach { sortBy ->
+                            DropdownMenuItem(
+                              text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                  Text(
+                                    text = sortBy.description,
+                                    modifier = Modifier.padding(end = 16.dp),
+                                    color = if (state.sortBy == sortBy) MaterialTheme.colorScheme.primary else {
+                                      MaterialTheme.colorScheme.secondary
+                                    }
                                   )
+                                  if (state.sortBy == sortBy) {
+                                    Icon(
+                                      imageVector = Icons.Rounded.CheckCircle,
+                                      contentDescription = null,
+                                      tint = MaterialTheme.colorScheme.primary
+                                    )
+                                  }
                                 }
-                              }
-                            },
-                            enabled = state.sortBy != sortBy,
-                            onClick = {
-                              onEvent(CompanyBrowseLocationEvent.SortBy(sortBy))
-                              showSort.value = false
-                            },
-                          )
+                              },
+                              enabled = state.sortBy != sortBy,
+                              onClick = {
+                                onEvent(CompanyBrowseLocationEvent.SortBy(sortBy))
+                                showSort.value = false
+                              },
+                            )
+                          }
                         }
                       }
                     }
-                  }
 
-                },
-                onEvent = { event ->
-                  when (event) {
-                    is SearchInputItemViewEvent.InputSearch -> {
-                      onEvent(CompanyBrowseLocationEvent.Input.Search(event.query))
+                  },
+                  onEvent = { event ->
+                    when (event) {
+                      is SearchInputItemViewEvent.InputSearch -> {
+                        onEvent(CompanyBrowseLocationEvent.Input.Search(event.query))
+                      }
                     }
                   }
-                }
+                )
+              }
+            }
+
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+            items(state.payment4CurrentLocationMonth, key = { key -> key.streetId }) { location ->
+              CompanyBrowseLocationView(
+                modifier = Modifier.animateItem(),
+                location = location,
+                onEvent = onEvent
               )
             }
+
           }
 
-          item { Spacer(modifier = Modifier.height(8.dp)) }
+          VerticalScrollbar(
+            listState = listState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+          )
 
-          items(state.payment4CurrentLocationMonth, key = { key -> key.streetId }) { location ->
-            CompanyBrowseLocationView(
-              modifier = Modifier.animateItem(),
-              location = location,
-              onEvent = onEvent
-            )
-          }
+          ScrollToTopView(
+            listState = listState,
+            coroutineScope = coroutineScope,
+            showScrollToTop = showScrollToTop,
+            modifier = Modifier.align(Alignment.BottomEnd)
+          )
 
         }
       }
