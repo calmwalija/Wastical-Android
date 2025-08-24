@@ -190,8 +190,7 @@ interface PaymentIndicatorDao {
       LEFT JOIN demographic_street as street ON location.demographic_street_id = street.id
       LEFT JOIN demographic_area as area ON location.demographic_area_id = area.id
       LEFT JOIN payment_month_covered as month_covered ON account.id = month_covered.account_id
-      AND month_covered.month IN (:months)
-      AND month_covered.year IN (:years)
+      AND (month_covered.year || '-' || printf('%02d', month_covered.month)) IN (:yearMonthKeys)
       LEFT JOIN payment as payment ON month_covered.payment_id = payment.id
       AND payment.payment_status = 'Approved'
     WHERE
@@ -205,8 +204,7 @@ interface PaymentIndicatorDao {
 """,
   )
   suspend fun qRange(
-    months: List<Int>,
-    years: List<Int>,
+    yearMonthKeys: List<String>,
     hasPaid: Boolean,
     maxYearMonth: String,
     status: String = Status.Active.name,
@@ -310,12 +308,12 @@ interface PaymentIndicatorDao {
     JOIN payment p ON p.id = pmc.payment_id AND p.payment_status = 'Approved'
     JOIN account_payment_plan app ON app.account_id = pmc.account_id
     JOIN payment_plan pp ON pp.id = app.payment_plan_id
-    WHERE pmc.month IN (:months) AND pmc.year IN (:years)
+    WHERE (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY pmc.year, pmc.month
     ORDER BY pmc.year, pmc.month
     """,
   )
-  suspend fun qRevenueSummary(months: List<Int>, years: List<Int>): List<RevenueSummaryItem>
+  suspend fun qRevenueSummary(yearMonthKeys: List<String>): List<RevenueSummaryItem>
 
   @Query(
     """
@@ -331,14 +329,13 @@ interface PaymentIndicatorDao {
     JOIN account_payment_plan app ON app.account_id = p.account_id
     JOIN payment_plan pp ON pp.id = app.payment_plan_id
     WHERE p.payment_status = 'Approved'
-      AND pmc.month IN (:months) AND pmc.year IN (:years)
+      AND (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY gateway.name
     ORDER BY totalAmount DESC
     """,
   )
   suspend fun qPaymentMethodBreakdown(
-    months: List<Int>,
-    years: List<Int>,
+    yearMonthKeys: List<String>,
   ): List<PaymentMethodBreakdownItem>
 
   @Query(
@@ -353,12 +350,12 @@ interface PaymentIndicatorDao {
     LEFT JOIN account_payment_plan app ON app.payment_plan_id = pp.id
     LEFT JOIN account a ON a.id = app.account_id AND a.status = 'Active'
     LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
-    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
+    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY pp.id, pp.name, pp.fee
     ORDER BY fee ASC
     """,
   )
-  suspend fun qPlanPerformance(months: List<Int>, years: List<Int>): List<PlanPerformanceItem>
+  suspend fun qPlanPerformance(yearMonthKeys: List<String>): List<PlanPerformanceItem>
 
   @Query(
     """
@@ -375,12 +372,12 @@ interface PaymentIndicatorDao {
     LEFT JOIN account_payment_plan app ON app.account_id = a.id
     LEFT JOIN payment_plan pp ON pp.id = app.payment_plan_id
     LEFT JOIN payment p ON p.account_id = a.id AND p.payment_status = 'Approved'
-    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND pmc.month IN (:months) AND pmc.year IN (:years)
+    LEFT JOIN payment_month_covered pmc ON pmc.payment_id = p.id AND (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY ds.name
     ORDER BY collectedTotal DESC
     """,
   )
-  suspend fun qLocationCollection(months: List<Int>, years: List<Int>): List<LocationCollectionItem>
+  suspend fun qLocationCollection(yearMonthKeys: List<String>): List<LocationCollectionItem>
 
   @Query(
     """
@@ -392,12 +389,12 @@ interface PaymentIndicatorDao {
     JOIN payment_method method ON method.id = p.payment_method_id
     JOIN payment_gateway gateway ON gateway.id = method.payment_gateway_id
     JOIN payment_month_covered pmc ON pmc.payment_id = p.id
-    WHERE pmc.month IN (:months) AND pmc.year IN (:years)
+    WHERE (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY gateway.name
     ORDER BY approvedCount DESC
     """,
   )
-  suspend fun qGatewaySuccess(months: List<Int>, years: List<Int>): List<GatewaySuccessItem>
+  suspend fun qGatewaySuccess(yearMonthKeys: List<String>): List<GatewaySuccessItem>
 
   @Query(
     """
@@ -413,15 +410,14 @@ interface PaymentIndicatorDao {
     JOIN account a ON a.id = p.account_id
     JOIN payment_month_covered pmc ON pmc.payment_id = p.id
     WHERE p.payment_status = 'Approved'
-      AND pmc.month IN (:months) AND pmc.year IN (:years)
+      AND (pmc.year || '-' || printf('%02d', pmc.month)) IN (:yearMonthKeys)
     GROUP BY p.id
     HAVING monthsCoveredThisPayment > 1
     ORDER BY maxYear DESC, maxMonth DESC
     """,
   )
   suspend fun qUpfrontPaymentsDetail(
-    months: List<Int>,
-    years: List<Int>,
+    yearMonthKeys: List<String>,
   ): List<UpfrontPaymentDetailItem>
 
   @Query(

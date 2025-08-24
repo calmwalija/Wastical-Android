@@ -111,7 +111,6 @@ import javax.inject.Inject
         compareBy<MonthYear> { it.year }.thenBy { it.month },
       )
 
-    // Dashboard metrics
     val activeAccounts = accounts.size
     val now = ZonedDateTime.now()
     val currentMonth = now.month.value
@@ -356,9 +355,11 @@ import javax.inject.Inject
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
 
+      val missedKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qRange(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = missedKeys,
         hasPaid = false,
         maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
           String.format(
@@ -408,9 +409,11 @@ import javax.inject.Inject
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
 
+      val paidKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qRange(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = paidKeys,
         hasPaid = true,
         maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
           String.format(
@@ -694,9 +697,11 @@ import javax.inject.Inject
   private fun onReportUpfrontPaymentsDetail() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val upfrontKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qUpfrontPaymentsDetail(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = upfrontKeys,
       )
 
       val fullNameWidth =
@@ -749,9 +754,11 @@ import javax.inject.Inject
   private fun onReportPlanPerformance() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val performanceKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qPlanPerformance(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = performanceKeys,
       )
 
       val planNameWidth =
@@ -802,9 +809,11 @@ import javax.inject.Inject
   private fun onReportRevenueSummary() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val yearMonthKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qRevenueSummary(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = yearMonthKeys,
       )
 
       val countWidth = paint.measureText(dataset.size.toString()).padding()
@@ -822,7 +831,7 @@ import javax.inject.Inject
         lastWidths,
       )
 
-      val filename = "Revenue Summary Report- ${ZonedDateTime.now().toDate()}"
+      val filename = "Revenue Summary Report - ${ZonedDateTime.now().toDate()}"
 
       BaseExportKlass<RevenueSummaryItem>(application).toPdf(
         company = state.company,
@@ -846,9 +855,11 @@ import javax.inject.Inject
   private fun onReportLocationCollection() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val locationKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qLocationCollection(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = locationKeys,
       )
 
       val collectedWidth =
@@ -926,9 +937,11 @@ import javax.inject.Inject
   private fun onReportPaymentMethodBreakdown() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val methodKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qPaymentMethodBreakdown(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = methodKeys,
       )
 
       val filename = "Payment Method Breakdown - ${ZonedDateTime.now().toDate()}"
@@ -962,9 +975,11 @@ import javax.inject.Inject
   private fun onReportGatewaySuccess() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
+      val gatewayKeys = state.filters
+        .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
+        .distinct()
       val dataset = database.paymentIndicatorDao.qGatewaySuccess(
-        months = state.filters.map { it.month },
-        years = state.filters.map { it.year }.distinct(),
+        yearMonthKeys = gatewayKeys,
       )
       val filename = "Gateway Success - ${ZonedDateTime.now().toDate()}"
       BaseExportKlass<GatewaySuccessItem>(application).toPdf(
