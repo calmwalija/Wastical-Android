@@ -23,3 +23,18 @@ const val ACCOUNT_QUERY_EXPORT = """
       JOIN demographic_street ds ON cl.demographic_street_id = ds.id
       JOIN demographic_area da ON cl.demographic_area_id = da.id
 """
+
+@Language("RoomSql")
+const val ACCOUNT_QUERY = """
+      SELECT a.firstname,
+           a.lastname,
+           a.username,
+           a.title,
+           a.id as accountId,
+           ds.name AS streetName,
+           da.name AS areaName
+    FROM account a
+    JOIN company_location cl ON a.company_location_id = cl.id
+    JOIN demographic_street ds ON cl.demographic_street_id = ds.id
+    JOIN demographic_area da ON cl.demographic_area_id = da.id
+"""

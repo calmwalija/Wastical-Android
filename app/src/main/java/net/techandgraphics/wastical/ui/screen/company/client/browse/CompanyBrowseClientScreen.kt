@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,8 +31,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
@@ -79,6 +81,8 @@ fun CompanyBrowseClientScreen(
       val listState = rememberLazyListState()
       val coroutineScope = rememberCoroutineScope()
       val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= 10 } }
+      val pagingItems = state.accounts.collectAsLazyPagingItems()
+
 
       if (showFilters) ModalBottomSheet(onDismissRequest = { showFilters = false }) {
         CompanyBrowseClientSearchFilterView(state, onEvent)
@@ -158,7 +162,11 @@ fun CompanyBrowseClientScreen(
                 CompanyBrowseClientSearchHistoryView(state, onEvent)
             }
 
-            items(state.accounts, key = { key -> key.accountId }) { account ->
+            items(
+              count = pagingItems.itemCount,
+              key = { index -> pagingItems.peek(index)?.accountId ?: index }
+            ) { index ->
+              val account = pagingItems[index] ?: return@items
               CompanyBrowseClientView(account, modifier = Modifier.animateItem(), onEvent)
             }
 
@@ -166,14 +174,18 @@ fun CompanyBrowseClientScreen(
 
           VerticalScrollbar(
             listState = listState,
-            modifier = Modifier.align(Alignment.CenterEnd)
+            modifier = Modifier
+              .zIndex(1f)
+              .align(Alignment.CenterEnd)
           )
 
           ScrollToTopView(
             listState = listState,
             coroutineScope = coroutineScope,
             showScrollToTop = showScrollToTop,
-            modifier = Modifier.align(Alignment.BottomEnd)
+            modifier = Modifier
+              .zIndex(1f)
+              .align(Alignment.BottomEnd)
           )
 
         }
@@ -189,14 +201,16 @@ private fun CompanyBrowseClientScreenPreview() {
   WasticalTheme {
     CompanyBrowseClientScreen(
       state = CompanyBrowseClientState.Success(
-        accounts = (1..6)
-          .map { index -> listOf(accountWithStreetAndArea4Preview.copy(accountId = index.toLong())) }
-          .toList()
-          .flatten(),
+        accounts = theData,
         company = company4Preview
       ),
       channel = flow { },
       onEvent = {}
     )
   }
+}
+
+private val theData = flow {
+  val values = (1L..4).map { accountWithStreetAndArea4Preview.copy(accountId = it) }
+  emit(PagingData.from(values))
 }

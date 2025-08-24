@@ -3,14 +3,18 @@ package net.techandgraphics.wastical.ui.screen.company.client.browse
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -61,37 +65,59 @@ class CompanyBrowseClientViewModel @Inject constructor(
     }
   }
 
+  private fun flowOfPaging(query: String = "", ids: Set<Long>? = null) {
+    if (_state.value is CompanyBrowseClientState.Success) {
+      val state = (_state.value as CompanyBrowseClientState.Success)
+      Pager(
+        config = PagingConfig(
+          pageSize = 40,
+          initialLoadSize = 120,
+          prefetchDistance = 10,
+          maxSize = 200,
+          enablePlaceholders = false,
+        ),
+        pagingSourceFactory = {
+          database.accountDao.flowOfPaging(
+            query = query,
+            ids = ids,
+          )
+        },
+      ).flow
+        .flowOn(Dispatchers.Default)
+        .cachedIn(viewModelScope)
+        .also { flowOfPayments ->
+          _state.value = state.copy(accounts = flowOfPayments)
+        }
+    }
+  }
+
   private suspend fun onLoad() {
     val company = database.companyDao.query().first().toCompanyUiModel()
     val demographicAreas = database.demographicAreaDao.query().map { it.toDemographicAreaUiModel() }
-    val demographicStreets = database.demographicStreetDao.query().map { it.toDemographicStreetUiModel() }
+    val demographicStreets =
+      database.demographicStreetDao.query().map { it.toDemographicStreetUiModel() }
     combine(
-      database.accountDao.qAccountData(),
       database.searchTagDao.query(),
       database.accountRequestDao.flowOf()
         .map { dataOf -> dataOf.map { it.toAccountRequestUiModel() } },
-    ) { accounts, tags, accountRequests ->
+    ) { tags, accountRequests ->
       _state.value = CompanyBrowseClientState.Success(
-        accounts = accounts,
         company = company,
         searchHistoryTags = tags.map { it.toSearchTagUiModel() },
         demographicAreas = demographicAreas,
         demographicStreets = demographicStreets,
         accountRequests = accountRequests,
       )
+      flowOfPaging()
     }
       .launchIn(viewModelScope)
   }
 
-  private suspend fun onQueryChange() {
+  private fun onQueryChange() {
     val currentState = _state.value
     if (currentState is CompanyBrowseClientState.Success) {
       val ids = currentState.filters.ifEmpty { null }
-      database.accountDao
-        .qAccountData(query = currentState.query.trim(), ids)
-        .collectLatest {
-          _state.value = currentState.copy(accounts = it)
-        }
+      flowOfPaging(ids = ids, query = currentState.query)
     }
   }
 
@@ -105,15 +131,7 @@ class CompanyBrowseClientViewModel @Inject constructor(
         _state.value = currentState.copy(filters = updatedFilters)
         val newState = _state.value as CompanyBrowseClientState.Success
         val ids = newState.filters.ifEmpty { null }
-        database.accountDao.qAccountData(
-          query = newState.query.trim(),
-          ids = ids,
-        ).collectLatest { accounts ->
-          val latestState = _state.value
-          if (latestState is CompanyBrowseClientState.Success) {
-            _state.value = latestState.copy(accounts = accounts)
-          }
-        }
+        flowOfPaging(ids = ids, query = currentState.query)
       }
     }
 
