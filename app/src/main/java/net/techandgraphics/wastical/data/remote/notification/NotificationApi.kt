@@ -12,11 +12,11 @@ interface NotificationApi {
     private const val BASE_URL = "notification"
   }
 
-  @GET("$BASE_URL/timestamp")
-  suspend fun timestamp(
+  @GET("$BASE_URL/latest")
+  suspend fun latest(
     @Query("id") id: Long,
     @Query("mills") mills: Long,
-  ): ServerResponse
+  ): List<NotificationResponse>
 
   @POST(BASE_URL)
   suspend fun post(@Body request: NotificationRequest): ServerResponse

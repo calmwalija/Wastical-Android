@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -209,9 +209,20 @@ import javax.inject.Inject
     }
   }
 
-  private fun onLogout() = viewModelScope.launch(Dispatchers.IO) {
-    authenticatorHelper.deleteAccounts()
-    _channel.send(ClientHomeChannel.Goto.Login)
+  private fun onLogout() = viewModelScope.launch {
+    runCatching {
+      val companyUuid = database.companyDao.query().first().uuid
+      val locationUui = database.companyLocationDao.query().first().uuid
+      val accountUuid = authenticatorHelper.getAccount(accountManager)?.uuid ?: ""
+      database.withTransaction { database.clearAllTables() }
+      with(FirebaseMessaging.getInstance()) {
+        unsubscribeFromTopic(companyUuid)
+        unsubscribeFromTopic(locationUui)
+        subscribeToTopic(accountUuid)
+        deleteToken()
+      }
+      authenticatorHelper.deleteAccounts()
+    }.onSuccess { _channel.send(ClientHomeChannel.Goto.Login) }
   }
 
   fun onEvent(event: ClientHomeEvent) {
