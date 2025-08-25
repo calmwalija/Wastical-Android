@@ -173,6 +173,7 @@ interface PaymentIndicatorDao {
   @Query(
     """
     SELECT
+      account.id AS accountId,
       account.title,
       account.firstname,
       account.lastname,
@@ -180,6 +181,7 @@ interface PaymentIndicatorDao {
       street.name as demographicStreet,
       area.name as demographicArea,
       plans.fee as amount,
+      account.created_at as createdAt,
       COALESCE(month_covered.created_at, 0) as paidOn,
       CASE WHEN payment.id IS NOT NULL THEN 1 ELSE 0 END as hasPaid
     FROM
@@ -514,6 +516,7 @@ data class MonthYearPayment4Month(
 )
 
 data class UnPaidAccount(
+  val accountId: Long,
   val title: String,
   val firstname: String,
   val lastname: String,
@@ -521,6 +524,7 @@ data class UnPaidAccount(
   val demographicArea: String,
   val contact: String,
   val amount: Int,
+  val createdAt: Long,
   val paidOn: Long,
 )
 
