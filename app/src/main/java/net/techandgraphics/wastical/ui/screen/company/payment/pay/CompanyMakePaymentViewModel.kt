@@ -107,14 +107,15 @@ class CompanyMakePaymentViewModel @Inject constructor(
             } else {
               YearMonth.of(today.year, today.month).minusMonths(1)
             }
+            val targetYm = billingYm.plusMonths(1)
             val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
-            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm
-            if (firstDueYm.isAfter(billingYm)) {
+            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+            if (firstDueYm.isAfter(targetYm)) {
               0
             } else {
               (
                 ChronoUnit.MONTHS.between(
-                  firstDueYm.atDay(1), billingYm.atDay(1),
+                  firstDueYm.atDay(1), targetYm.atDay(1),
                 ).toInt() + 1
                 ).coerceAtLeast(0)
             }
@@ -126,7 +127,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
             val createdZdt = aging.createdAt.toZonedDateTime()
             val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
             val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
-            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm
+            val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
             (0 until monthsOutstanding).map { idx ->
               val ym = firstDueYm.plusMonths(idx.toLong())
               MonthYear(ym.month.value, ym.year)

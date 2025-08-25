@@ -46,6 +46,7 @@ import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
 import java.io.File
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Locale
@@ -358,17 +359,44 @@ import javax.inject.Inject
       val missedKeys = state.filters
         .map { String.format(Locale.getDefault(), "%04d-%02d", it.year, it.month) }
         .distinct()
-      val dataset = database.paymentIndicatorDao.qRange(
-        yearMonthKeys = missedKeys,
-        hasPaid = false,
-        maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
-          String.format(
-            locale = Locale.getDefault(),
-            "%04d-%02d",
-            it.year, it.month,
+      val maxYearMonth = state.filters.maxByOrNull { it.year * 100 + it.month }?.let {
+        String.format(locale = Locale.getDefault(), "%04d-%02d", it.year, it.month)
+      } ?: "9999-12"
+      val dataset = missedKeys
+        .flatMap { key ->
+          database.paymentIndicatorDao.qRange(
+            yearMonthKeys = listOf(key),
+            hasPaid = false,
+            maxYearMonth = maxYearMonth,
           )
-        } ?: "9999-12",
-      )
+        }
+        .distinctBy { it.accountId }
+
+      val referenceYm = state.filters
+        .maxByOrNull { it.year * 100 + it.month }
+        ?.let { YearMonth.of(it.year, it.month) }
+        ?: run {
+          val today = ZonedDateTime.now()
+          if (today.dayOfMonth >= 25) YearMonth.of(today.year, today.month)
+          else YearMonth.of(today.year, today.month).minusMonths(1)
+        }
+      val targetYm = referenceYm
+
+      val owedByAccountId: Map<Long, Pair<Int, Int>> = dataset.associate { item ->
+        val createdZdt = item.createdAt.toZonedDateTime()
+        val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+        val lastCovered = database.paymentMonthCoveredDao.getLastByAccount(item.accountId)
+        val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+        val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+        val monthsOutstanding = if (firstDueYm.isAfter(targetYm)) {
+          0
+        } else {
+          (ChronoUnit.MONTHS.between(firstDueYm.atDay(1), targetYm.atDay(1)).toInt() + 1)
+            .coerceAtLeast(0)
+        }
+        val owed = monthsOutstanding * item.amount
+        item.accountId to (monthsOutstanding to owed)
+      }
 
       val fullNameWidth =
         dataset.maxOfOrNull { paint.measureText(it.title.plus(it.lastname)) }
@@ -376,16 +404,18 @@ import javax.inject.Inject
           ?: 120f
 
       val countWidth = paint.measureText(dataset.size.toString()).padding()
-      val pdfWidths = listOf(countWidth, fullNameWidth, contactWidth, amountWidth, 20f, 20f)
+      val monthsWidth = contactWidth
+      val owedWidth = amountWidth
+      val pdfWidths = listOf(countWidth, fullNameWidth, amountWidth, monthsWidth, owedWidth)
       val locationWidth = pdfMaxWidth.minus(pdfWidths.sum())
       val columnWidths =
-        listOf(countWidth, fullNameWidth, contactWidth, amountWidth, locationWidth, 20f, 20f)
+        listOf(countWidth, fullNameWidth, amountWidth, monthsWidth, owedWidth, locationWidth)
 
-      val filename = "Missed Payment Report - ${state.filters.first().toZonedDateTime().toDate()}"
+      val filename = "Missed Payment Report - ${MonthYear(referenceYm.month.value, referenceYm.year).toZonedDateTime().toDate()}"
 
       BaseExportKlass<UnPaidAccount>(application).toPdf(
         company = state.company,
-        columnHeaders = listOf("#", "Name", "Contact", "Amount", "Location", "", ""),
+        columnHeaders = listOf("#", "Name", "Contact", "Months", "Balance", "Location"),
         columnWidths = columnWidths,
         filename = filename.mills(),
         pageTitle = filename,
@@ -394,10 +424,9 @@ import javax.inject.Inject
           listOf(
             toFullname(item.title, item.lastname),
             item.contact.toContact(),
-            item.amount.toAmount(),
+            owedByAccountId[item.accountId]?.first?.toString() ?: "0",
+            (owedByAccountId[item.accountId]?.second ?: 0).toAmount(),
             item.demographicArea.plus(", ${item.demographicStreet}"),
-            "",
-            "",
           )
         },
         onEvent = ::onEventPdf,
