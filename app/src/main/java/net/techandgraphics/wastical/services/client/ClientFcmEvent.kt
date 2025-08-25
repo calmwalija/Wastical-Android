@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.notification.NotificationType
+import net.techandgraphics.wastical.worker.client.notification.scheduleClientNotificationWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.scheduleClientFetchProofOfPaymentSubmittedByCompanyWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.scheduleClientFetchProofOfPaymentWorker
 
@@ -35,25 +36,19 @@ class ClientFcmEvent(
       remoteMessage.data["type"]
         ?.contains(NotificationType.COMPANY_BROADCAST_NOTIFICATION.name) == true
       -> {
-        println(remoteMessage.data["title"])
-        println(remoteMessage.data["body"])
-        println(remoteMessage.data["type"])
+        context.scheduleClientNotificationWorker()
       }
 
       remoteMessage.data["type"]
         ?.contains(NotificationType.ACCOUNT_BASED_NOTIFICATION.name) == true
       -> {
-        println(remoteMessage.data["title"])
-        println(remoteMessage.data["body"])
-        println(remoteMessage.data["type"])
+        context.scheduleClientNotificationWorker()
       }
 
       remoteMessage.data["type"]
         ?.contains(NotificationType.LOCATION_BASED_NOTIFICATION.name) == true
       -> {
-        println(remoteMessage.data["title"])
-        println(remoteMessage.data["body"])
-        println(remoteMessage.data["type"])
+        context.scheduleClientNotificationWorker()
       }
     }
   }

@@ -6,9 +6,13 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.BaseDao
+import net.techandgraphics.wastical.data.local.database.TimestampedDao
 
 @Dao
-abstract class NotificationDao : BaseDao<NotificationEntity> {
+abstract class NotificationDao : BaseDao<NotificationEntity>, TimestampedDao {
+
+  @Query("SELECT updated_at FROM notification ORDER BY updated_at DESC LIMIT 1")
+  abstract override suspend fun getLastUpdatedTimestamp(): Long
 
   @Query("SELECT * FROM notification WHERE sync_status = 0")
   abstract fun flowOfSync(): Flow<List<NotificationEntity>>

@@ -377,8 +377,11 @@ import javax.inject.Inject
         ?.let { YearMonth.of(it.year, it.month) }
         ?: run {
           val today = ZonedDateTime.now()
-          if (today.dayOfMonth >= 25) YearMonth.of(today.year, today.month)
-          else YearMonth.of(today.year, today.month).minusMonths(1)
+          if (today.dayOfMonth >= 25) {
+            YearMonth.of(today.year, today.month)
+          } else {
+            YearMonth.of(today.year, today.month).minusMonths(1)
+          }
         }
       val targetYm = referenceYm
 
