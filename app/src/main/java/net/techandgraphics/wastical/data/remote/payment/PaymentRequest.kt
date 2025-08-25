@@ -9,6 +9,7 @@ data class PaymentRequest(
   @SerializedName("payment_method_id") val paymentMethodId: Long,
   @SerializedName("account_id") val accountId: Long,
   @SerializedName("company_id") val companyId: Long,
+  @SerializedName("proof_ext") val proofExt: String? = null,
   @SerializedName("payment_reference") val paymentReference: String,
   @SerializedName("executed_by_id") val executedById: Long,
   @SerializedName("http_operation") val httpOperation: String,

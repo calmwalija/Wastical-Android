@@ -25,6 +25,8 @@ import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEnt
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.data.remote.toPaymentRequest
+import net.techandgraphics.wastical.getProofFile
+import net.techandgraphics.wastical.getProofFileWithExtension
 import net.techandgraphics.wastical.getUCropFile
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
@@ -69,8 +71,15 @@ import java.util.concurrent.TimeUnit
       else -> {
         val jsonRequestBody = gson.toJson(request)
           .toRequestBody(contentType = "application/json; charset=utf-8".toMediaType())
-        val file = context.getUCropFile(paymentRequest.createdAt)
-        val fileRequestBody = file.asRequestBody("image/*".toMediaType())
+        val file = paymentRequest.proofExt?.let { ext ->
+          context.getProofFileWithExtension(paymentRequest.createdAt, ext)
+        } ?: (context.getProofFile(paymentRequest.createdAt) ?: context.getUCropFile(paymentRequest.createdAt))
+        val mime = when (paymentRequest.proofExt?.lowercase()) {
+          "pdf" -> "application/pdf"
+          "jpg", "jpeg", "png" -> "image/*"
+          else -> if (file.name.endsWith(".pdf", ignoreCase = true)) "application/pdf" else "image/*"
+        }
+        val fileRequestBody = file.asRequestBody(mime.toMediaType())
         val multipartFile = MultipartBody.Part.createFormData(
           name = "file",
           filename = file.name,

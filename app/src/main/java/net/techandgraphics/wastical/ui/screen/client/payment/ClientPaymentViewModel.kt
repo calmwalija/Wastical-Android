@@ -1,6 +1,10 @@
 package net.techandgraphics.wastical.ui.screen.client.payment
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.core.graphics.scale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,9 +28,14 @@ import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
+import net.techandgraphics.wastical.getProofFile
+import net.techandgraphics.wastical.getProofFileWithExtension
+import net.techandgraphics.wastical.getProofTargetFile
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getUCropFile
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
+import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel class ClientPaymentViewModel @Inject constructor(
@@ -67,6 +76,9 @@ import javax.inject.Inject
       delay(5_00)
       if (_state.value is ClientPaymentState.Success) {
         val state = (_state.value as ClientPaymentState.Success)
+        val preparedTimestamp =
+          if (state.timestamp > 0) state.timestamp else System.currentTimeMillis()
+        state.imageUri?.let { saveCroppedImage(preparedTimestamp, it) }
         val paymentMethods = state.paymentMethods.map { it.method }
         val paymentMethod = paymentMethods.firstOrNull { it.isSelected } ?: paymentMethods.last()
         val cachedPayment = PaymentRequest(
@@ -79,10 +91,18 @@ import javax.inject.Inject
           httpOperation = HttpOperation.Post.name,
           paymentReference = getReference(),
         ).toPaymentRequestEntity()
-        database.paymentRequestDao.upsert(cachedPayment)
+        val ext = when (application.contentResolver.getType(state.imageUri ?: Uri.EMPTY)) {
+          "application/pdf" -> "pdf"
+          else -> "jpg"
+        }
+        database.paymentRequestDao.upsert(cachedPayment.copy(proofExt = ext))
         val newPayment = database.paymentRequestDao.getLast()
-        val oldFile = application.getUCropFile(state.timestamp)
-        oldFile.renameTo(application.getUCropFile(newPayment.createdAt))
+        val oldFile =
+          application.getProofFile(preparedTimestamp) ?: application.getUCropFile(preparedTimestamp)
+        if (oldFile.exists()) {
+          val ext = if (oldFile.name.endsWith(".pdf", ignoreCase = true)) "pdf" else "jpg"
+          oldFile.renameTo(application.getProofFileWithExtension(newPayment.createdAt, ext))
+        }
         application.scheduleClientPaymentRequestWorker()
         _state.value = state.copy(imageUri = null)
         _channel.send(ClientPaymentChannel.Pay.Success)
@@ -90,10 +110,71 @@ import javax.inject.Inject
     }
   }
 
+  private fun saveCroppedImage(timestamp: Long, src: Uri) {
+    try {
+      val type = application.contentResolver.getType(src) ?: "image/*"
+      if (type.startsWith("application/pdf")) {
+        application.contentResolver.openInputStream(src)?.use { input ->
+          FileOutputStream(application.getProofTargetFile(timestamp, type)).use { output ->
+            input.copyTo(output)
+          }
+        }
+      } else {
+        application.contentResolver.openInputStream(src)?.use { input ->
+          val originalBitmap = BitmapFactory.decodeStream(input) ?: return
+          var workingBitmap = originalBitmap
+
+          val targetMaxBytes = 500 * 1024 // 500KB
+          var jpegQuality = 90
+
+          fun compress(bitmap: Bitmap, quality: Int): ByteArray {
+            val bos = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos)
+            return bos.toByteArray()
+          }
+
+          var compressed = compress(workingBitmap, jpegQuality)
+          var currentWidth = workingBitmap.width
+          var currentHeight = workingBitmap.height
+
+          while (compressed.size > targetMaxBytes) {
+            if (jpegQuality > 50) {
+              jpegQuality -= 10
+            } else {
+              val newWidth = (currentWidth * 0.85f).toInt().coerceAtLeast(512)
+              val newHeight = (currentHeight * 0.85f).toInt().coerceAtLeast(512)
+              if (newWidth == currentWidth && newHeight == currentHeight) break
+              workingBitmap = workingBitmap.scale(newWidth, newHeight)
+              currentWidth = newWidth
+              currentHeight = newHeight
+              jpegQuality = 90
+            }
+            compressed = compress(workingBitmap, jpegQuality)
+          }
+
+          FileOutputStream(application.getProofTargetFile(timestamp, type)).use { output ->
+            output.write(compressed)
+          }
+
+          if (workingBitmap !== originalBitmap) workingBitmap.recycle()
+          originalBitmap.recycle()
+        }
+      }
+    } catch (_: Exception) {
+    }
+  }
+
   private fun onScreenshotAttached() {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
-      _state.value = state.copy(screenshotAttached = true)
+      val uri = state.imageUri
+      if (uri != null) {
+        val ts = if (state.timestamp <= 0) System.currentTimeMillis() else state.timestamp
+        saveCroppedImage(ts, uri)
+        _state.value = state.copy(screenshotAttached = true, timestamp = ts)
+      } else {
+        _state.value = state.copy(screenshotAttached = true)
+      }
     }
   }
 

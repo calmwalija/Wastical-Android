@@ -1,7 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.client.payment
 
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -82,13 +81,21 @@ fun ClientPaymentScreen(
 
       val context = LocalContext.current
 
-      val imagePickerLauncher =
+      val proofPickerLauncher =
         rememberLauncherForActivityResult(
-          ActivityResultContracts.PickVisualMedia()
+          ActivityResultContracts.OpenDocument()
         ) { uri ->
           if (uri == null) return@rememberLauncherForActivityResult
-          showImageCropper = true
-          onEvent(ClientPaymentEvent.Button.ImageUri(uri))
+          val type = context.contentResolver.getType(uri) ?: ""
+          if (type.startsWith("image/")) {
+            showImageCropper = true
+            onEvent(ClientPaymentEvent.Button.ImageUri(uri))
+          } else if (type.equals("application/pdf", ignoreCase = true)) {
+            onEvent(ClientPaymentEvent.Button.ImageUri(uri))
+            onEvent(ClientPaymentEvent.Button.ScreenshotAttached)
+            showPaymentScreenshotDialog = false
+            paymentItem = null
+          }
         }
 
 
@@ -99,7 +106,7 @@ fun ClientPaymentScreen(
         ) {
           ClientPaymentScreenShotView(
             item = paymentItem!!,
-            onProceed = { imagePickerLauncher.launch(PickVisualMediaRequest()) },
+            onProceed = { proofPickerLauncher.launch(arrayOf("image/*", "application/pdf")) },
           )
         }
       }
@@ -275,9 +282,8 @@ fun ClientPaymentScreen(
             item {
               ClientPaymentReferenceView(state) { event ->
                 when (event) {
-                  ClientPaymentEvent.Button.AttachScreenshot -> imagePickerLauncher.launch(
-                    PickVisualMediaRequest()
-                  )
+                  ClientPaymentEvent.Button.AttachScreenshot ->
+                    proofPickerLauncher.launch(arrayOf("image/*", "application/pdf"))
 
                   else -> onEvent(event)
                 }
