@@ -28,6 +28,7 @@ fun PaymentRequestEntity.toPaymentRequest() = PaymentRequest(
   httpOperation = httpOperation,
   status = PaymentStatus.valueOf(status),
   paymentReference = paymentReference,
+  proofExt = proofExt,
 )
 
 fun AccountFcmTokenEntity.toAccountFcmTokenRequest(accountId: Long) =

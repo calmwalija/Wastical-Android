@@ -51,7 +51,26 @@ fun Bitmap.image2Text(onResult: (Result<String>) -> Unit) {
 
 fun Context.onTextToClipboard(text: String) = copyTextToClipboard(text)
 
-fun Context.getUCropFile(fileId: Number) = File(cacheDir, "$fileId.jpg")
+fun Context.getUCropFile(fileId: Number) = File(workingDir(), "$fileId.jpg")
+
+fun Context.getProofFile(fileId: Number): File? {
+  val jpg = File(workingDir(), "$fileId.jpg")
+  if (jpg.exists()) return jpg
+  val pdf = File(workingDir(), "$fileId.pdf")
+  if (pdf.exists()) return pdf
+  return null
+}
+
+fun Context.getProofFileWithExtension(fileId: Number, extension: String) =
+  File(workingDir(), "$fileId.$extension")
+
+fun Context.getProofTargetFile(fileId: Number, mimeType: String?): File {
+  val ext = when {
+    mimeType?.lowercase()?.startsWith("application/pdf") == true -> "pdf"
+    else -> "jpg"
+  }
+  return getProofFileWithExtension(fileId, ext)
+}
 
 fun Color.toGradient() = Brush.horizontalGradient(
   listOf(this.copy(.7f), this.copy(.8f), this),
