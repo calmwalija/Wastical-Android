@@ -33,7 +33,8 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -88,6 +89,25 @@ android {
     unitTests.all {
       it.jvmArgs("-XX:+EnableDynamicAgentLoading")
     }
+  }
+
+  packaging {
+    resources {
+      excludes += setOf(
+        "META-INF/LICENSE*",
+        "META-INF/AL2.0",
+        "META-INF/LGPL2.1",
+        "META-INF/DEPENDENCIES",
+        "META-INF/NOTICE*",
+        "META-INF/*.kotlin_module",
+        "META-INF/proguard/*",
+        "META-INF/*.version"
+      )
+    }
+  }
+
+  androidResources {
+    localeFilters.addAll(listOf("en"))
   }
 }
 
