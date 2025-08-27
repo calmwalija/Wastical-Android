@@ -123,6 +123,7 @@ fun CompanyEntity.toCompanyUiModel() = CompanyUiModel(
   latitude = latitude,
   longitude = longitude,
   status = status,
+  billingDate = billingDate,
   updatedAt = updatedAt,
   createdAt = createdAt,
 )

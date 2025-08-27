@@ -102,7 +102,7 @@ class CompanyMakePaymentViewModel @Inject constructor(
           val monthsOutstanding = if (aging != null) {
             val createdZdt = aging.createdAt.toZonedDateTime()
             val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
-            val billingYm = if (today.dayOfMonth >= 25) {
+            val billingYm = if (today.dayOfMonth >= company.billingDate) {
               YearMonth.of(today.year, today.month)
             } else {
               YearMonth.of(today.year, today.month).minusMonths(1)

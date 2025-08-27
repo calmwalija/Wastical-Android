@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.toPaymentMethodEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentRequestEntity
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
@@ -33,9 +34,13 @@ import net.techandgraphics.wastical.getProofFileWithExtension
 import net.techandgraphics.wastical.getProofTargetFile
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getUCropFile
+import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentRequestWorker
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
+import java.time.YearMonth
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel class ClientPaymentViewModel @Inject constructor(
@@ -53,7 +58,49 @@ import javax.inject.Inject
   private fun onLoad(event: ClientPaymentEvent.Load) = viewModelScope.launch {
     database.accountDao.flowById(event.id).mapNotNull { it?.toAccountUiModel() }
       .collectLatest { account ->
+        val today = ZonedDateTime.now()
         val company = database.companyDao.query().first().toCompanyUiModel()
+
+        val lastCovered = database.paymentMonthCoveredDao.getLastByAccount(account.id)
+        val aging = database.paymentIndicatorDao.qAgingRawByAccountId(account.id)
+
+        val monthsOutstanding = if (aging != null) {
+          val createdZdt = aging.createdAt.toZonedDateTime()
+          val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+          val billingYm = if (today.dayOfMonth >= company.billingDate) {
+            YearMonth.of(today.year, today.month)
+          } else {
+            YearMonth.of(today.year, today.month).minusMonths(1)
+          }
+          val targetYm = billingYm.plusMonths(1)
+          val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+          val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+          if (firstDueYm.isAfter(targetYm)) {
+            0
+          } else {
+            (
+              ChronoUnit.MONTHS.between(
+                firstDueYm.atDay(1), targetYm.atDay(1),
+              ).toInt() + 1
+              ).coerceAtLeast(0)
+          }
+        } else {
+          0
+        }
+
+        val outstandingMonths: List<MonthYear> = if (aging != null && monthsOutstanding > 0) {
+          val createdZdt = aging.createdAt.toZonedDateTime()
+          val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+          val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+          val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+          (0 until monthsOutstanding).map { idx ->
+            val ym = firstDueYm.plusMonths(idx.toLong())
+            MonthYear(ym.month.value, ym.year)
+          }
+        } else {
+          emptyList()
+        }
+
         val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
         val paymentPlan =
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
@@ -65,6 +112,8 @@ import javax.inject.Inject
               account = account,
               paymentMethods = paymentMethods,
               paymentPlan = paymentPlan,
+              monthsOutstanding = monthsOutstanding,
+              outstandingMonths = outstandingMonths,
             )
           }
       }

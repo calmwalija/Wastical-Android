@@ -111,6 +111,7 @@ internal val company4Preview = CompanyUiModel(
   email = "example@email.com",
   slogan = "Lorem Ipsum",
   address = "John Smith, 123 Main Street, Suite 2, Downtown, CA 91234, GA",
+  billingDate = 25,
   createdAt = ZonedDateTime.now().toEpochSecond(),
   updatedAt = ZonedDateTime.now().toEpochSecond(),
 )

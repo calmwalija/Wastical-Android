@@ -74,6 +74,7 @@ fun CompanyResponse.toCompanyEntity() = CompanyEntity(
   status = status,
   address = address,
   slogan = slogan,
+  billingDate = billingDate,
   createdAt = createdAt,
   updatedAt = updatedAt,
 )
@@ -289,6 +290,7 @@ fun CompanyUiModel.toCompanyEntity() = CompanyEntity(
   longitude = longitude,
   status = status,
   address = address,
+  billingDate = billingDate,
   slogan = slogan,
   createdAt = createdAt,
   updatedAt = updatedAt,
