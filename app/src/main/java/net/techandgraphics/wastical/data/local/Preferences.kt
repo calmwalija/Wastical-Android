@@ -59,6 +59,6 @@ import javax.inject.Singleton
     const val CURRENT_WORKING_MONTH = "current_working_month"
     const val DYNAMIC_COLOR = "dynamic_color"
     const val FCM_TOKEN_KEY = "fcm_token_key"
-    const val DARK_THEME = "dark_theme"
+    const val LOGIN_SUCCESS = "login_success"
   }
 }

@@ -238,6 +238,11 @@ fun ClientPaymentScreen(
             )
           }
 
+          if (state.monthsOutstanding > 0) {
+            item { ClientPaymentBalanceView(state, context) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+          }
+
           item {
             Text(
               text = "Payment Plan",

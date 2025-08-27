@@ -49,6 +49,7 @@ fun CompanyEntity.toCompanyResponse() =
     longitude = longitude,
     status = status,
     address = address,
+    billingDate = billingDate,
     slogan = slogan,
     createdAt = createdAt,
     updatedAt = updatedAt,

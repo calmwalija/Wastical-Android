@@ -13,6 +13,7 @@ data class CompanyResponse(
   val status: Status,
   val address: String,
   val slogan: String,
+  @SerializedName("billing_date") val billingDate: Int,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long,
 )

@@ -14,6 +14,7 @@ import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.notification.NotificationApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.worker.client.notification.ClientNotificationWorker
+import net.techandgraphics.wastical.worker.client.payment.ClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentSubmittedByCompanyWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentWorker
@@ -142,6 +143,15 @@ class WorkerFactory @Inject constructor(
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
         gson = gson,
+      )
+
+    ClientPaymentDueReminderWorker::class.java.name ->
+      ClientPaymentDueReminderWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     AccountLastUpdatedWorker::class.java.name ->

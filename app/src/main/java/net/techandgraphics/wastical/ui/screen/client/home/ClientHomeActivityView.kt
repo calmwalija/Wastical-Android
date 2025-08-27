@@ -2,6 +2,7 @@ package net.techandgraphics.wastical.ui.screen.client.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +26,7 @@ import net.techandgraphics.wastical.toShortMonthName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.YearMonth
+import kotlin.math.min
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +50,9 @@ import java.time.YearMonth
     tonalElevation = 3.dp,
     shape = RoundedCornerShape(8),
     color = homeActivity.containerColor,
-    modifier = modifier.padding(4.dp),
+    modifier = modifier
+      .padding(4.dp)
+      .heightIn(min = 140.dp),
     onClick = { onEvent() },
     enabled = homeActivity.clickable
   ) {
@@ -56,48 +60,55 @@ import java.time.YearMonth
 
       Column(modifier = Modifier.padding(16.dp)) {
 
-        val lastPaid = if (state.lastMonthCovered != null)
-          YearMonth.of(state.lastMonthCovered.year, state.lastMonthCovered.month) else {
-          val createdDate = state.account.createdAt.toZonedDateTime().toLocalDate()
-          YearMonth.of(createdDate.year, createdDate.monthValue.minus(1))
+        val isPaymentDue = state.monthsOutstanding > 0
+
+        val nextDueYm: YearMonth = state.outstandingMonths.firstOrNull()?.let { ym ->
+          YearMonth.of(ym.year, ym.month)
+        } ?: run {
+          val lastCovered = state.lastMonthCovered
+          if (lastCovered != null) YearMonth.of(lastCovered.year, lastCovered.month).plusMonths(1)
+          else {
+            val created = state.account.createdAt.toZonedDateTime()
+            YearMonth.of(created.year, created.month).plusMonths(1)
+          }
         }
 
-
-        val nextDue = lastPaid.plusMonths(1)
-        val isPaymentDue = nextDue <= YearMonth.now()
-
         val iconRes = if (isPaymentDue) R.drawable.ic_close else homeActivity.drawableRes
-        val statusLabel = if (isPaymentDue) homeActivity.activity else "Next Payment"
+        val statusLabel = if (isPaymentDue) "Payment due" else "Next Payment"
 
         val color =
-          if (isPaymentDue) MaterialTheme.colorScheme.onError else homeActivity.iconBackground
+          if (isPaymentDue) MaterialTheme.colorScheme.error else homeActivity.iconBackground
         val brush = Brush.horizontalGradient(
           listOf(color.copy(0.7f), color.copy(0.8f), color)
         )
+
+        val billingDay = state.company.billingDate
+        fun dayInMonth(ym: YearMonth) = min(billingDay, ym.lengthOfMonth())
 
         Icon(
           painter = painterResource(iconRes),
           contentDescription = null,
           modifier = Modifier
-            .padding(bottom = 8.dp)
+            .padding(vertical = 8.dp)
             .clip(CircleShape)
             .background(brush)
             .size(42.dp)
             .padding(8.dp),
           tint = homeActivity.iconTint
         )
+
         Text(
           text = statusLabel,
           style = MaterialTheme.typography.bodySmall,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
+          color = if (isPaymentDue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
         )
         Text(
-          text = "${nextDue.month.value.toShortMonthName()} ${nextDue.year}",
+          text = "${dayInMonth(nextDueYm)} ${nextDueYm.month.value.toShortMonthName()} ${nextDueYm.year}",
           maxLines = 1,
+          color = if (isPaymentDue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
           overflow = TextOverflow.Ellipsis,
         )
-//          }
+
       }
 
     } else {
@@ -105,7 +116,7 @@ import java.time.YearMonth
         Icon(
           painterResource(homeActivity.drawableRes), null,
           modifier = Modifier
-            .padding(bottom = 8.dp)
+            .padding(vertical = 8.dp)
             .clip(CircleShape)
             .background(brush = brush)
             .size(42.dp)

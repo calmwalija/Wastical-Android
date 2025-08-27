@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
@@ -40,11 +41,15 @@ import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
+import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
 import java.io.File
+import java.time.YearMonth
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel class ClientHomeViewModel @Inject constructor(
@@ -88,6 +93,45 @@ import javax.inject.Inject
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
         val companyBinCollections = database.companyBinCollectionDao.query()
           .map { it.toCompanyBinCollectionUiModel() }
+        // Compute months outstanding similar to ClientPaymentViewModel
+        val today = ZonedDateTime.now()
+        val lastCovered = database.paymentMonthCoveredDao.getLastByAccount(account.id)
+        val aging = database.paymentIndicatorDao.qAgingRawByAccountId(account.id)
+
+        val monthsOutstanding = if (aging != null) {
+          val createdZdt = aging.createdAt.toZonedDateTime()
+          val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+          val billingYm = if (today.dayOfMonth >= company.billingDate) {
+            YearMonth.of(today.year, today.month)
+          } else {
+            YearMonth.of(today.year, today.month).minusMonths(1)
+          }
+          val targetYm = billingYm.plusMonths(1)
+          val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+          val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+          if (firstDueYm.isAfter(targetYm)) {
+            0
+          } else {
+            (ChronoUnit.MONTHS.between(firstDueYm.atDay(1), targetYm.atDay(1)).toInt() + 1)
+              .coerceAtLeast(0)
+          }
+        } else {
+          0
+        }
+
+        val outstandingMonths: List<MonthYear> = if (aging != null && monthsOutstanding > 0) {
+          val createdZdt = aging.createdAt.toZonedDateTime()
+          val startYm = YearMonth.of(createdZdt.year, createdZdt.month)
+          val lastCoveredYm = lastCovered?.let { YearMonth.of(it.year, it.month) }
+          val firstDueYm = lastCoveredYm?.plusMonths(1) ?: startYm.plusMonths(1)
+          (0 until monthsOutstanding).map { idx ->
+            val ym = firstDueYm.plusMonths(idx.toLong())
+            MonthYear(ym.month.value, ym.year)
+          }
+        } else {
+          emptyList()
+        }
+
         combine(
           flow = database
             .paymentDao
@@ -110,8 +154,7 @@ import javax.inject.Inject
             .qFlowWithAccount()
             .map { p0 -> p0.map { it.toPaymentRequestWithAccountUiModel() } },
         ) { invoices, payments, paymentRequests ->
-          val lastMonthCovered =
-            database.paymentMonthCoveredDao.getLast()?.toPaymentMonthCoveredUiModel()
+          val lastMonthCovered = lastCovered?.toPaymentMonthCoveredUiModel()
           _state.value = ClientHomeState.Success(
             invoices = invoices,
             payments = payments,
@@ -123,6 +166,8 @@ import javax.inject.Inject
             companyContacts = companyContacts,
             companyBinCollections = companyBinCollections,
             lastMonthCovered = lastMonthCovered,
+            monthsOutstanding = monthsOutstanding,
+            outstandingMonths = outstandingMonths,
             paymentRequests = paymentRequests,
           )
         }.launchIn(this)

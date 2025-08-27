@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.client.payment
 
 import android.net.Uri
+import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
@@ -14,7 +15,8 @@ sealed interface ClientPaymentState {
     val company: CompanyUiModel,
     val paymentMethods: List<PaymentMethodWithGatewayAndPlanUiModel> = listOf(),
     val paymentPlan: PaymentPlanUiModel,
-
+    val monthsOutstanding: Int = 0,
+    val outstandingMonths: List<MonthYear> = listOf(),
     val showCropView: Boolean = false,
     val monthsCovered: Int = 1,
     val screenshotAttached: Boolean = false,

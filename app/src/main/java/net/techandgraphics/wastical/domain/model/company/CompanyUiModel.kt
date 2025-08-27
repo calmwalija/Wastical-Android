@@ -11,6 +11,7 @@ data class CompanyUiModel(
   val slogan: String,
   val latitude: Float = -1f,
   val longitude: Float = -1f,
+  val billingDate: Int,
   val status: Status = Status.Active,
   val updatedAt: Long,
   val createdAt: Long,
