@@ -5,7 +5,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +41,7 @@ import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.notification.NotificationType
+import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
@@ -56,9 +56,9 @@ import javax.inject.Inject
   private val application: Application,
   private val accountSession: AccountSessionRepository,
   private val preferences: Preferences,
-  private val accountHelper: AuthenticatorHelper,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val accountLogout: AccountLogout,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<CompanyHomeState>(CompanyHomeState.Loading)
@@ -192,19 +192,9 @@ import javax.inject.Inject
     }
 
   private fun onLogout() = viewModelScope.launch {
-    runCatching {
-      val companyUuid = database.companyDao.query().first().uuid
-      val locationUui = database.companyLocationDao.query().first().uuid
-      val accountUuid = accountHelper.getAccount(accountManager)?.uuid ?: ""
-      database.withTransaction { database.clearAllTables() }
-      with(FirebaseMessaging.getInstance()) {
-        unsubscribeFromTopic(companyUuid)
-        unsubscribeFromTopic(locationUui)
-        subscribeToTopic(accountUuid)
-        deleteToken()
-      }
-      accountHelper.deleteAccounts()
-    }.onSuccess { _channel.send(CompanyHomeChannel.Goto.Login) }
+    accountLogout
+      .invoke()
+      .onSuccess { _channel.send(CompanyHomeChannel.Goto.Login) }
   }
 
   private fun onButtonWorkers() = viewModelScope.launch {

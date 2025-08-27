@@ -44,6 +44,13 @@ class LoadViewModel @Inject constructor(
       _channel.send(element = LoadChannel.NoAccount)
       return@launch
     }
+    val fcmToken = database.accountFcmTokenDao.query()
+
+    if (fcmToken.isEmpty()) {
+      _channel.send(element = LoadChannel.NoToken(account.username))
+      return@launch
+    }
+
     if (companyInfo.isEmpty()) {
       observeAccountSessionWorker()
       application.scheduleAccountSessionWorker()

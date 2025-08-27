@@ -60,6 +60,9 @@ fun AppNavHost(
         LoadScreen(state, channel) { event ->
           when (event) {
             LoadEvent.NoAccount -> navController.navigate(PhoneRoute.Verify) { popUpTo(0) }
+            is LoadEvent.NoToken ->
+              navController.navigate(PhoneRoute.Opt(event.contact)) { popUpTo(0) }
+
             is LoadEvent.Success -> {
               when (AccountRole.valueOf(event.account.role)) {
                 AccountRole.Client -> navController.navigate(Route.Client.Home) { popUpTo(0) }

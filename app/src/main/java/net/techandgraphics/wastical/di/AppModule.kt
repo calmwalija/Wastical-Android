@@ -12,7 +12,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.ui.screen.AccountLogout
 import java.util.concurrent.Executors
 import javax.inject.Singleton
 
@@ -54,6 +56,21 @@ object AppModule {
   @Provides
   @Singleton
   fun providesGson(): Gson = Gson()
+
+  @Provides
+  @Singleton
+  fun providesAccountLogout(
+    database: AppDatabase,
+    accountManager: AccountManager,
+    authenticatorHelper: AuthenticatorHelper,
+    application: Application,
+    preferences: Preferences,
+    gson: Gson,
+  ): AccountLogout = AccountLogout(
+    database = database,
+    authenticatorHelper = authenticatorHelper,
+    accountManager = accountManager,
+  )
 
   @Provides
   @Singleton

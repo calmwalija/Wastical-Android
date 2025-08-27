@@ -58,6 +58,7 @@ import javax.inject.Singleton
     const val PREFS_NAME = "quantcal_prefs"
     const val CURRENT_WORKING_MONTH = "current_working_month"
     const val DYNAMIC_COLOR = "dynamic_color"
+    const val FCM_TOKEN_KEY = "fcm_token_key"
     const val DARK_THEME = "dark_theme"
   }
 }
