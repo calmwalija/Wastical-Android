@@ -18,6 +18,7 @@ import net.techandgraphics.wastical.worker.client.payment.ClientPaymentDueRemind
 import net.techandgraphics.wastical.worker.client.payment.ClientPaymentRequestWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentSubmittedByCompanyWorker
 import net.techandgraphics.wastical.worker.client.payment.fcm.ClientFetchProofOfPaymentWorker
+import net.techandgraphics.wastical.worker.client.notification.ClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountDemographicRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountPaymentPlanRequestWorker
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountRequestWorker
@@ -147,6 +148,15 @@ class WorkerFactory @Inject constructor(
 
     ClientPaymentDueReminderWorker::class.java.name ->
       ClientPaymentDueReminderWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
+      )
+
+    ClientBinCollectionReminderWorker::class.java.name ->
+      ClientBinCollectionReminderWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
