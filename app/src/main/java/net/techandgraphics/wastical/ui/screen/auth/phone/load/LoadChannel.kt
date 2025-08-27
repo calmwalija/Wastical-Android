@@ -5,5 +5,6 @@ import net.techandgraphics.wastical.data.remote.ApiResult
 sealed interface LoadChannel {
   data object Success : LoadChannel
   data object NoAccount : LoadChannel
+  data class NoToken(val contact: String) : LoadChannel
   data class Error(val error: ApiResult.Error) : LoadChannel
 }

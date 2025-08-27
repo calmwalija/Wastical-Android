@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.auth.phone.otp
 
 import android.accounts.AccountManager
+import android.app.Application
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,9 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
+import net.techandgraphics.wastical.data.local.Preferences.Companion.FCM_TOKEN_KEY
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.ui.screen.AccountLogout
+import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +28,9 @@ class OtpViewModel @Inject constructor(
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val accountLogout: AccountLogout,
+  private val preferences: Preferences,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<OtpState>(OtpState.Loading)
@@ -52,20 +61,27 @@ class OtpViewModel @Inject constructor(
           database.accountDao.delete(newAccount.toAccountEntity())
         }
       }
-    }.onSuccess { _channel.send(OtpChannel.Success) }
-      .onFailure { _channel.send(OtpChannel.Error(it)) }
+    }.onSuccess {
+      onFcmToken()
+      _channel.send(OtpChannel.Success)
+    }.onFailure { _channel.send(OtpChannel.Error(it)) }
+  }
+
+  private fun onFcmToken() = viewModelScope.launch {
+    preferences.get(FCM_TOKEN_KEY, "")
+      .takeIf { it.isNotEmpty() }
+      ?.let { fcmToken ->
+        database.accountFcmTokenDao.deleteAll()
+        database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = fcmToken))
+        application.scheduleAccountFcmTokenWorker()
+      }
   }
 
   private fun onGotoVerify() = viewModelScope.launch {
-    database.withTransaction {
-      if (_state.value is OtpState.Success) {
-        val newAccount = (_state.value as OtpState.Success).account
-        database.accountOtpDao.deleteAll()
-        database.accountDao.delete(newAccount.toAccountEntity())
-        authenticatorHelper.deleteAccounts()
-      }
-    }
-    _channel.send(OtpChannel.Verify)
+    accountLogout
+      .invoke()
+      .onSuccess { _channel.send(OtpChannel.Verify) }
+      .onFailure { exception -> exception.printStackTrace() }
   }
 
   fun onEvent(event: OtpEvent) {

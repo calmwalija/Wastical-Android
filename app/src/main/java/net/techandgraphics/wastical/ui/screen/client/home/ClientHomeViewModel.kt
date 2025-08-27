@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -41,6 +40,7 @@ import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
+import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
@@ -54,6 +54,7 @@ import javax.inject.Inject
   private val accountManager: AccountManager,
   private val workManager: WorkManager,
   private val accountSession: AccountSessionRepository,
+  private val accountLogout: AccountLogout,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<ClientHomeState>(ClientHomeState.Loading)
@@ -210,19 +211,8 @@ import javax.inject.Inject
   }
 
   private fun onLogout() = viewModelScope.launch {
-    runCatching {
-      val companyUuid = database.companyDao.query().first().uuid
-      val locationUui = database.companyLocationDao.query().first().uuid
-      val accountUuid = authenticatorHelper.getAccount(accountManager)?.uuid ?: ""
-      database.withTransaction { database.clearAllTables() }
-      with(FirebaseMessaging.getInstance()) {
-        unsubscribeFromTopic(companyUuid)
-        unsubscribeFromTopic(locationUui)
-        subscribeToTopic(accountUuid)
-        deleteToken()
-      }
-      authenticatorHelper.deleteAccounts()
-    }.onSuccess { _channel.send(ClientHomeChannel.Goto.Login) }
+    accountLogout.invoke()
+      .onSuccess { _channel.send(ClientHomeChannel.Goto.Login) }
   }
 
   fun onEvent(event: ClientHomeEvent) {
