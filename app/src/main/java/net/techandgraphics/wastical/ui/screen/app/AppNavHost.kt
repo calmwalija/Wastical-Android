@@ -70,7 +70,7 @@ fun AppNavHost(
               }
             }
 
-            else -> Unit
+            else -> onEvent(event)
           }
         }
       }
