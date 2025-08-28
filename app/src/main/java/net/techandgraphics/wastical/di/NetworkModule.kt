@@ -8,12 +8,14 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import net.techandgraphics.wastical.appUrl
 import net.techandgraphics.wastical.data.local.Preferences
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -34,6 +36,7 @@ object NetworkModule {
   @Singleton
   @Provides
   fun authOkHttpClient(preferences: Preferences) = OkHttpClient.Builder()
+    .cache(Cache(File(preferences.context.cacheDir, "http_cache"), 20L * 1024 * 1024))
     .addInterceptor(
       Interceptor { chain: Interceptor.Chain ->
         val request = chain.request().newBuilder()
@@ -43,12 +46,47 @@ object NetworkModule {
     )
     .addInterceptor { chain ->
       val request = chain.request()
-      val requestUrl = request.url.toString()
-      val urlEtag = runBlocking { preferences.get<String?>(requestUrl, null) }
+      val rawUrl = request.url
+      val requestUrl = rawUrl.toString()
+      val canonicalUrl = rawUrl.newBuilder().query(null).build().toString()
+      val storedEtag = runBlocking {
+        preferences.get<String?>("$requestUrl#etag", null)
+          ?: preferences.get<String?>("$canonicalUrl#etag", null)
+          ?: preferences.get<String?>(requestUrl, null)
+      }
+      val storedLastModified = runBlocking {
+        preferences.get<String?>("$requestUrl#last_modified", null)
+          ?: preferences.get<String?>("$canonicalUrl#last_modified", null)
+      }
       val newRequest = request.newBuilder().apply {
-        urlEtag?.let { addHeader(HttpHeaders.LAST_MODIFIED, urlEtag) }
+        storedEtag?.let { addHeader(HttpHeaders.IF_NONE_MATCH, it) }
+        storedLastModified?.let { addHeader(HttpHeaders.IF_MODIFIED_SINCE, it) }
       }.build()
-      chain.proceed(newRequest)
+      val response = chain.proceed(newRequest)
+      runCatching {
+        val etag = response.header(HttpHeaders.ETAG)
+        val lastMod = response.header(HttpHeaders.LAST_MODIFIED)
+        if (etag != null) {
+          runBlocking {
+            preferences.put("$requestUrl#etag", etag)
+            preferences.put("$canonicalUrl#etag", etag)
+            preferences.put(requestUrl, etag)
+          }
+        }
+        if (lastMod != null) {
+          runBlocking {
+            preferences.put("$requestUrl#last_modified", lastMod)
+            preferences.put("$canonicalUrl#last_modified", lastMod)
+          }
+        }
+      }
+      if (response.header("Cache-Control") == null) {
+        response.newBuilder()
+          .header("Cache-Control", "public, max-age=3600")
+          .build()
+      } else {
+        response
+      }
     }
     .addInterceptor(
       HttpLoggingInterceptor().apply {

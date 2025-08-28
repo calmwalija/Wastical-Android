@@ -15,10 +15,6 @@ import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
-import net.techandgraphics.wastical.worker.client.notification.cancelClientBinCollectionReminderWorker
-import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
-import net.techandgraphics.wastical.worker.client.payment.cancelClientPaymentDueReminderWorker
-import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -84,12 +80,6 @@ class ClientSettingsViewModel @Inject constructor(
     viewModelScope.launch {
       if (_state.value is ClientSettingsState.Success) {
         preferences.put<Boolean>(Preferences.CLIENT_REMINDER_PAYMENT, event.isEnabled)
-        if (event.isEnabled) {
-          // schedule; worker will no-op if not due
-          preferences.context.scheduleClientPaymentDueReminderWorker()
-        } else {
-          preferences.context.cancelClientPaymentDueReminderWorker()
-        }
         _state.value = (_state.value as ClientSettingsState.Success)
           .copy(reminderPayment = event.isEnabled)
       }
@@ -99,7 +89,6 @@ class ClientSettingsViewModel @Inject constructor(
     viewModelScope.launch {
       if (_state.value is ClientSettingsState.Success) {
         preferences.put<Boolean>(Preferences.CLIENT_REMINDER_BIN, event.isEnabled)
-        if (event.isEnabled) preferences.context.scheduleClientBinCollectionReminderWorker() else preferences.context.cancelClientBinCollectionReminderWorker()
         _state.value = (_state.value as ClientSettingsState.Success)
           .copy(reminderBin = event.isEnabled)
       }
