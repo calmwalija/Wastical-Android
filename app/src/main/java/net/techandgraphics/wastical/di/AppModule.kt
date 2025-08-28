@@ -70,6 +70,7 @@ object AppModule {
     database = database,
     authenticatorHelper = authenticatorHelper,
     accountManager = accountManager,
+    application = application,
   )
 
   @Provides
