@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
@@ -39,8 +40,11 @@ class ClientSettingsViewModel @Inject constructor(
     val street = database.demographicStreetDao.get(companyLocation.demographicStreetId)
     val area = database.demographicAreaDao.get(companyLocation.demographicAreaId)
     val companyContacts = database.companyContactDao.query().map { it.toCompanyContactUiModel() }
-    preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false)
-      .collectLatest { dynamicColor ->
+    combine(
+      preferences.flowOf<Boolean>(Preferences.DARK_THEME, false),
+      preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false),
+    ) { darkTheme, dynamicColor -> darkTheme to dynamicColor }
+      .collectLatest { (darkTheme, dynamicColor) ->
         val reminderPayment = preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)
         val reminderBin = preferences.get(Preferences.CLIENT_REMINDER_BIN, true)
         _state.value = ClientSettingsState.Success(
@@ -48,6 +52,7 @@ class ClientSettingsViewModel @Inject constructor(
           account = account,
           contacts = contacts,
           dynamicColor = dynamicColor,
+          darkTheme = darkTheme,
           plan = paymentPlan,
           streetName = street.name,
           areaName = area.name,

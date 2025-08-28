@@ -25,10 +25,12 @@ class MainActivityViewModel @Inject constructor(
 
   private fun onLoad() {
     viewModelScope.launch {
-      preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false)
-        .collectLatest { dynamicColor ->
-          val darkTheme = preferences.get(Preferences.DARK_THEME, false)
-          _state.update { it.copy(dynamicColor = dynamicColor, darkTheme = darkTheme) }
+      kotlinx.coroutines.flow.combine(
+        preferences.flowOf<Boolean>(Preferences.DARK_THEME, false),
+        preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false),
+      ) { darkTheme, dynamicColor -> darkTheme to dynamicColor }
+        .collectLatest { (darkTheme, dynamicColor) ->
+          _state.update { it.copy(darkTheme = darkTheme, dynamicColor = dynamicColor) }
         }
     }
   }
