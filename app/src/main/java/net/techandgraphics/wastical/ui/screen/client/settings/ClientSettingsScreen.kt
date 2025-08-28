@@ -1,7 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.client.settings
 
 import android.os.Build
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,10 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,7 +33,6 @@ import net.techandgraphics.wastical.BuildConfig
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
-import net.techandgraphics.wastical.ui.HorizontalRuleView
 import net.techandgraphics.wastical.ui.screen.AccountAvatarView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
@@ -45,6 +42,117 @@ import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
+
+@Composable
+private fun SectionTitle(text: String) {
+  Text(
+    text = text,
+    style = MaterialTheme.typography.titleMedium,
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 8.dp, vertical = 8.dp)
+  )
+}
+
+@Composable
+private fun SectionCard(content: @Composable () -> Unit) {
+  Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.padding(4.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) { content() }
+  }
+}
+
+@Composable
+private fun SettingToggleRow(
+  iconRes: Int,
+  title: String,
+  subtitle: String,
+  checked: Boolean,
+  onToggle: (Boolean) -> Unit,
+) {
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier.padding(vertical = 8.dp)
+  ) {
+    Icon(
+      painter = painterResource(iconRes),
+      contentDescription = null,
+      modifier = Modifier
+        .padding(horizontal = 8.dp)
+        .size(24.dp),
+      tint = MaterialTheme.colorScheme.primary,
+    )
+    Column(
+      modifier = Modifier
+        .weight(1f)
+        .padding(horizontal = 8.dp)
+    ) {
+      Text(text = title, style = MaterialTheme.typography.titleSmall)
+      Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+    Switch(checked = checked, onCheckedChange = onToggle)
+    Spacer(modifier = Modifier.width(8.dp))
+  }
+}
+
+@Composable
+private fun ProfileHeaderCard(state: ClientSettingsState.Success) {
+  val primaryContact = state.contacts.firstOrNull { it.primary } ?: state.contacts.firstOrNull()
+  SectionCard {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth()
+    ) {
+      AccountAvatarView(
+        modifier = Modifier.size(96.dp),
+        account = state.account
+      )
+      Spacer(modifier = Modifier.height(8.dp))
+      Text(
+        text = state.account.toFullName(),
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.secondary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+      primaryContact?.let { contact ->
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(
+            painter = painterResource(R.drawable.ic_alt_phone),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp)
+          )
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+            text = contact.contact,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+          )
+        }
+      }
+      state.account.email?.let { email ->
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+          text = email,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
+      Spacer(modifier = Modifier.height(2.dp))
+    }
+  }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,71 +179,40 @@ fun ClientSettingsScreen(
         ) {
 
 
-          item {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-              AccountAvatarView(
-                modifier = Modifier.size(160.dp),
-                account = state.account
-              )
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(16.dp)) }
-
-          item {
-            Text(
-              text = state.account.toFullName(),
-              style = MaterialTheme.typography.headlineSmall,
-              maxLines = 1,
-              overflow = TextOverflow.MiddleEllipsis,
-              textAlign = TextAlign.Center,
-              modifier = Modifier.fillMaxWidth()
-            )
-          }
-
-          state.account.email?.let { email ->
-            item {
-              Text(
-                text = email,
-                maxLines = 1,
-                overflow = TextOverflow.MiddleEllipsis,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-              )
-            }
-          }
-
-          item {
-            Text(
-              text = state.account.username,
-              maxLines = 1,
-              overflow = TextOverflow.MiddleEllipsis,
-              style = MaterialTheme.typography.bodyMedium,
-              textAlign = TextAlign.Center,
-              modifier = Modifier.fillMaxWidth()
-            )
-          }
+          item { ProfileHeaderCard(state) }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            HorizontalRuleView({})
-            Row(modifier = Modifier.padding(16.dp)) {
-              Icon(
-                painterResource(R.drawable.ic_payment),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-              )
-              Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = "Payment Plan")
-                Text(
-                  text = state.plan.fee.toAmount(),
-                  style = MaterialTheme.typography.bodySmall
+            SectionTitle(text = "Account")
+            SectionCard {
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_payment),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
                 )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                  Text(text = "Payment Plan")
+                  Text(text = state.plan.fee.toAmount(), style = MaterialTheme.typography.bodySmall)
+                }
+              }
+              HorizontalDivider()
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_location),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                  Text(text = "Location")
+                  Text(
+                    text = "${state.streetName}, ${state.areaName}",
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
               }
             }
-            HorizontalRuleView({})
           }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -144,7 +221,7 @@ fun ClientSettingsScreen(
           item {
             Card(
               onClick = { onEvent(ClientSettingsEvent.Goto.Settings) },
-              shape = CircleShape,
+              shape = RoundedCornerShape(16.dp),
               modifier = Modifier.padding(4.dp)
             ) {
               Row(modifier = Modifier.padding(16.dp)) {
@@ -169,77 +246,98 @@ fun ClientSettingsScreen(
 
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             item {
-              Card(
-                shape = CircleShape,
-                modifier = Modifier.padding(4.dp)
-              ) {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  modifier = Modifier.padding(4.dp)
-                ) {
-                  Icon(
-                    painter = painterResource(R.drawable.ic_invert_colors),
-                    contentDescription = null,
-                    modifier = Modifier
-                      .padding(horizontal = 8.dp)
-                      .padding(start = 4.dp)
-                      .size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                  )
-                  Text(
-                    text = "Theme Color",
-                    style = MaterialTheme.typography.titleMedium,
-
-                    modifier = Modifier
-                      .padding(horizontal = 8.dp)
-                      .weight(1f)
-                  )
-                  Switch(
-                    checked = state.dynamicColor,
-                    onCheckedChange = { isEnabled ->
-                      onEvent(ClientSettingsEvent.Button.DynamicColor(isEnabled))
-                    }
-                  )
-                  Spacer(modifier = Modifier.width(16.dp))
-                }
+              SectionTitle(text = "Appearance")
+              SectionCard {
+                SettingToggleRow(
+                  iconRes = R.drawable.ic_invert_colors,
+                  title = "Dynamic color",
+                  subtitle = "Match app colors with your device wallpaper",
+                  checked = state.dynamicColor,
+                  onToggle = { onEvent(ClientSettingsEvent.Button.DynamicColor(it)) }
+                )
+                HorizontalDivider()
+                SettingToggleRow(
+                  iconRes = R.drawable.ic_invert_colors,
+                  title = "Dark mode",
+                  subtitle = "Use a dark theme across the app",
+                  checked = state.darkTheme,
+                  onToggle = { onEvent(ClientSettingsEvent.Button.DarkTheme(it)) }
+                )
               }
+            }
+          }
+
+          item {
+            SectionTitle(text = "Notifications")
+            SectionCard {
+              SettingToggleRow(
+                iconRes = R.drawable.ic_megaphone,
+                title = "Payment reminders",
+                subtitle = "Daily reminder when balance is outstanding",
+                checked = state.reminderPayment,
+                onToggle = { onEvent(ClientSettingsEvent.Button.ReminderPayment(it)) }
+              )
+              HorizontalDivider()
+              SettingToggleRow(
+                iconRes = R.drawable.ic_cleaning_bucket,
+                title = "Bin collection reminders",
+                subtitle = "Reminder on collection day around 05:00",
+                checked = state.reminderBin,
+                onToggle = { onEvent(ClientSettingsEvent.Button.ReminderBin(it)) }
+              )
             }
           }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            HorizontalRuleView({})
-            Row(modifier = Modifier.padding(16.dp)) {
-              Icon(
-                painterResource(R.drawable.ic_info),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-              )
-              Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = "App Info")
-                Text(
-                  text = "Version ${BuildConfig.VERSION_NAME}",
-                  style = MaterialTheme.typography.bodySmall
+            SectionTitle(text = "About")
+            SectionCard {
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_info),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
                 )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                  Text(text = "App Info")
+                  Text(
+                    text = "Version ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
+              }
+              HorizontalDivider()
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_alt_phone),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                  Text(text = "Helpline")
+                  Text(
+                    text = state.companyContacts.firstOrNull()?.contact ?: "No contact set",
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
+              }
+              HorizontalDivider()
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_payment),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                  Text(text = "Developer")
+                  Text(
+                    text = stringResource(R.string.developer),
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
               }
             }
-            HorizontalRuleView({})
-            Row(modifier = Modifier.padding(16.dp)) {
-              Icon(
-                painterResource(R.drawable.ic_payment),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-              )
-              Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = "Developer")
-                Text(
-                  text = stringResource(R.string.developer),
-                  style = MaterialTheme.typography.bodySmall
-                )
-              }
-            }
-            HorizontalRuleView({})
           }
 
         }
