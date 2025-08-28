@@ -58,6 +58,16 @@ import javax.inject.Singleton
     return context.dataStore.data.map { prefs -> prefs.contains(booleanPreferencesKey(key)) }
   }
 
+  suspend fun clearNetworkValidators() {
+    context.dataStore.edit { prefs ->
+      val keysToRemove = prefs.asMap().keys.filter { key ->
+        val name = key.name
+        name.endsWith("#etag") || name.endsWith("#last_modified")
+      }
+      keysToRemove.forEach { prefs.remove(it) }
+    }
+  }
+
   companion object {
     const val PREFS_NAME = "quantcal_prefs"
     const val CURRENT_WORKING_MONTH = "current_working_month"

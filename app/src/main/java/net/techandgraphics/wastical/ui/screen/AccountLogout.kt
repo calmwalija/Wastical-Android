@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.room.withTransaction
 import com.google.firebase.messaging.FirebaseMessaging
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.worker.cancelAccountLastUpdatedPeriodicWorker
@@ -19,6 +20,7 @@ class AccountLogout @Inject constructor(
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
   private val application: Application,
+  private val preferences: Preferences,
 ) {
   suspend operator fun invoke(): Result<Unit> {
     return runCatching {
@@ -35,6 +37,7 @@ class AccountLogout @Inject constructor(
       application.cancelClientBinCollectionReminderWorker()
       application.cancelAccountLastUpdatedPeriodicWorker()
       application.cancelClientPaymentDueReminderWorker()
+      preferences.clearNetworkValidators()
     }
   }
 }

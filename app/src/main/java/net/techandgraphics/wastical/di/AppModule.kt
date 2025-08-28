@@ -71,6 +71,7 @@ object AppModule {
     authenticatorHelper = authenticatorHelper,
     accountManager = accountManager,
     application = application,
+    preferences = preferences,
   )
 
   @Provides
