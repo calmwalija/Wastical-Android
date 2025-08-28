@@ -15,19 +15,22 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
+import net.techandgraphics.wastical.notification.toNotificationEntity
+import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.toPluralMonth
 import net.techandgraphics.wastical.toZonedDateTime
+import net.techandgraphics.wastical.worker.WorkerUuid.CLIENT_PAYMENT_DUE_REMINDER
 import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
-
-private const val WORK_NAME = "client_payment_due_reminder_work"
 
 @HiltWorker
 class ClientPaymentDueReminderWorker @AssistedInject constructor(
@@ -36,6 +39,7 @@ class ClientPaymentDueReminderWorker @AssistedInject constructor(
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val preferences: Preferences,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
@@ -71,18 +75,24 @@ class ClientPaymentDueReminderWorker @AssistedInject constructor(
     }
 
     return if (monthsOutstanding > 0) {
-      val model = NotificationBuilderModel(
+      val monthsDue = context.toPluralMonth(monthsOutstanding)
+      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+      val paymentPlan = database.paymentPlanDao.get(accountPlan.paymentPlanId)
+      val balance = paymentPlan.fee.times(monthsOutstanding).toAmount()
+      val theText =
+        "You have $monthsDue outstanding which sums up to $balance. Please settle your balance."
+      val notificationModel = NotificationBuilderModel(
         type = NotificationType.PAYMENT_DUE_REMINDER,
         title = NotificationType.PAYMENT_DUE_REMINDER.description,
-        body = "You have $monthsOutstanding month(s) outstanding. Please settle your balance.",
-        style = NotificationCompat.BigTextStyle()
-          .bigText("You have $monthsOutstanding month(s) outstanding. Please settle your balance."),
+        body = theText,
+        style = NotificationCompat.BigTextStyle().bigText(theText),
         contentIntent = pendingIntent(context, gotoToRoute = "client/home"),
       )
-      NotificationBuilder(context).show(
-        model = model,
-        notificationId = 1001L,
-      )
+      val entity = notificationModel.toNotificationEntity(account = account)
+      database.notificationDao.upsert(entity)
+      if (preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)) {
+        NotificationBuilder(context).show(entity.id, notificationModel)
+      }
       Result.success()
     } else {
       Result.success()
@@ -96,12 +106,13 @@ fun Context.scheduleClientPaymentDueReminderWorker() {
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
     .build()
   WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-    WORK_NAME,
+    CLIENT_PAYMENT_DUE_REMINDER,
     ExistingPeriodicWorkPolicy.UPDATE,
     request,
   )
 }
 
 fun Context.cancelClientPaymentDueReminderWorker() {
-  WorkManager.getInstance(this).cancelUniqueWork(WORK_NAME)
+  WorkManager.getInstance(this)
+    .cancelUniqueWork(CLIENT_PAYMENT_DUE_REMINDER)
 }

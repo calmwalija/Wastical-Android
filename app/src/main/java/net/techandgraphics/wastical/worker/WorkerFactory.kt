@@ -153,6 +153,7 @@ class WorkerFactory @Inject constructor(
         database = appDatabase,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        preferences = preferences,
       )
 
     ClientBinCollectionReminderWorker::class.java.name ->
@@ -162,6 +163,7 @@ class WorkerFactory @Inject constructor(
         database = appDatabase,
         authenticatorHelper = authenticatorHelper,
         accountManager = accountManager,
+        preferences = preferences,
       )
 
     AccountLastUpdatedWorker::class.java.name ->
