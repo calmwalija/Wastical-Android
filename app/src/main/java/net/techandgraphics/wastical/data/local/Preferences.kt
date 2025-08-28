@@ -54,6 +54,10 @@ import javax.inject.Singleton
     }
   }
 
+  fun existsBoolean(key: String): Flow<Boolean> {
+    return context.dataStore.data.map { prefs -> prefs.contains(booleanPreferencesKey(key)) }
+  }
+
   companion object {
     const val PREFS_NAME = "quantcal_prefs"
     const val CURRENT_WORKING_MONTH = "current_working_month"

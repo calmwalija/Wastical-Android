@@ -1,5 +1,7 @@
 package net.techandgraphics.wastical.ui.activity
 
+import android.app.Application
+import android.content.res.Configuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
   private val preferences: Preferences,
+  private val application: Application,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(MainActivityState())
@@ -26,13 +29,20 @@ class MainActivityViewModel @Inject constructor(
   private fun onLoad() {
     viewModelScope.launch {
       kotlinx.coroutines.flow.combine(
+        preferences.existsBoolean(Preferences.DARK_THEME),
         preferences.flowOf<Boolean>(Preferences.DARK_THEME, false),
         preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false),
-      ) { darkTheme, dynamicColor -> darkTheme to dynamicColor }
-        .collectLatest { (darkTheme, dynamicColor) ->
-          _state.update { it.copy(darkTheme = darkTheme, dynamicColor = dynamicColor) }
+      ) { hasDarkPref, darkTheme, dynamicColor -> Triple(hasDarkPref, darkTheme, dynamicColor) }
+        .collectLatest { (hasDarkPref, darkTheme, dynamicColor) ->
+          val resolvedDark = if (hasDarkPref) darkTheme else isSystemDark()
+          _state.update { it.copy(darkTheme = resolvedDark, dynamicColor = dynamicColor) }
         }
     }
+  }
+
+  private fun isSystemDark(): Boolean {
+    val mode = application.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+    return mode == Configuration.UI_MODE_NIGHT_YES
   }
 
   fun onEvent(event: MainActivityEvent) {
