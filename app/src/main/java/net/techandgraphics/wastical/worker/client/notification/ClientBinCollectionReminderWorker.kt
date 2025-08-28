@@ -15,19 +15,20 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.notification.NotificationBuilder
 import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
+import net.techandgraphics.wastical.notification.toNotificationEntity
+import net.techandgraphics.wastical.worker.WorkerUuid.CLIENT_BIN_COLLECTION_REMINDER
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
-
-private const val WORK_NAME = "client_bin_collection_reminder_work"
 
 @HiltWorker
 class ClientBinCollectionReminderWorker @AssistedInject constructor(
@@ -36,6 +37,7 @@ class ClientBinCollectionReminderWorker @AssistedInject constructor(
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val preferences: Preferences,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
@@ -47,18 +49,19 @@ class ClientBinCollectionReminderWorker @AssistedInject constructor(
     val matchesToday = collections.any { it.dayOfWeek.equals(today.name, ignoreCase = true) }
 
     if (matchesToday) {
-      val model = NotificationBuilderModel(
+      val notificationModel = NotificationBuilderModel(
         type = NotificationType.WASTE_COLLECTION_REMINDER,
         title = "Bin collection today",
-        body = "Reminder: Your bin will be collected today. Please put it out.",
+        body = "Your bin will be collected today. Please put it out.",
         style = NotificationCompat.BigTextStyle()
-          .bigText("Reminder: Your bin will be collected today. Please put it out."),
+          .bigText("Your bin will be collected today. Please put it out."),
         contentIntent = pendingIntent(context, gotoToRoute = "client/home"),
       )
-      NotificationBuilder(context).show(
-        model = model,
-        notificationId = 2001L,
-      )
+      val entity = notificationModel.toNotificationEntity(account = account)
+      database.notificationDao.upsert(entity)
+      if (preferences.get(Preferences.CLIENT_REMINDER_BIN, true)) {
+        NotificationBuilder(context).show(entity.id, notificationModel)
+      }
     }
     return Result.success()
   }
@@ -67,7 +70,11 @@ class ClientBinCollectionReminderWorker @AssistedInject constructor(
 fun Context.scheduleClientBinCollectionReminderWorker() {
   val now = ZonedDateTime.now()
   val targetTime = LocalTime.of(5, 0)
-  val todayAtTarget = now.withHour(targetTime.hour).withMinute(targetTime.minute).withSecond(0).withNano(0)
+  val todayAtTarget =
+    now.withHour(targetTime.hour)
+      .withMinute(targetTime.minute)
+      .withSecond(0)
+      .withNano(0)
   val nextRun = if (now.isAfter(todayAtTarget)) todayAtTarget.plusDays(1) else todayAtTarget
   val initialDelayMinutes = Duration.between(now, nextRun).toMinutes().coerceAtLeast(0)
 
@@ -77,12 +84,13 @@ fun Context.scheduleClientBinCollectionReminderWorker() {
     .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
     .build()
   WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-    WORK_NAME,
+    CLIENT_BIN_COLLECTION_REMINDER,
     ExistingPeriodicWorkPolicy.UPDATE,
     request,
   )
 }
 
 fun Context.cancelClientBinCollectionReminderWorker() {
-  WorkManager.getInstance(this).cancelUniqueWork(WORK_NAME)
+  WorkManager.getInstance(this)
+    .cancelUniqueWork(CLIENT_BIN_COLLECTION_REMINDER)
 }
