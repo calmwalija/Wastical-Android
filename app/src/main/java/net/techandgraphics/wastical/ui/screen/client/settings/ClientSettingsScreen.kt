@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.client.settings
 
+import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -26,15 +27,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import net.techandgraphics.wastical.BuildConfig
 import net.techandgraphics.wastical.R
+import net.techandgraphics.wastical.openDialer
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
+import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.AccountAvatarView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
@@ -343,7 +348,16 @@ fun ClientSettingsScreen(
           item {
             SectionTitle(text = "Contact us")
             SectionCard {
-              Row(modifier = Modifier.padding(8.dp)) {
+              val context = LocalContext.current
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    state.companyContacts.firstOrNull()?.contact?.let { phone ->
+                      context.openDialer(phone)
+                    }
+                  }
+                  .padding(8.dp)) {
                 Icon(
                   Icons.Rounded.Phone,
                   contentDescription = null,
@@ -358,7 +372,18 @@ fun ClientSettingsScreen(
                 }
               }
               HorizontalDivider()
-              Row(modifier = Modifier.padding(8.dp)) {
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    val intent =
+                      Intent(Intent.ACTION_SENDTO).apply {
+                        data = "mailto:${state.company.email}".toUri()
+                      }
+                    runCatching { context.startActivity(intent) }
+                      .onFailure { context.toast("Failed to open email app") }
+                  }
+                  .padding(8.dp)) {
                 Icon(
                   Icons.Outlined.Email,
                   contentDescription = null,
