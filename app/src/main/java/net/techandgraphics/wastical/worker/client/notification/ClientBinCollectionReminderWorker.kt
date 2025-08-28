@@ -22,9 +22,9 @@ import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import java.time.DayOfWeek
-import java.time.ZonedDateTime
-import java.time.LocalTime
 import java.time.Duration
+import java.time.LocalTime
+import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
 private const val WORK_NAME = "client_bin_collection_reminder_work"
@@ -86,5 +86,3 @@ fun Context.scheduleClientBinCollectionReminderWorker() {
 fun Context.cancelClientBinCollectionReminderWorker() {
   WorkManager.getInstance(this).cancelUniqueWork(WORK_NAME)
 }
-
-

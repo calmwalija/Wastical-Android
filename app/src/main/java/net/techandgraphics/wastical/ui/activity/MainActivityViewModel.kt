@@ -27,7 +27,8 @@ class MainActivityViewModel @Inject constructor(
     viewModelScope.launch {
       preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false)
         .collectLatest { dynamicColor ->
-          _state.update { it.copy(dynamicColor = dynamicColor) }
+          val darkTheme = preferences.get(Preferences.DARK_THEME, false)
+          _state.update { it.copy(dynamicColor = dynamicColor, darkTheme = darkTheme) }
         }
     }
   }
