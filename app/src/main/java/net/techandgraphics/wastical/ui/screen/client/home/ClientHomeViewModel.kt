@@ -45,7 +45,6 @@ import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
-import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
 import java.io.File
 import java.time.YearMonth
@@ -170,7 +169,6 @@ import javax.inject.Inject
             outstandingMonths = outstandingMonths,
             paymentRequests = paymentRequests,
           )
-          application.scheduleClientBinCollectionReminderWorker()
         }.launchIn(this)
       }
   }
