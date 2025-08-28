@@ -244,24 +244,24 @@ fun ClientSettingsScreen(
             }
           }
 
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            item {
-              SectionTitle(text = "Appearance")
-              SectionCard {
+          item {
+            SectionTitle(text = "Appearance")
+            SectionCard {
+              SettingToggleRow(
+                iconRes = R.drawable.ic_invert_colors,
+                title = "Dark mode",
+                subtitle = "Use a dark theme across the app",
+                checked = state.darkTheme,
+                onToggle = { onEvent(ClientSettingsEvent.Button.DarkTheme(it)) }
+              )
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                HorizontalDivider()
                 SettingToggleRow(
                   iconRes = R.drawable.ic_invert_colors,
                   title = "Dynamic color",
                   subtitle = "Match app colors with your device wallpaper",
                   checked = state.dynamicColor,
                   onToggle = { onEvent(ClientSettingsEvent.Button.DynamicColor(it)) }
-                )
-                HorizontalDivider()
-                SettingToggleRow(
-                  iconRes = R.drawable.ic_invert_colors,
-                  title = "Dark mode",
-                  subtitle = "Use a dark theme across the app",
-                  checked = state.darkTheme,
-                  onToggle = { onEvent(ClientSettingsEvent.Button.DarkTheme(it)) }
                 )
               }
             }
