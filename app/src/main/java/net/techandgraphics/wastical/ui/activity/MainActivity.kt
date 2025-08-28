@@ -30,7 +30,9 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       val state = viewModel.state.collectAsState().value
-      WasticalTheme(dynamicColor = state.dynamicColor) { Surface { AppScreen(activity = this) } }
+      WasticalTheme(darkTheme = state.darkTheme, dynamicColor = state.dynamicColor) {
+        Surface { AppScreen(activity = this) }
+      }
     }
     enableEdgeToEdge()
   }

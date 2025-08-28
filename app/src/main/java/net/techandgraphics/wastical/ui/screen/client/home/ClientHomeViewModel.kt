@@ -93,7 +93,6 @@ import javax.inject.Inject
           database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
         val companyBinCollections = database.companyBinCollectionDao.query()
           .map { it.toCompanyBinCollectionUiModel() }
-        // Compute months outstanding similar to ClientPaymentViewModel
         val today = ZonedDateTime.now()
         val lastCovered = database.paymentMonthCoveredDao.getLastByAccount(account.id)
         val aging = database.paymentIndicatorDao.qAgingRawByAccountId(account.id)
