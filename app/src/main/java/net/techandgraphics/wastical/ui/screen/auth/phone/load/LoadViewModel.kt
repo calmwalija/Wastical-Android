@@ -16,10 +16,17 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
+import net.techandgraphics.wastical.data.local.Preferences.Companion.FCM_TOKEN_KEY
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.worker.SESSION_WORKER_UUID
+import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
+import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
+import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
+import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedPeriodicWorker
 import net.techandgraphics.wastical.worker.scheduleAccountSessionWorker
 import javax.inject.Inject
 
@@ -29,6 +36,7 @@ class LoadViewModel @Inject constructor(
   private val application: Application,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val preferences: Preferences,
 ) : ViewModel() {
 
   private val _channel = Channel<LoadChannel>()
@@ -45,10 +53,8 @@ class LoadViewModel @Inject constructor(
       return@launch
     }
     val fcmToken = database.accountFcmTokenDao.query()
-
     if (fcmToken.isEmpty()) {
-      _channel.send(element = LoadChannel.NoToken(account.username))
-      return@launch
+      onFcmToken()
     }
 
     if (companyInfo.isEmpty()) {
@@ -94,10 +100,31 @@ class LoadViewModel @Inject constructor(
               subscribeToTopic(locationUui)
               subscribeToTopic(account.uuid)
             }
-          }.onSuccess { _channel.send(LoadChannel.Success) }
+            application.scheduleClientPaymentDueReminderWorker()
+            application.scheduleClientBinCollectionReminderWorker()
+          }.onSuccess {
+            application.scheduleAccountLastUpdatedPeriodicWorker()
+            _channel.send(LoadChannel.Success)
+          }
 
-          AccountRole.Company -> _channel.send(LoadChannel.Success)
+          AccountRole.Company -> {
+            application.scheduleAccountLastUpdatedPeriodicWorker()
+            _channel.send(LoadChannel.Success)
+          }
         }
+      }
+  }
+
+  private fun onFcmToken() = viewModelScope.launch {
+    runCatching { preferences.get(FCM_TOKEN_KEY, "") }
+      .getOrDefault("")
+      .takeIf { it.isNotEmpty() }
+      ?.let { fcmToken ->
+        runCatching {
+          database.accountFcmTokenDao.deleteAll()
+          database.accountFcmTokenDao.upsert(AccountFcmTokenEntity(token = fcmToken))
+        }
+        application.scheduleAccountFcmTokenWorker()
       }
   }
 
