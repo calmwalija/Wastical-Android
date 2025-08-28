@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.screen.client.settings
 
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -39,6 +41,8 @@ import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.accountContact4Preview
 import net.techandgraphics.wastical.ui.screen.company.CompanyInfoTopAppBarView
 import net.techandgraphics.wastical.ui.screen.company4Preview
+import net.techandgraphics.wastical.ui.screen.demographicArea4Preview
+import net.techandgraphics.wastical.ui.screen.demographicStreet4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
@@ -91,6 +95,8 @@ private fun SettingToggleRow(
         text = subtitle,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
       )
     }
     Switch(checked = checked, onCheckedChange = onToggle)
@@ -178,36 +184,40 @@ fun ClientSettingsScreen(
           modifier = Modifier.padding(16.dp),
         ) {
 
-
           item { ProfileHeaderCard(state) }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            SectionTitle(text = "Account")
+            SectionTitle(text = "About")
             SectionCard {
               Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
-                  painterResource(R.drawable.ic_payment),
+                  painterResource(R.drawable.ic_info),
                   contentDescription = null,
                   tint = MaterialTheme.colorScheme.primary
                 )
-                Column(modifier = Modifier.padding(start = 16.dp)) {
-                  Text(text = "Payment Plan")
-                  Text(text = state.plan.fee.toAmount(), style = MaterialTheme.typography.bodySmall)
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                  Text(text = "App Info")
+                  Text(
+                    text = "Version ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
                 }
               }
               HorizontalDivider()
               Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
-                  painterResource(R.drawable.ic_location),
+                  painterResource(R.drawable.ic_code),
                   contentDescription = null,
                   tint = MaterialTheme.colorScheme.primary
                 )
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                  Text(text = "Location")
+                  Text(text = "Developer")
                   Text(
-                    text = "${state.streetName}, ${state.areaName}",
+                    text = stringResource(R.string.developer),
                     style = MaterialTheme.typography.bodySmall
                   )
                 }
@@ -217,38 +227,76 @@ fun ClientSettingsScreen(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
-
           item {
-            Card(
-              onClick = { onEvent(ClientSettingsEvent.Goto.Settings) },
-              shape = RoundedCornerShape(16.dp),
-              modifier = Modifier.padding(4.dp)
-            ) {
-              Row(modifier = Modifier.padding(16.dp)) {
+            SectionTitle(text = "Account")
+            SectionCard {
+              Row(
+                modifier = Modifier
+                  .clickable { onEvent(ClientSettingsEvent.Goto.Settings) }
+                  .fillMaxWidth()
+                  .padding(8.dp)) {
                 Icon(
                   painterResource(R.drawable.ic_edit_note),
                   contentDescription = null,
                   tint = MaterialTheme.colorScheme.primary
                 )
-                Text(
-                  text = "Edit Info",
+                Column(
                   modifier = Modifier
-                    .padding(start = 16.dp)
-                    .weight(1f),
-                )
+                    .padding(horizontal = 16.dp)
+                    .weight(1f)
+                ) {
+                  Text(text = "Edit Info")
+                  Text(
+                    text = "Update your name, contact and other account details",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                }
+              }
+              HorizontalDivider()
+              Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
-                  Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                  contentDescription = null
+                  painterResource(R.drawable.ic_payment),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
                 )
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                  Text(text = "Payment Plan")
+                  Text(
+                    text = state.plan.fee.toAmount(),
+                    style = MaterialTheme.typography.bodySmall
+                  )
+                }
+              }
+              HorizontalDivider()
+              Row(modifier = Modifier.padding(8.dp)) {
+                Icon(
+                  painterResource(R.drawable.ic_location),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                  Text(text = "Location")
+                  Text(
+                    text = "${state.streetName}, ${state.areaName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                }
               }
             }
           }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
             SectionTitle(text = "Appearance")
             SectionCard {
               SettingToggleRow(
-                iconRes = R.drawable.ic_invert_colors,
+                iconRes = R.drawable.ic_dark_mode,
                 title = "Dark mode",
                 subtitle = "Use a dark theme across the app",
                 checked = state.darkTheme,
@@ -267,11 +315,13 @@ fun ClientSettingsScreen(
             }
           }
 
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
           item {
             SectionTitle(text = "Notifications")
             SectionCard {
               SettingToggleRow(
-                iconRes = R.drawable.ic_megaphone,
+                iconRes = R.drawable.ic_balance,
                 title = "Payment reminders",
                 subtitle = "Daily reminder when balance is outstanding",
                 checked = state.reminderPayment,
@@ -291,26 +341,11 @@ fun ClientSettingsScreen(
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
-            SectionTitle(text = "About")
+            SectionTitle(text = "Contact us")
             SectionCard {
               Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
-                  painterResource(R.drawable.ic_info),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.primary
-                )
-                Column(modifier = Modifier.padding(start = 16.dp)) {
-                  Text(text = "App Info")
-                  Text(
-                    text = "Version ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.bodySmall
-                  )
-                }
-              }
-              HorizontalDivider()
-              Row(modifier = Modifier.padding(8.dp)) {
-                Icon(
-                  painterResource(R.drawable.ic_alt_phone),
+                  Icons.Rounded.Phone,
                   contentDescription = null,
                   tint = MaterialTheme.colorScheme.primary
                 )
@@ -325,14 +360,14 @@ fun ClientSettingsScreen(
               HorizontalDivider()
               Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
-                  painterResource(R.drawable.ic_payment),
+                  Icons.Outlined.Email,
                   contentDescription = null,
                   tint = MaterialTheme.colorScheme.primary
                 )
                 Column(modifier = Modifier.padding(start = 16.dp)) {
-                  Text(text = "Developer")
+                  Text(text = "Email")
                   Text(
-                    text = stringResource(R.string.developer),
+                    text = state.company.email,
                     style = MaterialTheme.typography.bodySmall
                   )
                 }
@@ -356,6 +391,8 @@ private fun ClientSettingsScreenPreview() {
         account = account4Preview,
         company = company4Preview,
         plan = paymentPlan4Preview,
+        streetName = demographicStreet4Preview.name,
+        areaName = demographicArea4Preview.name,
         contacts = listOf(accountContact4Preview),
       ),
       onEvent = {}
