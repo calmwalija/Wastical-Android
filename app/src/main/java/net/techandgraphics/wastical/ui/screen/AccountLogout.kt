@@ -1,11 +1,15 @@
 package net.techandgraphics.wastical.ui.screen
 
 import android.accounts.AccountManager
+import android.app.Application
 import androidx.room.withTransaction
 import com.google.firebase.messaging.FirebaseMessaging
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.worker.cancelAccountLastUpdatedPeriodicWorker
+import net.techandgraphics.wastical.worker.client.notification.cancelClientBinCollectionReminderWorker
+import net.techandgraphics.wastical.worker.client.payment.cancelClientPaymentDueReminderWorker
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,6 +18,7 @@ class AccountLogout @Inject constructor(
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
   private val accountManager: AccountManager,
+  private val application: Application,
 ) {
   suspend operator fun invoke(): Result<Unit> {
     return runCatching {
@@ -27,6 +32,9 @@ class AccountLogout @Inject constructor(
         locationUui?.let { unsubscribeFromTopic(locationUui) }
       }
       authenticatorHelper.deleteAccounts()
+      application.cancelClientBinCollectionReminderWorker()
+      application.cancelAccountLastUpdatedPeriodicWorker()
+      application.cancelClientPaymentDueReminderWorker()
     }
   }
 }

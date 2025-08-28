@@ -15,12 +15,16 @@ import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.Preferences.Companion.FCM_TOKEN_KEY
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.ui.screen.AccountLogout
+import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
+import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
+import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedPeriodicWorker
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,6 +66,12 @@ class OtpViewModel @Inject constructor(
         }
       }
     }.onSuccess {
+      val newAccount = (_state.value as OtpState.Success).account
+      if (newAccount.role == AccountRole.Client.name) {
+        application.scheduleClientPaymentDueReminderWorker()
+        application.scheduleClientBinCollectionReminderWorker()
+      }
+      application.scheduleAccountLastUpdatedPeriodicWorker()
       onFcmToken()
       _channel.send(OtpChannel.Success)
     }.onFailure { _channel.send(OtpChannel.Error(it)) }
