@@ -4,9 +4,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,11 +42,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -167,7 +166,7 @@ fun ClientPaymentScreen(
                 .fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Column {
+              Column(modifier = Modifier.weight(1f)) {
                 val animatedSum by animateIntAsState(
                   targetValue = state.monthsCovered.times(state.paymentPlan.fee),
                   animationSpec = tween(
@@ -179,8 +178,14 @@ fun ClientPaymentScreen(
                 val blinkAlpha = remember { Animatable(1f) }
                 LaunchedEffect(animatedSum) {
                   repeat(2) {
-                    blinkAlpha.animateTo(0.25f, animationSpec = tween(durationMillis = 100, easing = LinearEasing))
-                    blinkAlpha.animateTo(1f, animationSpec = tween(durationMillis = 120, easing = LinearEasing))
+                    blinkAlpha.animateTo(
+                      0.25f,
+                      animationSpec = tween(durationMillis = 100, easing = LinearEasing)
+                    )
+                    blinkAlpha.animateTo(
+                      1f,
+                      animationSpec = tween(durationMillis = 120, easing = LinearEasing)
+                    )
                   }
                 }
 
@@ -189,24 +194,18 @@ fun ClientPaymentScreen(
                   style = MaterialTheme.typography.labelMedium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                AnimatedContent(targetState = animatedSum, label = "total-amount") { value ->
+                AnimatedContent(
+                  targetState = animatedSum,
+                  label = "total-amount"
+                ) { value ->
                   Text(
                     text = value.toAmount(),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                      .fillMaxWidth(.6f)
-                      .alpha(blinkAlpha.value)
+                    modifier = Modifier.alpha(blinkAlpha.value)
                   )
                 }
-                Text(
-                  text = "${state.monthsCovered} × ${state.paymentPlan.fee.toAmount()} per month",
-                  style = MaterialTheme.typography.bodySmall,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
               }
-              Spacer(modifier = Modifier.weight(1f))
               Button(
                 enabled = loading.not(),
                 onClick = {
@@ -228,7 +227,6 @@ fun ClientPaymentScreen(
                 colors = ButtonDefaults.buttonColors(
                   containerColor = MaterialTheme.colorScheme.primary.copy(.7f)
                 ),
-                modifier = Modifier.fillMaxWidth(.6f),
               ) {
                 if (loading) Row(verticalAlignment = Alignment.CenterVertically) {
                   CircularProgressIndicator(modifier = Modifier.size(16.dp))
