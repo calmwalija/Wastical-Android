@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
@@ -36,11 +35,9 @@ class ClientSettingsViewModel @Inject constructor(
     val street = database.demographicStreetDao.get(companyLocation.demographicStreetId)
     val area = database.demographicAreaDao.get(companyLocation.demographicAreaId)
     val companyContacts = database.companyContactDao.query().map { it.toCompanyContactUiModel() }
-    combine(
-      preferences.flowOf<Boolean>(Preferences.DARK_THEME, false),
-      preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false),
-    ) { darkTheme, dynamicColor -> darkTheme to dynamicColor }
-      .collectLatest { (darkTheme, dynamicColor) ->
+
+    preferences.flowOf<Boolean>(Preferences.DYNAMIC_COLOR, false)
+      .collectLatest { dynamicColor ->
         val reminderPayment = preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)
         val reminderBin = preferences.get(Preferences.CLIENT_REMINDER_BIN, true)
         _state.value = ClientSettingsState.Success(
@@ -48,7 +45,6 @@ class ClientSettingsViewModel @Inject constructor(
           account = account,
           contacts = contacts,
           dynamicColor = dynamicColor,
-          darkTheme = darkTheme,
           plan = paymentPlan,
           streetName = street.name,
           areaName = area.name,
@@ -67,14 +63,6 @@ class ClientSettingsViewModel @Inject constructor(
           .copy(dynamicColor = event.isEnabled)
       }
     }
-
-  private fun onDarkTheme(event: ClientSettingsEvent.Button.DarkTheme) = viewModelScope.launch {
-    if (_state.value is ClientSettingsState.Success) {
-      preferences.put<Boolean>(Preferences.DARK_THEME, event.isEnabled)
-      _state.value = (_state.value as ClientSettingsState.Success)
-        .copy(darkTheme = event.isEnabled)
-    }
-  }
 
   private fun onReminderPayment(event: ClientSettingsEvent.Button.ReminderPayment) =
     viewModelScope.launch {
@@ -98,7 +86,6 @@ class ClientSettingsViewModel @Inject constructor(
     when (event) {
       is ClientSettingsEvent.Load -> onLoad(event)
       is ClientSettingsEvent.Button.DynamicColor -> onButtonDynamicColor(event)
-      is ClientSettingsEvent.Button.DarkTheme -> onDarkTheme(event)
       is ClientSettingsEvent.Button.ReminderPayment -> onReminderPayment(event)
       is ClientSettingsEvent.Button.ReminderBin -> onReminderBin(event)
       else -> Unit

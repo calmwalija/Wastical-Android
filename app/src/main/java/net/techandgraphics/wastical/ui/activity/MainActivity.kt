@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       val state = viewModel.state.collectAsState().value
-      WasticalTheme(darkTheme = state.darkTheme, dynamicColor = state.dynamicColor) {
+      WasticalTheme(dynamicColor = state.dynamicColor) {
         Surface { AppScreen(activity = this) }
       }
     }
