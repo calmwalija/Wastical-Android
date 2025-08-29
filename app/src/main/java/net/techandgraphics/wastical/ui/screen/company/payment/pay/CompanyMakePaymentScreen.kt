@@ -3,6 +3,9 @@ package net.techandgraphics.wastical.ui.screen.company.payment.pay
 import android.content.Context
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -119,27 +123,43 @@ fun CompanyMakePaymentScreen(
               verticalAlignment = Alignment.CenterVertically
             ) {
               Column {
-                Text(
-                  text = "Total",
-                  style = MaterialTheme.typography.labelMedium
-                )
-
                 val animatedSum by animateIntAsState(
                   targetValue = state.numberOfMonths.times(state.paymentPlan.fee),
                   animationSpec = tween(
-                    delayMillis = 1_000,
-                    durationMillis = 1_000,
+                    delayMillis = 120,
+                    durationMillis = 380,
                   )
                 )
 
-                Text(
-                  text = animatedSum.toAmount(),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.primary,
-                  modifier = Modifier.fillMaxWidth(.4f)
-                )
+                val blinkAlpha = remember { Animatable(1f) }
+                LaunchedEffect(animatedSum) {
+                  repeat(2) {
+                    blinkAlpha.animateTo(0.25f, animationSpec = tween(durationMillis = 100, easing = LinearEasing))
+                    blinkAlpha.animateTo(1f, animationSpec = tween(durationMillis = 120, easing = LinearEasing))
+                  }
+                }
 
+                Text(
+                  text = "Total",
+                  style = MaterialTheme.typography.labelMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                AnimatedContent(targetState = animatedSum, label = "total-amount-company") { value ->
+                  Text(
+                    text = value.toAmount(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                      .fillMaxWidth(.6f)
+                      .alpha(blinkAlpha.value)
+                  )
+                }
+                Text(
+                  text = "${state.numberOfMonths} × ${state.paymentPlan.fee.toAmount()} per month",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
               }
               Spacer(modifier = Modifier.weight(1f))
               Button(

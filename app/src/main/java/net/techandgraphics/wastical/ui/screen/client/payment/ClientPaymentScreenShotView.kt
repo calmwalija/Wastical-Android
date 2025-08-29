@@ -62,7 +62,7 @@ fun ClientPaymentScreenShotView(
     )
 
     Text(
-      text = "Attach Proof Of Payment Image",
+      text = "Attach Proof Of Payment",
       style = MaterialTheme.typography.titleLarge,
       modifier = Modifier.padding(top = 16.dp),
       maxLines = 1,
