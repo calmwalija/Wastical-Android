@@ -5,6 +5,7 @@ import net.techandgraphics.wastical.data.local.database.account.plan.AccountPaym
 import net.techandgraphics.wastical.data.local.database.account.plan.request.AccountPaymentPlanRequestEntity
 import net.techandgraphics.wastical.data.local.database.account.request.AccountRequestEntity
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
+import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
 import net.techandgraphics.wastical.data.local.database.notification.request.NotificationRequestEntity
 import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
 import net.techandgraphics.wastical.data.remote.account.AccountRequest
@@ -85,6 +86,26 @@ fun AccountPaymentPlanEntity.toAccountPaymentPlanRequest() =
 
 fun NotificationRequestEntity.toNotificationRequest() =
   NotificationRequest(
+    title = title,
+    body = body,
+    senderId = senderId,
+    companyId = companyId,
+    topic = topic,
+    reference = reference,
+    type = type,
+    recipientRole = recipientRole,
+    paymentId = paymentId,
+    isRead = isRead,
+    recipientId = recipientId,
+    metadata = metadata,
+    deliveredAt = deliveredAt,
+    uuid = uuid,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+  )
+
+fun NotificationEntity.toNotificationRequestEntity() =
+  NotificationRequestEntity(
     title = title,
     body = body,
     senderId = senderId,

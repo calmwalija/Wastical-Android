@@ -24,7 +24,6 @@ import net.techandgraphics.wastical.worker.company.account.CompanyAccountPayment
 import net.techandgraphics.wastical.worker.company.account.CompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.CompanyNotificationRequestWorker
 import net.techandgraphics.wastical.worker.company.payment.CompanyPaymentRequestWorker
-import net.techandgraphics.wastical.worker.company.payment.CompanyPaymentWorker
 import net.techandgraphics.wastical.worker.company.payment.fcm.CompanyFetchLatestPaymentWorker
 import javax.inject.Inject
 
@@ -45,20 +44,14 @@ class WorkerFactory @Inject constructor(
     workerClassName: String,
     workerParameters: WorkerParameters,
   ) = when (workerClassName) {
-    CompanyPaymentWorker::class.java.name ->
-      CompanyPaymentWorker(
-        context = appContext,
-        params = workerParameters,
-        database = appDatabase,
-        paymentApi = paymentApi,
-      )
-
     CompanyPaymentRequestWorker::class.java.name ->
       CompanyPaymentRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     CompanyAccountDemographicRequestWorker::class.java.name ->
@@ -91,6 +84,8 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         paymentApi = paymentApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
         gson = gson,
       )
 
@@ -184,10 +179,22 @@ class WorkerFactory @Inject constructor(
         params = workerParameters,
         database = appDatabase,
         notificationApi = notificationApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
       )
 
     ClientNotificationWorker::class.java.name ->
       ClientNotificationWorker(
+        context = appContext,
+        params = workerParameters,
+        database = appDatabase,
+        notificationApi = notificationApi,
+        authenticatorHelper = authenticatorHelper,
+        accountManager = accountManager,
+      )
+
+    NotificationRequestWorker::class.java.name ->
+      NotificationRequestWorker(
         context = appContext,
         params = workerParameters,
         database = appDatabase,

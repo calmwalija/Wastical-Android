@@ -5,6 +5,7 @@ import androidx.core.app.NotificationCompat
 import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.account.AccountEntity
 import net.techandgraphics.wastical.data.local.database.notification.NotificationEntity
+import net.techandgraphics.wastical.data.local.database.notification.NotificationSyncStatus
 import net.techandgraphics.wastical.getReference
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -32,10 +33,11 @@ fun NotificationBuilderModel.toNotificationEntity(
   recipientId = account.id,
   recipientRole = AccountRole.Client.name,
   senderId = account.id,
+  companyId = account.companyId,
   paymentId = null,
   type = this.type.name,
   metadata = null,
-  syncStatus = 2,
+  syncStatus = NotificationSyncStatus.Sync.ordinal,
   deliveredAt = epochSecond,
   createdAt = epochSecond,
   updatedAt = epochSecond,

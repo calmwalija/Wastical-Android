@@ -17,8 +17,11 @@ abstract class NotificationDao : BaseDao<NotificationEntity>, TimestampedDao {
   @Query("SELECT * FROM notification WHERE sync_status = 0")
   abstract fun flowOfSync(): Flow<List<NotificationEntity>>
 
-  @Query("SELECT * FROM notification WHERE sync_status = 0 AND recipient_role=:role ")
-  abstract fun flowOfSync(role: String = AccountRole.Company.name): Flow<List<NotificationEntity>>
+  @Query("SELECT * FROM notification WHERE sync_status = :status AND recipient_role=:role ")
+  abstract fun flowOfSync(
+    status: Int = NotificationSyncStatus.Sync.ordinal,
+    role: String = AccountRole.Company.name,
+  ): Flow<List<NotificationEntity>>
 
   @Query("SELECT * FROM notification ORDER BY id DESC")
   abstract fun flowOf(): Flow<List<NotificationEntity>>

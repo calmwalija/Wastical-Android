@@ -17,6 +17,7 @@ import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.worker.WorkerUuid.ACCOUNT_SESSION_WORKER
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -45,18 +46,16 @@ import java.util.concurrent.TimeUnit
   }
 }
 
-const val SESSION_WORKER_UUID = "f31857cc-330d-41e8-b32d-960f82ff0b53"
-
 fun Context.scheduleAccountSessionWorker() {
   val workRequest = OneTimeWorkRequestBuilder<AccountSessionWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(SESSION_WORKER_UUID))
+    .setId(UUID.fromString(ACCOUNT_SESSION_WORKER))
     .build()
   WorkManager.Companion
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = SESSION_WORKER_UUID,
+      uniqueWorkName = ACCOUNT_SESSION_WORKER,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

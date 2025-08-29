@@ -252,12 +252,11 @@ fun ClientSettingsScreen(
             }
           }
 
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            SectionTitle(text = "Appearance")
-            SectionCard {
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item {
+              SectionTitle(text = "Appearance")
+              SectionCard {
                 SettingToggleRow(
                   iconRes = R.drawable.ic_invert_colors,
                   title = "Dynamic color",

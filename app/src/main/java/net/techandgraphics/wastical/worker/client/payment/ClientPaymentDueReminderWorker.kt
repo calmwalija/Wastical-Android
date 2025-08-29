@@ -25,6 +25,7 @@ import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toPluralMonth
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.worker.WorkerUuid.CLIENT_PAYMENT_DUE_REMINDER
+import net.techandgraphics.wastical.worker.scheduleNotificationRequestWorker
 import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -92,6 +93,7 @@ class ClientPaymentDueReminderWorker @AssistedInject constructor(
         if (preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)) {
           NotificationBuilder(context).show(entity.id, notificationModel)
         }
+        context.scheduleNotificationRequestWorker()
         Result.success()
       } else {
         Result.success()

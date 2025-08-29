@@ -42,6 +42,7 @@ data class NotificationEntity(
   @ColumnInfo("recipient_id") val recipientId: Long?,
   @ColumnInfo("recipient_role") val recipientRole: String,
   @ColumnInfo("sender_id") val senderId: Long,
+  @ColumnInfo("company_id") val companyId: Long,
   @ColumnInfo("payment_id") val paymentId: Long?,
   @ColumnInfo("notification_type") val type: String,
   @ColumnInfo("metadata") val metadata: String?,
