@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
   val uri = state.imageUri
   val mime = if (uri != null) context.contentResolver.getType(uri) ?: "" else ""
   val isImage = mime.startsWith("image/")
-  val displayName = state.imageUri?.lastPathSegment?.substringAfterLast('/') ?: "Attachment"
+  state.imageUri?.lastPathSegment?.substringAfterLast('/') ?: "Attachment"
 
   Card(
     colors = CardDefaults.elevatedCardColors(),
@@ -67,9 +68,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       if (state.screenshotAttached) {
         Box(modifier = Modifier.fillMaxWidth()) {
           IconButton(
-            onClick = {
-              onEvent(ClientPaymentEvent.Button.RemoveScreenshot)
-            },
+            onClick = { onEvent(ClientPaymentEvent.Button.RemoveScreenshot) },
             modifier = Modifier.align(Alignment.TopEnd)
           ) {
             Icon(Icons.Outlined.Close, contentDescription = null)
@@ -123,6 +122,11 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        TextButton(
+          onClick = { onEvent(ClientPaymentEvent.Button.AttachScreenshot) },
+        ) {
+          Text(text = "Choose file")
+        }
       }
     }
   }
