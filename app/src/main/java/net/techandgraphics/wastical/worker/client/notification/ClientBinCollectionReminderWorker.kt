@@ -5,10 +5,8 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -79,7 +77,6 @@ fun Context.scheduleClientBinCollectionReminderWorker() {
   val initialDelayMinutes = Duration.between(now, nextRun).toMinutes().coerceAtLeast(0)
 
   val request = PeriodicWorkRequestBuilder<ClientBinCollectionReminderWorker>(1, TimeUnit.DAYS)
-    .setConstraints(Constraints(requiredNetworkType = NetworkType.NOT_REQUIRED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
     .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
     .build()

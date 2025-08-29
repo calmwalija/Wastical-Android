@@ -35,10 +35,10 @@ import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.notification4Preview
 import net.techandgraphics.wastical.ui.theme.Blue11
+import net.techandgraphics.wastical.ui.theme.Blue35
 import net.techandgraphics.wastical.ui.theme.Cine
 import net.techandgraphics.wastical.ui.theme.Green
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
-import net.techandgraphics.wastical.ui.theme.Blue35
 
 
 @Composable
@@ -118,12 +118,16 @@ private fun colorForType(type: NotificationType): Color = when (type) {
   NotificationType.PROOF_OF_PAYMENT_APPROVED -> Green
   NotificationType.PROOF_OF_PAYMENT_DECLINED -> MaterialTheme.colorScheme.error
   NotificationType.PROOF_OF_PAYMENT_SUBMITTED -> MaterialTheme.colorScheme.secondary
-  NotificationType.PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY -> MaterialTheme.colorScheme.primary
+  NotificationType.PROOF_OF_PAYMENT_SUBMITTED_BY_COMPANY -> Green
   NotificationType.PROOF_OF_PAYMENT_COMPANY_VERIFY -> MaterialTheme.colorScheme.onSurfaceVariant
   NotificationType.ACCOUNT_BASED_NOTIFICATION -> Blue35
   NotificationType.LOCATION_BASED_NOTIFICATION -> Cine
   NotificationType.COMPANY_BROADCAST_NOTIFICATION -> Blue11
-  else -> MaterialTheme.colorScheme.secondary
+  NotificationType.PAYMENT_DUE_REMINDER -> MaterialTheme.colorScheme.error
+  NotificationType.PROOF_OF_PAYMENT_RECEIVED -> MaterialTheme.colorScheme.primary
+  NotificationType.PROOF_OF_PAYMENT_SUCCESSFUL_BY_COMPANY -> Green
+  NotificationType.WASTE_COLLECTION_REMINDER -> Blue35
+  NotificationType.COMPANY_NOTIFICATION_SUCCESSFUL -> Green
 }
 
 private fun iconForType(type: NotificationType) = when (type) {
