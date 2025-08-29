@@ -53,8 +53,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       }
       Text(
         modifier = Modifier.padding(4.dp),
-        text = if (state.screenshotAttached) "Proof Of Payment Image Attached" else {
-          "Attach Proof Of Payment Image"
+        text = if (state.screenshotAttached) "Proof Of Payment Attached" else {
+          "Attach Proof Of Payment"
         },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis

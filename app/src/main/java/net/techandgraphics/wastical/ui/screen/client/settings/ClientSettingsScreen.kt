@@ -120,6 +120,8 @@ fun ClientSettingsScreen(
     ClientSettingsState.Loading -> LoadingIndicatorView()
     is ClientSettingsState.Success -> {
 
+      val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
@@ -132,6 +134,15 @@ fun ClientSettingsScreen(
           contentPadding = it,
           modifier = Modifier.padding(16.dp),
         ) {
+
+          item {
+            Text(
+              text = "Settings",
+              style = MaterialTheme.typography.headlineSmall,
+            )
+          }
+
+          item { Spacer(modifier = Modifier.height(32.dp)) }
 
           item {
             SectionTitle(text = "About")
