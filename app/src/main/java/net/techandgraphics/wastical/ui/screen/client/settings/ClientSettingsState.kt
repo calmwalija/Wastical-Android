@@ -17,7 +17,6 @@ sealed interface ClientSettingsState {
     val areaName: String = "",
     val streetName: String = "",
     val dynamicColor: Boolean = false,
-    val darkTheme: Boolean = false,
     val reminderPayment: Boolean = true,
     val reminderBin: Boolean = true,
   ) : ClientSettingsState

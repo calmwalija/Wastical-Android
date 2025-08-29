@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,13 +35,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.core.text.isDigitsOnly
 import net.techandgraphics.wastical.BuildConfig
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.openDialer
 import net.techandgraphics.wastical.toAmount
-import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toast
-import net.techandgraphics.wastical.ui.screen.AccountAvatarView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.accountContact4Preview
@@ -109,62 +109,6 @@ private fun SettingToggleRow(
   }
 }
 
-@Composable
-private fun ProfileHeaderCard(state: ClientSettingsState.Success) {
-  val primaryContact = state.contacts.firstOrNull { it.primary } ?: state.contacts.firstOrNull()
-  SectionCard {
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier
-        .padding(16.dp)
-        .fillMaxWidth()
-    ) {
-      AccountAvatarView(
-        modifier = Modifier.size(96.dp),
-        account = state.account
-      )
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(
-        text = state.account.toFullName(),
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.secondary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-      )
-      primaryContact?.let { contact ->
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            painter = painterResource(R.drawable.ic_alt_phone),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(18.dp)
-          )
-          Spacer(modifier = Modifier.width(6.dp))
-          Text(
-            text = contact.contact,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-          )
-        }
-      }
-      state.account.email?.let { email ->
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-          text = email,
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-        )
-      }
-      Spacer(modifier = Modifier.height(2.dp))
-    }
-  }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientSettingsScreen(
@@ -188,10 +132,6 @@ fun ClientSettingsScreen(
           contentPadding = it,
           modifier = Modifier.padding(16.dp),
         ) {
-
-          item { ProfileHeaderCard(state) }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
             SectionTitle(text = "About")
@@ -260,6 +200,23 @@ fun ClientSettingsScreen(
                   )
                 }
               }
+              if (state.account.username.isDigitsOnly()) {
+                HorizontalDivider()
+                Row(modifier = Modifier.padding(8.dp)) {
+                  Icon(
+                    Icons.Rounded.Call,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                  )
+                  Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Text(text = "Phone")
+                    Text(
+                      text = state.account.username,
+                      style = MaterialTheme.typography.bodySmall
+                    )
+                  }
+                }
+              }
               HorizontalDivider()
               Row(modifier = Modifier.padding(8.dp)) {
                 Icon(
@@ -300,15 +257,7 @@ fun ClientSettingsScreen(
           item {
             SectionTitle(text = "Appearance")
             SectionCard {
-              SettingToggleRow(
-                iconRes = R.drawable.ic_dark_mode,
-                title = "Dark mode",
-                subtitle = "Use a dark theme across the app",
-                checked = state.darkTheme,
-                onToggle = { onEvent(ClientSettingsEvent.Button.DarkTheme(it)) }
-              )
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                HorizontalDivider()
                 SettingToggleRow(
                   iconRes = R.drawable.ic_invert_colors,
                   title = "Dynamic color",
