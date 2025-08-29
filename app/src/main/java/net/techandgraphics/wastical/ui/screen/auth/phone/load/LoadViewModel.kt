@@ -9,6 +9,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +44,8 @@ class LoadViewModel @Inject constructor(
   val channel = _channel.receiveAsFlow()
   private val _state = MutableStateFlow<LoadState>(LoadState.Loading)
   val state = _state.asStateFlow()
+  private var sessionTimeoutJob: Job? = null
+  private var sessionCompleted: Boolean = false
 
   private fun onLoad() = viewModelScope.launch {
     val companyInfo = database.companyDao.query()
@@ -60,6 +63,14 @@ class LoadViewModel @Inject constructor(
     if (companyInfo.isEmpty()) {
       observeAccountSessionWorker()
       application.scheduleAccountSessionWorker()
+      sessionCompleted = false
+      sessionTimeoutJob?.cancel()
+      sessionTimeoutJob = viewModelScope.launch {
+        kotlinx.coroutines.delay(8_000)
+        if (!sessionCompleted) {
+          _channel.send(LoadChannel.Error(IllegalStateException("Waiting for network...")))
+        }
+      }
     } else {
       launch { _channel.send(LoadChannel.Success) }
     }
@@ -81,7 +92,28 @@ class LoadViewModel @Inject constructor(
         .mapNotNull { workInfoList -> workInfoList.firstOrNull() }
         .collect { workInfo ->
           when (workInfo.state) {
-            WorkInfo.State.SUCCEEDED -> onSuccess()
+            WorkInfo.State.ENQUEUED, WorkInfo.State.RUNNING -> {
+              sessionCompleted = false
+              sessionTimeoutJob?.cancel()
+              sessionTimeoutJob = viewModelScope.launch {
+                kotlinx.coroutines.delay(8_000)
+                if (!sessionCompleted) {
+                  _channel.send(LoadChannel.Error(IllegalStateException("Waiting for network...")))
+                }
+              }
+            }
+
+            WorkInfo.State.SUCCEEDED -> {
+              sessionCompleted = true
+              sessionTimeoutJob?.cancel()
+              onSuccess()
+            }
+
+            WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
+              sessionTimeoutJob?.cancel()
+              _channel.send(LoadChannel.Error(IllegalStateException("Failed to fetch account data. Please check your connection and retry.")))
+            }
+
             else -> Unit
           }
         }
