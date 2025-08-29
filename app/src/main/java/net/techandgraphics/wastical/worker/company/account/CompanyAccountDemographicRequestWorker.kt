@@ -51,7 +51,8 @@ private const val WORKER_UUID = "c53f9ed5-4290-40f1-9796-d9f66e963f21"
 fun Context.scheduleCompanyAccountDemographicRequestWorker() {
   val workRequest = OneTimeWorkRequestBuilder<CompanyAccountDemographicRequestWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
-    .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
+    .setInitialDelay(10, TimeUnit.SECONDS)
     .setId(UUID.fromString(WORKER_UUID))
     .build()
   WorkManager

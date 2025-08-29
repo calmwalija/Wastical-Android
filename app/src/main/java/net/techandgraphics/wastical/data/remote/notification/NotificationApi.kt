@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.data.remote.notification
 
 import net.techandgraphics.wastical.data.remote.ServerResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -19,5 +20,5 @@ interface NotificationApi {
   ): List<NotificationResponse>
 
   @POST(BASE_URL)
-  suspend fun post(@Body request: NotificationRequest): ServerResponse
+  suspend fun post(@Body request: NotificationRequest): Response<ServerResponse>
 }

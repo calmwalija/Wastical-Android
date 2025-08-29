@@ -23,7 +23,7 @@ import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.getAccount
-import net.techandgraphics.wastical.worker.SESSION_WORKER_UUID
+import net.techandgraphics.wastical.worker.WorkerUuid.ACCOUNT_SESSION_WORKER
 import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
@@ -88,7 +88,7 @@ class LoadViewModel @Inject constructor(
     viewModelScope.launch {
       WorkManager
         .getInstance(application)
-        .getWorkInfosForUniqueWorkFlow(SESSION_WORKER_UUID)
+        .getWorkInfosForUniqueWorkFlow(ACCOUNT_SESSION_WORKER)
         .mapNotNull { workInfoList -> workInfoList.firstOrNull() }
         .collect { workInfo ->
           when (workInfo.state) {

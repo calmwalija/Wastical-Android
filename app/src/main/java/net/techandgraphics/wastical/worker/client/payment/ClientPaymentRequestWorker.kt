@@ -1,7 +1,7 @@
 package net.techandgraphics.wastical.worker.client.payment
 
+import android.accounts.AccountManager
 import android.content.Context
-import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
@@ -15,7 +15,7 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.firstOrNull
+import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.asVerifying
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.payment.pay.request.PaymentRequestEntity
@@ -25,19 +25,18 @@ import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEnt
 import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.data.remote.toPaymentRequest
+import net.techandgraphics.wastical.domain.model.account.AccountUiModel
+import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getProofFile
 import net.techandgraphics.wastical.getProofFileWithExtension
 import net.techandgraphics.wastical.getUCropFile
-import net.techandgraphics.wastical.notification.NotificationBuilder
-import net.techandgraphics.wastical.notification.NotificationBuilderModel
-import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.worker.workerShowNotification
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -47,21 +46,29 @@ import java.util.concurrent.TimeUnit
   private val database: AppDatabase,
   private val paymentApi: PaymentApi,
   private val gson: Gson,
+  private val authenticatorHelper: AuthenticatorHelper,
+  private val accountManager: AccountManager,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result {
-    return try {
-      database.paymentRequestDao.query().forEach { paymentRequest ->
-        processPayment(paymentRequest)
-      }
-      Result.success()
-    } catch (e: Exception) {
-      e.printStackTrace()
-      Result.retry()
-    }
+    return authenticatorHelper.getAccount(accountManager)
+      ?.let { account ->
+        try {
+          database.paymentRequestDao.query().forEach { paymentRequest ->
+            processPayment(paymentRequest, account)
+          }
+          Result.success()
+        } catch (e: Exception) {
+          e.printStackTrace()
+          Result.retry()
+        }
+      } ?: Result.retry()
   }
 
-  private suspend fun processPayment(paymentRequest: PaymentRequestEntity) {
+  private suspend fun processPayment(
+    paymentRequest: PaymentRequestEntity,
+    account: AccountUiModel,
+  ) {
     val request = paymentRequest.toPaymentRequest().asVerifying()
     val method = database.paymentMethodDao.get(request.paymentMethodId)
     val gateway = database.paymentGatewayDao.get(method.paymentGatewayId)
@@ -73,11 +80,22 @@ import java.util.concurrent.TimeUnit
           .toRequestBody(contentType = "application/json; charset=utf-8".toMediaType())
         val file = paymentRequest.proofExt?.let { ext ->
           context.getProofFileWithExtension(paymentRequest.createdAt, ext)
-        } ?: (context.getProofFile(paymentRequest.createdAt) ?: context.getUCropFile(paymentRequest.createdAt))
+        } ?: (
+          context.getProofFile(paymentRequest.createdAt)
+            ?: context.getUCropFile(paymentRequest.createdAt)
+          )
         val mime = when (paymentRequest.proofExt?.lowercase()) {
           "pdf" -> "application/pdf"
           "jpg", "jpeg", "png" -> "image/*"
-          else -> if (file.name.endsWith(".pdf", ignoreCase = true)) "application/pdf" else "image/*"
+          else -> if (file.name.endsWith(
+              ".pdf",
+              ignoreCase = true,
+            )
+          ) {
+            "application/pdf"
+          } else {
+            "image/*"
+          }
         }
         val fileRequestBody = file.asRequestBody(mime.toMediaType())
         val multipartFile = MultipartBody.Part.createFormData(
@@ -102,7 +120,8 @@ import java.util.concurrent.TimeUnit
       }?.forEach { notification ->
         val plan = database.paymentPlanDao.get(method.paymentPlanId)
         val theAmount = paymentRequest.months.times(plan.fee).toAmount()
-        val theBody = "Your proof of payment of $theAmount has been submitted and awaits verification."
+        val theBody =
+          "Your proof of payment of $theAmount has been submitted and awaits verification."
         val bigText =
           "$theBody We'll notify you once the verification is complete. Thank you for your patience."
         val newNotification = notification.copy(
@@ -112,31 +131,11 @@ import java.util.concurrent.TimeUnit
         database.notificationDao.insert(newNotification)
       }
     }
-
-    database.notificationDao
-      .flowOfSync()
-      .firstOrNull()
-      ?.forEach { notification ->
-        val theType = NotificationType.valueOf(notification.type)
-        val toNotifModel = NotificationBuilderModel(
-          type = theType,
-          title = theType.description,
-          body = notification.body,
-          style = NotificationCompat.BigTextStyle().bigText(notification.title),
-          contentIntent = pendingIntent(context, GOTO_NOTIFICATION),
-        )
-        database.notificationDao.upsert(
-          notification.copy(
-            deliveredAt = ZonedDateTime.now().toEpochSecond(),
-            syncStatus = 2,
-          ),
-        )
-        NotificationBuilder(context)
-          .show(
-            model = toNotifModel,
-            notificationId = notification.id,
-          )
-      }
+    database.workerShowNotification(
+      context,
+      account,
+      pendingIntent = pendingIntent(context, GOTO_NOTIFICATION),
+    )
   }
 }
 

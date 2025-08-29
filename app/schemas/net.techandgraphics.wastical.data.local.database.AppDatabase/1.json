@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "66c1fb10eb05137337cf7a4968fc816f",
+    "identityHash": "73e16be544aa273e0f50da6b49f8d5e0",
     "entities": [
       {
         "tableName": "account",
@@ -2016,7 +2016,7 @@
       },
       {
         "tableName": "notification",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `title` TEXT NOT NULL, `topic` TEXT, `is_read` INTEGER NOT NULL, `reference` TEXT NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `payment_id` INTEGER, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `uuid` TEXT NOT NULL, `body` TEXT NOT NULL, `title` TEXT NOT NULL, `topic` TEXT, `is_read` INTEGER NOT NULL, `reference` TEXT NOT NULL, `recipient_id` INTEGER, `recipient_role` TEXT NOT NULL, `sender_id` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `payment_id` INTEGER, `notification_type` TEXT NOT NULL, `metadata` TEXT, `delivered_at` INTEGER, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sender_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_id`) REFERENCES `payment`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2075,6 +2075,12 @@
           {
             "fieldPath": "senderId",
             "columnName": "sender_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "company_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -2464,7 +2470,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '66c1fb10eb05137337cf7a4968fc816f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '73e16be544aa273e0f50da6b49f8d5e0')"
     ]
   }
 }

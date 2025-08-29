@@ -22,6 +22,7 @@ import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import net.techandgraphics.wastical.notification.toNotificationEntity
 import net.techandgraphics.wastical.worker.WorkerUuid.CLIENT_BIN_COLLECTION_REMINDER
+import net.techandgraphics.wastical.worker.scheduleNotificationRequestWorker
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalTime
@@ -61,6 +62,7 @@ class ClientBinCollectionReminderWorker @AssistedInject constructor(
         NotificationBuilder(context).show(entity.id, notificationModel)
       }
     }
+    context.scheduleNotificationRequestWorker()
     return Result.success()
   }
 }

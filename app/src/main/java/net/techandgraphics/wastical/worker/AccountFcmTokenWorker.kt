@@ -20,6 +20,7 @@ import net.techandgraphics.wastical.data.local.database.toAccountFcmTokenEntity
 import net.techandgraphics.wastical.data.remote.account.AccountApi
 import net.techandgraphics.wastical.data.remote.toAccountFcmTokenRequest
 import net.techandgraphics.wastical.getAccount
+import net.techandgraphics.wastical.worker.WorkerUuid.ACCOUNT_FCM_TOKEN
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -34,43 +35,37 @@ import java.util.concurrent.TimeUnit
 
   override suspend fun doWork(): Result {
     return try {
-      invoke()
-      Result.success()
+      authenticatorHelper.getAccount(accountManager)
+        ?.let { account ->
+          database.accountFcmTokenDao.query()
+            .filterNot { it.sync.not() }
+            .map { it.toAccountFcmTokenRequest(account.id) }
+            .onEach {
+              val fcmTokenResponse = accountApi.fcmToken(it).toAccountFcmTokenEntity()
+              database.withTransaction {
+                database.accountFcmTokenDao.deleteAll()
+                database.accountFcmTokenDao.insert(fcmTokenResponse)
+              }
+            }
+          Result.success()
+        } ?: Result.retry()
     } catch (e: Exception) {
       e.printStackTrace()
       Result.retry()
     }
   }
-
-  private suspend operator fun invoke() {
-    authenticatorHelper.getAccount(accountManager)
-      ?.let { account ->
-        database.accountFcmTokenDao.query()
-          .filterNot { it.sync.not() }
-          .map { it.toAccountFcmTokenRequest(account.id) }
-          .onEach {
-            val fcmTokenResponse = accountApi.fcmToken(it).toAccountFcmTokenEntity()
-            database.withTransaction {
-              database.accountFcmTokenDao.deleteAll()
-              database.accountFcmTokenDao.insert(fcmTokenResponse)
-            }
-          }
-      } ?: throw IllegalStateException("Account not available yet")
-  }
 }
-
-private const val WORKER_UUID = "f21f75c5-ffa6-4187-b522-1d47fe1ba930"
 
 fun Context.scheduleAccountFcmTokenWorker() {
   val workRequest = OneTimeWorkRequestBuilder<AccountFcmTokenWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-    .setId(UUID.fromString(WORKER_UUID))
+    .setId(UUID.fromString(ACCOUNT_FCM_TOKEN))
     .build()
   WorkManager.Companion
     .getInstance(this)
     .enqueueUniqueWork(
-      uniqueWorkName = WORKER_UUID,
+      uniqueWorkName = ACCOUNT_FCM_TOKEN,
       existingWorkPolicy = ExistingWorkPolicy.REPLACE,
       request = workRequest,
     )

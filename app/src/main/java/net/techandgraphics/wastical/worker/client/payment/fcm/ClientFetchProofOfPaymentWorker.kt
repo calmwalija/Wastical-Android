@@ -3,7 +3,6 @@ package net.techandgraphics.wastical.worker.client.payment.fcm
 import android.accounts.AccountManager
 import android.content.Context
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
 import androidx.work.BackoffPolicy
@@ -17,7 +16,6 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.firstOrNull
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.toNotificationEntity
@@ -27,16 +25,13 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentApi
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getTimeOfDay
-import net.techandgraphics.wastical.notification.NotificationBuilder
-import net.techandgraphics.wastical.notification.NotificationBuilderModel
-import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import net.techandgraphics.wastical.theAmount
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.worker.client.payment.GOTO_NOTIFICATION
-import java.time.ZonedDateTime
+import net.techandgraphics.wastical.worker.workerShowNotification
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -101,35 +96,12 @@ import java.util.concurrent.TimeUnit
           }
         }
 
-        showNotification()
+        database.workerShowNotification(
+          context,
+          account,
+          pendingIntent = pendingIntent(context, GOTO_NOTIFICATION),
+        )
       } ?: throw IllegalStateException()
-  }
-
-  private suspend fun showNotification() {
-    database.notificationDao
-      .flowOfSync()
-      .firstOrNull()
-      ?.forEach { notification ->
-        val theType = NotificationType.valueOf(notification.type)
-        val toNotifModel = NotificationBuilderModel(
-          type = theType,
-          title = theType.description,
-          body = notification.body,
-          style = NotificationCompat.BigTextStyle().bigText(notification.title),
-          contentIntent = pendingIntent(context, GOTO_NOTIFICATION),
-        )
-        database.notificationDao.upsert(
-          notification.copy(
-            deliveredAt = ZonedDateTime.now().toEpochSecond(),
-            syncStatus = 2,
-          ),
-        )
-        NotificationBuilder(context)
-          .show(
-            model = toNotifModel,
-            notificationId = notification.id,
-          )
-      }
   }
 }
 

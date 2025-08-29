@@ -22,6 +22,7 @@ import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.account.AuthenticatorHelper
 import net.techandgraphics.wastical.broadcasts.company.CompanyFcmNotificationActionReceiver
 import net.techandgraphics.wastical.data.local.database.AppDatabase
+import net.techandgraphics.wastical.data.local.database.notification.NotificationSyncStatus
 import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentEntity
 import net.techandgraphics.wastical.data.local.database.toPaymentMonthCoveredEntity
@@ -32,6 +33,7 @@ import net.techandgraphics.wastical.notification.NotificationBuilderModel
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.notification.pendingIntent
 import net.techandgraphics.wastical.services.company.CompanyFcmNotificationAction
+import net.techandgraphics.wastical.worker.scheduleNotificationRequestWorker
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -95,10 +97,13 @@ import kotlin.random.Random
           style = NotificationCompat.BigTextStyle().bigText(notification.body),
           contentIntent = pendingIntent(context, GOTO_VERIFY),
         )
+
+        val syncStatus =
+          if (notification.deliveredAt == null) NotificationSyncStatus.Sync.ordinal else notification.syncStatus
         database.notificationDao.upsert(
           notification.copy(
             deliveredAt = ZonedDateTime.now().toEpochSecond(),
-            syncStatus = 2,
+            syncStatus = syncStatus,
           ),
         )
         val paymentId = notification.paymentId?.toInt() ?: Random.nextInt()
@@ -129,6 +134,7 @@ import kotlin.random.Random
               NotificationCompat.Action(R.drawable.ic_eye, "View", verifyIntent),
             ),
           )
+        context.scheduleNotificationRequestWorker()
       }
   }
 
@@ -143,7 +149,8 @@ private const val WORKER_UUID = "1c35dd3b-2ab6-49dd-8db7-c68fb6f32d24"
 fun Context.scheduleCompanyFetchLatestPaymentWorker() {
   val workRequest = OneTimeWorkRequestBuilder<CompanyFetchLatestPaymentWorker>()
     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
-    .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+    .setBackoffCriteria(BackoffPolicy.LINEAR, 1, TimeUnit.MINUTES)
+    .setInitialDelay(10, TimeUnit.SECONDS)
     .setId(UUID.fromString(WORKER_UUID))
     .build()
   WorkManager.Companion
