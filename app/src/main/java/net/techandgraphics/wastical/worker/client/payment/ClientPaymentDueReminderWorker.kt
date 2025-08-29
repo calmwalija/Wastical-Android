@@ -5,10 +5,8 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -74,36 +72,41 @@ class ClientPaymentDueReminderWorker @AssistedInject constructor(
       }
     }
 
-    return if (monthsOutstanding > 0) {
-      val monthsDue = context.toPluralMonth(monthsOutstanding)
-      val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
-      val paymentPlan = database.paymentPlanDao.get(accountPlan.paymentPlanId)
-      val balance = paymentPlan.fee.times(monthsOutstanding).toAmount()
-      val theText =
-        "You have $monthsDue outstanding which sums up to $balance. Please settle your balance."
-      val notificationModel = NotificationBuilderModel(
-        type = NotificationType.PAYMENT_DUE_REMINDER,
-        title = NotificationType.PAYMENT_DUE_REMINDER.description,
-        body = theText,
-        style = NotificationCompat.BigTextStyle().bigText(theText),
-        contentIntent = pendingIntent(context, gotoToRoute = "client/home"),
-      )
-      val entity = notificationModel.toNotificationEntity(account = account)
-      database.notificationDao.upsert(entity)
-      if (preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)) {
-        NotificationBuilder(context).show(entity.id, notificationModel)
+    return try {
+      if (monthsOutstanding > 0) {
+        val monthsDue = context.toPluralMonth(monthsOutstanding)
+        val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
+        val paymentPlan = database.paymentPlanDao.get(accountPlan.paymentPlanId)
+        val balance = paymentPlan.fee.times(monthsOutstanding).toAmount()
+        val theText =
+          "You have $monthsDue balance which sums up to $balance. Please settle your balance."
+        val notificationModel = NotificationBuilderModel(
+          type = NotificationType.PAYMENT_DUE_REMINDER,
+          title = NotificationType.PAYMENT_DUE_REMINDER.description,
+          body = theText,
+          style = NotificationCompat.BigTextStyle().bigText(theText),
+          contentIntent = pendingIntent(context, gotoToRoute = "client/home"),
+        )
+        val entity = notificationModel.toNotificationEntity(account = account)
+        database.notificationDao.upsert(entity)
+        if (preferences.get(Preferences.CLIENT_REMINDER_PAYMENT, true)) {
+          NotificationBuilder(context).show(entity.id, notificationModel)
+        }
+        Result.success()
+      } else {
+        Result.success()
       }
-      Result.success()
-    } else {
-      Result.success()
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Result.retry()
     }
   }
 }
 
 fun Context.scheduleClientPaymentDueReminderWorker() {
   val request = PeriodicWorkRequestBuilder<ClientPaymentDueReminderWorker>(1, TimeUnit.DAYS)
-    .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
+    .setInitialDelay(20, TimeUnit.SECONDS)
     .build()
   WorkManager.getInstance(this).enqueueUniquePeriodicWork(
     CLIENT_PAYMENT_DUE_REMINDER,

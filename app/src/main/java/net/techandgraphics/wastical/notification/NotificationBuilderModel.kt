@@ -31,7 +31,7 @@ fun NotificationBuilderModel.toNotificationEntity(
   reference = getReference(),
   recipientId = account.id,
   recipientRole = AccountRole.Client.name,
-  senderId = account.companyId,
+  senderId = account.id,
   paymentId = null,
   type = this.type.name,
   metadata = null,
