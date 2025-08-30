@@ -227,6 +227,13 @@ import javax.inject.Inject
     }
   }
 
+  private fun onScreenshotRemoved() {
+    if (_state.value is ClientPaymentState.Success) {
+      val state = (_state.value as ClientPaymentState.Success)
+      _state.value = state.copy(screenshotAttached = false, imageUri = null)
+    }
+  }
+
   private fun onMonthCovered(event: ClientPaymentEvent.Button.MonthCovered) {
     if (_state.value is ClientPaymentState.Success) {
       val state = (_state.value as ClientPaymentState.Success)
@@ -271,6 +278,7 @@ import javax.inject.Inject
       is ClientPaymentEvent.Button.ImageUri -> onImageUri(event)
       is ClientPaymentEvent.Button.ShowCropView -> onShowCropView(event)
       ClientPaymentEvent.Button.ScreenshotAttached -> onScreenshotAttached()
+      ClientPaymentEvent.Button.RemoveScreenshot -> onScreenshotRemoved()
       is ClientPaymentEvent.Load -> onLoad(event)
       is ClientPaymentEvent.Button.PaymentMethod -> onPaymentMethod(event)
       else -> Unit

@@ -13,6 +13,7 @@ sealed interface ClientPaymentEvent {
     data object Submit : Button
     data object AttachScreenshot : Button
     data object ScreenshotAttached : Button
+    data object RemoveScreenshot : Button
     data class ImageUri(val uri: Uri?) : Button
     data class ShowCropView(val show: Boolean) : Button
     data class MonthCovered(val isAdd: Boolean) : Button
