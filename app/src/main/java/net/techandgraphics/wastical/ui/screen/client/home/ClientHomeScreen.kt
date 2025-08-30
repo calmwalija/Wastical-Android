@@ -132,7 +132,11 @@ fun ClientHomeScreen(
               }
 
               IconButton(onClick = { onEvent(ClientHomeEvent.Goto.Notification(state.account.id)) }) {
-                BadgedBox(badge = { Badge() }) {
+                if (state.hasUnseenNotifications) {
+                  BadgedBox(badge = { Badge() }) {
+                    Icon(Icons.Outlined.Notifications, null)
+                  }
+                } else {
                   Icon(Icons.Outlined.Notifications, null)
                 }
               }

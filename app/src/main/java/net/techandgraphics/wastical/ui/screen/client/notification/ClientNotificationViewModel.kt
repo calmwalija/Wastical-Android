@@ -8,11 +8,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.domain.toCompanyUiModel
 import net.techandgraphics.wastical.domain.toNotificationUiModel
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +34,18 @@ class ClientNotificationViewModel @Inject constructor(
   private fun onLoad() = viewModelScope.launch {
     val company = database.companyDao.query().first().toCompanyUiModel()
     _state.value = ClientNotificationState.Success(company = company)
+    database.notificationDao
+      .flowOfSync(role = AccountRole.Client.name)
+      .firstOrNull()
+      ?.let { notifications ->
+        val now = ZonedDateTime.now().toEpochSecond()
+        val toUpdate = notifications
+          .filter { it.deliveredAt == null }
+          .map { it.copy(deliveredAt = now) }
+        if (toUpdate.isNotEmpty()) {
+          database.notificationDao.upsert(toUpdate)
+        }
+      }
     flowOf()
   }
 

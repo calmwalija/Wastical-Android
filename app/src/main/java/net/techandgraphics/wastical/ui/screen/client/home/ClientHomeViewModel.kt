@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.database.AccountRole
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.session.AccountSessionRepository
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
@@ -151,7 +152,9 @@ import javax.inject.Inject
             .paymentRequestDao
             .qFlowWithAccount()
             .map { p0 -> p0.map { it.toPaymentRequestWithAccountUiModel() } },
-        ) { invoices, payments, paymentRequests ->
+          flow4 = database.notificationDao.flowOf(role = AccountRole.Client.name)
+            .map { list -> list.any { it.deliveredAt == null } },
+        ) { invoices, payments, paymentRequests, hasUnseenNotifications ->
           val lastMonthCovered = lastCovered?.toPaymentMonthCoveredUiModel()
           _state.value = ClientHomeState.Success(
             invoices = invoices,
@@ -167,6 +170,7 @@ import javax.inject.Inject
             monthsOutstanding = monthsOutstanding,
             outstandingMonths = outstandingMonths,
             paymentRequests = paymentRequests,
+            hasUnseenNotifications = hasUnseenNotifications,
           )
         }.launchIn(this)
       }

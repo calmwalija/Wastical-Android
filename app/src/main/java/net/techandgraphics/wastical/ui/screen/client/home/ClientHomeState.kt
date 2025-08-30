@@ -20,6 +20,7 @@ sealed interface ClientHomeState {
     val company: CompanyUiModel,
     val paymentPlan: PaymentPlanUiModel,
     val account: AccountUiModel,
+    val hasUnseenNotifications: Boolean = false,
     val lastMonthCovered: PaymentMonthCoveredUiModel? = null,
     val monthsOutstanding: Int = 0,
     val outstandingMonths: List<MonthYear> = listOf(),
