@@ -16,7 +16,7 @@ fun NavGraphBuilder.ClientNotificationNav(navController: NavHostController) {
       ClientNotificationScreen(state) { event ->
         when (event) {
           ClientNotificationEvent.Button.BackHandler -> navController.navigateUp()
-          is ClientNotificationEvent.Load -> Unit
+          else -> onEvent(event)
         }
       }
     }

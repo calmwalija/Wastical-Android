@@ -23,8 +23,22 @@ abstract class NotificationDao : BaseDao<NotificationEntity>, TimestampedDao {
     role: String = AccountRole.Company.name,
   ): Flow<List<NotificationEntity>>
 
-  @Query("SELECT * FROM notification ORDER BY id DESC")
-  abstract fun flowOf(): Flow<List<NotificationEntity>>
+  @Query(
+    """
+    SELECT * FROM notification
+    WHERE
+    recipient_role=:role AND
+    (notification.body LIKE '%' || :query || '%'
+    OR notification.title LIKE '%' || :query || '%')
+    ORDER BY CASE WHEN :sort THEN notification.created_at END DESC,
+    CASE WHEN :sort = 0 THEN notification.created_at END ASC
+  """,
+  )
+  abstract fun flowOf(
+    query: String = "",
+    sort: Boolean = true,
+    role: String = AccountRole.Client.name,
+  ): Flow<List<NotificationEntity>>
 
   @Query(
     """

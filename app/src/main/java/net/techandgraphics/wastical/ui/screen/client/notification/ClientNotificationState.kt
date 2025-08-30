@@ -7,6 +7,8 @@ sealed interface ClientNotificationState {
   data object Loading : ClientNotificationState
   data class Success(
     val company: CompanyUiModel,
-    val notifications: List<NotificationUiModel>,
+    val query: String = "",
+    val sort: Boolean = false,
+    val notifications: List<NotificationUiModel> = listOf(),
   ) : ClientNotificationState
 }
