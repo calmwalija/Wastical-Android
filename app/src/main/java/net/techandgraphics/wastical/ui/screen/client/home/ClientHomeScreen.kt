@@ -67,6 +67,7 @@ import net.techandgraphics.wastical.ui.screen.paymentMethodWithGatewayAndPlan4Pr
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentRequestWithAccount4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
+import net.techandgraphics.wastical.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -395,7 +396,7 @@ fun clientHomeStateSuccess() = ClientHomeState.Success(
   company = company4Preview,
   paymentPlan = paymentPlan4Preview,
   paymentMethods = listOf(paymentMethodWithGatewayAndPlan4Preview),
-  invoices = listOf(paymentWithAccountAndMethodWithGateway4Preview),
+  invoices = listOf(paymentWithMonthsCovered4Preview),
   companyBinCollections = listOf(),
   payments = listOf(paymentWithAccountAndMethodWithGateway4Preview),
   paymentRequests = listOf(paymentRequestWithAccount4Preview)
