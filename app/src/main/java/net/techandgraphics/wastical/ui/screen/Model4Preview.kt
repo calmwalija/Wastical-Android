@@ -333,4 +333,13 @@ internal val notification4Preview = NotificationUiModel(
   syncStatus = NotificationSyncStatus.Synced,
 )
 
+internal val companyBinCollection4Preview = CompanyBinCollectionUiModel(
+  id = 1L,
+  dayOfWeek = DayOfWeek.MONDAY.name,
+  companyId = company4Preview.id,
+  streetId = demographicStreet4Preview.id,
+  createdAt = ZonedDateTime.now().toEpochSecond(),
+  updatedAt = ZonedDateTime.now().toEpochSecond(),
+)
+
 internal fun imageLoader(context: Context) = ImageCacheModule.providesImageLoader(context)

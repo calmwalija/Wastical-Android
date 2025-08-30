@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +32,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +56,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.getTimeOfDay
 import net.techandgraphics.wastical.openDialer
@@ -63,6 +64,7 @@ import net.techandgraphics.wastical.toInitials
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.company4Preview
+import net.techandgraphics.wastical.ui.screen.companyBinCollection4Preview
 import net.techandgraphics.wastical.ui.screen.paymentMethodWithGatewayAndPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentRequestWithAccount4Preview
@@ -86,8 +88,10 @@ fun ClientHomeScreen(
     is ClientHomeState.Success -> {
 
       val context = LocalContext.current
+      val haptic = LocalHapticFeedback.current
 
       val lifecycleOwner = LocalLifecycleOwner.current
+      val pullToRefreshState = rememberPullToRefreshState()
       LaunchedEffect(key1 = channel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
           channel.collect { event ->
@@ -100,234 +104,230 @@ fun ClientHomeScreen(
         }
       }
 
-      Scaffold(
-        topBar = {
-          TopAppBar(
-            title = {
-              Text(
-                text = state.company.name,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                  .padding(horizontal = 16.dp)
-                  .fillMaxWidth()
-              )
-            },
-            actions = {
+      PullToRefreshBox(
+        isRefreshing = isFetching,
+        onRefresh = {
+          haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+          isFetching = true
+          onEvent(ClientHomeEvent.Button.Fetch)
+        },
+        state = pullToRefreshState,
+      ) {
+        Scaffold(
+          topBar = {
+            TopAppBar(
+              title = {
+                Text(
+                  text = state.company.name,
+                  fontWeight = FontWeight.Bold,
+                  style = MaterialTheme.typography.titleMedium,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                )
+              },
+              actions = {
 
-              IconButton(
-                enabled = isFetching.not(),
-                onClick = {
-                  isFetching = true
-                  onEvent(ClientHomeEvent.Button.Fetch)
-                }) {
-                if (isFetching) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else {
-                  Icon(
-                    painter = painterResource(R.drawable.ic_cloud_download),
-                    contentDescription = null
-                  )
-                }
-              }
-
-              IconButton(onClick = { onEvent(ClientHomeEvent.Goto.Notification(state.account.id)) }) {
-                if (state.hasUnseenNotifications) {
-                  BadgedBox(badge = { Badge() }) {
+                IconButton(onClick = { onEvent(ClientHomeEvent.Goto.Notification(state.account.id)) }) {
+                  if (state.hasUnseenNotifications) {
+                    BadgedBox(badge = { Badge() }) {
+                      Icon(Icons.Outlined.Notifications, null)
+                    }
+                  } else {
                     Icon(Icons.Outlined.Notifications, null)
                   }
-                } else {
-                  Icon(Icons.Outlined.Notifications, null)
                 }
-              }
 
-              IconButton(onClick = { showMenuOptions = true }) {
-                Icon(Icons.Default.MoreVert, null)
-                DropdownMenu(showMenuOptions, onDismissRequest = { showMenuOptions = false }) {
+                IconButton(onClick = { showMenuOptions = true }) {
+                  Icon(Icons.Default.MoreVert, null)
+                  DropdownMenu(showMenuOptions, onDismissRequest = { showMenuOptions = false }) {
 
 
-                  DropdownMenuItem(text = {
-                    Text(text = "Settings")
-                  }, onClick = {
-                    showMenuOptions = false
-                    onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
-                  })
-
-                  state.companyContacts.firstOrNull()?.let { contact ->
                     DropdownMenuItem(text = {
-                      Text(text = "Helpline")
+                      Text(text = "Settings")
                     }, onClick = {
                       showMenuOptions = false
-                      context.openDialer(contact.contact)
+                      onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
+                    })
+
+                    state.companyContacts.firstOrNull()?.let { contact ->
+                      DropdownMenuItem(text = {
+                        Text(text = "Helpline")
+                      }, onClick = {
+                        showMenuOptions = false
+                        context.openDialer(contact.contact)
+                      })
+                    }
+
+                    HorizontalDivider()
+                    DropdownMenuItem(text = {
+                      Text(text = "Logout")
+                    }, onClick = {
+                      showMenuOptions = false
+                      onEvent(ClientHomeEvent.Button.Logout)
                     })
                   }
-
-                  HorizontalDivider()
-                  DropdownMenuItem(text = {
-                    Text(text = "Logout")
-                  }, onClick = {
-                    showMenuOptions = false
-                    onEvent(ClientHomeEvent.Button.Logout)
-                  })
                 }
               }
-            }
-          )
-        },
-      ) {
-        LazyColumn(
-          contentPadding = it,
-          modifier = Modifier.padding(16.dp)
+            )
+          },
         ) {
+          LazyColumn(
+            contentPadding = it,
+            modifier = Modifier.padding(16.dp)
+          ) {
 
-          item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              LetterView(state.account) {
-                onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
-              }
-              Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                Text(
-                  text = "Good ${getTimeOfDay()}",
-                  style = MaterialTheme.typography.bodySmall,
-                )
-                Text(
-                  text = state.account.toFullName(),
-                  style = MaterialTheme.typography.bodyMedium,
-                  fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.secondary
-                )
-              }
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            ClientHomeQuickActionView(
-              homeQuickActionUiModel = homeQuickActionUiModels.first(),
-              onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
-            )
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            Text(
-              text = "Upcoming Activities",
-              modifier = Modifier.padding(8.dp),
-              fontWeight = FontWeight.Bold,
-            )
-            FlowRow(maxItemsInEachRow = 2) {
-              homeActivityUiModels
-                .mapIndexed { index, item ->
-                  if (index == 1) item.copy(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
-                    iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
-                  ) else item
+            item {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                LetterView(state.account) {
+                  onEvent(ClientHomeEvent.Goto.Settings(state.account.id))
                 }
-                .forEach { homeActivityItemModel ->
-                  HomeActivityView(
-                    state = state,
-                    modifier = Modifier.fillMaxWidth(.5f),
-                    homeActivity = homeActivityItemModel,
-                    onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
+                Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                  Text(
+                    text = "Good ${getTimeOfDay()}",
+                    style = MaterialTheme.typography.bodySmall,
+                  )
+                  Text(
+                    text = state.account.toFullName(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.secondary
                   )
                 }
-            }
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            Text(
-              text = "Payment Methods",
-              modifier = Modifier.padding(8.dp),
-              fontWeight = FontWeight.Bold,
-            )
-          }
-
-          items(state.paymentMethods) { paymentMethod ->
-            ClientPaymentMethodView(
-              model = paymentMethod,
-              onEvent = onEvent
-            )
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          if (state.invoices.isNotEmpty()) {
-            item {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 4.dp)
-              ) {
-                Text(
-                  text = "Paid Invoice Reports",
-                  modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
-                  fontWeight = FontWeight.Bold,
-                )
-
-                if (state.invoices.size > 3)
-                  TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice(state.account.id)) }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                      Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
-                      Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
-                    }
-                  }
-
               }
             }
-            items(state.invoices) { payment ->
-              ClientHomeInvoiceView(
-                model = payment,
-                paymentPlan = state.paymentPlan,
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            item {
+              ClientHomeQuickActionView(
+                homeQuickActionUiModel = homeQuickActionUiModels.first(),
+                onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
+              )
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            item {
+              Text(
+                text = "Upcoming Activities",
+                modifier = Modifier.padding(8.dp),
+                fontWeight = FontWeight.Bold,
+              )
+              FlowRow(maxItemsInEachRow = 2) {
+                homeActivityUiModels
+                  .mapIndexed { index, item ->
+                    if (index == 1) item.copy(
+                      containerColor = MaterialTheme.colorScheme.primary.copy(.1f),
+                      iconBackground = MaterialTheme.colorScheme.primary.copy(.5f)
+                    ) else item
+                  }
+                  .forEach { homeActivityItemModel ->
+                    HomeActivityView(
+                      state = state,
+                      modifier = Modifier.fillMaxWidth(.5f),
+                      homeActivity = homeActivityItemModel,
+                      onEvent = { onEvent(ClientHomeEvent.Button.MakePayment(state.account.id)) }
+                    )
+                  }
+              }
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            item {
+              Text(
+                text = "Payment Methods",
+                modifier = Modifier.padding(8.dp),
+                fontWeight = FontWeight.Bold,
+              )
+            }
+
+            items(state.paymentMethods) { paymentMethod ->
+              ClientPaymentMethodView(
+                model = paymentMethod,
                 onEvent = onEvent
               )
             }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            if (state.invoices.isNotEmpty()) {
+              item {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                  Text(
+                    text = "Paid Invoice Reports",
+                    modifier = Modifier
+                      .weight(1f)
+                      .padding(8.dp),
+                    fontWeight = FontWeight.Bold,
+                  )
+
+                  if (state.invoices.size > 3)
+                    TextButton(onClick = { onEvent(ClientHomeEvent.Goto.Invoice(state.account.id)) }) {
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "See all", style = MaterialTheme.typography.bodyMedium)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                      }
+                    }
+
+                }
+              }
+              items(state.invoices) { payment ->
+                ClientHomeInvoiceView(
+                  model = payment,
+                  paymentPlan = state.paymentPlan,
+                  onEvent = onEvent
+                )
+              }
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            if (state.payments.isNotEmpty()) {
+              item {
+                Text(
+                  text = "Payments Waiting Approval",
+                  modifier = Modifier.padding(8.dp),
+                  fontWeight = FontWeight.Bold,
+                )
+              }
+
+              items(state.payments, key = { key -> key.payment.id }) { payment ->
+                ClientHomePaymentView(
+                  modifier = Modifier.animateItem(),
+                  model = payment
+                )
+              }
+
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+
+            if (state.paymentRequests.isNotEmpty()) {
+              item {
+                Text(
+                  text = "Awaiting Internet Connection",
+                  modifier = Modifier.padding(8.dp),
+                  fontWeight = FontWeight.Bold,
+                )
+              }
+
+              items(state.paymentRequests, key = { key -> key.payment.id }) { payment ->
+                ClientHomePaymentRequestView(
+                  modifier = Modifier.animateItem(),
+                  model = payment
+                )
+              }
+
+            }
+
           }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          if (state.payments.isNotEmpty()) {
-            item {
-              Text(
-                text = "Payments Waiting Approval",
-                modifier = Modifier.padding(8.dp),
-                fontWeight = FontWeight.Bold,
-              )
-            }
-
-            items(state.payments, key = { key -> key.payment.id }) { payment ->
-              ClientHomePaymentView(
-                modifier = Modifier.animateItem(),
-                model = payment
-              )
-            }
-
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          if (state.paymentRequests.isNotEmpty()) {
-            item {
-              Text(
-                text = "Awaiting Internet Connection",
-                modifier = Modifier.padding(8.dp),
-                fontWeight = FontWeight.Bold,
-              )
-            }
-
-            items(state.paymentRequests, key = { key -> key.payment.id }) { payment ->
-              ClientHomePaymentRequestView(
-                modifier = Modifier.animateItem(),
-                model = payment
-              )
-            }
-
-          }
-
         }
       }
     }
@@ -401,7 +401,7 @@ fun clientHomeStateSuccess() = ClientHomeState.Success(
   paymentPlan = paymentPlan4Preview,
   paymentMethods = listOf(paymentMethodWithGatewayAndPlan4Preview),
   invoices = listOf(paymentWithMonthsCovered4Preview),
-  companyBinCollections = listOf(),
   payments = listOf(paymentWithAccountAndMethodWithGateway4Preview),
-  paymentRequests = listOf(paymentRequestWithAccount4Preview)
+  paymentRequests = listOf(paymentRequestWithAccount4Preview),
+  companyBinCollections = listOf(companyBinCollection4Preview)
 )

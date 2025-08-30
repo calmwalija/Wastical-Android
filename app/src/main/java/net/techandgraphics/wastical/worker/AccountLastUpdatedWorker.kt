@@ -76,7 +76,7 @@ import java.util.concurrent.TimeUnit
       }
     } catch (e: Exception) {
       e.printStackTrace()
-      Result.retry()
+      Result.failure()
     }
   }
 }
