@@ -66,6 +66,13 @@ import net.techandgraphics.wastical.data.remote.payment.PaymentStatus.Approved
   @Query("SELECT * FROM payment WHERE account_id=:id ORDER BY payment_status DESC")
   fun flowOfWithMonthCoveredByAccountId(id: Long): Flow<List<PaymentWithMonthsCoveredEntity>>
 
+  @Transaction
+  @Query("SELECT * FROM payment WHERE account_id=:id AND payment_status =:status ORDER BY payment_status DESC")
+  fun flowOfWithMonthCoveredAndStatusByAccountId(
+    id: Long,
+    status: String = Approved.name,
+  ): Flow<List<PaymentWithMonthsCoveredEntity>>
+
   @Query(
     """
     $PAYMENT_QUERY_BASE

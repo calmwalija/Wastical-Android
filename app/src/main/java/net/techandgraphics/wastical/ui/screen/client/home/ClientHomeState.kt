@@ -11,6 +11,7 @@ import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentMethodWithGatewayAndPlanUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.wastical.domain.model.relations.PaymentWithMonthsCoveredUiModel
 
 sealed interface ClientHomeState {
   data object Loading : ClientHomeState
@@ -23,7 +24,7 @@ sealed interface ClientHomeState {
     val monthsOutstanding: Int = 0,
     val outstandingMonths: List<MonthYear> = listOf(),
     val paymentMethods: List<PaymentMethodWithGatewayAndPlanUiModel> = listOf(),
-    val invoices: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
+    val invoices: List<PaymentWithMonthsCoveredUiModel> = listOf(),
     val payments: List<PaymentWithAccountAndMethodWithGatewayUiModel> = listOf(),
     val paymentRequests: List<PaymentRequestWithAccountUiModel> = listOf(),
     val companyBinCollections: List<CompanyBinCollectionUiModel> = listOf(),

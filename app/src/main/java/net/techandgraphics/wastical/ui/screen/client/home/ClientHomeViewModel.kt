@@ -37,6 +37,7 @@ import net.techandgraphics.wastical.domain.toPaymentMonthCoveredUiModel
 import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentRequestWithAccountUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
+import net.techandgraphics.wastical.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
@@ -132,14 +133,8 @@ import javax.inject.Inject
         }
 
         combine(
-          flow = database
-            .paymentDao
-            .qPaymentWithAccountAndMethodWithGatewayLimit(PaymentStatus.Approved.name, 4)
-            .map { p0 ->
-              p0.map {
-                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
-              }
-            },
+          flow = database.paymentDao.flowOfWithMonthCoveredAndStatusByAccountId(account.id)
+            .map { flowOf -> flowOf.map { it.toPaymentWithMonthsCoveredUiModel() } },
           flow2 = database
             .paymentDao
             .qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
