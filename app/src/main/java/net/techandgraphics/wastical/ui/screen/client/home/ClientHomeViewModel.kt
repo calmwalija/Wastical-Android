@@ -225,7 +225,11 @@ import javax.inject.Inject
         .mapNotNull { workInfoList -> workInfoList.firstOrNull() }
         .collect { workInfo ->
           when (workInfo.state) {
-            WorkInfo.State.SUCCEEDED -> {
+            WorkInfo.State.SUCCEEDED,
+            WorkInfo.State.FAILED,
+            WorkInfo.State.CANCELLED,
+            WorkInfo.State.BLOCKED,
+            -> {
               delay(1_000)
               _channel.send(ClientHomeChannel.Fetch.Success)
             }
