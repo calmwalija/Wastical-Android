@@ -1,104 +1,123 @@
 package net.techandgraphics.wastical.ui.screen.client.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastical.R
-import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.gatewayDrawableRes
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable fun ClientHomePaymentView(
   modifier: Modifier = Modifier,
   model: PaymentWithAccountAndMethodWithGatewayUiModel,
 ) {
-  Card(
+  ElevatedCard(
     modifier = modifier
       .fillMaxWidth()
       .padding(vertical = 4.dp),
-    shape = CircleShape,
+    shape = MaterialTheme.shapes.large,
     colors = CardDefaults.elevatedCardColors()
   ) {
-    Row(
-      modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Image(
-        painter = painterResource(
-          id = gatewayDrawableRes[model.gateway.id.minus(1).toInt()]
-        ),
-        contentDescription = null,
+    Column {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-          .padding(horizontal = 4.dp)
-          .clip(CircleShape)
-          .size(38.dp),
-        contentScale = ContentScale.Crop,
-      )
-      Column(
-        modifier = Modifier
-          .weight(1f)
-          .padding(horizontal = 8.dp)
+          .padding(16.dp)
       ) {
+        Box(
+          modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = .12f)),
+          contentAlignment = Alignment.Center
+        ) {
+          Image(
+            painter = painterResource(
+              id = gatewayDrawableRes[model.gateway.id.minus(1).toInt()]
+            ),
+            contentDescription = null,
+          )
+        }
+
+        Column(
+          modifier = Modifier
+            .padding(start = 12.dp)
+            .weight(1f)
+        ) {
+          Text(
+            text = model.gateway.name,
+            style = MaterialTheme.typography.titleSmall,
+          )
+          Text(
+            text = model.payment.createdAt.toZonedDateTime().defaultDate(),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+          )
+        }
+
         Text(
-          text = model.gateway.name,
-          style = MaterialTheme.typography.bodyMedium,
-          maxLines = 1,
-          overflow = TextOverflow.MiddleEllipsis,
-          modifier = Modifier.padding(end = 8.dp)
-        )
-        Text(
-          text = model.payment.createdAt.toZonedDateTime().defaultDate(),
-          style = MaterialTheme.typography.bodySmall,
+          text = model.plan.fee.times(model.coveredSize).toAmount(),
+          color = MaterialTheme.colorScheme.primary,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
         )
       }
 
-      when (model.payment.status) {
-        PaymentStatus.Waiting -> {
-          Icon(
-            painter = painterResource(R.drawable.ic_cloud_sync),
-            contentDescription = null,
-            modifier = Modifier.padding(horizontal = 4.dp)
-          )
+      HorizontalDivider()
+
+      Column(modifier = Modifier.padding(16.dp)) {
+        FlowRow(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          model.covered.forEach { item ->
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+              Text(
+                text = java.time.Month.of(item.month)
+                  .getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                  .plus(" ${item.year}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+              )
+            }
+          }
         }
-
-        else -> Unit
       }
-
-      Text(
-        text = model.coveredSize.times(model.plan.fee).toAmount(),
-        style = MaterialTheme.typography.labelMedium,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.End
-      )
-      Spacer(modifier = Modifier.width(16.dp))
     }
   }
 }

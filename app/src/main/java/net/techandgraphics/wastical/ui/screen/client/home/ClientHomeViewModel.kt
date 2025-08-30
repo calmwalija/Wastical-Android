@@ -139,8 +139,12 @@ import javax.inject.Inject
             .paymentDao
             .qPaymentWithAccountAndMethodWithGateway(PaymentStatus.Verifying.name)
             .map { p0 ->
-              p0.map {
-                it.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+              p0.map { query ->
+                val ui = query.toEntity().toPaymentWithAccountAndMethodWithGatewayUiModel()
+                val covered = database.paymentMonthCoveredDao
+                  .getByPaymentId(ui.payment.id)
+                  .map { it.toPaymentMonthCoveredUiModel() }
+                ui.copy(covered = covered)
               }
             },
           flow3 = database
