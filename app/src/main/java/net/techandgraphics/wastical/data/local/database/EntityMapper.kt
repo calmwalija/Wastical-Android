@@ -119,6 +119,7 @@ fun PaymentResponse.toPaymentEntity() = PaymentEntity(
   paymentMethodId = paymentMethodId,
   createdAt = createdAt,
   updatedAt = updatedAt,
+  proofExt = proofExt,
   companyId = companyId,
   executedById = executedById,
   paymentReference = paymentReference,

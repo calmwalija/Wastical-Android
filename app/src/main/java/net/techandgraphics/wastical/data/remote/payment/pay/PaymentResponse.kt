@@ -10,6 +10,7 @@ data class PaymentResponse(
   @SerializedName("payment_method_id") val paymentMethodId: Long,
   @SerializedName("payment_reference") val paymentReference: String,
   @SerializedName("account_id") val accountId: Long,
+  @SerializedName("proof_ext") val proofExt: String? = null,
   @SerializedName("payment_status") val status: String,
   @SerializedName("created_at") val createdAt: Long,
   @SerializedName("updated_at") val updatedAt: Long,
