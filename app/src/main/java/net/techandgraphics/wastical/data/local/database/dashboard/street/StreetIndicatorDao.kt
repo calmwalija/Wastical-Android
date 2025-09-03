@@ -43,7 +43,7 @@ interface StreetIndicatorDao {
     ) p ON p.account_id = a.id
     WHERE a.status = 'Active'
     GROUP BY street.id, street.name, area.name
-    ORDER BY paidAccounts DESC LIMIT 3
+    ORDER BY paidAccounts DESC
     """,
   )
   suspend fun getPayment4CurrentLocationMonth(month: Int, year: Int): List<Payment4CurrentLocationMonth>
