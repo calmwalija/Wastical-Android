@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "73e16be544aa273e0f50da6b49f8d5e0",
+    "identityHash": "00f2987ab53d6fa21de21f93814d5ad8",
     "entities": [
       {
         "tableName": "account",
@@ -412,7 +412,7 @@
       },
       {
         "tableName": "payment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `payment_reference` TEXT NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `screenshot_text` TEXT NOT NULL, `transaction_id` TEXT NOT NULL, `payment_method_id` INTEGER NOT NULL, `account_id` INTEGER NOT NULL, `proof_ext` TEXT, `payment_reference` TEXT NOT NULL, `payment_status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `company_id` INTEGER NOT NULL, `executed_by_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`account_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`executed_by_id`) REFERENCES `account`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`payment_method_id`) REFERENCES `payment_method`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -443,6 +443,12 @@
             "columnName": "account_id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "proofExt",
+            "columnName": "proof_ext",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "paymentReference",
@@ -2470,7 +2476,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '73e16be544aa273e0f50da6b49f8d5e0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '00f2987ab53d6fa21de21f93814d5ad8')"
     ]
   }
 }

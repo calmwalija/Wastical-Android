@@ -138,6 +138,7 @@ internal val payment4Preview = PaymentUiModel(
   companyId = account4Preview.companyId,
   executedById = account4Preview.id,
   paymentReference = getReference(),
+  proofExt = "pdf",
 )
 
 internal val demographicStreet4Preview = DemographicStreetUiModel(

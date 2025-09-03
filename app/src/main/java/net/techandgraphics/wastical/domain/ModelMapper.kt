@@ -106,6 +106,7 @@ fun PaymentEntity.toPaymentUiModel() = PaymentUiModel(
   paymentMethodId = paymentMethodId,
   accountId = accountId,
   status = PaymentStatus.valueOf(status),
+  proofExt = proofExt,
   createdAt = createdAt,
   updatedAt = updatedAt,
   companyId = companyId,

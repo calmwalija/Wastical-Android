@@ -14,4 +14,5 @@ data class PaymentUiModel(
   val updatedAt: Long,
   val companyId: Long,
   val executedById: Long,
+  val proofExt: String?,
 )

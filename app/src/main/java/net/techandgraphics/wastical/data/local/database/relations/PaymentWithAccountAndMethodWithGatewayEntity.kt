@@ -30,6 +30,7 @@ fun PaymentWithAccountAndMethodWithGatewayQuery.toEntity(): PaymentWithAccountAn
       companyId = paymentCompanyId,
       executedById = executedById,
       paymentReference = paymentReference,
+      proofExt = proofExt,
     ),
     account = AccountEntity(
       id = accId,

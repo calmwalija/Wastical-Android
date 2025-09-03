@@ -16,6 +16,7 @@ data class PaymentWithAccountAndMethodWithGatewayQuery(
   val paymentUpdatedAt: Long,
   val paymentCompanyId: Long,
   val executedById: Long,
+  val proofExt: String?,
 
 // Account fields
   val accId: Long,

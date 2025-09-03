@@ -16,6 +16,7 @@ const val PAYMENT_QUERY_BASE = """
       payment.updated_at AS paymentUpdatedAt,
       payment.company_id AS paymentCompanyId,
       payment.executed_by_id AS executedById,
+      payment.proof_ext AS proofExt,
 
       account.id AS accId,
       account.uuid AS uuid,
