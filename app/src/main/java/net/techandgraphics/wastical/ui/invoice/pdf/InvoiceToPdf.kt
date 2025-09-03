@@ -1,6 +1,7 @@
 package net.techandgraphics.wastical.ui.invoice.pdf
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
@@ -31,6 +32,9 @@ import net.techandgraphics.wastical.ui.screen.client.invoice.bold
 import net.techandgraphics.wastical.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import net.techandgraphics.wastical.ui.theme.Orange
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.common.BitMatrix
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -91,8 +95,9 @@ fun invoiceToPdf(
 
   val tableData = tableData(paymentMonthCovered, paymentPlan)
   val targetDpi = 300f
-  val widthInches = 5.27f
-  val heightInches = 6.1f
+  // Switch to A4 size (8.27 x 11.69 inches)
+  val widthInches = 8.27f
+  val heightInches = 11.69f
   val tableDataHeight = (53 * tableData.size.minus(1)).toFloat()
   val pdfWidthPx = (widthInches * targetDpi).toInt()
   val pdfHeightPx = (heightInches * targetDpi).plus(tableDataHeight).toInt()
@@ -237,10 +242,26 @@ fun invoiceToPdf(
     )
     /***************************************************************/
 
-    // Verification URL placeholder
+    // Verification QR code and URL
     val verifyHash = payment.id.hash("invoice").take(10)
     val verifyUrl = "https://wastical.app/invoice/" + payment.id + "?v=" + verifyHash
     yAxis = yAxis.plus(textSize72.textSize.minus(20))
+    val qrSize = 300
+    val qrLeft = pdfWidthPx - 90 - qrSize
+    val qrTop = yAxis.toInt() - 40
+    try {
+      val bitMatrix: BitMatrix = MultiFormatWriter().encode(verifyUrl, BarcodeFormat.QR_CODE, qrSize, qrSize)
+      val pixels = IntArray(qrSize * qrSize)
+      for (y in 0 until qrSize) {
+        for (x in 0 until qrSize) {
+          pixels[y * qrSize + x] = if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+        }
+      }
+      val bmp = Bitmap.createBitmap(qrSize, qrSize, Bitmap.Config.ARGB_8888)
+      bmp.setPixels(pixels, 0, qrSize, 0, 0, qrSize, qrSize)
+      drawBitmap(bmp, qrLeft.toFloat(), qrTop.toFloat(), null)
+    } catch (_: Exception) { }
+
     pdfSentence(
       theSentence = "Verify: $verifyUrl",
       yAxis = yAxis,
@@ -590,8 +611,8 @@ fun invoiceToPdf(
       paint = textSize32.also { it.typeface = light(context) },
     )
     pdfSentence(
-      theSentence = "Page 1 of 1",
-      xAxis = pdfWidthPx - 400f,
+      theSentence = "Page 1",
+      xAxis = pdfWidthPx - 300f,
       yAxis = footerY,
       paint = textSize32.also { it.typeface = light(context) },
     )
@@ -607,7 +628,8 @@ private fun PdfDocument.saveToInternal(
   payment: PaymentUiModel,
   account: AccountUiModel,
 ): File? {
-  val pdfFile = File(context.filesDir, "Invoice-${account.id.times(5983)}-${payment.createdAt}.pdf")
+  val invoiceNo = "INV-" + payment.id.toString().padStart(6, '0')
+  val pdfFile = File(context.filesDir, "Invoice-$invoiceNo.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)
