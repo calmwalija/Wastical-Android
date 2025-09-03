@@ -108,7 +108,7 @@ fun invoiceToPdf(
 
     context.drawWatermark(this, pdfWidthPx, pdfHeightPx, "PAID")
 
-    ContextCompat.getDrawable(context, R.drawable.ic_cs_logo)?.let { logo ->
+    ContextCompat.getDrawable(context, R.drawable.im_cs_logo)?.let { logo ->
       val logoWidth = 240
       val logoHeight = 240
       val left = pdfWidthPx - 90 - logoWidth
