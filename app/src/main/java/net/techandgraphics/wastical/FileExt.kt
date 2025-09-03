@@ -97,13 +97,15 @@ fun Context.share(file: File) {
 }
 
 fun Long.hash(text: String, algorithm: String = "SHA-512"): String {
-  val theKey = toString()
-    .substring(5, toString().length.minus(3))
-    .toInt()
-    .times(toString().sumOf { it.digitToInt() })
-    .toString()
-  val bytes =
-    MessageDigest.getInstance(algorithm).digest(theKey.plus(text).plus(theKey).toByteArray())
+  val s = toString()
+  val start = 5.coerceAtMost(s.length)
+  val end = (s.length - 3).coerceAtLeast(start)
+  val middle = s.substring(start, end).ifEmpty { s }
+  val numeric = middle.filter { it.isDigit() }.ifEmpty { s.filter { it.isDigit() } }
+  val base = numeric.ifEmpty { (this and 0xFFFFFFFF).toString() }
+  val factor = base.sumOf { it.code } + s.sumOf { it.code }
+  val theKey = (base.toLongOrNull() ?: this).times(factor).toString()
+  val bytes = MessageDigest.getInstance(algorithm).digest((theKey + text + theKey).toByteArray())
   return bytes.joinToString("") { "%02x".format(it) }
 }
 

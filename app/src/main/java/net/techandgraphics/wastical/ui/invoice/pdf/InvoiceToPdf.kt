@@ -1,19 +1,19 @@
 package net.techandgraphics.wastical.ui.invoice.pdf
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.withRotation
+import androidx.core.text.isDigitsOnly
 import net.techandgraphics.wastical.R
-import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
 import net.techandgraphics.wastical.defaultDateTime
-import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyContactUiModel
@@ -24,6 +24,7 @@ import net.techandgraphics.wastical.domain.model.payment.PaymentMonthCoveredUiMo
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 import net.techandgraphics.wastical.toAmount
+import net.techandgraphics.wastical.toEnglishWords
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
 import net.techandgraphics.wastical.toPhoneFormat
@@ -32,9 +33,6 @@ import net.techandgraphics.wastical.ui.screen.client.invoice.bold
 import net.techandgraphics.wastical.ui.screen.client.invoice.extraBold
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
 import net.techandgraphics.wastical.ui.theme.Orange
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.common.BitMatrix
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -52,30 +50,23 @@ private fun tableData(
   )
 }
 
-private fun amountInWords(amount: Int): String {
-  if (amount == 0) return "zero"
-
-  val units = arrayOf(
-    "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-    "seventeen", "eighteen", "nineteen",
-  )
-  val tens = arrayOf(
-    "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
-  )
-
-  fun toWords(n: Int): String {
-    return when {
-      n < 20 -> units[n]
-      n < 100 -> tens[n / 10] + if (n % 10 != 0) "-" + units[n % 10] else ""
-      n < 1000 -> units[n / 100] + " hundred" + if (n % 100 != 0) " and " + toWords(n % 100) else ""
-      n < 1_000_000 -> toWords(n / 1000) + " thousand" + if (n % 1000 != 0) " " + toWords(n % 1000) else ""
-      n < 1_000_000_000 -> toWords(n / 1_000_000) + " million" + if (n % 1_000_000 != 0) " " + toWords(n % 1_000_000) else ""
-      else -> n.toString()
-    }
+private fun Context.drawWatermark(canvas: Canvas, pageWidth: Int, pageHeight: Int, text: String) {
+  val watermarkPaint = Paint().apply {
+    color = "#97808080".toColorInt()
+    textSize = 532f
+    typeface = extraBold(this@drawWatermark)
+    textAlign = Paint.Align.CENTER
+    alpha = 24
   }
 
-  return toWords(amount)
+  canvas.withRotation(-45f, pageWidth / 2f, pageHeight / 2f) {
+    drawText(
+      text,
+      pageWidth / 2f,
+      pageHeight / 1.6f,
+      watermarkPaint,
+    )
+  }
 }
 
 fun invoiceToPdf(
@@ -95,9 +86,8 @@ fun invoiceToPdf(
 
   val tableData = tableData(paymentMonthCovered, paymentPlan)
   val targetDpi = 300f
-  // Switch to A4 size (8.27 x 11.69 inches)
-  val widthInches = 8.27f
-  val heightInches = 11.69f
+  val widthInches = 5.27f
+  val heightInches = 7.1f
   val tableDataHeight = (53 * tableData.size.minus(1)).toFloat()
   val pdfWidthPx = (widthInches * targetDpi).toInt()
   val pdfHeightPx = (heightInches * targetDpi).plus(tableDataHeight).toInt()
@@ -105,7 +95,6 @@ fun invoiceToPdf(
   val textSize72 = Paint().apply { textSize = 72f }
   val textSize42 = Paint().apply { textSize = 42f }
   val textSize32 = Paint().apply { textSize = 32f }
-  val textSize520 = Paint().apply { textSize = 100f }
 
   val pdfPageInfo = PdfDocument.PageInfo.Builder(pdfWidthPx, pdfHeightPx, 1).create()
   val pdfPage = pdfDocument.startPage(pdfPageInfo)
@@ -117,32 +106,17 @@ fun invoiceToPdf(
     var holdXAxis = 0f
     var holdYAxis = 0f
 
-    pdfRectangle()
+    context.drawWatermark(this, pdfWidthPx, pdfHeightPx, "PAID")
 
-    /***************************************************************/
-    // Company logo (top-right)
-    ContextCompat.getDrawable(context, R.drawable.ic_logo)?.let { logo ->
-      val logoWidth = 250
-      val logoHeight = 250
+    ContextCompat.getDrawable(context, R.drawable.ic_cs_logo)?.let { logo ->
+      val logoWidth = 240
+      val logoHeight = 240
       val left = pdfWidthPx - 90 - logoWidth
       val top = 80
       logo.setBounds(left, top, left + logoWidth, top + logoHeight)
       logo.draw(this)
     }
-    /***************************************************************/
 
-    /***************************************************************/
-    val isApproved = payment.status == PaymentStatus.Approved
-    val watermark = if (isApproved) "PAID" else "DUE"
-    pdfSentence(
-      theSentence = watermark,
-      xAxis = 1230f,
-      yAxis = 240f,
-      paint = textSize520.also {
-        it.typeface = extraBold(context)
-        it.color = if (isApproved) Orange.toArgb() else Color.LTGRAY
-      },
-    )
     /***************************************************************/
 
     pdfHeadingView(
@@ -203,7 +177,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfHeadingView(
-      theHeading = "Invoice No.",
+      theHeading = "Invoice #",
       yAxis = yAxis,
       xAxis = xAxis,
       paint = textSize42.also {
@@ -214,7 +188,7 @@ fun invoiceToPdf(
     /***************************************************************/
 
     pdfSentence(
-      theSentence = "INV-" + payment.id.toString().padStart(6, '0'),
+      theSentence = "INV-${account.id.times(5983)}-${payment.createdAt}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -236,34 +210,6 @@ fun invoiceToPdf(
 
     pdfSentence(
       theSentence = payment.createdAt.toZonedDateTime().defaultDateTime(),
-      yAxis = yAxis,
-      xAxis = xAxis.times(8),
-      paint = textSize32.also { it.typeface = light(context) },
-    )
-    /***************************************************************/
-
-    // Verification QR code and URL
-    val verifyHash = payment.id.hash("invoice").take(10)
-    val verifyUrl = "https://wastical.app/invoice/" + payment.id + "?v=" + verifyHash
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
-    val qrSize = 300
-    val qrLeft = pdfWidthPx - 90 - qrSize
-    val qrTop = yAxis.toInt() - 40
-    try {
-      val bitMatrix: BitMatrix = MultiFormatWriter().encode(verifyUrl, BarcodeFormat.QR_CODE, qrSize, qrSize)
-      val pixels = IntArray(qrSize * qrSize)
-      for (y in 0 until qrSize) {
-        for (x in 0 until qrSize) {
-          pixels[y * qrSize + x] = if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-        }
-      }
-      val bmp = Bitmap.createBitmap(qrSize, qrSize, Bitmap.Config.ARGB_8888)
-      bmp.setPixels(pixels, 0, qrSize, 0, 0, qrSize, qrSize)
-      drawBitmap(bmp, qrLeft.toFloat(), qrTop.toFloat(), null)
-    } catch (_: Exception) { }
-
-    pdfSentence(
-      theSentence = "Verify: $verifyUrl",
       yAxis = yAxis,
       xAxis = xAxis.times(8),
       paint = textSize32.also { it.typeface = light(context) },
@@ -293,28 +239,17 @@ fun invoiceToPdf(
     )
     /***************************************************************/
 
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
     /***************************************************************/
-    pdfSentence(
-      theSentence = "Phone : ${accountContact.contact.toPhoneFormat()}",
-      xAxis = xAxis,
-      yAxis = yAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-    )
-    /***************************************************************/
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
-    /***************************************************************/
-    if (!account.email.isNullOrEmpty()) {
-      pdfSentence(
-        theSentence = "Email : ${account.email}",
-        xAxis = xAxis,
-        yAxis = yAxis,
-        paint = textSize32.also { it.typeface = light(context) },
-      )
-    }
+    accountContact.contact.takeIf { it.isDigitsOnly() }
+      ?.let { contact ->
+        yAxis = yAxis.plus(textSize72.textSize.minus(20))
+        pdfSentence(
+          theSentence = "Phone : ${contact.toPhoneFormat()}",
+          xAxis = xAxis,
+          yAxis = yAxis,
+          paint = textSize32.also { it.typeface = light(context) },
+        )
+      }
     /***************************************************************/
 
     yAxis = yAxis.plus(textSize72.textSize.times(1.7f))
@@ -437,10 +372,10 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfBgSentence(
-      theSentence = "Grand Total".uppercase(),
+      theSentence = "Total".uppercase(),
       yAxis = yAxis,
       xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = extraBold(context) },
+      paint = textSize32.also { it.typeface = bold(context) },
       withBg = tableData.flatten().size.mod(2) == 1,
     )
     /***************************************************************/
@@ -452,167 +387,52 @@ fun invoiceToPdf(
       theSentence = paymentPlan.fee.times(paymentMonthCovered.size).toAmount(),
       yAxis = yAxis,
       xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = extraBold(context) },
+      paint = textSize32.also { it.typeface = bold(context) },
       withBg = tableData.flatten().size.mod(2) == 1,
     )
+    /***************************************************************/
 
+    yAxis = yAxis.plus(textSize72.textSize.minus(10))
     val totalAmount = paymentPlan.fee.times(paymentMonthCovered.size)
-    yAxis = yAxis.plus(textSize72.textSize.minus(10))
 
-    // Discount (0.00)
-    holdXAxis = xAxis
-    holdXAxis = holdXAxis.times(11f)
-    pdfBgSentence(
-      theSentence = "Discount",
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 0,
-    )
-    holdXAxis = holdXAxis.plus(300)
-    pdfBgSentence(
-      theSentence = 0.toAmount(),
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 0,
-    )
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(10))
-
-    // Tax (0.00)
-    holdXAxis = xAxis
-    holdXAxis = holdXAxis.times(11f)
-    pdfBgSentence(
-      theSentence = "Tax",
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 1,
-    )
-    holdXAxis = holdXAxis.plus(300)
-    pdfBgSentence(
-      theSentence = 0.toAmount(),
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 1,
-    )
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(10))
-
-    // Fees (0.00)
-    holdXAxis = xAxis
-    holdXAxis = holdXAxis.times(11f)
-    pdfBgSentence(
-      theSentence = "Fees",
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 0,
-    )
-    holdXAxis = holdXAxis.plus(300)
-    pdfBgSentence(
-      theSentence = 0.toAmount(),
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 0,
-    )
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(10))
-
-    // Outstanding Balance
-    holdXAxis = xAxis
-    holdXAxis = holdXAxis.times(11f)
-    pdfBgSentence(
-      theSentence = "Outstanding Balance",
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 1,
-    )
-    holdXAxis = holdXAxis.plus(300)
-    val outstanding = if (isApproved) 0 else totalAmount
-    pdfBgSentence(
-      theSentence = outstanding.toAmount(),
-      yAxis = yAxis,
-      xAxis = holdXAxis,
-      paint = textSize32.also { it.typeface = light(context) },
-      withBg = tableData.flatten().size.mod(2) == 1,
-    )
-
-    yAxis = yAxis.plus(textSize72.textSize.minus(10))
-
-    // Amount in words
     pdfSentence(
-      theSentence = "Amount in words: ${amountInWords(totalAmount).replaceFirstChar { it.uppercase() }} only",
+      theSentence = "Amount in words: ${(totalAmount).toEnglishWords()} only",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
     )
+
+    yAxis = yAxis.plus(textSize72.textSize.plus(60))
+
+    pdfSentence(
+      theSentence = "Received with thanks",
+      xAxis = xAxis,
+      yAxis = yAxis,
+      paint = textSize32.also { it.typeface = light(context) },
+    )
+
+    yAxis = yAxis.plus(textSize72.textSize.minus(50))
+
+    val bitmap = BitmapFactory
+      .decodeResource(context.resources, R.drawable.im_signature)
+      .scale(400, 100)
+    drawBitmap(bitmap, xAxis, yAxis, null)
     /***************************************************************/
 
+    yAxis = yAxis.plus(textSize72.textSize.plus(80))
+
+    pdfSentence(
+      theSentence = "Received by: ${company.name}",
+      xAxis = xAxis,
+      yAxis = yAxis,
+      paint = textSize32.also { it.typeface = light(context) },
+    )
+
     /***************************************************************/
-    // Acknowledgement and signature (approved only)
-    if (isApproved) {
-      pdfSentence(
-        theSentence = "Received with thanks",
-        xAxis = xAxis,
-        yAxis = yAxis,
-        paint = textSize42.also {
-          it.typeface = bold(context)
-          it.color = Orange.toArgb()
-        },
-      )
-
-      yAxis = yAxis.plus(textSize72.textSize.minus(10))
-
-      val bitmap = BitmapFactory
-        .decodeResource(context.resources, R.drawable.im_signature)
-        .scale(500, 200)
-      drawBitmap(bitmap, xAxis, yAxis, null)
-
-      yAxis = yAxis.plus(220f)
-
-      pdfSentence(
-        theSentence = "Received by: ${company.name}",
-        xAxis = xAxis,
-        yAxis = yAxis,
-        paint = textSize32.also { it.typeface = light(context) },
-      )
-
-      yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
-      pdfSentence(
-        theSentence = "Title: Cashier",
-        xAxis = xAxis,
-        yAxis = yAxis,
-        paint = textSize32.also { it.typeface = light(context) },
-      )
-
-      yAxis = yAxis.plus(textSize72.textSize.minus(20))
-
-      pdfSentence(
-        theSentence = "Date: ${payment.createdAt.toZonedDateTime().defaultDateTime()}",
-        xAxis = xAxis,
-        yAxis = yAxis,
-        paint = textSize32.also { it.typeface = light(context) },
-      )
-    }
-    /***************************************************************/
-
-    // Footer
-    val footerY = pdfHeightPx - 60f
+    val footerY = pdfHeightPx - 80f
     pdfSentence(
       theSentence = "Contact: ${companyContact.contact.toPhoneFormat()} | Email: ${companyContact.email ?: company.email}",
       xAxis = xAxis,
-      yAxis = footerY,
-      paint = textSize32.also { it.typeface = light(context) },
-    )
-    pdfSentence(
-      theSentence = "Page 1",
-      xAxis = pdfWidthPx - 300f,
       yAxis = footerY,
       paint = textSize32.also { it.typeface = light(context) },
     )
@@ -628,8 +448,7 @@ private fun PdfDocument.saveToInternal(
   payment: PaymentUiModel,
   account: AccountUiModel,
 ): File? {
-  val invoiceNo = "INV-" + payment.id.toString().padStart(6, '0')
-  val pdfFile = File(context.filesDir, "Invoice-$invoiceNo.pdf")
+  val pdfFile = File(context.filesDir, "INV-${account.id.times(5983)}-${payment.createdAt}.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)
