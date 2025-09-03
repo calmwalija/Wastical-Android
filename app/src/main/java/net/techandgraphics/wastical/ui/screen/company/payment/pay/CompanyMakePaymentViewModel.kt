@@ -32,6 +32,7 @@ import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.image2Text
+import net.techandgraphics.wastical.printer.ReceiptPrinter
 import net.techandgraphics.wastical.toBitmap
 import net.techandgraphics.wastical.toSoftwareBitmap
 import net.techandgraphics.wastical.toZonedDateTime
@@ -172,7 +173,14 @@ class CompanyMakePaymentViewModel @Inject constructor(
           paymentReference = getReference(),
         ).toPaymentRequestEntity()
         database.paymentRequestDao.upsert(cachedPayment)
-        _channel.send(CompanyMakePaymentChannel.Pay.Success)
+        launch {
+          ReceiptPrinter.printCompanyPaymentReceipt(
+            application,
+            cachedPayment,
+            this@with,
+          )
+          _channel.send(CompanyMakePaymentChannel.Pay.Success)
+        }
         _state.value = getState().copy(imageUri = null)
         application.scheduleCompanyPaymentRequestWorker()
       }

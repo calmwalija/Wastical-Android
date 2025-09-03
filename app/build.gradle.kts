@@ -220,4 +220,6 @@ dependencies {
   // QR code generation
   implementation("com.google.zxing:core:3.5.3")
 
+  implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
+
 }

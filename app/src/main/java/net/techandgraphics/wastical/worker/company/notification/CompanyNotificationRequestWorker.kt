@@ -21,7 +21,6 @@ import net.techandgraphics.wastical.data.local.database.toNotificationEntity
 import net.techandgraphics.wastical.data.remote.notification.NotificationApi
 import net.techandgraphics.wastical.data.remote.toNotificationRequest
 import net.techandgraphics.wastical.getAccount
-import net.techandgraphics.wastical.worker.workerShowNotification
 import java.net.HttpURLConnection
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -50,10 +49,10 @@ import java.util.concurrent.TimeUnit
                   onFailure = true
                 }
             }
-          database.workerShowNotification(
-            context,
-            account,
-          )
+//          database.workerShowNotification(
+//            context,
+//            account,
+//          )
           if (onFailure) Result.retry() else Result.success()
         } catch (e: Exception) {
           e.printStackTrace()

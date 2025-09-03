@@ -55,6 +55,9 @@ fun Long.toZonedDateTime(): ZonedDateTime =
 fun ZonedDateTime.defaultTime(): String =
   DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).format(this)
 
+fun ZonedDateTime.defaultTimeMedium(): String =
+  DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).format(this)
+
 fun ZonedDateTime.defaultDate(): String =
   DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(this)
 
