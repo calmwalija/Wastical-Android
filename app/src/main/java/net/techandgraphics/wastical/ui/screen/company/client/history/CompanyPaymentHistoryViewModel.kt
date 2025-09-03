@@ -31,7 +31,7 @@ import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
-import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
+import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Button
 import net.techandgraphics.wastical.ui.screen.company.client.history.CompanyPaymentHistoryEvent.Load
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker

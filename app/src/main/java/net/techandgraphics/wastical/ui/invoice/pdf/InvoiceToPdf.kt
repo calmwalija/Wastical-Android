@@ -1,10 +1,11 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice.pdf
+package net.techandgraphics.wastical.ui.invoice.pdf
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
@@ -83,6 +84,18 @@ fun invoiceToPdf(
     var holdYAxis = 0f
 
     pdfRectangle()
+
+    /***************************************************************/
+    // Company logo (top-right)
+    ContextCompat.getDrawable(context, R.drawable.ic_logo)?.let { logo ->
+      val logoWidth = 250
+      val logoHeight = 250
+      val left = pdfWidthPx - 90 - logoWidth
+      val top = 80
+      logo.setBounds(left, top, left + logoWidth, top + logoHeight)
+      logo.draw(this)
+    }
+    /***************************************************************/
 
     /***************************************************************/
     pdfSentence(
@@ -366,6 +379,19 @@ fun invoiceToPdf(
     /***************************************************************/
 
     /***************************************************************/
+    // Acknowledgement and signature
+    pdfSentence(
+      theSentence = "Received with thanks",
+      xAxis = xAxis,
+      yAxis = yAxis,
+      paint = textSize42.also {
+        it.typeface = bold(context)
+        it.color = Orange.toArgb()
+      },
+    )
+
+    yAxis = yAxis.plus(textSize72.textSize.minus(10))
+
     val bitmap = BitmapFactory
       .decodeResource(context.resources, R.drawable.im_signature)
       .scale(500, 200)

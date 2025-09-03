@@ -28,7 +28,7 @@ import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
-import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
+import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
 import java.io.File
 import javax.inject.Inject
 

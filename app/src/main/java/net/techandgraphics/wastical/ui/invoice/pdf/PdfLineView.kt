@@ -1,9 +1,9 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice.pdf
+package net.techandgraphics.wastical.ui.invoice.pdf
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import net.techandgraphics.wastical.ui.screen.client.invoice.canvas.CanvasAxis
+import net.techandgraphics.wastical.ui.invoice.canvas.CanvasAxis
 
 fun Canvas.pdfLineView(
   yAxis: Float,
