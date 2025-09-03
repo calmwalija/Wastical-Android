@@ -10,6 +10,7 @@ sealed interface CompanyVerifyPaymentEvent {
     data class Approve(val payment: PaymentUiModel) : Payment
     data class Deny(val payment: PaymentUiModel) : Payment
     data class Image(val payment: PaymentUiModel) : Payment
+    data class Download(val payment: PaymentUiModel) : Payment
   }
 
   sealed interface Goto : CompanyVerifyPaymentEvent {

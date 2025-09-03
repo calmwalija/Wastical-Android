@@ -30,6 +30,9 @@ fun imageGatewayUrl(pmId: Long) = AppUrl.FILE_URL.plus("gateway/").plus(pmId)
 fun PaymentUiModel.imageScreenshotUrl() =
   AppUrl.FILE_URL.plus("screenshot/$accountId").plus(createdAt)
 
+fun PaymentUiModel.proofUrl(ext: String) =
+  AppUrl.FILE_URL.plus("$accountId/").plus("$createdAt.$ext")
+
 fun String.capitalize(): String =
   this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
