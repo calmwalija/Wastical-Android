@@ -31,6 +31,8 @@ sealed interface CompanyReportEvent {
       data object GatewaySuccess : Report
       data object UpfrontPaymentsDetail : Report
       data object PaymentAging : Report
+      data object ExportContactsCsv : Report
+      data object ExportContactsVcf : Report
     }
 
     sealed interface MonthDialog : CompanyReportEvent {
