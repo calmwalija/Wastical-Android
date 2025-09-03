@@ -6,4 +6,6 @@ sealed interface CompanyReportChannel {
     data object Success : CompanyReportChannel
     data object Error : CompanyReportChannel
   }
+
+  data class Export(val file: java.io.File) : CompanyReportChannel
 }

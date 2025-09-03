@@ -58,16 +58,17 @@ fun File.preview(context: Context) {
 
 fun File.share(context: Context) {
   val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", this)
+  val mime = getMimeType(this)
   val shareIntent = Intent(Intent.ACTION_SEND).apply {
-    type = "application/pdf"
-    putExtra(Intent.EXTRA_SUBJECT, "Share Invoice")
+    type = mime
+    putExtra(Intent.EXTRA_SUBJECT, "Share File")
     putExtra(Intent.EXTRA_STREAM, uri)
     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     if (context !is Activity) {
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
   }
-  val chooser = Intent.createChooser(shareIntent, "Share PDF File").apply {
+  val chooser = Intent.createChooser(shareIntent, "Share ${extension.uppercase()} File").apply {
     if (context !is Activity) {
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
@@ -76,8 +77,6 @@ fun File.share(context: Context) {
 }
 
 fun Context.workingDir(): File = filesDir
-
-private const val TYPE = "application/json"
 
 fun Context.write(jsonData: String, fileName: String): File {
   openFileOutput(fileName, Context.MODE_PRIVATE).use { outputStream ->
@@ -88,11 +87,12 @@ fun Context.write(jsonData: String, fileName: String): File {
 
 fun Context.share(file: File) {
   val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+  val type = getMimeType(file)
   ShareCompat.IntentBuilder(this)
-    .setType(TYPE)
-    .setSubject("Shared files")
+    .setType(type)
+    .setSubject("Shared file")
     .addStream(uri)
-    .setChooserTitle("Share JSON File")
+    .setChooserTitle("Share ${file.extension.uppercase()} File")
     .startChooser()
 }
 

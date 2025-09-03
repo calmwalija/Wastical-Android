@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.flow
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.local.database.dashboard.account.DemographicItem
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYear
+import net.techandgraphics.wastical.share
 import net.techandgraphics.wastical.toast
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
@@ -131,6 +132,11 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       label = "Payment Aging Report",
       event = CompanyReportEvent.Button.Report.PaymentAging
     )
+    ,CompanyReportItem(
+      drawableRes = R.drawable.ic_list,
+      label = "Payment Aging Report",
+      event = CompanyReportEvent.Button.Report.PaymentAging
+    )
   )
 
   val lifecycleOwner = LocalLifecycleOwner.current
@@ -141,6 +147,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         when (event) {
           CompanyReportChannel.Pdf.Error -> context.toast("Failed to create PDF, please try again")
           CompanyReportChannel.Pdf.Success -> Unit
+          is CompanyReportChannel.Export -> context.share(event.file)
         }
       }
     }
@@ -324,7 +331,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         item {
           OutlinedCard {
             companyReportItems
-              .subList(0, 4)
+              .subList(0, 5)
               .forEachIndexed { index, item ->
                 CompanyReportItemView(
                   showIndicator = indicators[item.event] ?: false,
@@ -385,6 +392,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                         }
 
                         CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ExportContactsCsv -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ExportContactsVcf -> onEvent(event)
                       }
                     }
 
@@ -393,7 +402,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                     else -> onEvent(event)
                   }
                 }
-                if (index < 3) HorizontalDivider()
+                if (index < 4) HorizontalDivider()
               }
           }
         }
@@ -413,7 +422,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         item {
           OutlinedCard {
             companyReportItems
-              .subList(4, companyReportItems.size)
+              .subList(5, companyReportItems.size)
               .forEachIndexed { index, item ->
                 CompanyReportItemView(
                   showIndicator = indicators[item.event] ?: false,
@@ -474,6 +483,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                         }
 
                         CompanyReportEvent.Button.Report.PaymentAging -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ExportContactsCsv -> onEvent(event)
+                        CompanyReportEvent.Button.Report.ExportContactsVcf -> onEvent(event)
                       }
                     }
 
@@ -484,6 +495,44 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
                 }
                 if (index < 8) HorizontalDivider()
               }
+          }
+        }
+
+        item { Spacer(modifier = Modifier.height(32.dp)) }
+
+        item {
+          Text(
+            text = "Exports",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
+
+        item {
+          OutlinedCard {
+            listOf(
+              CompanyReportItem(
+                drawableRes = R.drawable.ic_cloud_download,
+                label = "Export Contacts (CSV)",
+                event = CompanyReportEvent.Button.Report.ExportContactsCsv
+              ),
+              CompanyReportItem(
+                drawableRes = R.drawable.ic_account,
+                label = "Export Contacts (VCF)",
+                event = CompanyReportEvent.Button.Report.ExportContactsVcf
+              ),
+            ).forEachIndexed { index, item ->
+              CompanyReportItemView(
+                showIndicator = false,
+                item = item,
+              ) { event ->
+                if (event is CompanyReportEvent.Button.Report) {
+                  onEvent(event)
+                }
+              }
+              if (index == 0) HorizontalDivider()
+            }
           }
         }
       }

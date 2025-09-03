@@ -41,6 +41,7 @@ import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.toAmount
 import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
+import net.techandgraphics.wastical.toPhone265
 import net.techandgraphics.wastical.toShortMonthName
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.client.invoice.light
@@ -726,6 +727,71 @@ import javax.inject.Inject
     }
   }
 
+  private fun escapeCsv(value: String?): String {
+    if (value == null) return ""
+    val needsQuotes = value.contains(',') || value.contains('"') || value.contains('\n') || value.contains('\r')
+    val escaped = value.replace("\"", "\"\"")
+    return if (needsQuotes) "\"$escaped\"" else escaped
+  }
+
+  private fun onExportContactsCsv() = viewModelScope.launch(Dispatchers.IO) {
+    try {
+      val accounts = database.accountDao.qByRole()
+      val contactsByAccount = database.accountContactDao.query().groupBy { it.accountId }
+      val company = database.companyDao.query().firstOrNull()?.name ?: "Wastical"
+      val fileName = "$company-Contacts-${ZonedDateTime.now().toDate()}.csv"
+      val file = File(application.filesDir, fileName)
+      file.writer().use { writer ->
+        writer.appendLine("Name,Given Name,Family Name,Phone 1 - Type,Phone 1 - Value,E-mail 1 - Type,E-mail 1 - Value")
+        accounts.forEach { a ->
+          val contacts = contactsByAccount[a.id].orEmpty()
+          val phone = if (a.username.isDigitsOnly()) a.username.toPhone265() else a.username
+          val email = a.email ?: contacts.firstOrNull { it.email?.isNotBlank() == true }?.email
+          val fullname = a.toAccountUiModel().toFullName()
+          val row = listOf(
+            escapeCsv(fullname),
+            escapeCsv(a.firstname),
+            escapeCsv(a.lastname),
+            "Mobile",
+            escapeCsv(phone),
+            "Work",
+            escapeCsv(email),
+          ).joinToString(",")
+          writer.appendLine(row)
+        }
+      }
+      _channel.send(CompanyReportChannel.Export(file))
+    } catch (_: Exception) {
+    }
+  }
+
+  private fun onExportContactsVcf() = viewModelScope.launch(Dispatchers.IO) {
+    try {
+      val accounts = database.accountDao.qByRole()
+      val contactsByAccount = database.accountContactDao.query().groupBy { it.accountId }
+      val company = database.companyDao.query().firstOrNull()?.name ?: "Wastical"
+      val fileName = "$company-Contacts-${ZonedDateTime.now().toDate()}.vcf"
+      val file = File(application.filesDir, fileName)
+      file.writer().use { writer ->
+        accounts.forEach { a ->
+          val contacts = contactsByAccount[a.id].orEmpty()
+          val phone = if (a.username.isDigitsOnly()) a.username.toPhone265() else a.username
+          val email = a.email ?: contacts.firstOrNull { it.email?.isNotBlank() == true }?.email
+          val fullname = a.toAccountUiModel().toFullName()
+          writer.appendLine("BEGIN:VCARD")
+          writer.appendLine("VERSION:3.0")
+          writer.appendLine("N:${escapeCsv(a.lastname)};${escapeCsv(a.firstname)};;;")
+          writer.appendLine("FN:${escapeCsv(fullname)}")
+          if (phone.isNotBlank()) writer.appendLine("TEL;TYPE=CELL:${escapeCsv(phone)}")
+          if (!email.isNullOrBlank()) writer.appendLine("EMAIL;TYPE=INTERNET:${escapeCsv(email)}")
+          writer.appendLine("END:VCARD")
+        }
+      }
+      _channel.send(CompanyReportChannel.Export(file))
+    } catch (_: Exception) {
+    }
+  }
+
   private fun onReportUpfrontPaymentsDetail() = viewModelScope.launch {
     if (_state.value is CompanyReportState.Success) {
       val state = (_state.value as CompanyReportState.Success)
@@ -963,6 +1029,8 @@ import javax.inject.Inject
       CompanyReportEvent.Button.Report.GatewaySuccess -> onReportGatewaySuccess()
       CompanyReportEvent.Button.Report.UpfrontPaymentsDetail -> onReportUpfrontPaymentsDetail()
       CompanyReportEvent.Button.Report.PaymentAging -> onReportAgingRaw()
+      CompanyReportEvent.Button.Report.ExportContactsCsv -> onExportContactsCsv()
+      CompanyReportEvent.Button.Report.ExportContactsVcf -> onExportContactsVcf()
     }
   }
 
