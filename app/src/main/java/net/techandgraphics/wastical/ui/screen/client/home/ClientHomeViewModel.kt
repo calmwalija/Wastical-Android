@@ -44,8 +44,8 @@ import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
 import net.techandgraphics.wastical.toZonedDateTime
+import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.ui.screen.AccountLogout
-import net.techandgraphics.wastical.ui.screen.client.invoice.pdf.invoiceToPdf
 import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
 import java.io.File

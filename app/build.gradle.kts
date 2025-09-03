@@ -217,4 +217,7 @@ dependencies {
 
   implementation(libs.play.services.auth)
 
+  // QR code generation
+  implementation("com.google.zxing:core:3.5.3")
+
 }

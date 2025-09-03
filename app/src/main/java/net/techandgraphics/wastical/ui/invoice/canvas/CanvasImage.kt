@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice.canvas
+package net.techandgraphics.wastical.ui.invoice.canvas
 
 import android.content.Context
 import android.graphics.BitmapFactory
