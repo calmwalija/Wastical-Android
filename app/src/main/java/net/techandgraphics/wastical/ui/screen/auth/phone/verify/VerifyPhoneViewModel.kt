@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.techandgraphics.wastical.account.AuthenticatorHelper
+import net.techandgraphics.wastical.data.local.Preferences
 import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.data.local.database.toAccountOtpEntity
 import net.techandgraphics.wastical.data.remote.account.otp.AccountOtpApi
 import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.domain.toAccountUiModel
+import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoginState
 import net.techandgraphics.wastical.ui.screen.auth.phone.verify.VerifyPhoneChannel.Response
 import net.techandgraphics.wastical.ui.screen.auth.phone.verify.VerifyPhoneEvent.Input
 import java.time.ZonedDateTime
@@ -34,6 +36,7 @@ class VerifyPhoneViewModel @Inject constructor(
   private val accountOtpApi: AccountOtpApi,
   private val database: AppDatabase,
   private val authenticatorHelper: AuthenticatorHelper,
+  private val preferences: Preferences,
 ) : ViewModel() {
 
   private val _channel = Channel<VerifyPhoneChannel>()
@@ -70,6 +73,7 @@ class VerifyPhoneViewModel @Inject constructor(
             ?.firstOrNull()
             ?.let { newAccount ->
               authenticatorHelper.addAccountPlain(newAccount)
+              preferences.put(Preferences.LOGIN_STATE, LoginState.Otp.name)
               _channel.send(Response.Success(sms))
             }
             ?: throw IllegalStateException()

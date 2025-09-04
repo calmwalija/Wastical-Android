@@ -70,6 +70,9 @@ fun AppNavHost(
               }
             }
 
+            is LoadEvent.Goto.Otp ->
+              navController.navigate(PhoneRoute.Opt(event.contact)) { popUpTo(0) }
+
             else -> onEvent(event)
           }
         }

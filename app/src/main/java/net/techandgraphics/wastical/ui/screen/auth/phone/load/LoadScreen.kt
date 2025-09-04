@@ -56,6 +56,7 @@ fun LoadScreen(
             is LoadChannel.Success -> onEvent(LoadEvent.Success(state.account!!))
             LoadChannel.NoAccount -> onEvent(LoadEvent.NoAccount)
             is LoadChannel.NoToken -> onEvent(LoadEvent.NoToken(event.contact))
+            is LoadChannel.Otp -> onEvent(LoadEvent.Goto.Otp(event.contact))
           }
         }
       }

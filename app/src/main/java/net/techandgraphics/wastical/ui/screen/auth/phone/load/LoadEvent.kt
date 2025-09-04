@@ -8,4 +8,8 @@ sealed interface LoadEvent {
   data object NoAccount : LoadEvent
   data class NoToken(val contact: String) : LoadEvent
   data class Success(val account: AccountUiModel) : LoadEvent
+
+  sealed interface Goto : LoadEvent {
+    data class Otp(val contact: String) : Goto
+  }
 }

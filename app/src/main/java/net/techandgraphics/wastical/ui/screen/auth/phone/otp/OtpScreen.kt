@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,9 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,10 +50,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import net.techandgraphics.wastical.R
-import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toast
-import net.techandgraphics.wastical.ui.HorizontalRuleView
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
@@ -66,6 +64,7 @@ fun OtpScreen(
 
   var opt by remember { mutableStateOf("") }
   val context = LocalContext.current
+  val hapticFeedback = LocalHapticFeedback.current
   var isProcessing by remember { mutableStateOf(false) }
 
   val lifecycleOwner = LocalLifecycleOwner.current
@@ -75,7 +74,11 @@ fun OtpScreen(
         isProcessing = false
         when (event) {
           OtpChannel.Success -> onEvent(OtpEvent.Goto.Home)
-          is OtpChannel.Error -> context.toast(event.error.localizedMessage!!)
+          is OtpChannel.Error -> {
+            context.toast(event.error.localizedMessage!!)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+          }
+
           OtpChannel.Verify -> onEvent(OtpEvent.Goto.Verify)
         }
       }
@@ -119,27 +122,13 @@ fun OtpScreen(
         ) {
 
           item {
-            Icon(
-              painter = painterResource(R.drawable.ic_sms),
-              contentDescription = null,
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-                .size(82.dp),
-              tint = MaterialTheme.colorScheme.secondary,
-            )
-          }
-
-          item {
             Text(
-              text = "One Time Password Verification",
+              text = "Verify Code",
               fontWeight = FontWeight.Bold,
-              maxLines = 2,
+              maxLines = 1,
               overflow = TextOverflow.Ellipsis,
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier
-                .padding(bottom = 8.dp)
-                .fillMaxWidth(),
+              modifier = Modifier.fillMaxWidth(),
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.primary
             )
@@ -160,11 +149,15 @@ fun OtpScreen(
 
           item {
             Button(
-              enabled = opt.length > 3 && isProcessing.not(),
-              modifier = Modifier.fillMaxWidth(.7f),
-              onClick = { onEvent(OtpEvent.Otp(opt)); isProcessing = true }
+              modifier = Modifier.fillMaxWidth(),
+              shape = RoundedCornerShape(8),
+              enabled = isProcessing.not() && opt.trim().length > 3,
+              onClick = {
+                onEvent(OtpEvent.Otp(opt))
+                isProcessing = true
+              }
             ) {
-              Box {
+              Box(modifier = Modifier.padding(vertical = 8.dp)) {
                 if (isProcessing) CircularProgressIndicator(
                   modifier = Modifier.size(24.dp),
                   color = MaterialTheme.colorScheme.secondary
@@ -173,18 +166,6 @@ fun OtpScreen(
                 }
               }
             }
-          }
-
-          item { Spacer(modifier = Modifier.height(24.dp)) }
-
-          item {
-            HorizontalRuleView({
-              Text(
-                text = "Not ${state.account.toFullName()} ?",
-                modifier = Modifier.padding(horizontal = 8.dp),
-                style = MaterialTheme.typography.bodyMedium
-              )
-            })
           }
 
           item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -238,11 +219,11 @@ private fun OtpInput(
 
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(10.dp),
+    verticalArrangement = Arrangement.spacedBy(16.dp),
     modifier = Modifier.padding(16.dp)
   ) {
     Row(
-      horizontalArrangement = Arrangement.spacedBy(10.dp),
+      horizontalArrangement = Arrangement.spacedBy(16.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       otpValues.forEachIndexed { index, value ->
@@ -258,7 +239,11 @@ private fun OtpInput(
             .weight(1f)
             .height(60.dp)
             .graphicsLayer(scaleX = scale, scaleY = scale)
-            .border(2.dp, MaterialTheme.colorScheme.secondary),
+            .border(
+              width = 2.dp,
+              color = MaterialTheme.colorScheme.secondary,
+              shape = RoundedCornerShape(16)
+            ),
           textStyle = LocalTextStyle.current.copy(
             textAlign = TextAlign.Center,
             fontSize = 20.sp

@@ -53,7 +53,7 @@ class OtpViewModel @Inject constructor(
   private fun onOtp(event: OtpEvent.Otp) = viewModelScope.launch {
     if (event.opt.isDigitsOnly().not()) return@launch
     if (database.accountOtpDao.getByOpt(event.opt.toInt()).isEmpty()) {
-      _channel.send(OtpChannel.Error(IllegalStateException("Invalid One Time Password")))
+      _channel.send(OtpChannel.Error(IllegalStateException("Invalid Verification Code")))
       return@launch
     }
     runCatching {

@@ -25,7 +25,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
     )
     numberPad.forEach { row ->
       Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 10.dp)
       ) {
         row.forEach { number ->
@@ -36,7 +36,8 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           ) {
             Text(
               text = number,
-              style = MaterialTheme.typography.titleLarge
+              style = MaterialTheme.typography.titleLarge,
+              modifier = Modifier.padding(8.dp)
             )
           }
         }
