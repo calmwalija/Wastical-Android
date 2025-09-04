@@ -11,6 +11,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.mapNotNull
@@ -30,6 +31,13 @@ import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedPeriodicWorker
 import net.techandgraphics.wastical.worker.scheduleAccountSessionWorker
 import javax.inject.Inject
+
+enum class LoginState {
+  Idle,
+  Login,
+  Logout,
+  Otp,
+}
 
 @HiltViewModel
 class LoadViewModel @Inject constructor(
@@ -51,28 +59,41 @@ class LoadViewModel @Inject constructor(
     val companyInfo = database.companyDao.query()
     val account = authenticatorHelper.getAccount(accountManager)
     _state.value = LoadState.Success(account = account)
+    val theState = preferences.get(Preferences.LOGIN_STATE, LoginState.Idle.name)
+
     if (account == null) {
       _channel.send(element = LoadChannel.NoAccount)
       return@launch
     }
-    val fcmToken = database.accountFcmTokenDao.query()
-    if (fcmToken.isEmpty()) {
-      onFcmToken()
-    }
 
-    if (companyInfo.isEmpty()) {
-      observeAccountSessionWorker()
-      application.scheduleAccountSessionWorker()
-      sessionCompleted = false
-      sessionTimeoutJob?.cancel()
-      sessionTimeoutJob = viewModelScope.launch {
-        kotlinx.coroutines.delay(8_000)
-        if (!sessionCompleted) {
-          _channel.send(LoadChannel.Error(IllegalStateException("Waiting for network...")))
+    when (LoginState.valueOf(theState)) {
+      LoginState.Login -> {
+        if (companyInfo.isEmpty()) {
+          observeAccountSessionWorker()
+          application.scheduleAccountSessionWorker()
+          sessionCompleted = false
+          sessionTimeoutJob?.cancel()
+          sessionTimeoutJob = viewModelScope.launch {
+            delay(8_000)
+            if (!sessionCompleted) {
+              _channel.send(LoadChannel.Error(IllegalStateException("Waiting for network...")))
+            }
+          }
+        } else {
+          launch { _channel.send(LoadChannel.Success) }
+        }
+
+        val fcmToken = database.accountFcmTokenDao.query()
+        if (fcmToken.isEmpty()) {
+          onFcmToken()
         }
       }
-    } else {
-      launch { _channel.send(LoadChannel.Success) }
+
+      LoginState.Logout -> onLogout()
+
+      LoginState.Otp -> _channel.send(element = LoadChannel.Otp(account.username))
+
+      LoginState.Idle -> onLogout()
     }
   }
 
@@ -81,6 +102,7 @@ class LoadViewModel @Inject constructor(
       authenticatorHelper.deleteAccounts()
       database.withTransaction { database.clearAllTables() }
     }
+    preferences.put(Preferences.LOGIN_STATE, LoginState.Logout.name)
     _channel.send(element = LoadChannel.NoAccount)
   }
 
@@ -136,11 +158,13 @@ class LoadViewModel @Inject constructor(
             application.scheduleClientBinCollectionReminderWorker()
           }.onSuccess {
             application.scheduleAccountLastUpdatedPeriodicWorker()
+            preferences.put(Preferences.LOGIN_STATE, LoginState.Login.name)
             _channel.send(LoadChannel.Success)
           }
 
           AccountRole.Company -> {
             application.scheduleAccountLastUpdatedPeriodicWorker()
+            preferences.put(Preferences.LOGIN_STATE, LoginState.Login.name)
             _channel.send(LoadChannel.Success)
           }
         }

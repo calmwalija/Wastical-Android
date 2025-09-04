@@ -69,7 +69,7 @@ import javax.inject.Singleton
     const val CURRENT_WORKING_MONTH = "current_working_month"
     const val DYNAMIC_COLOR = "dynamic_color"
     const val FCM_TOKEN_KEY = "fcm_token_key"
-    const val LOGIN_SUCCESS = "login_success"
+    const val LOGIN_STATE = "login_state"
     const val CLIENT_REMINDER_PAYMENT = "client_reminder_payment"
     const val CLIENT_REMINDER_BIN = "client_reminder_bin"
   }
