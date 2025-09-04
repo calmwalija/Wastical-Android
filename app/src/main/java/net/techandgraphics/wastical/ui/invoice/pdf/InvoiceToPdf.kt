@@ -279,10 +279,8 @@ fun invoiceToPdf(
 
     /***************************************************************/
     if (paymentGateway.type != PaymentType.Cash.name) {
-      val acc = paymentMethod.account
-      val masked = if (acc.length > 4) "".padEnd(acc.length - 4, '*') + acc.takeLast(4) else acc
       pdfSentence(
-        theSentence = "Account # : $masked",
+        theSentence = "Account # : ${paymentMethod.account}",
         xAxis = xAxis,
         yAxis = yAxis,
         paint = textSize32.also { it.typeface = light(context) },

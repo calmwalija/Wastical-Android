@@ -186,33 +186,7 @@ fun ClientSettingsScreen(
           item {
             SectionTitle(text = "Account")
             SectionCard {
-              Row(
-                modifier = Modifier
-                  .clickable { onEvent(ClientSettingsEvent.Goto.Settings) }
-                  .fillMaxWidth()
-                  .padding(8.dp)) {
-                Icon(
-                  painterResource(R.drawable.ic_edit_note),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.primary
-                )
-                Column(
-                  modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .weight(1f)
-                ) {
-                  Text(text = "Edit Info")
-                  Text(
-                    text = "Update your name, contact and other account details",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                }
-              }
               if (state.account.username.isDigitsOnly()) {
-                HorizontalDivider()
                 Row(modifier = Modifier.padding(8.dp)) {
                   Icon(
                     Icons.Rounded.Call,
