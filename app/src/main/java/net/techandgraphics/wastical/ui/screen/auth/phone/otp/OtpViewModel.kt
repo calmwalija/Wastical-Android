@@ -21,6 +21,7 @@ import net.techandgraphics.wastical.data.local.database.account.token.AccountFcm
 import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.ui.screen.AccountLogout
+import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoginState
 import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
@@ -73,6 +74,7 @@ class OtpViewModel @Inject constructor(
       }
       application.scheduleAccountLastUpdatedPeriodicWorker()
       onFcmToken()
+      preferences.put(Preferences.LOGIN_STATE, LoginState.Login.name)
       _channel.send(OtpChannel.Success)
     }.onFailure { _channel.send(OtpChannel.Error(it)) }
   }
