@@ -358,6 +358,16 @@ private val quickOption = listOf(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
+          if (state.payment4CurrentLocationMonth.isNotEmpty()) {
+            item {
+              CompanyHomeLocationPieChart(
+                data = state.payment4CurrentLocationMonth,
+              )
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
+          }
+
           item { CompanyHomePaymentMonthlyView(state, onEvent) }
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
