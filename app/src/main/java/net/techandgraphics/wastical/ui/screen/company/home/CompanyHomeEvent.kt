@@ -21,7 +21,6 @@ sealed interface CompanyHomeEvent {
     data object Company : Goto
     data object Clients : Goto
     data object Payments : Goto
-    data object Expenses : Goto
     data object Timeline : Goto
     data object Notifications : Goto
     data object Report : Goto

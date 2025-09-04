@@ -239,22 +239,6 @@ private val quickOption = listOf(
                       showBroadcast = true
                     })
 
-
-                  DropdownMenuItem(
-                    leadingIcon = {
-                      Icon(
-                        painter = painterResource(R.drawable.ic_pie_chart),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp)
-                      )
-                    },
-                    text = {
-                      Text(text = "Expenses")
-                    }, onClick = {
-                      showMenuItems = false
-                      onEvent(CompanyHomeEvent.Goto.Expenses)
-                    })
-
                   DropdownMenuItem(
                     leadingIcon = { Icon(Icons.Outlined.Info, null) },
                     text = {
