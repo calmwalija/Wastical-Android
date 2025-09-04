@@ -68,6 +68,7 @@ import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.ui.screen.LoadingIndicatorView
 import net.techandgraphics.wastical.ui.screen.account4Preview
 import net.techandgraphics.wastical.ui.screen.client.home.LetterView
+import net.techandgraphics.wastical.ui.screen.company.home.charts.CompanyHomePaidUnpaidChart
 import net.techandgraphics.wastical.ui.screen.company4Preview
 import net.techandgraphics.wastical.ui.screen.companyContact4Preview
 import net.techandgraphics.wastical.ui.screen.payment4CurrentLocationMonth4Preview
@@ -343,6 +344,16 @@ private val quickOption = listOf(
             }
           }
 
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item { CompanyHomePaidUnpaidChart(state) }
+
+          item { Spacer(modifier = Modifier.height(24.dp)) }
+
+          item { CompanyHomePaymentMonthlyView(state, onEvent) }
+
+
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
           item {
@@ -358,19 +369,14 @@ private val quickOption = listOf(
 
           item { Spacer(modifier = Modifier.height(24.dp)) }
 
-          if (state.payment4CurrentLocationMonth.isNotEmpty()) {
-            item {
-              CompanyHomeLocationPieChart(
-                data = state.payment4CurrentLocationMonth,
-              )
-            }
-
-            item { Spacer(modifier = Modifier.height(24.dp)) }
+          item {
+            CompanyHomeLocationPieChart(
+              data = state.payment4CurrentLocationMonth,
+            )
           }
 
-          item { CompanyHomePaymentMonthlyView(state, onEvent) }
-
           item { Spacer(modifier = Modifier.height(24.dp)) }
+
 
           item {
             Row(
@@ -401,10 +407,12 @@ private val quickOption = listOf(
             modifier = Modifier.padding(16.dp)
           )
           val templatePairs = templates.collectAsState(initial = emptyList()).value
-          val theTemplates = if (templatePairs.isEmpty()) listOf(
-            "Service Interruption" to "Dear customer, there will be a temporary service interruption today.",
-            "Payment Reminder" to "Kind reminder to complete your monthly payment."
-          ) else templatePairs
+          val theTemplates = templatePairs.ifEmpty {
+            listOf(
+              "Service Interruption" to "Dear customer, there will be a temporary service interruption today.",
+              "Payment Reminder" to "Kind reminder to complete your monthly payment."
+            )
+          }
           theTemplates.forEach { (t, b) ->
             Card(
               onClick = {

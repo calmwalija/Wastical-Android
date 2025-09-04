@@ -5,6 +5,7 @@ import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthY
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.MonthYearPayment4Month
 import net.techandgraphics.wastical.data.local.database.dashboard.payment.PaymentPlanAgainstAccounts
 import net.techandgraphics.wastical.data.local.database.dashboard.street.Payment4CurrentLocationMonth
+import net.techandgraphics.wastical.data.local.database.dashboard.street.StreetUnpaidStat
 import net.techandgraphics.wastical.data.local.database.payment.pay.PaymentDao
 import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
@@ -19,6 +20,7 @@ sealed interface CompanyHomeState {
   data class Success(
     val payment4CurrentMonth: Payment4CurrentMonth,
     val payment4CurrentLocationMonth: List<Payment4CurrentLocationMonth> = listOf(),
+    val unpaidPerStreet: List<StreetUnpaidStat> = listOf(),
     val company: CompanyUiModel,
     val companyContact: CompanyContactUiModel,
     val account: AccountUiModel,
@@ -31,6 +33,7 @@ sealed interface CompanyHomeState {
     val expectedAmountToCollect: Int,
     val paymentPlanAgainstAccounts: List<PaymentPlanAgainstAccounts>,
     val allMonthsPayments: List<MonthYearPayment4Month> = listOf(),
+    val newAccountsPerMonth: List<Pair<MonthYear, Int>> = listOf(),
     val timeline: List<PaymentWithAccountAndMethodWithGatewayUiModel>,
   ) : CompanyHomeState
 }
