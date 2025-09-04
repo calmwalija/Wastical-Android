@@ -1,5 +1,6 @@
 package net.techandgraphics.wastical.ui.screen.auth.phone.verify
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -30,11 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +67,7 @@ fun VerifyPhoneScreen(
 ) {
 
   val context = LocalContext.current
+  val hapticFeedback = LocalHapticFeedback.current
   var isProcessing by remember { mutableStateOf(false) }
 
   val textFieldDefaults = TextFieldDefaults.colors(
@@ -93,82 +100,88 @@ fun VerifyPhoneScreen(
       contentPadding = contentPadding,
       modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = 32.dp),
+        .padding(horizontal = 24.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center
     ) {
       item {
         Icon(
-          painter = painterResource(R.drawable.ic_tag),
+          painter = painterResource(R.drawable.ic_logo),
           contentDescription = null,
           modifier = Modifier
             .fillMaxWidth()
             .padding(32.dp)
-            .size(82.dp),
-          tint = MaterialTheme.colorScheme.secondary,
+            .size(102.dp),
+          tint = MaterialTheme.colorScheme.primary,
         )
       }
 
       item {
         Text(
-          text = "Verify Your Number",
+          text = "Welcome",
           fontWeight = FontWeight.Bold,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
-          style = MaterialTheme.typography.titleLarge,
-          modifier = Modifier
-            .padding(bottom = 8.dp)
-            .fillMaxWidth(),
+          style = MaterialTheme.typography.headlineMedium,
+          modifier = Modifier.fillMaxWidth(),
           textAlign = TextAlign.Center,
-          color = MaterialTheme.colorScheme.primary
         )
       }
 
+      item { Spacer(modifier = Modifier.height(4.dp)) }
 
       item {
         Text(
-          text = buildAnnotatedString {
-            append("Enter your phone number and we will send you a ")
-            withStyle(
-              SpanStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize
-              )
-            ) {
-              append("One Time Password (OTP)")
-            }
-            append(". Use the four digit code to verify your account.")
-
-          },
-          style = MaterialTheme.typography.bodyMedium,
+          text = "Let's get you verified. It's quick & easy",
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
           modifier = Modifier.fillMaxWidth(),
-          textAlign = TextAlign.Center
+          textAlign = TextAlign.Center,
         )
       }
 
       item { Spacer(modifier = Modifier.height(32.dp)) }
 
       item {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+          text = "Enter your phone number",
+          modifier = Modifier.fillMaxWidth(),
+          style = MaterialTheme.typography.labelMedium
+        )
+      }
+
+      item { Spacer(modifier = Modifier.height(8.dp)) }
+
+
+      item {
+        Column(modifier = Modifier) {
           var lSize by remember { mutableIntStateOf(0) }
           LaunchedEffect(state.contact) {
             lSize = state.contact.length
+            if (state.contact.length > 9) hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
           }
           TextField(
+            leadingIcon = {
+              Icon(Icons.Rounded.Phone, null)
+            },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(text = "type phone number") },
-            shape = RoundedCornerShape(24),
+            placeholder = { Text(text = "e.g., 999001122") },
+            shape = RoundedCornerShape(8),
             maxLines = 1,
             value = state.contact,
             onValueChange = { newValue ->
               if (newValue.length < 11) onEvent(VerifyPhoneEvent.Input.Phone(newValue))
             },
             colors = textFieldDefaults,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(
+              keyboardType = KeyboardType.Number,
+              imeAction = ImeAction.Done
+            ),
             trailingIcon = {
               Text(
                 text = "$lSize/10",
                 style = MaterialTheme.typography.bodySmall,
+                color = if (lSize < 10) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(end = 24.dp, start = 8.dp)
               )
             },
@@ -180,22 +193,67 @@ fun VerifyPhoneScreen(
 
       item {
         Button(
-          enabled = state.contact.isDigitsOnly() && state.contact.length > 8 && isProcessing.not(),
-          modifier = Modifier.fillMaxWidth(.7f),
-          onClick = { onEvent(VerifyPhoneEvent.Button.Verify); isProcessing = true }
+          enabled = isProcessing.not(),
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(8),
+          onClick = {
+            if (state.contact.isDigitsOnly().not() || state.contact.length < 9) {
+              context.toast("Please enter a valid phone number")
+              hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+              return@Button
+            }
+            onEvent(VerifyPhoneEvent.Button.Verify)
+            isProcessing = true
+          },
         ) {
-          Box {
+          Box(modifier = Modifier.padding(vertical = 8.dp)) {
             if (isProcessing) CircularProgressIndicator(
               modifier = Modifier.size(24.dp),
               color = MaterialTheme.colorScheme.secondary
             ) else {
-              Text(text = "Verify")
+              Text(
+                text = "Send Verification Code",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
             }
           }
         }
       }
 
-      item { Spacer(modifier = Modifier.fillParentMaxHeight(.3f)) }
+      item { Spacer(modifier = Modifier.height(32.dp)) }
+
+      item {
+        Text(
+          text = buildAnnotatedString {
+            append("By continuing, you agree to our ")
+            withStyle(
+              SpanStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                color = MaterialTheme.colorScheme.primary
+              )
+            ) {
+              append("Terms of Service")
+            }
+            append("  and  ")
+            withStyle(
+              SpanStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                color = MaterialTheme.colorScheme.primary
+              )
+            ) {
+              append("Privacy Policy")
+            }
+          },
+          style = MaterialTheme.typography.bodyMedium,
+          modifier = Modifier.fillMaxWidth(),
+          textAlign = TextAlign.Center
+        )
+      }
+
+      item { Spacer(modifier = Modifier.fillParentMaxHeight(.2f)) }
 
     }
   }
@@ -203,7 +261,10 @@ fun VerifyPhoneScreen(
 
 }
 
-@Preview(showBackground = true)
+@Preview(
+  showBackground = true,
+  uiMode = Configuration.UI_MODE_NIGHT_NO
+)
 @Composable
 private fun VerifyPhoneScreenPreview() {
   WasticalTheme {
