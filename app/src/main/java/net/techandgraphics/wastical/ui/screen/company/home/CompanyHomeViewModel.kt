@@ -29,8 +29,6 @@ import net.techandgraphics.wastical.data.local.database.notification.template.No
 import net.techandgraphics.wastical.data.local.database.relations.toEntity
 import net.techandgraphics.wastical.data.remote.mapApiError
 import net.techandgraphics.wastical.data.remote.payment.PaymentStatus
-import net.techandgraphics.wastical.data.remote.toAccountPaymentPlanResponse
-import net.techandgraphics.wastical.data.remote.toPaymentResponse
 import net.techandgraphics.wastical.domain.toAccountRequestUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
@@ -39,14 +37,12 @@ import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGate
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
-import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.notification.NotificationType
 import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
 import net.techandgraphics.wastical.worker.company.payment.scheduleCompanyPaymentRequestWorker
-import net.techandgraphics.wastical.write
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -96,25 +92,6 @@ import javax.inject.Inject
     val simpleDateFormat = SimpleDateFormat(patten, Locale.getDefault())
     val currentTimeMillis = Date(timestamp)
     return simpleDateFormat.format(currentTimeMillis)
-  }
-
-  private fun onExportMetadata() = viewModelScope.launch(Dispatchers.IO) {
-    if (_state.value is CompanyHomeState.Success) {
-      val state = (_state.value as CompanyHomeState.Success)
-      val currentTimeMillis = System.currentTimeMillis()
-      val fileName = "${state.company.name}-BackUp-${dateFormat(currentTimeMillis)}.json"
-      val payments = database.paymentRequestDao.query().map { it.toPaymentResponse() }
-      val plans =
-        database.accountPaymentPlanRequestDao.query().map { it.toAccountPaymentPlanResponse() }
-      val toExportData = CompanyMetaData(
-        payments = payments,
-        plans = plans,
-      )
-      val hashable = currentTimeMillis.hash(toExportData.toHash())
-      val jsonToExport = Gson().toJson(toExportData.copy(hashable = hashable))
-      val file = application.write(jsonToExport, fileName)
-      _channel.send(CompanyHomeChannel.Export(file))
-    }
   }
 
   private fun onLoad() = viewModelScope.launch(Dispatchers.IO) {

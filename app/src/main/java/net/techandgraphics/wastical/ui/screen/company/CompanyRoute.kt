@@ -43,6 +43,4 @@ interface CompanyRoute {
   @Serializable data class ClientCreate(val locationId: Long) : CompanyRoute
 
   @Serializable data object Notifications : CompanyRoute
-
-  @Serializable data object Expenses : CompanyRoute
 }
