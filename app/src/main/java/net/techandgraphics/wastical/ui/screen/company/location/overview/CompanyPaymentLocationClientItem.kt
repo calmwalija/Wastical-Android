@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.remote.account.HttpOperation
 import net.techandgraphics.wastical.domain.model.account.AccountRequestUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountWithPaymentStatusUiModel
@@ -73,36 +71,20 @@ fun CompanyPaymentLocationClientItem(
 
       val ifPaidColor = if (entity.hasPaid || entity.offlinePay) Green else Color.Red
 
-      Box(contentAlignment = Alignment.BottomEnd) {
-        CompanyListClientLetterView(account.lastname)
-        Card(
-          shape = CircleShape,
+      Box(contentAlignment = Alignment.Center) {
+        Box(
           modifier = Modifier
-            .offset(y = -(2).dp)
-            .size(20.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = Color.White
-          ),
-          elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 1.dp
-          ),
-        ) {
-          Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-          ) {
-            when {
-              entity.hasPaid -> R.drawable.ic_check
-              else -> if (entity.offlinePay) R.drawable.ic_upload_ready else R.drawable.ic_close
-            }.also {
-              Icon(
-                painterResource(it),
-                contentDescription = null,
-                tint = ifPaidColor,
-              )
-            }
-          }
-        }
+            .clip(CircleShape)
+            .size(46.dp)
+            .background(MaterialTheme.colorScheme.primary.copy(.1f))
+        )
+        Box(
+          modifier = Modifier
+            .clip(CircleShape)
+            .size(54.dp)
+            .background(ifPaidColor.copy(alpha = .15f))
+        )
+        CompanyListClientLetterView(account.lastname)
       }
 
       Column(
@@ -124,17 +106,37 @@ fun CompanyPaymentLocationClientItem(
         )
       }
 
-      Text(
-        text = entity.amount.toAmount(),
-        style = MaterialTheme.typography.bodySmall,
-        maxLines = 1,
-        overflow = TextOverflow.MiddleEllipsis,
-      )
+      Column(horizontalAlignment = Alignment.End) {
+        Text(
+          text = entity.amount.toAmount(),
+          style = MaterialTheme.typography.bodySmall,
+          maxLines = 1,
+          overflow = TextOverflow.MiddleEllipsis,
+        )
+        Text(
+          text = when {
+            entity.hasPaid -> "Paid"
+            entity.offlinePay -> "Offline pending"
+            else -> "Unpaid"
+          },
+          style = MaterialTheme.typography.labelSmall,
+          color = ifPaidColor,
+        )
+      }
 
       Spacer(modifier = Modifier.width(16.dp))
 
       IconButton(
-        modifier = Modifier.alpha(if (newAccount) 0f else 1f),
+        modifier = Modifier
+          .alpha(if (newAccount) .4f else 1f)
+          .semantics {
+            contentDescription = when {
+              newAccount -> "Awaiting provisioning"
+              entity.hasPaid -> "View payment"
+              entity.offlinePay -> "Submit offline payment"
+              else -> "Record payment"
+            }
+          },
         enabled = newAccount.not(),
         onClick = { onEvent(CompanyPaymentLocationOverviewEvent.Goto.RecordProofOfPayment(account.id)) },
         colors = IconButtonDefaults.iconButtonColors(containerColor = ifPaidColor.copy(.1f)),

@@ -41,6 +41,7 @@ import net.techandgraphics.wastical.getReference
 import net.techandgraphics.wastical.getToday
 import net.techandgraphics.wastical.hash
 import net.techandgraphics.wastical.notification.NotificationType
+import net.techandgraphics.wastical.toZonedDateTime
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.worker.company.account.scheduleCompanyAccountRequestWorker
 import net.techandgraphics.wastical.worker.company.notification.scheduleCompanyNotificationRequestWorker
@@ -165,17 +166,26 @@ import javax.inject.Inject
         }.sortedWith(
           compareByDescending<MonthYearPayment4Month> { it.monthYear.year }.thenByDescending { it.monthYear.month },
         )
+        val unpaidPerStreet = database.streetIndicatorDao.getUnpaidAccountsPerStreet()
+        val accounts = database.accountDao.query()
+        val newAccountsPerMonth = accounts
+          .map { it.createdAt.toZonedDateTime().toLocalDate() }
+          .groupBy { MonthYear(it.month.value, it.year) }
+          .map { it.key to it.value.size }
+          .sortedWith(compareBy<Pair<MonthYear, Int>>({ it.first.year }, { it.first.month }))
         _state.value = CompanyHomeState.Success(
           payment4CurrentMonth = allMonthsPayments.first { it.monthYear == monthYear }.payment4CurrentMonth,
           proofOfPayments = proofOfPayments,
           accountsSize = accountsSize,
           payment4CurrentLocationMonth = payment4CurrentLocationMonth,
+          unpaidPerStreet = unpaidPerStreet,
           company = company,
           account = account,
           companyContact = companyContact,
           expectedAmountToCollect = expectedAmountToCollect,
           paymentPlanAgainstAccounts = paymentPlanAgainstAccounts,
           allMonthsPayments = allMonthsPayments,
+          newAccountsPerMonth = newAccountsPerMonth,
           monthYear = monthYear,
           timeline = theTimeline,
           upfrontPayments = upfrontPayments,
