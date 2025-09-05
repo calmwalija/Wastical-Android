@@ -84,12 +84,27 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             overflow = TextOverflow.Ellipsis
           )
           Text(
-            text = "${gateway.name} • $months month${if (months == 1) "" else "s"}",
+            text = gateway.name,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
+          Row {
+            Text(
+              text = plan.fee.times(months).toAmount(),
+              style = MaterialTheme.typography.titleSmall,
+              color = MaterialTheme.colorScheme.primary,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+            Text(
+              text = " • $months month${if (months == 1) "" else "s"}",
+              style = MaterialTheme.typography.titleSmall,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+          }
           Text(
             text = payment.createdAt.toZonedDateTime().defaultDateTime(),
             style = MaterialTheme.typography.bodyMedium,
@@ -98,13 +113,6 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
             overflow = TextOverflow.Ellipsis
           )
         }
-        Text(
-          text = plan.fee.times(months).toAmount(),
-          style = MaterialTheme.typography.titleSmall,
-          color = MaterialTheme.colorScheme.primary,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis
-        )
       }
 
       Spacer(modifier = Modifier.height(16.dp))
