@@ -12,8 +12,8 @@ import androidx.core.text.isDigitsOnly
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
 import net.techandgraphics.wastical.getAccountTitle
 import net.techandgraphics.wastical.toShortMonthName
-import net.techandgraphics.wastical.ui.screen.client.invoice.bold
-import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.client.receipt.bold
+import net.techandgraphics.wastical.ui.screen.client.receipt.light
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

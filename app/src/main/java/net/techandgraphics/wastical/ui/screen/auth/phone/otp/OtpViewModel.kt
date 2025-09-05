@@ -22,7 +22,6 @@ import net.techandgraphics.wastical.data.local.database.toAccountEntity
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.ui.screen.auth.phone.load.LoginState
-import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedPeriodicWorker
@@ -70,7 +69,6 @@ class OtpViewModel @Inject constructor(
       val newAccount = (_state.value as OtpState.Success).account
       if (newAccount.role == AccountRole.Client.name) {
         application.scheduleClientPaymentDueReminderWorker()
-        application.scheduleClientBinCollectionReminderWorker()
       }
       application.scheduleAccountLastUpdatedPeriodicWorker()
       onFcmToken()

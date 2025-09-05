@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.company.client.invoice
+package net.techandgraphics.wastical.ui.screen.company.client.receipt
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -24,34 +24,34 @@ import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithMonthsCoveredUiModel
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
-import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
-import net.techandgraphics.wastical.ui.screen.company.client.invoice.CompanyPaymentInvoiceEvent.Button
-import net.techandgraphics.wastical.ui.screen.company.client.invoice.CompanyPaymentInvoiceEvent.Load
+import net.techandgraphics.wastical.ui.receipt.pdf.receiptToPdf
+import net.techandgraphics.wastical.ui.screen.company.client.receipt.CompanyPaymentReceiptEvent.Button
+import net.techandgraphics.wastical.ui.screen.company.client.receipt.CompanyPaymentReceiptEvent.Load
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class CompanyPaymentInvoiceViewModel @Inject constructor(
+class CompanyPaymentReceiptViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
 ) : ViewModel() {
 
   private val _state =
-    MutableStateFlow<CompanyPaymentInvoiceState>(CompanyPaymentInvoiceState.Loading)
+    MutableStateFlow<CompanyPaymentReceiptState>(CompanyPaymentReceiptState.Loading)
   val state = _state.asStateFlow()
 
-  private fun getState() = (_state.value as CompanyPaymentInvoiceState.Success)
+  private fun getState() = (_state.value as CompanyPaymentReceiptState.Success)
 
   private fun onLoad(event: Load) =
     viewModelScope.launch {
-      _state.value = CompanyPaymentInvoiceState.Loading
+      _state.value = CompanyPaymentReceiptState.Loading
       val account = database.accountDao.get(event.id).toAccountUiModel()
       val accountPlan = database.accountPaymentPlanDao.getByAccountId(account.id)
       val company = database.companyDao.query().first().toCompanyUiModel()
       val plan = database.paymentPlanDao.get(accountPlan.paymentPlanId).toPaymentPlanUiModel()
       val demographic = database.companyLocationDao.getWithDemographic(account.companyLocationId)
         .toCompanyLocationWithDemographicUiModel()
-      _state.value = CompanyPaymentInvoiceState.Success(
+      _state.value = CompanyPaymentReceiptState.Success(
         company = company,
         account = account,
         plan = plan,
@@ -71,7 +71,7 @@ class CompanyPaymentInvoiceViewModel @Inject constructor(
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
-      with(_state.value as CompanyPaymentInvoiceState.Success) {
+      with(_state.value as CompanyPaymentReceiptState.Success) {
         val accountContact = database.accountContactDao.getByAccountId(account.id)
           .map { it.toAccountContactUiModel() }
           .first()
@@ -93,7 +93,7 @@ class CompanyPaymentInvoiceViewModel @Inject constructor(
           .getByPaymentId(payment.id)
           .map { it.toPaymentMonthCoveredUiModel() }
 
-        invoiceToPdf(
+        receiptToPdf(
           context = application,
           account = account,
           accountContact = accountContact,
@@ -105,6 +105,8 @@ class CompanyPaymentInvoiceViewModel @Inject constructor(
           onEvent = onEvent,
           paymentGateway = paymentGateway,
           paymentMonthCovered = paymentMonthCovered,
+          demographicStreet = demographic.demographicStreet,
+          demographicArea = demographic.demographicArea,
         )
       }
     }
@@ -118,7 +120,7 @@ class CompanyPaymentInvoiceViewModel @Inject constructor(
     }
   }
 
-  fun onEvent(event: CompanyPaymentInvoiceEvent) {
+  fun onEvent(event: CompanyPaymentReceiptEvent) {
     when (event) {
       is Load -> onLoad(event)
       is Button.Invoice.Event -> onEventInvoice(event)

@@ -44,7 +44,7 @@ import net.techandgraphics.wastical.toMonthName
 import net.techandgraphics.wastical.toPhone265
 import net.techandgraphics.wastical.toShortMonthName
 import net.techandgraphics.wastical.toZonedDateTime
-import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.client.receipt.light
 import net.techandgraphics.wastical.ui.screen.company.report.BaseExportKlass.Companion.PDF_TEXT_SIZE
 import java.io.File
 import java.time.YearMonth

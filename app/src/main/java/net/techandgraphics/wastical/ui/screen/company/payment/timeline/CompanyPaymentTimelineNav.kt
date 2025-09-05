@@ -19,7 +19,7 @@ fun NavGraphBuilder.CompanyPaymentTimelineNav(navController: NavHostController) 
         when (event) {
           CompanyPaymentTimelineEvent.Button.BackHandler -> navController.navigateUp()
           is CompanyPaymentTimelineEvent.Goto.Invoice ->
-            navController.navigate(CompanyRoute.PaymentInvoice(event.id))
+            navController.navigate(CompanyRoute.PaymentReceipt(event.id))
 
           else -> onEvent(event)
         }

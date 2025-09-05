@@ -1,9 +1,9 @@
-package net.techandgraphics.wastical.ui.invoice.pdf
+package net.techandgraphics.wastical.ui.receipt.pdf
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import net.techandgraphics.wastical.ui.invoice.canvas.CanvasAxis
+import net.techandgraphics.wastical.ui.receipt.canvas.CanvasAxis
 
 fun Canvas.pdfBgSentence(
   theSentence: String,

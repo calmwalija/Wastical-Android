@@ -1,6 +1,6 @@
 @file:Suppress("FunctionName")
 
-package net.techandgraphics.wastical.ui.screen.company.client.invoice
+package net.techandgraphics.wastical.ui.screen.company.client.receipt
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,18 +13,18 @@ import androidx.navigation.toRoute
 import net.techandgraphics.wastical.openDialer
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
 
-fun NavGraphBuilder.CompanyPaymentInvoiceNav(navController: NavHostController) {
-  composable<CompanyRoute.PaymentInvoice> {
-    with(hiltViewModel<CompanyPaymentInvoiceViewModel>()) {
-      val id = it.toRoute<CompanyRoute.PaymentInvoice>().id
+fun NavGraphBuilder.CompanyPaymentReceiptNav(navController: NavHostController) {
+  composable<CompanyRoute.PaymentReceipt> {
+    with(hiltViewModel<CompanyPaymentReceiptViewModel>()) {
+      val id = it.toRoute<CompanyRoute.PaymentReceipt>().id
       val state = state.collectAsState().value
       val context = LocalContext.current
-      LaunchedEffect(id) { onEvent(CompanyPaymentInvoiceEvent.Load(id)) }
-      CompanyPaymentInvoiceScreen(state) { event ->
+      LaunchedEffect(id) { onEvent(CompanyPaymentReceiptEvent.Load(id)) }
+      CompanyPaymentReceiptScreen(state) { event ->
         when (event) {
-          is CompanyPaymentInvoiceEvent.Button.Phone -> context.openDialer(event.contact)
-          CompanyPaymentInvoiceEvent.Goto.BackHandler -> navController.navigateUp()
-          is CompanyPaymentInvoiceEvent.Goto.Location -> {
+          is CompanyPaymentReceiptEvent.Button.Phone -> context.openDialer(event.contact)
+          CompanyPaymentReceiptEvent.Goto.BackHandler -> navController.navigateUp()
+          is CompanyPaymentReceiptEvent.Goto.Location -> {
             navController.navigate(CompanyRoute.LocationOverview(event.id)) {
               popUpTo(navController.graph.startDestinationId) {
                 inclusive = false

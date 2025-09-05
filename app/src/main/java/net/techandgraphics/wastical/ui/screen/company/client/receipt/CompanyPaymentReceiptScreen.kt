@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.company.client.invoice
+package net.techandgraphics.wastical.ui.screen.company.client.receipt
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -25,19 +25,19 @@ import net.techandgraphics.wastical.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Composable
-fun CompanyPaymentInvoiceScreen(
-  state: CompanyPaymentInvoiceState,
-  onEvent: (CompanyPaymentInvoiceEvent) -> Unit,
+fun CompanyPaymentReceiptScreen(
+  state: CompanyPaymentReceiptState,
+  onEvent: (CompanyPaymentReceiptEvent) -> Unit,
 ) {
 
   when (state) {
-    CompanyPaymentInvoiceState.Loading -> LoadingIndicatorView()
-    is CompanyPaymentInvoiceState.Success ->
+    CompanyPaymentReceiptState.Loading -> LoadingIndicatorView()
+    is CompanyPaymentReceiptState.Success ->
 
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent(CompanyPaymentInvoiceEvent.Goto.BackHandler)
+            onEvent(CompanyPaymentReceiptEvent.Goto.BackHandler)
           }
         },
       ) {
@@ -47,7 +47,7 @@ fun CompanyPaymentInvoiceScreen(
         ) {
           item {
             Text(
-              text = "Payment Invoice",
+              text = "Payment Receipts",
               style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier.padding(bottom = 32.dp)
             )
@@ -57,10 +57,10 @@ fun CompanyPaymentInvoiceScreen(
             AccountInfoView(state.account, state.demographic) { event ->
               when (event) {
                 is AccountInfoEvent.Location ->
-                  onEvent(CompanyPaymentInvoiceEvent.Goto.Location(event.id))
+                  onEvent(CompanyPaymentReceiptEvent.Goto.Location(event.id))
 
                 is AccountInfoEvent.Phone ->
-                  onEvent(CompanyPaymentInvoiceEvent.Button.Phone(event.contact))
+                  onEvent(CompanyPaymentReceiptEvent.Button.Phone(event.contact))
               }
             }
           }
@@ -69,7 +69,7 @@ fun CompanyPaymentInvoiceScreen(
 
           items(state.payments) { payment ->
             if (payment.payment.status == PaymentStatus.Approved)
-              CompanyPaymentInvoiceItem(payment, state.plan, onEvent)
+              CompanyPaymentReceiptItem(payment, state.plan, onEvent)
           }
         }
       }
@@ -81,10 +81,10 @@ fun CompanyPaymentInvoiceScreen(
 
 @Preview
 @Composable
-private fun CompanyPaymentInvoiceScreenPreview() {
+private fun CompanyPaymentReceiptScreenPreview() {
   WasticalTheme {
-    CompanyPaymentInvoiceScreen(
-      state = CompanyPaymentInvoiceState.Success(
+    CompanyPaymentReceiptScreen(
+      state = CompanyPaymentReceiptState.Success(
         company = company4Preview,
         account = account4Preview,
         plan = paymentPlan4Preview,

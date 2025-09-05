@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice
+package net.techandgraphics.wastical.ui.screen.client.receipt
 
 import android.content.Context
 import android.graphics.Typeface

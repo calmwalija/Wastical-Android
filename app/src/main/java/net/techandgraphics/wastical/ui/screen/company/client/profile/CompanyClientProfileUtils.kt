@@ -11,7 +11,7 @@ data class ProfileItem(
 
 val billingItems = listOf(
   ProfileItem(
-    title = "Payment Invoice",
+    title = "Payment Receipt",
     drawableRes = R.drawable.ic_invoice,
     event = CompanyClientProfileEvent.Option.Invoice,
   ),

@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.invoice.pdf
+package net.techandgraphics.wastical.ui.receipt.pdf
 
 import android.graphics.Canvas
 import android.graphics.Paint

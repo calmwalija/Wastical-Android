@@ -7,11 +7,6 @@ sealed interface CompanyPaymentHistoryEvent {
   data class Load(val id: Long) : CompanyPaymentHistoryEvent
 
   sealed interface Button : CompanyPaymentHistoryEvent {
-    sealed interface Invoice : Button {
-      data class Event(val payment: PaymentUiModel, val op: Op) : Invoice
-      enum class Op { Preview, Share }
-    }
-
     data class Delete(val id: Long) : Button
     data class Phone(val contact: String) : Button
   }

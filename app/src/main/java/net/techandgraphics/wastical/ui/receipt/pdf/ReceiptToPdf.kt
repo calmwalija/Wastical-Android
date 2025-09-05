@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.invoice.pdf
+package net.techandgraphics.wastical.ui.receipt.pdf
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -18,6 +18,8 @@ import net.techandgraphics.wastical.domain.model.account.AccountContactUiModel
 import net.techandgraphics.wastical.domain.model.account.AccountUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyContactUiModel
 import net.techandgraphics.wastical.domain.model.company.CompanyUiModel
+import net.techandgraphics.wastical.domain.model.demographic.DemographicAreaUiModel
+import net.techandgraphics.wastical.domain.model.demographic.DemographicStreetUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentGatewayUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentMethodUiModel
 import net.techandgraphics.wastical.domain.model.payment.PaymentMonthCoveredUiModel
@@ -29,9 +31,9 @@ import net.techandgraphics.wastical.toFullName
 import net.techandgraphics.wastical.toMonthName
 import net.techandgraphics.wastical.toPhoneFormat
 import net.techandgraphics.wastical.toZonedDateTime
-import net.techandgraphics.wastical.ui.screen.client.invoice.bold
-import net.techandgraphics.wastical.ui.screen.client.invoice.extraBold
-import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.client.receipt.bold
+import net.techandgraphics.wastical.ui.screen.client.receipt.extraBold
+import net.techandgraphics.wastical.ui.screen.client.receipt.light
 import net.techandgraphics.wastical.ui.theme.Orange
 import java.io.File
 import java.io.FileOutputStream
@@ -53,23 +55,23 @@ private fun tableData(
 private fun Context.drawWatermark(canvas: Canvas, pageWidth: Int, pageHeight: Int, text: String) {
   val watermarkPaint = Paint().apply {
     color = "#97808080".toColorInt()
-    textSize = 532f
+    textSize = 132f
     typeface = extraBold(this@drawWatermark)
     textAlign = Paint.Align.CENTER
-    alpha = 24
+    alpha = 16
   }
 
   canvas.withRotation(-45f, pageWidth / 2f, pageHeight / 2f) {
     drawText(
       text,
       pageWidth / 2f,
-      pageHeight / 1.6f,
+      pageHeight / 2f,
       watermarkPaint,
     )
   }
 }
 
-fun invoiceToPdf(
+fun receiptToPdf(
   context: Context,
   company: CompanyUiModel,
   companyContact: CompanyContactUiModel,
@@ -80,6 +82,8 @@ fun invoiceToPdf(
   paymentMethod: PaymentMethodUiModel,
   paymentGateway: PaymentGatewayUiModel,
   paymentMonthCovered: List<PaymentMonthCoveredUiModel> = listOf(),
+  demographicStreet: DemographicStreetUiModel,
+  demographicArea: DemographicAreaUiModel,
   onEvent: (File?) -> Unit,
 ) {
   val pdfDocument = PdfDocument()
@@ -100,13 +104,13 @@ fun invoiceToPdf(
   val pdfPage = pdfDocument.startPage(pdfPageInfo)
 
   with(pdfPage.canvas) {
-    var xAxis = 90f // Vertical
+    val xAxis = 90f // Vertical
     var yAxis = 160f // Horizontal
 
-    var holdXAxis = 0f
-    var holdYAxis = 0f
+    var holdXAxis: Float
+    var holdYAxis: Float
 
-    context.drawWatermark(this, pdfWidthPx, pdfHeightPx, "PAID")
+    context.drawWatermark(this, pdfWidthPx, pdfHeightPx, company.name)
 
     ContextCompat.getDrawable(context, R.drawable.im_cs_logo)?.let { logo ->
       val logoWidth = 240
@@ -120,7 +124,7 @@ fun invoiceToPdf(
     /***************************************************************/
 
     pdfHeadingView(
-      theHeading = "Invoice".uppercase(),
+      theHeading = "Receipt".uppercase(),
       yAxis = yAxis,
       xAxis = xAxis,
       paint = textSize72.also {
@@ -177,7 +181,7 @@ fun invoiceToPdf(
 
     /***************************************************************/
     pdfHeadingView(
-      theHeading = "Invoice #",
+      theHeading = "Receipt #",
       yAxis = yAxis,
       xAxis = xAxis,
       paint = textSize42.also {
@@ -188,7 +192,7 @@ fun invoiceToPdf(
     /***************************************************************/
 
     pdfSentence(
-      theSentence = "INV-${account.id.times(5983)}-${payment.createdAt}",
+      theSentence = "Rcpt-${account.id.times(5983)}-${payment.createdAt}",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -252,6 +256,16 @@ fun invoiceToPdf(
       }
     /***************************************************************/
 
+    yAxis = yAxis.plus(textSize72.textSize.minus(20))
+
+    pdfSentence(
+      theSentence = "Location : ${demographicArea.name}, ${demographicStreet.name}",
+      xAxis = xAxis,
+      yAxis = yAxis,
+      paint = textSize32.also { it.typeface = light(context) },
+    )
+    /***************************************************************/
+
     yAxis = yAxis.plus(textSize72.textSize.times(1.7f))
 
     /***************************************************************/
@@ -301,7 +315,6 @@ fun invoiceToPdf(
     yAxis = yAxis.plus(textSize72.textSize.plus(40))
 
     holdXAxis = xAxis
-    holdYAxis = yAxis
 
     val tableHead = listOf("#", "Description", "Qty", "Rate", "Amount")
 
@@ -394,7 +407,7 @@ fun invoiceToPdf(
     val totalAmount = paymentPlan.fee.times(paymentMonthCovered.size)
 
     pdfSentence(
-      theSentence = "Amount in words: ${(totalAmount).toEnglishWords()} only",
+      theSentence = "Amount in words: ${(totalAmount).toEnglishWords()} kwacha only",
       xAxis = xAxis,
       yAxis = yAxis,
       paint = textSize32.also { it.typeface = light(context) },
@@ -446,7 +459,7 @@ private fun PdfDocument.saveToInternal(
   payment: PaymentUiModel,
   account: AccountUiModel,
 ): File? {
-  val pdfFile = File(context.filesDir, "INV-${account.id.times(5983)}-${payment.createdAt}.pdf")
+  val pdfFile = File(context.filesDir, "Rcpt-${account.id.times(5983)}-${payment.createdAt}.pdf")
   return try {
     val fileOutputStream = FileOutputStream(pdfFile)
     writeTo(fileOutputStream)

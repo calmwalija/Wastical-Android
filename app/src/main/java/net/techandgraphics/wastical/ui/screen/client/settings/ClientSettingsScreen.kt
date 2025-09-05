@@ -227,7 +227,7 @@ fun ClientSettingsScreen(
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                   Text(text = "Location")
                   Text(
-                    text = "${state.streetName}, ${state.areaName}",
+                    text = "${state.areaName}, ${state.streetName}",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

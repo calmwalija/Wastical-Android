@@ -1,12 +1,12 @@
-package net.techandgraphics.wastical.ui.screen.company.client.invoice
+package net.techandgraphics.wastical.ui.screen.company.client.receipt
 
 import net.techandgraphics.wastical.domain.model.payment.PaymentUiModel
 
-sealed interface CompanyPaymentInvoiceEvent {
+sealed interface CompanyPaymentReceiptEvent {
 
-  data class Load(val id: Long) : CompanyPaymentInvoiceEvent
+  data class Load(val id: Long) : CompanyPaymentReceiptEvent
 
-  sealed interface Button : CompanyPaymentInvoiceEvent {
+  sealed interface Button : CompanyPaymentReceiptEvent {
     sealed interface Invoice : Button {
       data class Event(val payment: PaymentUiModel, val op: Op) : Invoice
       enum class Op { Preview, Share }
@@ -15,7 +15,7 @@ sealed interface CompanyPaymentInvoiceEvent {
     data class Phone(val contact: String) : Button
   }
 
-  sealed interface Goto : CompanyPaymentInvoiceEvent {
+  sealed interface Goto : CompanyPaymentReceiptEvent {
     data object BackHandler : Goto
     data class Location(val id: Long) : Goto
   }

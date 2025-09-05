@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice
+package net.techandgraphics.wastical.ui.screen.client.receipt
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -20,6 +20,8 @@ import net.techandgraphics.wastical.domain.toAccountContactUiModel
 import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
+import net.techandgraphics.wastical.domain.toDemographicAreaUiModel
+import net.techandgraphics.wastical.domain.toDemographicStreetUiModel
 import net.techandgraphics.wastical.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodWithGatewayAndPlanUiModel
@@ -28,23 +30,23 @@ import net.techandgraphics.wastical.domain.toPaymentPlanUiModel
 import net.techandgraphics.wastical.domain.toPaymentWithAccountAndMethodWithGatewayUiModel
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
-import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
+import net.techandgraphics.wastical.ui.receipt.pdf.receiptToPdf
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class ClientInvoiceViewModel @Inject constructor(
+class ClientReceiptViewModel @Inject constructor(
   private val database: AppDatabase,
   private val application: Application,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow<ClientInvoiceState>(ClientInvoiceState.Loading)
+  private val _state = MutableStateFlow<ClientReceiptState>(ClientReceiptState.Loading)
   val state = _state.asStateFlow()
 
-  private val _channel = Channel<ClientInvoiceChannel>()
+  private val _channel = Channel<ClientReceiptChannel>()
   val channel = _channel.receiveAsFlow()
 
-  private fun onLoad(event: ClientInvoiceEvent.Load) = viewModelScope.launch {
+  private fun onLoad(event: ClientReceiptEvent.Load) = viewModelScope.launch {
     database.accountDao.flowById(event.id)
       .mapNotNull { it?.toAccountUiModel() }
       .collectLatest { account ->
@@ -69,7 +71,7 @@ class ClientInvoiceViewModel @Inject constructor(
             }
           }
           .collectLatest { invoices ->
-            _state.value = ClientInvoiceState.Success(
+            _state.value = ClientReceiptState.Success(
               invoices = invoices,
               company = company,
               account = account,
@@ -84,15 +86,20 @@ class ClientInvoiceViewModel @Inject constructor(
 
   private fun onInvoiceToPdf(payment: PaymentUiModel, onEvent: (File?) -> Unit) =
     viewModelScope.launch {
-      if (_state.value is ClientInvoiceState.Success) {
-        val state = (_state.value as ClientInvoiceState.Success)
+      if (_state.value is ClientReceiptState.Success) {
+        val state = (_state.value as ClientReceiptState.Success)
         val paymentMethod = database.paymentMethodDao.get(payment.paymentMethodId)
           .toPaymentMethodUiModel()
         val paymentGateway = database.paymentGatewayDao.get(paymentMethod.paymentGatewayId)
           .toPaymentGatewayUiModel()
         val paymentMonthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
           .map { it.toPaymentMonthCoveredUiModel() }
-        invoiceToPdf(
+        val companyLocation = database.companyLocationDao.getByCompanyId(state.company.id)
+        val demographicArea = database.demographicAreaDao.get(companyLocation.demographicAreaId)
+          .toDemographicAreaUiModel()
+        val demographicStreet = database.demographicStreetDao.get(companyLocation.demographicStreetId)
+          .toDemographicStreetUiModel()
+        receiptToPdf(
           context = application,
           account = state.account,
           accountContact = state.accountContacts.first { it.primary },
@@ -104,27 +111,29 @@ class ClientInvoiceViewModel @Inject constructor(
           onEvent = onEvent,
           paymentGateway = paymentGateway,
           paymentMonthCovered = paymentMonthCovered,
+          demographicStreet = demographicStreet,
+          demographicArea = demographicArea,
         )
       }
     }
 
-  private fun onPaymentShare(event: ClientInvoiceEvent.Button.Share) {
+  private fun onPaymentShare(event: ClientReceiptEvent.Button.Share) {
     onInvoiceToPdf(event.payment) { file ->
       file?.share(application)
     }
   }
 
-  private fun onInvoice(event: ClientInvoiceEvent.Button.Invoice) {
+  private fun onInvoice(event: ClientReceiptEvent.Button.Invoice) {
     onInvoiceToPdf(event.payment) { file ->
       file?.preview(application)
     }
   }
 
-  fun onEvent(event: ClientInvoiceEvent) {
+  fun onEvent(event: ClientReceiptEvent) {
     when (event) {
-      is ClientInvoiceEvent.Load -> onLoad(event)
-      is ClientInvoiceEvent.Button.Share -> onPaymentShare(event)
-      is ClientInvoiceEvent.Button.Invoice -> onInvoice(event)
+      is ClientReceiptEvent.Load -> onLoad(event)
+      is ClientReceiptEvent.Button.Share -> onPaymentShare(event)
+      is ClientReceiptEvent.Button.Invoice -> onInvoice(event)
 
       else -> Unit
     }

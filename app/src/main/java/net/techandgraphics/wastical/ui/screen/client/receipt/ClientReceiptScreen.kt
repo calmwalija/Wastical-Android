@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice
+package net.techandgraphics.wastical.ui.screen.client.receipt
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,20 +24,20 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClientInvoiceScreen(
-  state: ClientInvoiceState,
-  channel: Flow<ClientInvoiceChannel>,
-  onEvent: (ClientInvoiceEvent) -> Unit,
+fun ClientReceiptScreen(
+  state: ClientReceiptState,
+  channel: Flow<ClientReceiptChannel>,
+  onEvent: (ClientReceiptEvent) -> Unit,
 ) {
 
   when (state) {
-    ClientInvoiceState.Loading -> LoadingIndicatorView()
-    is ClientInvoiceState.Success -> {
+    ClientReceiptState.Loading -> LoadingIndicatorView()
+    is ClientReceiptState.Success -> {
 
       Scaffold(
         topBar = {
           CompanyInfoTopAppBarView(state.company) {
-            onEvent(ClientInvoiceEvent.GoTo.BackHandler)
+            onEvent(ClientReceiptEvent.GoTo.BackHandler)
           }
         },
       ) {
@@ -48,14 +48,14 @@ fun ClientInvoiceScreen(
 
           item {
             Text(
-              text = "Paid Invoice Reports",
+              text = "Receipts",
               style = MaterialTheme.typography.headlineSmall,
               modifier = Modifier.padding(bottom = 32.dp)
             )
           }
 
           items(state.invoices) { invoice ->
-            ClientInvoiceView(invoice, state.paymentPlan, onEvent)
+            ClientReceiptView(invoice, state.paymentPlan, onEvent)
           }
 
         }
@@ -69,9 +69,9 @@ fun ClientInvoiceScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun ClientInvoiceScreenPreview() {
+private fun ClientReceiptScreenPreview() {
   WasticalTheme {
-    ClientInvoiceScreen(
+    ClientReceiptScreen(
       state = clientInvoiceStateSuccess(),
       channel = flow { },
       onEvent = {}
@@ -79,7 +79,7 @@ private fun ClientInvoiceScreenPreview() {
   }
 }
 
-fun clientInvoiceStateSuccess() = ClientInvoiceState.Success(
+fun clientInvoiceStateSuccess() = ClientReceiptState.Success(
   account = account4Preview,
   company = company4Preview,
   paymentPlan = paymentPlan4Preview,

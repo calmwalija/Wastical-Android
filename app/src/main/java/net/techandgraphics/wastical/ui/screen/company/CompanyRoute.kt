@@ -12,7 +12,7 @@ interface CompanyRoute {
 
   @Serializable data class ClientHistory(val id: Long) : CompanyRoute
 
-  @Serializable data class PaymentInvoice(val id: Long) : CompanyRoute
+  @Serializable data class PaymentReceipt(val id: Long) : CompanyRoute
 
   @Serializable data class ClientPlan(val id: Long) : CompanyRoute
 

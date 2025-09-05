@@ -8,11 +8,11 @@ import net.techandgraphics.wastical.ui.screen.company.client.browse.CompanyBrows
 import net.techandgraphics.wastical.ui.screen.company.client.create.CompanyCreateClientNav
 import net.techandgraphics.wastical.ui.screen.company.client.history.CompanyPaymentHistoryNav
 import net.techandgraphics.wastical.ui.screen.company.client.info.CompanyClientInfoNav
-import net.techandgraphics.wastical.ui.screen.company.client.invoice.CompanyPaymentInvoiceNav
 import net.techandgraphics.wastical.ui.screen.company.client.location.CompanyClientLocationNav
 import net.techandgraphics.wastical.ui.screen.company.client.pending.CompanyClientPendingPaymentNav
 import net.techandgraphics.wastical.ui.screen.company.client.plan.CompanyClientPlanNav
 import net.techandgraphics.wastical.ui.screen.company.client.profile.CompanyClientProfileNav
+import net.techandgraphics.wastical.ui.screen.company.client.receipt.CompanyPaymentReceiptNav
 import net.techandgraphics.wastical.ui.screen.company.home.CompanyHomeNav
 import net.techandgraphics.wastical.ui.screen.company.info.CompanyInfoNav
 import net.techandgraphics.wastical.ui.screen.company.info.method.CompanyInfoMethodNav
@@ -43,7 +43,7 @@ fun NavGraphBuilder.CompanyNavGraphBuilder(navController: NavHostController) {
   CompanyClientPendingPaymentNav(navController)
   CompanyPaymentHistoryNav(navController)
   CompanyClientLocationNav(navController)
-  CompanyPaymentInvoiceNav(navController)
+  CompanyPaymentReceiptNav(navController)
   CompanyPaymentLocationOverviewNav(navController)
   CompanyNotificationNav(navController)
 }

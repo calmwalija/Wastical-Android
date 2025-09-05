@@ -11,7 +11,7 @@ sealed interface Route {
 
     @Serializable data class Payment(val id: Long) : Client
 
-    @Serializable data class Invoice(val id: Long) : Client
+    @Serializable data class Receipt(val id: Long) : Client
 
     @Serializable data class Settings(val id: Long) : Client
 

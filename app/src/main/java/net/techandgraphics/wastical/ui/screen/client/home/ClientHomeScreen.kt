@@ -44,9 +44,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -261,7 +261,7 @@ fun ClientHomeScreen(
                   modifier = Modifier.padding(vertical = 4.dp)
                 ) {
                   Text(
-                    text = "Paid Invoice Reports",
+                    text = "Receipts",
                     modifier = Modifier
                       .weight(1f)
                       .padding(8.dp),
@@ -279,7 +279,7 @@ fun ClientHomeScreen(
                 }
               }
               items(state.invoices) { payment ->
-                ClientHomeInvoiceView(
+                ClientHomeReceiptItemView(
                   model = payment,
                   paymentPlan = state.paymentPlan,
                   onEvent = onEvent
