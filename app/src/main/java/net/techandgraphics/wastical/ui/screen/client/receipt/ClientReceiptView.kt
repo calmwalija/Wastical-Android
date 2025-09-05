@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.invoice
+package net.techandgraphics.wastical.ui.screen.client.receipt
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.techandgraphics.wastical.R
 import net.techandgraphics.wastical.data.remote.payment.PaymentType
-import net.techandgraphics.wastical.defaultDate
 import net.techandgraphics.wastical.defaultDateTime
 import net.techandgraphics.wastical.domain.model.payment.PaymentPlanUiModel
 import net.techandgraphics.wastical.domain.model.relations.PaymentWithAccountAndMethodWithGatewayUiModel
@@ -41,10 +40,10 @@ import net.techandgraphics.wastical.ui.screen.paymentPlan4Preview
 import net.techandgraphics.wastical.ui.screen.paymentWithAccountAndMethodWithGateway4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
-@Composable fun ClientInvoiceView(
+@Composable fun ClientReceiptView(
   model: PaymentWithAccountAndMethodWithGatewayUiModel,
   paymentPlan: PaymentPlanUiModel,
-  onEvent: (ClientInvoiceEvent) -> Unit,
+  onEvent: (ClientReceiptEvent) -> Unit,
 ) {
   Card(
     modifier = Modifier
@@ -52,7 +51,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       .padding(vertical = 4.dp),
     shape = CircleShape,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(ClientInvoiceEvent.Button.Invoice(model.payment)) }) {
+    onClick = { onEvent(ClientReceiptEvent.Button.Invoice(model.payment)) }) {
     Row(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically
@@ -117,7 +116,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         )
       }
 
-      IconButton(onClick = { onEvent(ClientInvoiceEvent.Button.Share(model.payment)) }) {
+      IconButton(onClick = { onEvent(ClientReceiptEvent.Button.Share(model.payment)) }) {
         Icon(
           Icons.Default.Share,
           contentDescription = null,
@@ -129,9 +128,9 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 }
 
 @Preview(showBackground = true)
-@Composable fun ClientInvoiceViewPreview() {
+@Composable fun ClientReceiptPreview() {
   WasticalTheme {
-    ClientInvoiceView(
+    ClientReceiptView(
       model = paymentWithAccountAndMethodWithGateway4Preview,
       paymentPlan = paymentPlan4Preview,
       onEvent = {}

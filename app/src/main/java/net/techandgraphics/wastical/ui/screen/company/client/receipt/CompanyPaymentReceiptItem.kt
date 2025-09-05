@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.screen.client.home
+package net.techandgraphics.wastical.ui.screen.company.client.receipt
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,14 +38,15 @@ import net.techandgraphics.wastical.ui.screen.paymentWithMonthsCovered4Preview
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun ClientHomeInvoiceView(
-  model: PaymentWithMonthsCoveredUiModel,
-  paymentPlan: PaymentPlanUiModel,
-  onEvent: (ClientHomeEvent) -> Unit,
+@Composable fun CompanyPaymentReceiptItem(
+  entity: PaymentWithMonthsCoveredUiModel,
+  plan: PaymentPlanUiModel,
+  onEvent: (CompanyPaymentReceiptEvent) -> Unit,
 ) {
 
-  val payment = model.payment
-  val covered = model.covered
+
+  val payment = entity.payment
+  val covered = entity.covered
 
   ElevatedCard(
     modifier = Modifier
@@ -53,7 +54,14 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
       .padding(vertical = 4.dp),
     shape = MaterialTheme.shapes.large,
     colors = CardDefaults.elevatedCardColors(),
-    onClick = { onEvent(ClientHomeEvent.Button.Payment.Invoice(model.payment)) }) {
+    onClick = {
+      onEvent(
+        CompanyPaymentReceiptEvent.Button.Invoice.Event(
+          payment = payment,
+          op = CompanyPaymentReceiptEvent.Button.Invoice.Op.Preview
+        )
+      )
+    }) {
     Column {
       Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -76,7 +84,7 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
           )
         }
         Column(modifier = Modifier.padding(start = 12.dp)) {
-          Text(text = "Invoice", style = MaterialTheme.typography.bodyMedium)
+          Text(text = "Receipt", style = MaterialTheme.typography.bodyMedium)
           Text(
             text = payment.createdAt.toZonedDateTime().defaultDate(),
             style = MaterialTheme.typography.bodySmall,
@@ -90,13 +98,20 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
         Row(verticalAlignment = Alignment.CenterVertically) {
           Text(
-            text = paymentPlan.fee.times(covered.size).toAmount(),
+            text = plan.fee.times(covered.size).toAmount(),
             style = MaterialTheme.typography.titleMedium,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             color = MaterialTheme.colorScheme.primary
           )
-          IconButton(onClick = { onEvent(ClientHomeEvent.Button.Payment.Share(model.payment)) }) {
+          IconButton(onClick = {
+            onEvent(
+              CompanyPaymentReceiptEvent.Button.Invoice.Event(
+                payment = payment,
+                op = CompanyPaymentReceiptEvent.Button.Invoice.Op.Share
+              )
+            )
+          }) {
             Icon(
               Icons.Default.Share,
               contentDescription = null,
@@ -106,15 +121,15 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
         }
       }
 
+
       HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
 
       val preview = 3
       val monthHead = covered.take(preview)
       val monthSummary = monthHead.joinToString(", ") { it.month.toMonthName() }
       val remaining = covered.size - monthHead.size
-      val plural = if (covered.size == 1) "Month" else "Months"
       val summaryText =
-        if (remaining > 0) "$plural: $monthSummary +$remaining more" else "$plural: $monthSummary"
+        if (remaining > 0) "Months: $monthSummary +$remaining more" else "Months: $monthSummary"
       if (covered.isNotEmpty()) {
         Text(
           text = summaryText,
@@ -132,12 +147,12 @@ import net.techandgraphics.wastical.ui.theme.WasticalTheme
 
 @Preview(showBackground = true)
 @Composable
-private fun ClientHomeInvoiceViewPreview() {
+private fun CompanyPaymentReceiptItemPreview() {
   WasticalTheme {
     Box(modifier = Modifier.padding(16.dp)) {
-      ClientHomeInvoiceView(
-        paymentPlan = (paymentPlan4Preview),
-        model = paymentWithMonthsCovered4Preview,
+      CompanyPaymentReceiptItem(
+        entity = paymentWithMonthsCovered4Preview,
+        plan = paymentPlan4Preview,
         onEvent = {}
       )
     }

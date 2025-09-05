@@ -21,14 +21,14 @@ import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeScreen
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeState
 import net.techandgraphics.wastical.ui.screen.client.home.ClientHomeViewModel
 import net.techandgraphics.wastical.ui.screen.client.info.ClientInfoNav
-import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceEvent
-import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceScreen
-import net.techandgraphics.wastical.ui.screen.client.invoice.ClientInvoiceViewModel
+import net.techandgraphics.wastical.ui.screen.client.receipt.ClientReceiptEvent
+import net.techandgraphics.wastical.ui.screen.client.receipt.ClientReceiptViewModel
 import net.techandgraphics.wastical.ui.screen.client.notification.ClientNotificationNav
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentEvent
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentResponseScreen
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentScreen
 import net.techandgraphics.wastical.ui.screen.client.payment.ClientPaymentViewModel
+import net.techandgraphics.wastical.ui.screen.client.receipt.ClientReceiptScreen
 import net.techandgraphics.wastical.ui.screen.client.settings.ClientSettingsNav
 import net.techandgraphics.wastical.ui.screen.company.CompanyNavGraphBuilder
 import net.techandgraphics.wastical.ui.screen.company.CompanyRoute
@@ -116,7 +116,7 @@ fun AppNavHost(
           when (event) {
             is ClientHomeEvent.Goto ->
               when (event) {
-                is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Invoice(event.id))
+                is ClientHomeEvent.Goto.Invoice -> navController.navigate(Route.Client.Receipt(event.id))
                 is ClientHomeEvent.Goto.Settings ->
                   navController.navigate(Route.Client.Settings(event.id))
 
@@ -142,16 +142,16 @@ fun AppNavHost(
       ClientPaymentResponseScreen(isSuccess = isSuccess, error) { navController.navigateUp() }
     }
 
-    composable<Route.Client.Invoice> {
-      with(hiltViewModel<ClientInvoiceViewModel>()) {
+    composable<Route.Client.Receipt> {
+      with(hiltViewModel<ClientReceiptViewModel>()) {
         val state = state.collectAsState().value
-        val id = it.toRoute<Route.Client.Invoice>().id
-        LaunchedEffect(id) { onEvent(ClientInvoiceEvent.Load(id)) }
-        ClientInvoiceScreen(state, channel) { event ->
+        val id = it.toRoute<Route.Client.Receipt>().id
+        LaunchedEffect(id) { onEvent(ClientReceiptEvent.Load(id)) }
+        ClientReceiptScreen(state, channel) { event ->
           when (event) {
-            is ClientInvoiceEvent.GoTo ->
+            is ClientReceiptEvent.GoTo ->
               when (event) {
-                ClientInvoiceEvent.GoTo.BackHandler -> navController.navigateUp()
+                ClientReceiptEvent.GoTo.BackHandler -> navController.navigateUp()
               }
 
             else -> onEvent(event)

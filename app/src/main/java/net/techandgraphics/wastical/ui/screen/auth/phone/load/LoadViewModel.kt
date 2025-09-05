@@ -25,7 +25,6 @@ import net.techandgraphics.wastical.data.local.database.AppDatabase
 import net.techandgraphics.wastical.data.local.database.account.token.AccountFcmTokenEntity
 import net.techandgraphics.wastical.getAccount
 import net.techandgraphics.wastical.worker.WorkerUuid.ACCOUNT_SESSION_WORKER
-import net.techandgraphics.wastical.worker.client.notification.scheduleClientBinCollectionReminderWorker
 import net.techandgraphics.wastical.worker.client.payment.scheduleClientPaymentDueReminderWorker
 import net.techandgraphics.wastical.worker.scheduleAccountFcmTokenWorker
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedPeriodicWorker
@@ -155,7 +154,6 @@ class LoadViewModel @Inject constructor(
               subscribeToTopic(account.uuid)
             }
             application.scheduleClientPaymentDueReminderWorker()
-            application.scheduleClientBinCollectionReminderWorker()
           }.onSuccess {
             application.scheduleAccountLastUpdatedPeriodicWorker()
             preferences.put(Preferences.LOGIN_STATE, LoginState.Login.name)

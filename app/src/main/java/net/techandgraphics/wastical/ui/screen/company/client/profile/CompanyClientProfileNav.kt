@@ -33,7 +33,7 @@ fun NavGraphBuilder.CompanyClientProfileNav(navController: NavHostController) {
           Option.Payment -> navController.navigate(CompanyRoute.MakePayment(id))
           Option.Plan -> navController.navigate(CompanyRoute.ClientPlan(id))
           Option.Pending -> navController.navigate(CompanyRoute.PaymentPending(id))
-          Option.Invoice -> navController.navigate(CompanyRoute.PaymentInvoice(id))
+          Option.Invoice -> navController.navigate(CompanyRoute.PaymentReceipt(id))
           Option.Info -> navController.navigate(CompanyRoute.ClientInfo(id))
 
           Goto.BackHandler -> navController.navigateUp()

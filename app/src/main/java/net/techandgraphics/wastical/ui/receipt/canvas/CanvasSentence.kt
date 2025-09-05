@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.invoice.canvas
+package net.techandgraphics.wastical.ui.receipt.canvas
 
 import android.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope

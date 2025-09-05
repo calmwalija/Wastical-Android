@@ -1,4 +1,4 @@
-package net.techandgraphics.wastical.ui.invoice.canvas
+package net.techandgraphics.wastical.ui.receipt.canvas
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
@@ -16,9 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import net.techandgraphics.wastical.defaultDateTime
-import net.techandgraphics.wastical.ui.screen.client.invoice.bold
-import net.techandgraphics.wastical.ui.screen.client.invoice.extraBold
-import net.techandgraphics.wastical.ui.screen.client.invoice.light
+import net.techandgraphics.wastical.ui.screen.client.receipt.bold
+import net.techandgraphics.wastical.ui.screen.client.receipt.extraBold
+import net.techandgraphics.wastical.ui.screen.client.receipt.light
 import net.techandgraphics.wastical.ui.theme.WasticalTheme
 import java.time.ZonedDateTime
 
@@ -69,7 +69,7 @@ fun CanvasPdfView(modifier: Modifier = Modifier) {
 
     /***************************************************************/
     canvasHeadingView(
-      theHeading = "Invoice".uppercase(),
+      theHeading = "Receipt".uppercase(),
       theXAxis = theXAxis,
       theYAxis = theYAxis,
       paint = textSize72.also {
@@ -155,7 +155,7 @@ fun CanvasPdfView(modifier: Modifier = Modifier) {
 
     /***************************************************************/
     canvasHeadingView(
-      theHeading = "Invoice #",
+      theHeading = "Receipt #",
       theXAxis = theXAxis,
       theYAxis = theYAxis,
       paint = textSize42.also {

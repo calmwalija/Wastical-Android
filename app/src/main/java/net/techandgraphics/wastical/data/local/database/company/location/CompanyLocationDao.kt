@@ -20,6 +20,9 @@ interface CompanyLocationDao : BaseDao<CompanyLocationEntity>, TimestampedDao {
   @Query("SELECT * FROM company_location WHERE id=:id")
   suspend fun get(id: Long): CompanyLocationEntity
 
+  @Query("SELECT * FROM company_location WHERE company_id=:id LIMIT 1")
+  suspend fun getByCompanyId(id: Long): CompanyLocationEntity
+
   @Transaction
   @Query("SELECT * FROM company_location WHERE id=:id")
   suspend fun getById(id: Long): CompanyLocationWithDemographicEntity

@@ -31,6 +31,8 @@ import net.techandgraphics.wastical.domain.toAccountUiModel
 import net.techandgraphics.wastical.domain.toCompanyBinCollectionUiModel
 import net.techandgraphics.wastical.domain.toCompanyContactUiModel
 import net.techandgraphics.wastical.domain.toCompanyUiModel
+import net.techandgraphics.wastical.domain.toDemographicAreaUiModel
+import net.techandgraphics.wastical.domain.toDemographicStreetUiModel
 import net.techandgraphics.wastical.domain.toPaymentGatewayUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodUiModel
 import net.techandgraphics.wastical.domain.toPaymentMethodWithGatewayAndPlanUiModel
@@ -44,7 +46,7 @@ import net.techandgraphics.wastical.onTextToClipboard
 import net.techandgraphics.wastical.preview
 import net.techandgraphics.wastical.share
 import net.techandgraphics.wastical.toZonedDateTime
-import net.techandgraphics.wastical.ui.invoice.pdf.invoiceToPdf
+import net.techandgraphics.wastical.ui.receipt.pdf.receiptToPdf
 import net.techandgraphics.wastical.ui.screen.AccountLogout
 import net.techandgraphics.wastical.worker.LAST_UPDATED_WORKER_UUID
 import net.techandgraphics.wastical.worker.scheduleAccountLastUpdatedWorker
@@ -186,7 +188,12 @@ import javax.inject.Inject
           .toPaymentGatewayUiModel()
         val paymentMonthCovered = database.paymentMonthCoveredDao.getByPaymentId(payment.id)
           .map { it.toPaymentMonthCoveredUiModel() }
-        invoiceToPdf(
+        val companyLocation = database.companyLocationDao.getByCompanyId(state.company.id)
+        val demographicArea = database.demographicAreaDao.get(companyLocation.demographicAreaId)
+          .toDemographicAreaUiModel()
+        val demographicStreet = database.demographicStreetDao.get(companyLocation.demographicStreetId)
+          .toDemographicStreetUiModel()
+        receiptToPdf(
           context = application,
           account = state.account,
           accountContact = state.accountContacts.first { it.primary },
@@ -198,6 +205,8 @@ import javax.inject.Inject
           onEvent = onEvent,
           paymentGateway = paymentGateway,
           paymentMonthCovered = paymentMonthCovered,
+          demographicArea = demographicArea,
+          demographicStreet = demographicStreet,
         )
       }
     }
